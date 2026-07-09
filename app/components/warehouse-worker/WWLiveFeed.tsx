@@ -1,4 +1,3 @@
-import React from "react";
 import { Stack, Box, Typography, Card, Avatar, useTheme } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type {

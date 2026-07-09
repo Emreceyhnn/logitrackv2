@@ -18,12 +18,12 @@ export interface TrailerWithRelations extends Trailer {
 }
 
 export interface TrailerFilters {
-  search?: string;
-  status?: TrailerStatus[];
-  type?: TrailerType[];
-  isColdChain?: boolean;
-  page?: number;
-  limit?: number;
+  search?: string | undefined;
+  status?: TrailerStatus[] | undefined;
+  type?: TrailerType[] | undefined;
+  isColdChain?: boolean | undefined;
+  page?: number | undefined;
+  limit?: number | undefined;
 }
 
 export interface TrailerPageState {

@@ -1,31 +1,9 @@
-import { WarehouseType } from "./enums";
 import { WarehouseWithRelations } from "./warehouse";
+import { WarehouseBasicInfo, WarehouseLocation, WarehouseCapacity, WarehouseFormActions } from "./warehouse-form";
 
-export interface EditWarehouseBasicInfo {
-  name: string;
-  code: string;
-  type: WarehouseType;
-  openingTime?: string;
-  closingTime?: string;
-  is247: boolean;
-  timezone: string;
-}
-
-export interface EditWarehouseLocation {
-  address: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  lat?: number;
-  lng?: number;
-  managerId: string;
-}
-
-export interface EditWarehouseCapacity {
-  capacityPallets: number;
-  capacityVolumeM3: number;
-  specifications: string[];
-}
+export type EditWarehouseBasicInfo = WarehouseBasicInfo;
+export type EditWarehouseLocation = WarehouseLocation;
+export type EditWarehouseCapacity = WarehouseCapacity;
 
 export interface EditWarehousePageState {
   data: {
@@ -39,11 +17,7 @@ export interface EditWarehousePageState {
   isSuccess: boolean;
 }
 
-export interface EditWarehousePageActions {
-  updateBasicInfo: (data: Partial<EditWarehouseBasicInfo>) => void;
-  updateLocation: (data: Partial<EditWarehouseLocation>) => void;
-  updateCapacity: (data: Partial<EditWarehouseCapacity>) => void;
-  setStep: (step: number) => void;
+export interface EditWarehousePageActions extends WarehouseFormActions {
   handleSubmit: () => Promise<void>;
   closeDialog: () => void;
   reset: () => void;
@@ -53,5 +27,5 @@ export interface EditWarehouseDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  warehouseData?: WarehouseWithRelations;
+  warehouseData?: WarehouseWithRelations | undefined;
 }

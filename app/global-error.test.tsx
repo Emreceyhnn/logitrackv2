@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -7,12 +6,12 @@ import React from "react";
 
 // Mock NextError
 mock.module("next/error", {
-  defaultExport: ({ statusCode }: any) => <div data-testid="next-error">Error: {statusCode}</div>,
+  defaultExport: ({ statusCode  }: Record<string, unknown>) => <div data-testid="next-error">Error: {statusCode}</div>,
 });
 
 describe("GlobalError Component", () => {
-  let GlobalError: any;
-  let consoleErrorMock: any;
+  let GlobalError: unknown;
+  let consoleErrorMock: unknown;
 
   before(async () => {
     const mod = await import("./global-error");

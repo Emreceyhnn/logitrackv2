@@ -6,6 +6,8 @@ import { checkPermission } from "./utils/checkPermission";
 import { DocumentStatus, DocumentType, Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { driverCacheKeys, invalidatePattern, vehicleCacheKeys } from "../redis";
+import { controllerGuard } from "./utils/controllerGuard";
+import { NotFoundError, ForbiddenError, ValidationError } from "../errors";
 
 export const createDocument = authenticatedAction(
   async (
@@ -18,7 +20,7 @@ export const createDocument = authenticatedAction(
     vehicleId?: string
   ) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("createDocument", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -26,7 +28,7 @@ export const createDocument = authenticatedAction(
       ]);
 
       if (!driverId && !vehicleId) {
-        throw new Error(
+        throw new ValidationError(
           "Document must be associated with a driver or a vehicle"
         );
       }
@@ -37,7 +39,7 @@ export const createDocument = authenticatedAction(
           select: { companyId: true },
         });
         if (!driver || driver.companyId !== companyId)
-          throw new Error("Invalid driver");
+          throw new NotFoundError("Driver");
       }
 
       if (vehicleId) {
@@ -46,7 +48,7 @@ export const createDocument = authenticatedAction(
           select: { companyId: true },
         });
         if (!vehicle || vehicle.companyId !== companyId)
-          throw new Error("Invalid vehicle");
+          throw new NotFoundError("Vehicle");
       }
 
       const now = new Date();
@@ -69,11 +71,11 @@ export const createDocument = authenticatedAction(
           type,
           name,
           url,
-          expiryDate,
+          expiryDate: expiryDate ?? null,
           status: docStatus,
           companyId,
-          driverId,
-          vehicleId,
+          driverId: driverId ?? null,
+          vehicleId: vehicleId ?? null,
         },
       });
       if (vehicleId) {
@@ -100,19 +102,14 @@ export const createDocument = authenticatedAction(
       }
 
       return { document: newDocument };
-    } catch (error) {
-      console.error("Failed to create document:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to create document"
-      );
-    }
+    });
   }
 );
 
 export const getDocuments = authenticatedAction(
   async (user, entityType?: "driver" | "vehicle", entityId?: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getDocuments", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -138,19 +135,14 @@ export const getDocuments = authenticatedAction(
         orderBy: { createdAt: "desc" },
       });
       return documents;
-    } catch (error) {
-      console.error("Failed to get documents:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to get documents"
-      );
-    }
+    });
   }
 );
 
 export const getDocumentById = authenticatedAction(
   async (user, documentId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getDocumentById", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -164,26 +156,21 @@ export const getDocumentById = authenticatedAction(
         },
       });
 
-      if (!document) throw new Error("Document not found");
+      if (!document) throw new NotFoundError("Document");
 
       if (document.companyId !== companyId) {
-        throw new Error("Unauthorized");
+        throw new ForbiddenError();
       }
 
       return document;
-    } catch (error) {
-      console.error("Failed to get document:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to get document"
-      );
-    }
+    });
   }
 );
 
 export const deleteDocument = authenticatedAction(
   async (user, documentId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("deleteDocument", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -194,7 +181,7 @@ export const deleteDocument = authenticatedAction(
         select: { companyId: true, vehicleId: true, driverId: true },
       });
 
-      if (!existingDocument?.companyId) throw new Error("Document not found");
+      if (!existingDocument?.companyId) throw new NotFoundError("Document");
 
       await checkPermission(user, existingDocument.companyId, [
         "role_admin",
@@ -217,19 +204,14 @@ export const deleteDocument = authenticatedAction(
       }
 
       return { success: true };
-    } catch (error) {
-      console.error("Failed to delete document:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to delete document"
-      );
-    }
+    });
   }
 );
 
 export const getExpiringDocuments = authenticatedAction(
   async (user, daysThreshold: number = 30) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getExpiringDocuments", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -257,13 +239,6 @@ export const getExpiringDocuments = authenticatedAction(
       });
 
       return expiringDocuments;
-    } catch (error) {
-      console.error("Failed to get expiring documents:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to get expiring documents"
-      );
-    }
+    });
   }
 );

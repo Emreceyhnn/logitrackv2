@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -26,7 +25,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 
 mock.module("@mui/x-charts/Gauge", {
   namedExports: {
-    Gauge: ({ value, valueMax = 100 }: any) => (
+    Gauge: ({ value, valueMax = 100 }: unknown) => (
       <div data-testid="gauge">
         Value: {value}/{valueMax}
       </div>
@@ -46,7 +45,7 @@ mock.module("@mui/material", {
 });
 
 describe("PerformanceGauges RTL Component", () => {
-  let PerformanceGauges: any;
+  let PerformanceGauges: unknown;
 
   before(async () => {
     const mod = await import("./PerformanceGauges");

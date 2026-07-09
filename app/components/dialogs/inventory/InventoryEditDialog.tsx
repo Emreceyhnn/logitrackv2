@@ -1,52 +1,29 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
   Button,
-  Grid,
-  TextField,
   Typography,
   Box,
   IconButton,
-  InputAdornment,
   Stack,
   useTheme,
   Divider,
 } from "@mui/material";
-import {
-  Close as CloseIcon,
-  Warning as WarningIcon,
-  Edit as EditIcon,
-  Inventory as InventoryIcon,
-  SettingsSuggest as SettingsIcon,
-} from "@mui/icons-material";
+import { Close as CloseIcon, Edit as EditIcon } from "@mui/icons-material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useWarehouses } from "@/app/hooks/useWarehouses";
-import { MenuItem } from "@mui/material";
 import { InventoryEditProps } from "@/app/lib/type/inventory";
 import { uploadImageAction } from "@/app/lib/actions/upload";
-import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 import { useCurrency } from "@/app/hooks/useCurrency";
-
-type FormData = {
-  name: string;
-  sku?: string;
-  warehouseId: string;
-  imageUrl?: string | null;
-  quantity: number;
-  minStock: number;
-  weightKg: number | null;
-  volumeM3: number | null;
-  palletCount: number | null;
-  cargoType?: string | null;
-  unitValue?: number | null;
-};
+import { InventoryFormData } from "./edit/inventoryFormTypes";
+import InventoryProductInfoSection from "./edit/InventoryProductInfoSection";
+import InventoryLoadParamsSection from "./edit/InventoryLoadParamsSection";
 
 export default function InventoryEditDialog({
   isOpen,
@@ -119,11 +96,21 @@ export default function InventoryEditDialog({
 
   /* ---------------------------------- state --------------------------------- */
   // Local string state for smooth numeric input
-  const [localQuantity, setLocalQuantity] = useState(() => item?.quantity?.toString() || "0");
-  const [localMinStock, setLocalMinStock] = useState(() => item?.minStock?.toString() || "0");
-  const [localWeight, setLocalWeight] = useState(() => item?.weightKg ? item.weightKg.toString() : "0");
-  const [localVolume, setLocalVolume] = useState(() => item?.volumeM3 ? item.volumeM3.toString() : "0");
-  const [localPalletCount, setLocalPalletCount] = useState(() => item?.palletCount ? item.palletCount.toString() : "0");
+  const [localQuantity, setLocalQuantity] = useState(
+    () => item?.quantity?.toString() || "0"
+  );
+  const [localMinStock, setLocalMinStock] = useState(
+    () => item?.minStock?.toString() || "0"
+  );
+  const [localWeight, setLocalWeight] = useState(() =>
+    item?.weightKg ? item.weightKg.toString() : "0"
+  );
+  const [localVolume, setLocalVolume] = useState(() =>
+    item?.volumeM3 ? item.volumeM3.toString() : "0"
+  );
+  const [localPalletCount, setLocalPalletCount] = useState(() =>
+    item?.palletCount ? item.palletCount.toString() : "0"
+  );
   const [localUnitValue, setLocalUnitValue] = useState(() => {
     if (!item) return "0";
     const converted = parseFloat(
@@ -150,7 +137,7 @@ export default function InventoryEditDialog({
     }
   };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: InventoryFormData) => {
     if (!item) return;
 
     // 1. Close dialog immediately
@@ -182,24 +169,6 @@ export default function InventoryEditDialog({
   };
 
   if (!item) return null;
-
-  const textFieldSx = {
-    "& .MuiOutlinedInput-root": {
-      bgcolor: theme.palette.background.paper_alpha.main_05,
-      borderRadius: 2,
-      color: "white",
-      "& fieldset": { borderColor: theme.palette.divider_alpha.main_10 },
-      "&:hover fieldset": { borderColor: theme.palette.primary._alpha.main_30 },
-      "&.Mui-focused fieldset": { borderColor: theme.palette.primary.main },
-    },
-    "& .MuiInputLabel-root": {
-      color: theme.palette.common.white_alpha.main_50,
-    },
-    "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
-    "& .MuiInputAdornment-root .MuiTypography-root": {
-      color: theme.palette.common.white_alpha.main_30,
-    },
-  };
 
   return (
     <Dialog
@@ -238,7 +207,12 @@ export default function InventoryEditDialog({
               <EditIcon />
             </Box>
             <Box>
-              <Typography component="div" variant="h6" fontWeight={700} color="white">
+              <Typography
+                component="div"
+                variant="h6"
+                fontWeight={700}
+                color="white"
+              >
                 {dict.inventory.dialogs.editItem}
               </Typography>
               <Typography
@@ -254,7 +228,8 @@ export default function InventoryEditDialog({
             onClick={onClose}
             size="small"
             sx={{ color: "text.secondary" }}
-           aria-label="close">
+            aria-label="close"
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -268,7 +243,16 @@ export default function InventoryEditDialog({
         validationSchema={validationSchema}
         onSubmit={onSubmit}
       >
-        {({ values, errors, touched, handleChange, handleBlur, setFieldValue, isSubmitting, handleSubmit }) => (
+        {({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          setFieldValue,
+          isSubmitting,
+          handleSubmit,
+        }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               sx={{
@@ -285,392 +269,37 @@ export default function InventoryEditDialog({
               }}
             >
               <Stack spacing={4}>
-                {/* Section 1: Stock Levels */}
-                <Box>
-                  <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                    <InventoryIcon
-                      sx={{ color: theme.palette.primary.main, fontSize: "1.2rem" }}
-                    />
-                    <Typography
-                      variant="caption"
-                      fontWeight={700}
-                      color="text.secondary"
-                      sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
-                    >
-                      {dict.inventory.dialogs.productInfo}
-                    </Typography>
-                  </Stack>
+                <InventoryProductInfoSection
+                  values={values}
+                  errors={errors}
+                  touched={touched}
+                  handleChange={handleChange}
+                  handleBlur={handleBlur}
+                  setFieldValue={setFieldValue}
+                  warehouses={warehouses}
+                  localQuantity={localQuantity}
+                  setLocalQuantity={setLocalQuantity}
+                  localMinStock={localMinStock}
+                  setLocalMinStock={setLocalMinStock}
+                  handleNumChange={handleNumChange}
+                />
 
-                  <Grid container spacing={3}>
-                    <Grid size={{ xs: 12 }}>
-                      <TextField
-                        name="name"
-                        label={dict.inventory.fields?.name || "Product Name"}
-                        placeholder="Enter product name"
-                        fullWidth
-                        value={values.name}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={touched.name && !!errors.name}
-                        helperText={touched.name && errors.name}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12 }}>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        fontWeight={700}
-                        sx={{ display: "block", mb: 1.5 }}
-                      >
-                        {dict.inventory.dialogs.productImage}
-                      </Typography>
-                      <Box
-                        sx={{
-                          width: "100%",
-                          height: 140,
-                          borderRadius: 3,
-                          border: `2px dashed ${theme.palette.divider_alpha.main_10}`,
-                          bgcolor: theme.palette.background.paper_alpha.main_05,
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          position: "relative",
-                          transition: "all 0.2s ease",
-                          overflow: "hidden",
-                          mb: 3,
-                          "&:hover": {
-                            borderColor: theme.palette.primary.main,
-                            bgcolor: theme.palette.primary._alpha.main_02,
-                          },
-                        }}
-                      >
-                        {values.imageUrl ? (
-                          <Box
-                            sx={{
-                              position: "relative",
-                              width: "100%",
-                              height: "100%",
-                            }}
-                          >
-                            <Box
-                              component="img"
-                              src={values.imageUrl}
-                              sx={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                p: 1,
-                              }}
-                            />
-                            <IconButton
-                              size="small"
-                              onClick={() => setFieldValue("imageUrl", "")}
-                              sx={{
-                                position: "absolute",
-                                top: 8,
-                                right: 8,
-                                bgcolor: theme.palette.error._alpha.main_80,
-                                color: "white",
-                                "&:hover": {
-                                  bgcolor: theme.palette.error.main,
-                                },
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        ) : (
-                          <>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              hidden
-                              id="edit-product-image-upload"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onload = (event) => {
-                                    setFieldValue(
-                                      "imageUrl",
-                                      event.target?.result as string
-                                    );
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
-                            />
-                            <label
-                              htmlFor="edit-product-image-upload"
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                              }}
-                            >
-                              <AddPhotoAlternateIcon
-                                sx={{
-                                  fontSize: 32,
-                                  color:
-                                    theme.palette.common.white_alpha.main_20,
-                                  mb: 1,
-                                }}
-                              />
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
-                                {dict.inventory.dialogs.clickToChange}
-                              </Typography>
-                            </label>
-                          </>
-                        )}
-                      </Box>
-                    </Grid>
-                    <Grid size={{ xs: 12 }}>
-                      <TextField
-                        name="sku"
-                        label={dict.inventory.dialogs.skuOptional}
-                        placeholder={dict.inventory.dialogs.skuPlaceholder}
-                        fullWidth
-                        value={values.sku}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12 }}>
-                      <TextField
-                        name="warehouseId"
-                        select
-                        label={dict.inventory.filters?.warehouse || "Warehouse"}
-                        fullWidth
-                        value={values.warehouseId}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={touched.warehouseId && !!errors.warehouseId}
-                        helperText={touched.warehouseId && errors.warehouseId}
-                        sx={textFieldSx}
-                      >
-                        {warehouses?.map((w) => (
-                          <MenuItem key={w.id} value={w.id}>
-                            {w.name} ({w.code})
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Grid>
-                    <Grid size={{ xs: 6 }}>
-                      <TextField
-                        name="quantity"
-                        label={dict.inventory.fields.quantity}
-                        type="number"
-                        fullWidth
-                        value={localQuantity}
-                        onChange={(e) =>
-                          handleNumChange(
-                            e.target.value,
-                            setLocalQuantity,
-                            setFieldValue,
-                            "quantity"
-                          )
-                        }
-                        onBlur={handleBlur}
-                        error={touched.quantity && !!errors.quantity}
-                        helperText={touched.quantity && errors.quantity}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 6 }}>
-                      <TextField
-                        name="minStock"
-                        label={dict.inventory.dialogs.safetyThreshold}
-                        type="number"
-                        fullWidth
-                        value={localMinStock}
-                        onChange={(e) =>
-                          handleNumChange(
-                            e.target.value,
-                            setLocalMinStock,
-                            setFieldValue,
-                            "minStock"
-                          )
-                        }
-                        onBlur={handleBlur}
-                        error={touched.minStock && !!errors.minStock}
-                        helperText={touched.minStock && errors.minStock}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-                  </Grid>
-
-                  <Box
-                    sx={{
-                      mt: 3,
-                      p: 2,
-                      borderRadius: 2.5,
-                      bgcolor: theme.palette.warning._alpha.main_05,
-                      border: `1px solid ${theme.palette.warning._alpha.main_10}`,
-                      display: "flex",
-                      gap: 1.5,
-                      alignItems: "center",
-                    }}
-                  >
-                    <WarningIcon color="warning" sx={{ fontSize: "1.1rem" }} />
-                    <Typography
-                      variant="caption"
-                      color="warning.light"
-                      sx={{ fontWeight: 600, lineHeight: 1.4 }}
-                    >
-                      {dict.inventory.dialogs.auditWarning}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Section 2: Physical Attributes */}
-                <Box>
-                  <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                    <SettingsIcon
-                      sx={{
-                        color: theme.palette.secondary.main,
-                        fontSize: "1.2rem",
-                      }}
-                    />
-                    <Typography
-                      variant="caption"
-                      fontWeight={700}
-                      color="text.secondary"
-                      sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
-                    >
-                      {dict.inventory.dialogs.loadParams}
-                    </Typography>
-                  </Stack>
-
-                  <Grid container spacing={2}>
-                    <Grid size={{ xs: 4 }}>
-                      <TextField
-                        name="weightKg"
-                        label={dict.inventory.dialogs.unitWeight}
-                        type="number"
-                        fullWidth
-                        value={localWeight}
-                        onChange={(e) =>
-                          handleNumChange(
-                            e.target.value,
-                            setLocalWeight,
-                            setFieldValue,
-                            "weightKg",
-                            true
-                          )
-                        }
-                        onBlur={handleBlur}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">Kg</InputAdornment>
-                          ),
-                        }}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 4 }}>
-                      <TextField
-                        name="volumeM3"
-                        label={dict.inventory.dialogs.totalVolume}
-                        type="number"
-                        fullWidth
-                        value={localVolume}
-                        onChange={(e) =>
-                          handleNumChange(
-                            e.target.value,
-                            setLocalVolume,
-                            setFieldValue,
-                            "volumeM3",
-                            true
-                          )
-                        }
-                        onBlur={handleBlur}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">M³</InputAdornment>
-                          ),
-                        }}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 4 }}>
-                      <TextField
-                        name="palletCount"
-                        label={dict.inventory.dialogs.palletSpots}
-                        type="number"
-                        fullWidth
-                        value={localPalletCount}
-                        onChange={(e) =>
-                          handleNumChange(
-                            e.target.value,
-                            setLocalPalletCount,
-                            setFieldValue,
-                            "palletCount"
-                          )
-                        }
-                        onBlur={handleBlur}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 6 }}>
-                      <TextField
-                        name="cargoType"
-                        select
-                        label={dict.inventory.table?.cargoType || "Cargo Type"}
-                        fullWidth
-                        value={values.cargoType || "General Cargo"}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        sx={textFieldSx}
-                      >
-                        <MenuItem value="General Cargo">{dict.inventory?.dialogs?.cargoTypes?.["General Cargo"] || "General Cargo"}</MenuItem>
-                        <MenuItem value="Perishable Goods">{dict.inventory?.dialogs?.cargoTypes?.["Perishable Goods"] || "Perishable Goods"}</MenuItem>
-                        <MenuItem value="Hazardous Materials">{dict.inventory?.dialogs?.cargoTypes?.["Hazardous Materials"] || "Hazardous Materials"}</MenuItem>
-                        <MenuItem value="Fragile Goods">{dict.inventory?.dialogs?.cargoTypes?.["Fragile Goods"] || "Fragile Goods"}</MenuItem>
-                        <MenuItem value="Liquid Cargo">{dict.inventory?.dialogs?.cargoTypes?.["Liquid Cargo"] || "Liquid Cargo"}</MenuItem>
-                        <MenuItem value="Oversized Cargo">{dict.inventory?.dialogs?.cargoTypes?.["Oversized Cargo"] || "Oversized Cargo"}</MenuItem>
-                      </TextField>
-                    </Grid>
-
-                    <Grid size={{ xs: 6 }}>
-                      <TextField
-                        name="unitValue"
-                        label={dict.inventory.table?.unitPrice || "Unit Value"}
-                        type="number"
-                        fullWidth
-                        value={localUnitValue}
-                        onChange={(e) =>
-                          handleNumChange(
-                            e.target.value,
-                            setLocalUnitValue,
-                            setFieldValue,
-                            "unitValue",
-                            true
-                          )
-                        }
-                        onBlur={handleBlur}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              {symbol}
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={textFieldSx}
-                      />
-                    </Grid>
-                  </Grid>
-                </Box>
+                <InventoryLoadParamsSection
+                  values={values}
+                  handleChange={handleChange}
+                  handleBlur={handleBlur}
+                  setFieldValue={setFieldValue}
+                  symbol={symbol}
+                  localWeight={localWeight}
+                  setLocalWeight={setLocalWeight}
+                  localVolume={localVolume}
+                  setLocalVolume={setLocalVolume}
+                  localPalletCount={localPalletCount}
+                  setLocalPalletCount={setLocalPalletCount}
+                  localUnitValue={localUnitValue}
+                  setLocalUnitValue={setLocalUnitValue}
+                  handleNumChange={handleNumChange}
+                />
               </Stack>
             </DialogContent>
 

@@ -439,6 +439,70 @@
       "howItWorks": {
         "title": "How It Works",
         "description": "See how LogiTrack orchestrates end-to-end logistics operations."
+      },
+      "enterprise": {
+        "title": "Enterprise Solutions",
+        "description": "Built for the scale of global operations with dedicated infrastructure and white-glove onboarding."
+      },
+      "globalTracking": {
+        "title": "Global Tracking",
+        "description": "Real-time visibility across every continent. Monitor your fleet and shipments with sub-second precision."
+      },
+      "careers": {
+        "title": "Careers",
+        "description": "Build the future of logistics. Join our team of engineers, designers, and logistics experts."
+      },
+      "customApi": {
+        "title": "Custom API",
+        "description": "Robust, high-performance APIs for custom logistics integrations and advanced automation."
+      },
+      "developerDocs": {
+        "title": "Developer Docs",
+        "description": "Build on the LogiTrack platform with comprehensive API docs, SDKs, and integration guides."
+      },
+      "engineering": {
+        "title": "Engineering",
+        "description": "The technology behind the intelligence. Cloud-native architecture and real-time data processing at global scale."
+      },
+      "helpCenter": {
+        "title": "Help Center",
+        "description": "Find answers, get support, and access resources to make the most of your LogiTrack platform."
+      },
+      "ourMission": {
+        "title": "Our Mission",
+        "description": "Moving the world with intelligence. Learn about our mission to make logistics smarter and more sustainable."
+      },
+      "pressKit": {
+        "title": "Press Kit",
+        "description": "Brand assets, press releases, and media resources for logistics technology coverage."
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "Your data, your rights. Our commitment to privacy, transparency, and global regulatory compliance."
+      },
+      "routeIntelligence": {
+        "title": "Route Intelligence",
+        "description": "AI-powered route optimization at scale. Reduce fuel costs and delivery times with ML-driven routing."
+      },
+      "securityCenter": {
+        "title": "Security Center",
+        "description": "Zero-trust security for mission-critical logistics with enterprise-grade encryption and compliance."
+      },
+      "sla": {
+        "title": "SLA",
+        "description": "Our commitment to reliability with industry-leading uptime guarantees and transparent incident reporting."
+      },
+      "smbLogistics": {
+        "title": "SMB Logistics",
+        "description": "Enterprise power with startup simplicity. AI-powered logistics for small and medium businesses."
+      },
+      "supplyChain": {
+        "title": "Supply Chain",
+        "description": "End-to-end supply chain orchestration from raw materials to last-mile delivery."
+      },
+      "telemetryHub": {
+        "title": "Telemetry Hub",
+        "description": "Every sensor, every signal, one dashboard. Aggregate IoT telemetry data in real-time."
       }
     },
     "hero": {

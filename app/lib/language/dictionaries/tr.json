@@ -439,6 +439,70 @@
       "howItWorks": {
         "title": "Nasıl Çalışır",
         "description": "LogiTrack'in uçtan uca lojistik operasyonlarını nasıl yönettiğini görün."
+      },
+      "enterprise": {
+        "title": "Kurumsal Çözümler",
+        "description": "Küresel operasyon ölçeği için özel altyapı ve uçtan uca destekli devreye alma ile tasarlandı."
+      },
+      "globalTracking": {
+        "title": "Küresel Takip",
+        "description": "Her kıtada gerçek zamanlı görünürlük. Filonuzu ve sevkiyatlarınızı saniyenin altında hassasiyetle izleyin."
+      },
+      "careers": {
+        "title": "Kariyer",
+        "description": "Lojistiğin geleceğini inşa edin. Mühendis, tasarımcı ve lojistik uzmanlarından oluşan ekibimize katılın."
+      },
+      "customApi": {
+        "title": "Özel API",
+        "description": "Özel lojistik entegrasyonları ve gelişmiş otomasyon için güçlü, yüksek performanslı API'ler."
+      },
+      "developerDocs": {
+        "title": "Geliştirici Dokümantasyonu",
+        "description": "Kapsamlı API dokümantasyonu, SDK'lar ve entegrasyon rehberleriyle LogiTrack platformu üzerine geliştirme yapın."
+      },
+      "engineering": {
+        "title": "Mühendislik",
+        "description": "Zekanın arkasındaki teknoloji. Küresel ölçekte bulut-native mimari ve gerçek zamanlı veri işleme."
+      },
+      "helpCenter": {
+        "title": "Yardım Merkezi",
+        "description": "LogiTrack platformundan en iyi şekilde yararlanmak için yanıtlar bulun, destek alın ve kaynaklara erişin."
+      },
+      "ourMission": {
+        "title": "Misyonumuz",
+        "description": "Dünyayı zekayla hareket ettirmek. Lojistiği daha akıllı ve sürdürülebilir hale getirme misyonumuzu keşfedin."
+      },
+      "pressKit": {
+        "title": "Basın Kiti",
+        "description": "Lojistik teknolojisi haberleri için marka varlıkları, basın bültenleri ve medya kaynakları."
+      },
+      "privacy": {
+        "title": "Gizlilik Politikası",
+        "description": "Verileriniz, haklarınız. Gizlilik, şeffaflık ve küresel düzenleyici uyumluluk taahhüdümüz."
+      },
+      "routeIntelligence": {
+        "title": "Rota Zekası",
+        "description": "Ölçeklenebilir yapay zeka destekli rota optimizasyonu. Makine öğrenmesi tabanlı rotalamayla yakıt maliyetlerini ve teslimat sürelerini azaltın."
+      },
+      "securityCenter": {
+        "title": "Güvenlik Merkezi",
+        "description": "Kritik lojistik operasyonlar için kurumsal düzeyde şifreleme ve uyumlulukla sıfır güven güvenliği."
+      },
+      "sla": {
+        "title": "Hizmet Seviyesi Sözleşmesi",
+        "description": "Sektör lideri çalışma süresi garantileri ve şeffaf olay raporlamasıyla güvenilirlik taahhüdümüz."
+      },
+      "smbLogistics": {
+        "title": "KOBİ Lojistiği",
+        "description": "Girişim basitliğiyle kurumsal güç. Küçük ve orta ölçekli işletmeler için yapay zeka destekli lojistik."
+      },
+      "supplyChain": {
+        "title": "Tedarik Zinciri",
+        "description": "Ham maddeden son mil teslimata kadar uçtan uca tedarik zinciri orkestrasyonu."
+      },
+      "telemetryHub": {
+        "title": "Telemetri Merkezi",
+        "description": "Her sensör, her sinyal, tek bir panelde. IoT telemetri verilerini gerçek zamanlı olarak birleştirin."
       }
     },
     "hero": {

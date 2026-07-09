@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -24,7 +24,7 @@ mock.module("@mui/material/styles", {
 });
 
 describe("Toast Component", () => {
-  let Toaster: any;
+  let Toaster: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz

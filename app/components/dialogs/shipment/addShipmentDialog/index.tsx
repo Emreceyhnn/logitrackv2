@@ -1,510 +1,119 @@
 "use client";
 
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  DialogActions,
-  Divider,
-  IconButton,
-  Grid,
-  Stack,
-  Typography,
-  useTheme,
-  Button,
-  Stepper,
-  Step,
-  StepLabel,
-} from "@mui/material";
+import { Box, Dialog, DialogContent, DialogActions, Divider, IconButton, Grid, Stack, Typography, useTheme, Button, Stepper, Step, StepLabel } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useEffect } from "react";
 import { AddShipmentDialogProps } from "@/app/lib/type/add-shipment";
 import { toast } from "sonner";
-import { createShipment } from "@/app/lib/controllers/shipments";
-import { getWarehouses } from "@/app/lib/controllers/warehouse";
-import { getCustomers } from "@/app/lib/controllers/customer";
-import { getInventory } from "@/app/lib/controllers/inventory";
-import { useUser } from "@/app/hooks/useUser";
-import { InventoryWithRelations } from "@/app/lib/type/inventory";
-import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
-import { CustomerWithRelations } from "@/app/lib/type/customer";
-import { ShipmentStatus, ShipmentPriority } from "@/app/lib/type/enums";
 import { Formik, Form, useFormikContext } from "formik";
-import { addShipmentValidationSchema } from "@/app/lib/validationSchema";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LogisticsSection from "./sections/LogisticsSection";
 import CargoSection from "./sections/CargoSection";
 import InventorySection from "./sections/InventorySection";
-
 import StopsSection from "./sections/StopsSection";
-
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import DialogErrorBoundary from "@/app/components/ui/DialogErrorBoundary";
+import { useAddShipment, initialValues } from "@/app/hooks/useAddShipment";
 
-import { getTrailers } from "@/app/lib/controllers/trailer";
-import { TrailerWithRelations } from "@/app/lib/type/trailer";
-
-const initialValues: ShipmentFormValues = {
-  trackingId: "",
-  referenceNumber: "",
-  priority: ShipmentPriority.MEDIUM,
-  type: "STANDARD_FREIGHT",
-  slaDeadline: null,
-  originWarehouseId: "",
-  originLat: undefined,
-  originLng: undefined,
-  destination: "",
-  destinationLat: undefined,
-  destinationLng: undefined,
-  customerId: "",
-  customerLocationId: "",
-  contactEmail: "",
-  billingAccount: "Standard Billing (Net 30)",
-  weightKg: 0,
-  volumeM3: 0,
-  palletCount: 0,
-  cargoType: "General Cargo",
-  assignedRouteId: null,
-  trailerId: null,
-  inventoryItems: [],
-  stops: [],
-};
-
-const FormikInventorySync = ({
-  onWarehouseChange,
-}: {
-  onWarehouseChange: (id: string) => void;
-}) => {
+const FormikInventorySync = ({ onWarehouseChange }: { onWarehouseChange: (id: string) => void }) => {
   const { values } = useFormikContext<ShipmentFormValues>();
-  useEffect(() => {
-    onWarehouseChange(values.originWarehouseId);
-  }, [values.originWarehouseId, onWarehouseChange]);
+  useEffect(() => { onWarehouseChange(values.originWarehouseId); }, [values.originWarehouseId, onWarehouseChange]);
   return null;
 };
 
-const AddShipmentDialog = ({
-  open,
-  onClose,
-  onSuccess,
-}: AddShipmentDialogProps) => {
-  /* -------------------------------- variables ------------------------------- */
+interface ExtendedPalette {
+  primary?: {
+    _alpha?: Record<string, string>;
+  };
+  divider_alpha?: Record<string, string>;
+}
+
+const AddShipmentDialog = ({ open, onClose, onSuccess }: AddShipmentDialogProps) => {
   const theme = useTheme();
-  const { user } = useUser();
-  const dict = useDictionary();
-
-  /* --------------------------------- states --------------------------------- */
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isLoadingInventory, setIsLoadingInventory] = useState(false);
-  const [availableInventory, setAvailableInventory] = useState<
-    InventoryWithRelations[]
-  >([]);
-  const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
-  const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
-  const [trailers, setTrailers] = useState<TrailerWithRelations[]>([]);
-
-  /* ------------------------------- lifecycle ------------------------------- */
-  useEffect(() => {
-    if (open && user) {
-      const fetchData = async () => {
-        try {
-          const [wRes, cRes, tRes] = await Promise.all([
-            getWarehouses(),
-            getCustomers(),
-            getTrailers(),
-          ]);
-          setWarehouses(wRes);
-          setCustomers(cRes);
-          setTrailers(tRes.trailers);
-        } catch (error) {
-          console.error("Failed to fetch dialog data", error);
-        }
-      };
-      fetchData();
-    }
-  }, [open, user]);
-
-  /* -------------------------------- handlers --------------------------------- */
-  const handleFetchInventory = useCallback(
-    async (warehouseId: string) => {
-      if (!warehouseId || !user) {
-        setAvailableInventory([]);
-        return;
-      }
-      setIsLoadingInventory(true);
-      try {
-        const inv = await getInventory(warehouseId);
-        setAvailableInventory(inv);
-      } catch (error) {
-        console.error("Failed to fetch warehouse inventory", error);
-        setAvailableInventory([]);
-      } finally {
-        setIsLoadingInventory(false);
-      }
-    },
-    [user]
-  );
-
-  const onSubmit = async (values: ShipmentFormValues) => {
-    if (!user) return;
-
-    const selectedWarehouse = warehouses.find(
-      (w) => w.id === values.originWarehouseId
-    );
-    const originName = selectedWarehouse?.name || values.originWarehouseId;
-
-    try {
-      await toast.promise(
-        createShipment({
-          customerId: values.customerId,
-          origin: originName,
-          originWarehouseId: values.originWarehouseId,
-          destination: values.destination,
-          status: ShipmentStatus.PENDING,
-          itemsCount: values.inventoryItems.length || 1,
-          weightKg: values.weightKg,
-          volumeM3: values.volumeM3,
-          palletCount: values.palletCount,
-          cargoType: values.cargoType,
-          destinationLat: values.destinationLat,
-          destinationLng: values.destinationLng,
-          originLat: values.originLat,
-          originLng: values.originLng,
-          trackingId: values.trackingId,
-          referenceNumber: values.referenceNumber,
-          customerLocationId: values.customerLocationId,
-          priority: values.priority,
-          type: values.type as import("@/app/lib/type/enums").ShipmentServiceType,
-          slaDeadline: values.slaDeadline,
-          contactEmail: values.contactEmail,
-          billingAccount: values.billingAccount,
-          inventoryItems: values.inventoryItems,
-          trailerId: values.trailerId,
-          stops: values.stops,
-        }),
-        {
-          loading: dict.toasts.loading,
-          success: dict.toasts.successAdd,
-          error: (err: unknown) =>
-            err instanceof Error ? err.message : dict.toasts.errorGeneric,
-        }
-      );
-
-      onSuccess?.();
-      onClose();
-      setCurrentStep(1);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const closeDialog = () => {
-    onClose();
-    setCurrentStep(1);
-  };
-
-  const steps = [
-    dict.shipments.dialogs.steps.logistics,
-    dict.shipments.dialogs.steps.cargo,
-  ];
+  const paletteTheme = theme.palette as unknown as ExtendedPalette;
+  const {
+    dict, validationSchema, currentStep, setCurrentStep, isLoadingInventory, availableInventory,
+    warehouses, customers, trailers, handleFetchInventory, onSubmit, closeDialog, steps
+  } = useAddShipment(open, onClose, onSuccess);
 
   return (
-    <>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={useMemo(
-          () => addShipmentValidationSchema(dict),
-          [dict]
-        )}
-        validate={(values) => {
-          const errors: Partial<Record<keyof ShipmentFormValues, string>> = {};
-          const selectedTrailer = trailers.find(
-            (t) => t.id === values.trailerId
-          );
-          if (selectedTrailer) {
-            const tolerance = 0.01;
-            const availableWeight =
-              selectedTrailer.maxLoadKg -
-              (selectedTrailer.currentWeightKg || 0);
-            const availableVolume =
-              selectedTrailer.capacityVolumeM3 -
-              (selectedTrailer.currentVolumeM3 || 0);
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      validate={(values) => {
+        const errors: Partial<Record<keyof ShipmentFormValues, string>> = {};
+        const selectedTrailer = trailers.find((t) => t.id === values.trailerId);
+        if (selectedTrailer) {
+          const tolerance = 0.01;
+          const availableWeight = selectedTrailer.maxLoadKg - (selectedTrailer.currentWeightKg || 0);
+          const availableVolume = selectedTrailer.capacityVolumeM3 - (selectedTrailer.currentVolumeM3 || 0);
+          if (selectedTrailer.maxLoadKg > 0 && Math.round(values.weightKg * 100) / 100 > availableWeight + tolerance) { errors.weightKg = dict.shipments.dialogs.fields.exceedsTrailerWeight; }
+          if (selectedTrailer.capacityVolumeM3 > 0 && Math.round(values.volumeM3 * 100) / 100 > availableVolume + tolerance) { errors.volumeM3 = dict.shipments.dialogs.fields.exceedsTrailerVolume; }
+        }
+        return errors;
+      }}
+      onSubmit={onSubmit}
+      enableReinitialize
+    >
+      {({ handleSubmit, validateForm, setFieldTouched }) => {
+        const handleNextStep = async () => {
+          const step1Fields = ["referenceNumber", "priority", "type", "slaDeadline", "originWarehouseId", "destination", "customerId", "customerLocationId", "contactEmail"];
+          step1Fields.forEach((field) => setFieldTouched(field, true));
+          const result = await validateForm();
+          const hasErrors = step1Fields.some((field) => result[field as keyof typeof result]);
+          if (!hasErrors) { setCurrentStep(2); } else { toast.error(dict.validation.genericFormError); }
+        };
 
-            if (
-              selectedTrailer.maxLoadKg > 0 &&
-              Math.round(values.weightKg * 100) / 100 >
-                availableWeight + tolerance
-            ) {
-              errors.weightKg =
-                dict.shipments.dialogs.fields.exceedsTrailerWeight;
-            }
-            if (
-              selectedTrailer.capacityVolumeM3 > 0 &&
-              Math.round(values.volumeM3 * 100) / 100 >
-                availableVolume + tolerance
-            ) {
-              errors.volumeM3 =
-                dict.shipments.dialogs.fields.exceedsTrailerVolume;
-            }
-          }
-          return errors;
-        }}
-        onSubmit={onSubmit}
-        enableReinitialize
-      >
-        {({ handleSubmit, validateForm, setFieldTouched }) => {
-          const handleNextStep = async () => {
-            // Validate current fields before going to next step
-            const step1Fields = [
-              "referenceNumber",
-              "priority",
-              "type",
-              "slaDeadline",
-              "originWarehouseId",
-              "destination",
-              "customerId",
-              "customerLocationId",
-              "contactEmail",
-            ];
-
-            step1Fields.forEach((field) => setFieldTouched(field, true));
-            const result = await validateForm();
-
-            const hasErrors = step1Fields.some(
-              (field) => result[field as keyof typeof result]
-            );
-            if (!hasErrors) {
-              setCurrentStep(2);
-            } else {
-              toast.error(dict.validation.genericFormError);
-            }
-          };
-
-          return (
-            <>
-              <FormikInventorySync onWarehouseChange={handleFetchInventory} />
-              <Dialog
-                open={open}
-                onClose={closeDialog}
-                maxWidth="lg"
-                fullWidth
-                PaperProps={{
-                  sx: {
-                    overflow: "hidden",
-                  },
-                }}
-              >
-                <Box sx={{ p: 3, pb: 0 }}>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ mb: 3 }}
-                  >
-                    <Stack spacing={0.5}>
-                      <Typography
-                        component="div"
-                        variant="h6"
-                        fontWeight={800}
-                        color="text.primary"
-                      >
-                        {currentStep === 1
-                          ? dict.shipments.dialogs.addTitle
-                          : dict.shipments.dialogs.cargoTitle}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        fontWeight={500}
-                      >
-                        {dict.shipments.dialogs.addSubtitle}
-                      </Typography>
-                    </Stack>
-                    <IconButton
-                      onClick={closeDialog}
-                      sx={{ color: "text.secondary" }}
-                     aria-label="close">
-                      <CloseIcon />
-                    </IconButton>
+        return (
+          <>
+            <FormikInventorySync onWarehouseChange={handleFetchInventory} />
+            <Dialog open={open} onClose={closeDialog} maxWidth="lg" fullWidth PaperProps={{ sx: { overflow: "hidden" } }}>
+              <Box sx={{ p: 3, pb: 0 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                  <Stack spacing={0.5}>
+                    <Typography component="div" variant="h6" fontWeight={800} color="text.primary">{currentStep === 1 ? dict.shipments.dialogs.addTitle : dict.shipments.dialogs.cargoTitle}</Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>{dict.shipments.dialogs.addSubtitle}</Typography>
                   </Stack>
+                  <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }} aria-label="close"><CloseIcon /></IconButton>
+                </Stack>
+                <Stepper activeStep={currentStep - 1} sx={{ "& .MuiStepLabel-label": { color: "text.secondary", fontWeight: 600 }, "& .MuiStepLabel-label.Mui-active": { color: "primary.main", fontWeight: 700 }, "& .MuiStepLabel-label.Mui-completed": { color: "text.primary", fontWeight: 700 }, "& .MuiStepIcon-root": { color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" }, "& .MuiStepIcon-root.Mui-active": { color: "primary.main" }, "& .MuiStepIcon-root.Mui-completed": { color: "primary.main" } }}>
+                  {steps.map((label) => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
+                </Stepper>
+              </Box>
 
-                  <Stepper
-                    activeStep={currentStep - 1}
-                    sx={{
-                      "& .MuiStepLabel-label": {
-                        color: "text.secondary",
-                        fontWeight: 600,
-                      },
-                      "& .MuiStepLabel-label.Mui-active": {
-                        color: "primary.main",
-                        fontWeight: 700,
-                      },
-                      "& .MuiStepLabel-label.Mui-completed": {
-                        color: "text.primary",
-                        fontWeight: 700,
-                      },
-                      "& .MuiStepIcon-root": {
-                        color:
-                          theme.palette.mode === "dark"
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
-                      },
-                      "& .MuiStepIcon-root.Mui-active": {
-                        color: "primary.main",
-                      },
-                      "& .MuiStepIcon-root.Mui-completed": {
-                        color: "primary.main",
-                      },
-                    }}
-                  >
-                    {steps.map((label) => (
-                      <Step key={label}>
-                        <StepLabel>{label}</StepLabel>
-                      </Step>
-                    ))}
-                  </Stepper>
-                </Box>
-
-                <DialogContent
-                  sx={{
-                    mt: 2,
-                    pb: 4,
-                    height: "75vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Form
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      minHeight: 0,
-                    }}
-                  >
-                    <DialogErrorBoundary>
+              <DialogContent sx={{ mt: 2, pb: 4, height: "75vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                <Form style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+                  <DialogErrorBoundary>
                     {currentStep === 1 ? (
-                      <Stack
-                        spacing={3}
-                        sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 1 }}
-                      >
-                        <Box sx={{ flexShrink: 0 }}>
-                          <BasicInfoSection />
-                        </Box>
-                        <Divider
-                          sx={{
-                            borderColor: theme.palette.divider_alpha.main_05,
-                            flexShrink: 0,
-                          }}
-                        />
-                        <Box
-                          sx={{
-                            flex: 1,
-                            display: "flex",
-                            flexDirection: "column",
-                          }}
-                        >
-                          <StopsSection customers={customers} />
-                        </Box>
-                        <Divider
-                          sx={{
-                            borderColor: theme.palette.divider_alpha.main_05,
-                            flexShrink: 0,
-                          }}
-                        />
-                        <Box sx={{ flexShrink: 0 }}>
-                          <LogisticsSection
-                            warehouses={warehouses}
-                            trailers={trailers}
-                          />
-                        </Box>
+                      <Stack spacing={3} sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 1 }}>
+                        <Box sx={{ flexShrink: 0 }}><BasicInfoSection /></Box>
+                        <Divider sx={{ borderColor: paletteTheme.divider_alpha?.main_05, flexShrink: 0 }} />
+                        <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}><StopsSection customers={customers} /></Box>
+                        <Divider sx={{ borderColor: paletteTheme.divider_alpha?.main_05, flexShrink: 0 }} />
+                        <Box sx={{ flexShrink: 0 }}><LogisticsSection warehouses={warehouses} trailers={trailers} /></Box>
                       </Stack>
                     ) : (
-                      <Stack
-                        spacing={6}
-                        sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}
-                      >
-                        <Grid container spacing={6}>
-                          <Grid size={{ xs: 12, lg: 12 }}>
-                            <CargoSection trailers={trailers} />
-                          </Grid>
-                        </Grid>
-                        <Divider
-                          sx={{
-                            borderColor: theme.palette.divider_alpha.main_05,
-                          }}
-                        />
-                        <InventorySection
-                          availableInventory={availableInventory}
-                          isLoadingInventory={isLoadingInventory}
-                        />
+                      <Stack spacing={6} sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}>
+                        <Grid container spacing={6}><Grid size={{ xs: 12, lg: 12 }}><CargoSection trailers={trailers} /></Grid></Grid>
+                        <Divider sx={{ borderColor: paletteTheme.divider_alpha?.main_05 }} />
+                        <InventorySection availableInventory={availableInventory} isLoadingInventory={isLoadingInventory} />
                       </Stack>
                     )}
-                    </DialogErrorBoundary>
-                  </Form>
-                </DialogContent>
+                  </DialogErrorBoundary>
+                </Form>
+              </DialogContent>
 
-                <DialogActions
-                  sx={{
-                    p: 3,
-                    pt: 1,
-                    borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Button
-                    onClick={
-                      currentStep === 1 ? closeDialog : () => setCurrentStep(1)
-                    }
-                    sx={{
-                      color: "text.secondary",
-                      textTransform: "none",
-                      fontWeight: 600,
-                      px: 2,
-                      "&:hover": {
-                        color: "text.primary",
-                        bgcolor: theme.palette.action.hover,
-                      },
-                    }}
-                  >
-                    {currentStep === 1 ? dict.common.cancel : dict.common.back}
-                  </Button>
-
-                  <Stack direction="row" spacing={2}>
-                    <Button
-                      variant="contained"
-                      onClick={
-                        currentStep === 1
-                          ? handleNextStep
-                          : () => handleSubmit()
-                      }
-                      sx={{
-                        minWidth: 140,
-                        borderRadius: 2,
-                        textTransform: "none",
-                        fontWeight: 700,
-                        letterSpacing: "0.5px",
-                        boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
-                        "&:hover": {
-                          boxShadow: `0 12px 32px ${theme.palette.primary._alpha.main_40}`,
-                          transform: "translateY(-1px)",
-                        },
-                        "&:active": {
-                          transform: "translateY(0)",
-                        },
-                      }}
-                    >
-                      {currentStep === 1 ? dict.common.next : dict.common.save}
-                    </Button>
-                  </Stack>
-                </DialogActions>
-              </Dialog>
-            </>
-          );
-        }}
-      </Formik>
-    </>
+              <DialogActions sx={{ p: 3, pt: 1, borderTop: `1px solid ${paletteTheme.divider_alpha?.main_05}`, justifyContent: "space-between" }}>
+                <Button onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(1)} sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600, px: 2, "&:hover": { color: "text.primary", bgcolor: theme.palette.action.hover } }}>{currentStep === 1 ? dict.common.cancel : dict.common.back}</Button>
+                <Stack direction="row" spacing={2}>
+                  <Button variant="contained" onClick={currentStep === 1 ? handleNextStep : () => handleSubmit()} sx={{ minWidth: 140, borderRadius: 2, textTransform: "none", fontWeight: 700, letterSpacing: "0.5px", boxShadow: `0 8px 24px ${paletteTheme.primary?._alpha?.main_20}`, "&:hover": { boxShadow: `0 12px 32px ${paletteTheme.primary?._alpha?.main_40}`, transform: "translateY(-1px)" }, "&:active": { transform: "translateY(0)" } }}>{currentStep === 1 ? dict.common.next : dict.common.save}</Button>
+                </Stack>
+              </DialogActions>
+            </Dialog>
+          </>
+        );
+      }}
+    </Formik>
   );
 };
 

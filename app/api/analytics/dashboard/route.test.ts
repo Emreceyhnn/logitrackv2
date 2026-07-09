@@ -1,16 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function makeRes() {
   return {
-    calls: [] as Array<{ body: any; status: number }>,
+    calls: [] as Array<{ body: unknown; status: number }>,
   };
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -27,7 +27,7 @@ mock.module("../../../lib/controllers/analytics.ts", {
 });
 
 describe("GET /api/analytics/dashboard", () => {
-  let GET: any;
+  let GET: unknown;
 
   before(async () => {
     const mod = await import("./route");
@@ -43,7 +43,7 @@ describe("GET /api/analytics/dashboard", () => {
     const fakeData = { kpis: { shipments: 10 } };
     getAnalyticsDashboardDataMock.mock.mockImplementationOnce(async () => fakeData);
 
-    const res: any = await GET();
+    const res: unknown = await GET();
 
     expect(getAnalyticsDashboardDataMock.mock.calls.length).toBe(1);
     expect(res._body).toEqual(fakeData);
@@ -55,7 +55,7 @@ describe("GET /api/analytics/dashboard", () => {
       throw new Error("NEXT_REDIRECT");
     });
 
-    const res: any = await GET();
+    const res: unknown = await GET();
 
     expect(res._body).toEqual({ error: "Unauthorized" });
     expect(res._status).toBe(401);
@@ -66,7 +66,7 @@ describe("GET /api/analytics/dashboard", () => {
       throw new Error("DB connection failed");
     });
 
-    const res: any = await GET();
+    const res: unknown = await GET();
 
     expect(res._body).toEqual({ error: "Internal server error" });
     expect(res._status).toBe(500);

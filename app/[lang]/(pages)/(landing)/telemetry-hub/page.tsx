@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
 import TelemetryHubClient from './TelemetryHubClient';
 import { getDictionary } from '@/app/lib/language/language';
+import { buildSeoAlternates } from '@/app/lib/language/navigation';
 
-export const metadata: Metadata = {
-  title: 'Telemetry Hub - LogiTrack v2',
-  description: 'Every sensor, every signal, one dashboard. Aggregate IoT telemetry data in real-time.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.landing.pageMeta.telemetryHub.title,
+    description: dict.landing.pageMeta.telemetryHub.description,
+    alternates: buildSeoAlternates('/telemetry-hub', lang),
+  };
+}
 
 export default async function TelemetryHubPage(props: {
   params: Promise<{ lang: string }>;

@@ -15,9 +15,9 @@ interface Props {
   children?: React.ReactNode;
   sx?: SxProps<Theme>;
   disabled?: boolean;
-  error?: boolean;
-  helperText?: string;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  error?: boolean | undefined;
+  helperText?: string | undefined;
+  onBlur?: ((e: React.FocusEvent<HTMLInputElement>) => void) | undefined;
 }
 
 const CustomTextArea = ({

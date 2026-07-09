@@ -32,6 +32,8 @@ import FingerprintIcon from "@mui/icons-material/Fingerprint";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 import DeleteConfirmationDialog from "../../deleteConfirmationDialog";
 import { deleteVehicle } from "@/app/lib/controllers/vehicle";
+import { logger } from "@/app/lib/logger";
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -42,7 +44,7 @@ interface TabPanelProps {
 interface VehicleDialogParams {
   open: boolean;
   onClose: () => void;
-  vehicleData?: VehicleWithRelations;
+  vehicleData?: VehicleWithRelations | undefined;
   onDeleteSuccess?: () => void;
   onEditSuccess?: () => void;
   onUpdateSuccess?: () => void;
@@ -92,7 +94,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   const [value, setValue] = useState(initialTab ?? 0);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
@@ -109,7 +111,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       onClose();
       onDeleteSuccess?.();
     } catch (error) {
-      console.error("Failed to delete vehicle:", error);
+      logger.error("Failed to delete vehicle:", error);
     } finally {
       setIsDeleting(false);
     }

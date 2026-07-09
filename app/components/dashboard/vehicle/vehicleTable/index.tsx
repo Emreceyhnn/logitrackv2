@@ -26,6 +26,8 @@ import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
 import { toast } from "sonner";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const dict = useDictionary();
@@ -67,7 +69,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         toast.error(
           dict.toasts.errorGeneric || "Failed to update vehicle status"
         );
-        console.error(error);
+        logger.error(error);
       } finally {
         setActionLoading(null);
       }

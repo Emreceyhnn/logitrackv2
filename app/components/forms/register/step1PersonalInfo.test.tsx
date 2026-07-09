@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 import { renderToString } from "react-dom/server";
@@ -15,20 +15,20 @@ mock.module("../../../lib/styled/styledFieldBox.ts", { namedExports: { StyledTex
 
 mock.module("formik", {
   namedExports: {
-    Field: ({ children, name }: any) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>
+    Field: ({ children, name  }: Record<string, unknown>) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>
   }
 });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>
   }
 });
 
 describe("Step1PersonalInfo Component", () => {
-  let Step1PersonalInfo: any;
+  let Step1PersonalInfo: unknown;
 
   before(async () => {
     const mod = await import("./step1PersonalInfo");

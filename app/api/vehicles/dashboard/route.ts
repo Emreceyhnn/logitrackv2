@@ -19,6 +19,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
+import { parseQueryParams, searchParam, enumArrayParam, boolParam } from "@/app/lib/api/queryParams";
+import { z } from "zod";
 import { db } from "@/app/lib/db";
 import {
   VehicleCapacityConverter,
@@ -36,8 +38,18 @@ import {
 import {
   checkPermission,
 } from "@/app/lib/controllers/utils/checkPermission";
-import { Prisma } from "@prisma/client";
+import { Prisma, VehicleStatus, VehicleType } from "@prisma/client";
 import type { VehicleDashboardProps, VehicleFilters, VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { logger } from "@/app/lib/logger";
+
+
+const querySchema = z.object({
+  search: searchParam,
+  status: enumArrayParam(VehicleStatus),
+  type: enumArrayParam(VehicleType),
+  hasIssues: boolParam,
+  hasDriver: boolParam,
+});
 
 export async function GET(req: NextRequest) {
   try {
@@ -59,23 +71,11 @@ export async function GET(req: NextRequest) {
     ]);
 
     /* ── Parse filters from query params ─────────────────────────────── */
-    const { searchParams } = req.nextUrl;
-    const filters: VehicleFilters = {};
-
-    const search = searchParams.get("search");
-    if (search) filters.search = search;
-
-    const status = searchParams.getAll("status");
-    if (status.length > 0) filters.status = status as VehicleFilters["status"];
-
-    const type = searchParams.getAll("type");
-    if (type.length > 0) filters.type = type as VehicleFilters["type"];
-
-    const hasIssues = searchParams.get("hasIssues");
-    if (hasIssues !== null) filters.hasIssues = hasIssues === "true";
-
-    const hasDriver = searchParams.get("hasDriver");
-    if (hasDriver !== null) filters.hasDriver = hasDriver === "true";
+    const query = parseQueryParams(req, querySchema);
+    if (!query.success) return query.response;
+    
+    // Zod infers the exact same types that VehicleFilters expects
+    const filters: VehicleFilters = query.data;
 
     /* ── Cache key ────────────────────────────────────────────────────── */
     const cacheKey = vehicleCacheKeys.dashboard(
@@ -194,7 +194,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error: unknown) {
-    console.error("[/api/vehicles/dashboard] error:", error);
+    logger.error("[/api/vehicles/dashboard] error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

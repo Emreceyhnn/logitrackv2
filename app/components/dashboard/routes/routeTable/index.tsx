@@ -37,7 +37,7 @@ interface ExtendedRouteTableProps extends RouteTableProps {
   onRefresh?: () => void;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
-  filters?: { status?: RouteStatus[]; search?: string };
+  filters?: { status?: RouteStatus[] | undefined; search?: string | undefined } | undefined;
   onFilterChange?: (filters: { status?: RouteStatus[]; search?: string }) => void;
 }
 
@@ -83,7 +83,6 @@ const RouteTable = ({
     if (selectedRoute) {
       const updated = routes.find((r) => r.id === selectedRoute.id);
       if (updated && updated !== selectedRoute) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedRoute(updated);
       }
     }

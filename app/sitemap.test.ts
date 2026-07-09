@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 
@@ -10,7 +10,7 @@ mock.module("./lib/language/navigation.ts", {
 });
 
 describe("Sitemap Generate", () => {
-  let sitemap: any;
+  let sitemap: unknown;
 
   before(async () => {
     const mod = await import("./sitemap");
@@ -23,7 +23,7 @@ describe("Sitemap Generate", () => {
     expect(Array.isArray(result)).toBe(true);
     expect(result.length).toBeGreaterThan(0); // en, tr * routes
     
-    const rootEntry = result.find((r: any) => r.priority === 1);
+    const rootEntry = result.find((r: Record<string, unknown>) => r.priority === 1);
     expect(rootEntry).toBeTruthy();
     expect(rootEntry.alternates.languages.en).toBeDefined();
     expect(rootEntry.alternates.languages.tr).toBeDefined();

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -55,7 +54,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleToolbar RTL Component", () => {
-  let VehicleToolbar: any;
+  let VehicleToolbar: unknown;
 
   before(async () => {
     const mod = await import("./toolbar");

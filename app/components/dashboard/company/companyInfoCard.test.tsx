@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -25,7 +24,7 @@ mock.module("../../../hooks/useDateSettings.ts", {
 });
 
 mock.module("../../../lib/utils/date.ts", {
-  namedExports: { formatDisplayDate: (d: any) => `formatted-${d}` },
+  namedExports: { formatDisplayDate: (d: Record<string, unknown>) => `formatted-${d}` },
 });
 
 const customTheme = createTheme({ palette: { mode: "light" } });
@@ -39,7 +38,7 @@ mock.module("@mui/material", {
 });
 
 describe("CompanyInfoCard RTL Component", () => {
-  let CompanyInfoCard: any;
+  let CompanyInfoCard: unknown;
 
   before(async () => {
     const mod = await import("./companyInfoCard");
@@ -58,7 +57,7 @@ describe("CompanyInfoCard RTL Component", () => {
 
       render(
         <ThemeProvider theme={customTheme}>
-          <CompanyInfoCard props={mockProps as any} />
+          <CompanyInfoCard props={mockProps as unknown} />
         </ThemeProvider>
       );
 
@@ -81,7 +80,7 @@ describe("CompanyInfoCard RTL Component", () => {
 
       render(
         <ThemeProvider theme={customTheme}>
-          <CompanyInfoCard props={mockProps as any} />
+          <CompanyInfoCard props={mockProps as unknown} />
         </ThemeProvider>
       );
 

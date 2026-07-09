@@ -1,30 +1,8 @@
-import { WarehouseType } from "./enums";
+import { WarehouseBasicInfo, WarehouseLocation, WarehouseCapacity, WarehouseFormActions } from "./warehouse-form";
 
-export interface AddWarehouseBasicInfo {
-  name: string;
-  code: string;
-  type: WarehouseType;
-  openingTime?: string;
-  closingTime?: string;
-  is247: boolean;
-  timezone: string;
-}
-
-export interface AddWarehouseLocation {
-  address: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  lat?: number;
-  lng?: number;
-  managerId: string;
-}
-
-export interface AddWarehouseCapacity {
-  capacityPallets: number;
-  capacityVolumeM3: number;
-  specifications: string[]; // e.g. ["Cold Storage", "Hazardous Logistics", "Bonded Warehouse"]
-}
+export type AddWarehouseBasicInfo = WarehouseBasicInfo;
+export type AddWarehouseLocation = WarehouseLocation;
+export type AddWarehouseCapacity = WarehouseCapacity;
 
 export interface AddWarehousePageState {
   data: {
@@ -38,11 +16,7 @@ export interface AddWarehousePageState {
   isSuccess: boolean;
 }
 
-export interface AddWarehousePageActions {
-  updateBasicInfo: (data: Partial<AddWarehouseBasicInfo>) => void;
-  updateLocation: (data: Partial<AddWarehouseLocation>) => void;
-  updateCapacity: (data: Partial<AddWarehouseCapacity>) => void;
-  setStep: (step: number) => void;
+export interface AddWarehousePageActions extends WarehouseFormActions {
   handleSubmit: () => Promise<void>;
   closeDialog: () => void;
   reset: () => void;

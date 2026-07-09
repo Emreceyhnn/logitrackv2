@@ -1,6 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import {
+  IssueType,
+  IssuePriority,
+  IssueStatus,
+  ShipmentStatus,
+  MovementType,
+} from "@prisma/client";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
 
@@ -89,9 +96,9 @@ const dayjsUtcMock = mock.fn(() => ({
     format: mock.fn(() => "Jan 01")
   }))
 }));
-(dayjsMock as any).utc = dayjsUtcMock;
+(dayjsMock as unknown).utc = dayjsUtcMock;
 // overview.ts calls dayjs.extend(utc/timezone) at module load
-(dayjsMock as any).extend = mock.fn();
+(dayjsMock as unknown).extend = mock.fn();
 
 // Modülleri Sisteme Enjekte Etme
 mock.module("../db.ts", {
@@ -128,7 +135,7 @@ mock.module("dayjs", {
 
 // 2. TEST GRUPLARI
 describe("Overview Controller", () => {
-  let overviewController: any;
+  let overviewController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -193,7 +200,7 @@ describe("Overview Controller", () => {
       ]);
       
       dbMock.issue.findMany.mock.mockImplementation(async () => [
-        { id: "issue-1", type: "VEHICLE", priority: "HIGH", status: "OPEN", title: "Engine check" }
+        { id: "issue-1", type: IssueType.VEHICLE, priority: IssuePriority.HIGH, status: IssueStatus.OPEN, title: "Engine check" }
       ]);
       
       dbMock.document.findMany.mock.mockImplementation(async () => [
@@ -217,12 +224,12 @@ describe("Overview Controller", () => {
       ]);
       
       dbMock.shipment.findMany.mock.mockImplementation(async () => [
-        { status: "IN_TRANSIT", createdAt: new Date() }
+        { status: ShipmentStatus.IN_TRANSIT, createdAt: new Date() }
       ]);
       
       dbMock.inventoryMovement.groupBy.mock.mockImplementation(async () => [
-        { type: "PICK", _sum: { quantity: 50 } },
-        { type: "PACK", _sum: { quantity: 45 } }
+        { type: MovementType.PICK, _sum: { quantity: 50 } },
+        { type: MovementType.PACK, _sum: { quantity: 45 } }
       ]);
       
       dbMock.customer.findMany.mock.mockImplementation(async () => [

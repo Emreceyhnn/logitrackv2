@@ -10,6 +10,8 @@ import {
 import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
 import { analyticsKeys } from "@/app/lib/query-keys/analytics.keys";
 import AnalyticsContent from "./components/AnalyticsContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -55,7 +57,7 @@ export default async function AnalyticsPage() {
       staleTime: 1000 * 60 * 10,
     });
   } catch (error) {
-    console.error("[AnalyticsPage SSR] prefetch failed:", error);
+    logger.error("[AnalyticsPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

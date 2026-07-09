@@ -34,7 +34,7 @@ interface TabPanelProps {
 interface WarehouseDialogParams {
   open: boolean;
   onClose: () => void;
-  warehouseData?: WarehouseWithRelations;
+  warehouseData?: WarehouseWithRelations | undefined;
   onEditSuccess?: () => void;
 }
 
@@ -83,7 +83,7 @@ const WarehouseDetailsDialog = ({
   const theme = useTheme();
 
   /* -------------------------------- handlers -------------------------------- */
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

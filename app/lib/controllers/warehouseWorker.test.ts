@@ -1,5 +1,6 @@
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { WarehouseTaskStatus } from "@prisma/client";
 import { rejects } from "node:assert";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
@@ -57,8 +58,8 @@ const user = { id: "user-1", companyId: "company-1" };
 
 // 2. TEST GRUPLARI
 describe("WarehouseWorker Controller", () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let controller: any;
+   
+  let controller: unknown;
 
   before(async () => {
     controller = await import("./warehouseWorker");
@@ -171,7 +172,7 @@ describe("WarehouseWorker Controller", () => {
         async () => ({
           id: "t-1",
           companyId: "company-1",
-          status: "COMPLETED",
+          status: WarehouseTaskStatus.COMPLETED,
           doneUnits: 10,
           totalUnits: 10,
         })
@@ -187,7 +188,7 @@ describe("WarehouseWorker Controller", () => {
         async () => ({
           id: "t-1",
           companyId: "company-1",
-          status: "IN_PROGRESS",
+          status: WarehouseTaskStatus.IN_PROGRESS,
           doneUnits: 8,
           totalUnits: 10,
         })

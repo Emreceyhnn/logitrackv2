@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -23,11 +22,11 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../skeletons/KpiSkeleton.tsx", {
-  defaultExport: ({ count }: any) => <div data-testid="kpi-skeleton">Loading {count} KPIs</div>,
+  defaultExport: ({ count  }: Record<string, unknown>) => <div data-testid="kpi-skeleton">Loading {count} KPIs</div>,
 });
 
 mock.module("../../cards/StatCard.tsx", {
-  defaultExport: ({ title, value }: any) => (
+  defaultExport: ({ title, value  }: Record<string, unknown>) => (
     <div data-testid={`stat-card-${title}`}>
       <span>{title}</span>
       <span data-testid={`value-${title}`}>{value}</span>
@@ -38,7 +37,7 @@ mock.module("../../cards/StatCard.tsx", {
 mock.module("framer-motion", {
   namedExports: {
     motion: {
-      div: ({ children, ...rest }: any) => <div {...rest}>{children}</div>
+      div: ({ children, ...rest }: unknown) => <div {...rest}>{children}</div>
     }
   }
 });
@@ -47,12 +46,12 @@ mock.module("framer-motion", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
+    primary: { main: "#1976d2" } as unknown,
   }
 });
 
 const mockAlpha = { sky: "#38bdf8", error: "#ef4444", emerald: "#10b981" };
-(customTheme.palette as any).kpi = mockAlpha;
+(customTheme.palette as unknown).kpi = mockAlpha;
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -63,7 +62,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentKpiCard RTL Component", () => {
-  let ShipmentKpiCard: any;
+  let ShipmentKpiCard: unknown;
 
   before(async () => {
     const mod = await import("./shipmentKpiCard");

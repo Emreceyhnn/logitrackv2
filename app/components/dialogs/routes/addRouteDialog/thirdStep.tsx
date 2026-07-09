@@ -28,6 +28,8 @@ import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { VehicleStatus } from "@/app/lib/type/enums";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 const ThirdRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
@@ -52,7 +54,7 @@ const ThirdRouteDialogStep = () => {
         setDrivers(driversRes.data);
         setVehicles(vehiclesRes);
       } catch (error) {
-        console.error("Failed to fetch assignments data", error);
+        logger.error("Failed to fetch assignments data", error);
       } finally {
         setLoadingItems(false);
       }

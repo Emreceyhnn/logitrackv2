@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Stack,
   Box,
@@ -27,7 +26,10 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
     PUT: { color: theme.palette.kpi.cyan, bg: "rgba(56,189,248,0.14)" },
   };
 
-  const km = kindMeta[t.kind];
+  const km = kindMeta[t.kind] ?? {
+    color: theme.palette.text.secondary,
+    bg: "rgba(255,255,255,0.06)",
+  };
   const pm =
     t.priority === "high"
       ? { color: "#fca5a5", bg: "rgba(244,67,54,0.14)", label: ww.high }

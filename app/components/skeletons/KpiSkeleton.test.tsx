@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -15,15 +15,15 @@ const useThemeMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Box: (props: any) => ({ type: "Box", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Card: (props: any) => ({ type: "Card", props }),
-    Skeleton: (props: any) => ({ type: "Skeleton", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Card: (props: Record<string, unknown>) => ({ type: "Card", props }),
+    Skeleton: (props: Record<string, unknown>) => ({ type: "Skeleton", props }),
   }
 });
 
 describe("KpiSkeleton Component", () => {
-  let KpiSkeleton: any;
+  let KpiSkeleton: unknown;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

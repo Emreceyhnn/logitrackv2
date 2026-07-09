@@ -4,6 +4,8 @@ import { adminDb } from "@/app/lib/firebase-admin";
 import { Notification, NotificationTarget } from "../type/notification";
 import { db } from "../db";
 import { Prisma } from "@prisma/client";
+import { logger } from "@/app/lib/logger";
+
 
 export async function sendNotificationAction(
   target: NotificationTarget,
@@ -11,7 +13,7 @@ export async function sendNotificationAction(
 ) {
   try {
     if (!adminDb) {
-      console.warn(
+      logger.warn(
         "⚠️ Firebase Admin SDK not initialized. Skipping notification."
       );
       return { success: false, error: "Firebase not initialized" };
@@ -86,7 +88,7 @@ export async function sendNotificationAction(
     await newNotificationRef.set(newNotification);
     return { success: true, id: newNotificationRef.key };
   } catch (error) {
-    console.error("Failed to send notification via Admin SDK:", error);
+    logger.error("Failed to send notification via Admin SDK:", error);
     return { success: false, error: String(error) };
   }
 }
@@ -97,7 +99,7 @@ export async function markAsReadAction(path: string, notificationId: string) {
     await adminDb.ref(`${path}/${notificationId}`).update({ isRead: true });
     return { success: true };
   } catch (error) {
-    console.error("Failed to mark notification as read:", error);
+    logger.error("Failed to mark notification as read:", error);
     return { success: false, error: String(error) };
   }
 }
@@ -111,7 +113,7 @@ export async function deleteNotificationAction(
     await adminDb.ref(`${path}/${notificationId}`).remove();
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete notification:", error);
+    logger.error("Failed to delete notification:", error);
     return { success: false, error: String(error) };
   }
 }

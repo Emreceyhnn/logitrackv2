@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -39,13 +39,13 @@ mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDic
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: any) => ({ type: "Box", props }),
-    Container: (props: any) => ({ type: "Container", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
-    Grid: (props: any) => ({ type: "Grid", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Link: (props: any) => ({ type: "MuiLink", props })
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Container: (props: Record<string, unknown>) => ({ type: "Container", props }),
+    Divider: (props: Record<string, unknown>) => ({ type: "Divider", props }),
+    Grid: (props: Record<string, unknown>) => ({ type: "Grid", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Link: (props: Record<string, unknown>) => ({ type: "MuiLink", props })
   }
 });
 
@@ -54,7 +54,7 @@ mock.module("@mui/icons-material/Twitter", { defaultExport: () => ({ type: "Twit
 mock.module("next/image", { defaultExport: () => ({ type: "Image" }) });
 
 describe("LandingFooter Component", () => {
-  let LandingFooter: any;
+  let LandingFooter: unknown;
 
   before(async () => {
     const mod = await import("./LandingFooter");

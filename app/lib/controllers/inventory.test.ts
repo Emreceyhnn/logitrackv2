@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -97,7 +97,7 @@ mock.module("next/cache", {
 
 // 2. TEST GRUPLARI
 describe("Inventory Controller", () => {
-  let inventoryController: any;
+  let inventoryController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -152,7 +152,7 @@ describe("Inventory Controller", () => {
       expect(dbMock.inventory.create.mock.calls.length).toBe(1);
       expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(1); // Should log putaway
       
-      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as any;
+      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as unknown;
       expect(moveArgs.data.type).toBe("PUTAWAY");
       
       expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(1); // Cache invalidated
@@ -209,11 +209,11 @@ describe("Inventory Controller", () => {
       expect(result.quantity).toBe(120);
       expect(dbMock.inventory.update.mock.calls.length).toBe(1);
       
-      const updateArgs = dbMock.inventory.update.mock.calls[0].arguments[0] as any;
+      const updateArgs = dbMock.inventory.update.mock.calls[0].arguments[0] as unknown;
       expect(updateArgs.data.quantity.increment).toBe(20);
       
       expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(1);
-      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as any;
+      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as unknown;
       expect(moveArgs.data.quantity).toBe(20);
       expect(moveArgs.data.type).toBe("ADJUSTMENT");
     });
@@ -238,15 +238,15 @@ describe("Inventory Controller", () => {
         mockUser,
         "inv-1",
         -30,
-        "OUTBOUND"
+        "PICK"
       );
 
       // Assert
       expect(result.quantity).toBe(70);
       const moveArgs = dbMock.inventoryMovement.create.mock.calls[0]
-        .arguments[0] as any;
+        .arguments[0] as unknown;
       expect(moveArgs.data.quantity).toBe(-30);
-      expect(moveArgs.data.type).toBe("OUTBOUND");
+      expect(moveArgs.data.type).toBe("PICK");
     });
 
     it("should_ThrowAndSkipMovement_WhenAdjustmentWouldGoNegative", async () => {

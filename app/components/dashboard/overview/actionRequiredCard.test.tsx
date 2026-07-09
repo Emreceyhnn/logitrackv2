@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -34,26 +33,26 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Custom theme with alpha tokens
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    error: { main: "#f44336" } as any,
-    warning: { main: "#ff9800" } as any,
-    secondary: { main: "#9c27b0" } as any,
-    info: { main: "#2196f3" } as any,
-    success: { main: "#4caf50" } as any,
+    error: { main: "#f44336" } as unknown,
+    warning: { main: "#ff9800" } as unknown,
+    secondary: { main: "#9c27b0" } as unknown,
+    info: { main: "#2196f3" } as unknown,
+    success: { main: "#4caf50" } as unknown,
   },
 });
 
-(customTheme.palette.error as any)._alpha = { main_10: "rgba(244,67,54,0.1)" };
-(customTheme.palette.warning as any)._alpha = { main_10: "rgba(255,152,0,0.1)" };
-(customTheme.palette.secondary as any)._alpha = { main_10: "rgba(156,39,176,0.1)" };
-(customTheme.palette.info as any)._alpha = { main_10: "rgba(33,150,243,0.1)" };
-(customTheme.palette.success as any)._alpha = { main_10: "rgba(76,175,80,0.1)" };
+(customTheme.palette.error as unknown)._alpha = { main_10: "rgba(244,67,54,0.1)" };
+(customTheme.palette.warning as unknown)._alpha = { main_10: "rgba(255,152,0,0.1)" };
+(customTheme.palette.secondary as unknown)._alpha = { main_10: "rgba(156,39,176,0.1)" };
+(customTheme.palette.info as unknown)._alpha = { main_10: "rgba(33,150,243,0.1)" };
+(customTheme.palette.success as unknown)._alpha = { main_10: "rgba(76,175,80,0.1)" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -64,7 +63,7 @@ mock.module("@mui/material", {
 });
 
 describe("ActionRequiredCard RTL Component", () => {
-  let ActionRequiredCard: any;
+  let ActionRequiredCard: unknown;
 
   before(async () => {
     const mod = await import("./actionRequiredCard");
@@ -98,7 +97,7 @@ describe("ActionRequiredCard RTL Component", () => {
     it("should_RenderAlertsList_WithCorrectData", async () => {
       render(
         <ThemeProvider theme={customTheme}>
-          <ActionRequiredCard alerts={mockAlerts as any} />
+          <ActionRequiredCard alerts={mockAlerts as unknown} />
         </ThemeProvider>
       );
 
@@ -118,7 +117,7 @@ describe("ActionRequiredCard RTL Component", () => {
     it("should_NavigateToLink_WhenAlertIsClicked", async () => {
       render(
         <ThemeProvider theme={customTheme}>
-          <ActionRequiredCard alerts={mockAlerts as any} />
+          <ActionRequiredCard alerts={mockAlerts as unknown} />
         </ThemeProvider>
       );
 

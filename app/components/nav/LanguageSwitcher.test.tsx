@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -37,12 +37,12 @@ mock.module("../../lib/language/DictionaryContext.tsx", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Menu: (props: any) => ({ type: "Menu", props }),
-    MenuItem: (props: any) => ({ type: "MenuItem", props }),
-    ListItemText: (props: any) => ({ type: "ListItemText", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Tooltip: (props: any) => ({ type: "Tooltip", props }),
+    Menu: (props: Record<string, unknown>) => ({ type: "Menu", props }),
+    MenuItem: (props: Record<string, unknown>) => ({ type: "MenuItem", props }),
+    ListItemText: (props: Record<string, unknown>) => ({ type: "ListItemText", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Tooltip: (props: Record<string, unknown>) => ({ type: "Tooltip", props }),
   }
 });
 
@@ -50,7 +50,7 @@ mock.module("@mui/icons-material/Language", { defaultExport: () => ({ type: "Lan
 mock.module("@mui/icons-material/Check", { defaultExport: () => ({ type: "CheckIcon" }) });
 
 describe("LanguageSwitcher Component", () => {
-  let LanguageSwitcher: any;
+  let LanguageSwitcher: unknown;
 
   before(async () => {
     // Modülü dinamik olarak yüklüyoruz

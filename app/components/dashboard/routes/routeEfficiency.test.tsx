@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -30,17 +29,17 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 // 2. Theme with success._alpha
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    success: { main: "#2e7d32" } as any,
+    success: { main: "#2e7d32" } as unknown,
   }
 });
-(customTheme.palette.success as any)._alpha = { main_30: "rgba(46,125,50,0.3)" };
+(customTheme.palette.success as unknown)._alpha = { main_30: "rgba(46,125,50,0.3)" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -51,7 +50,7 @@ mock.module("@mui/material", {
 });
 
 describe("RouteEfficiency RTL Component", () => {
-  let RouteEfficiency: any;
+  let RouteEfficiency: unknown;
 
   before(async () => {
     const mod = await import("./routeEfficiency");

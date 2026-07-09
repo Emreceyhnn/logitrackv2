@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -42,18 +41,18 @@ mock.module("./documentsTab.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    success: { main: "#2e7d32" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
   }
 });
 
 const mockAlpha = { main_00: "rgba()", main_02: "rgba()", main_03: "rgba()", main_05: "rgba()", main_10: "rgba()", main_15: "rgba()", main_20: "rgba()", main_30: "rgba()" };
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette.success as any)._alpha = mockAlpha;
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.background as any).paper_alpha = mockAlpha;
-(customTheme.palette.text as any).secondary_alpha = mockAlpha;
-(customTheme.palette.common as any) = { white_alpha: mockAlpha, black_alpha: mockAlpha };
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette.success as unknown)._alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
+(customTheme.palette.text as unknown).secondary_alpha = mockAlpha;
+(customTheme.palette.common as unknown) = { white_alpha: mockAlpha, black_alpha: mockAlpha };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -65,7 +64,7 @@ mock.module("@mui/material", {
 });
 
 describe("DriverDialog RTL Component", () => {
-  let DriverDialog: any;
+  let DriverDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

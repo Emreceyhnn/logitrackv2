@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -20,7 +20,7 @@ mock.module("@/roles.json", { defaultExport: rolesMock });
 
 // 2. TEST GRUPLARI
 describe("Check Permission Utility", () => {
-  let checkPermissionMod: any;
+  let checkPermissionMod: unknown;
 
   before(async () => {
     checkPermissionMod = await import("./checkPermission");
@@ -36,7 +36,7 @@ describe("Check Permission Utility", () => {
       
       await expect(
         checkPermissionMod.checkPermission(user, null)
-      ).rejects.toThrow("No company assigned to this user");
+      ).rejects.toThrow("User has no company");
     });
 
     it("should_ThrowError_WhenUserCompanyDoesNotMatchTargetCompany", async () => {

@@ -26,9 +26,9 @@ import {
 import { updateWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/hooks/useUser";
 
-import BasicInfoSection from "./sections/BasicInfoSection";
-import LocationSection from "./sections/LocationSection";
-import CapacitySection from "./sections/CapacitySection";
+import BasicInfoSection from "../shared/sections/BasicInfoSection";
+import LocationSection from "../shared/sections/LocationSection";
+import CapacitySection from "../shared/sections/CapacitySection";
 import { WarehouseType } from "@/app/lib/type/enums";
 
 
@@ -93,8 +93,8 @@ const EditWarehouseDialog = ({
       } else if (opHours && opHours.includes(" - ")) {
         const parts = opHours.split(" - ");
         if (parts.length === 2) {
-          openingTime = parts[0];
-          closingTime = parts[1];
+          openingTime = parts[0] ?? openingTime;
+          closingTime = parts[1] ?? closingTime;
         }
       }
 

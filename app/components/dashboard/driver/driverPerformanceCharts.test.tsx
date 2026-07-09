@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -26,17 +25,17 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../skeletons/AnalyticsSkeleton.tsx", {
-  defaultExport: ({ title }: any) => <div data-testid="analytics-skeleton">{title}</div>,
+  defaultExport: ({ title  }: Record<string, unknown>) => <div data-testid="analytics-skeleton">{title}</div>,
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Mock Recharts BarChart
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ series, xAxis }: any) => (
+    BarChart: ({ series, xAxis  }: Record<string, unknown>) => (
       <div data-testid="bar-chart">
         <div data-testid="x-axis-data">
           {xAxis?.[0]?.data?.join(",")}
@@ -50,7 +49,7 @@ mock.module("@mui/x-charts/BarChart", {
 });
 
 describe("DriverPerformanceCharts RTL Component", () => {
-  let DriverPerformanceCharts: any;
+  let DriverPerformanceCharts: unknown;
 
   before(async () => {
     const mod = await import("./driverPerformanceCharts");

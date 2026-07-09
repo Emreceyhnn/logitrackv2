@@ -11,6 +11,8 @@ import {
 import { toast } from "sonner";
 
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
+import { logger } from "@/app/lib/logger";
+
 
 async function fetchCompanyDashboard(filters: {
   page: number;
@@ -64,7 +66,7 @@ export function useCompanyMutations() {
   };
 
   const handleError = (message: string, error: Error | unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error((error as Error)?.message || message);
   };
 

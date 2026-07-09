@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, beforeEach, mock } from "node:test";
 import { expect } from "expect";
 
 // Capture the $extends config instead of connecting to a real database so the
 // tenant-guard logic can be exercised in isolation.
-const extendsCapture: { config?: any } = {};
+const extendsCapture: { config?: unknown } = {};
 
 class FakePrismaClient {
-  $extends(config: any) {
+  $extends(config: Record<string, unknown>) {
     extendsCapture.config = config;
     return { __extension: config };
   }
@@ -20,14 +20,14 @@ mock.module("@prisma/client", {
 type GuardHandler = (params: {
   model: string;
   operation: string;
-  args: any;
-  query: (args: any) => any;
-}) => any;
+  args: unknown;
+  query: (args: Record<string, unknown>) => unknown;
+}) => unknown;
 
 describe("db.ts tenant-guard extension", () => {
   let handler: GuardHandler;
   let runWithTenant: <T>(companyId: string | null, fn: () => T) => T;
-  let queryMock: any;
+  let queryMock: unknown;
 
   before(async () => {
     await import("./db");
@@ -38,14 +38,14 @@ describe("db.ts tenant-guard extension", () => {
   });
 
   beforeEach(() => {
-    queryMock = mock.fn(async (args: any) => args);
+    queryMock = mock.fn(async (args: Record<string, unknown>) => args);
   });
 
   const invoke = (
     companyId: string | null,
     model: string,
     operation: string,
-    args: any
+    args: unknown
   ) =>
     runWithTenant(companyId, () =>
       handler({ model, operation, args, query: queryMock })

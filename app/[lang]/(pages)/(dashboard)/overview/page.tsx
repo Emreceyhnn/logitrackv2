@@ -14,6 +14,8 @@ import {
 import { getOverviewDashboardData } from "@/app/lib/controllers/overview";
 import { overviewKeys } from "@/app/lib/query-keys/overview.keys";
 import OverviewContent from "./components/OverviewContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -106,7 +108,7 @@ export default async function OverviewPage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[OverviewPage SSR] prefetch failed:", error);
+    logger.error("[OverviewPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

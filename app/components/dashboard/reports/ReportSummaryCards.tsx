@@ -150,9 +150,9 @@ export default function ReportSummaryCards({
   loading = false,
 }: {
   tabIndex: number;
-  metrics?: ReportsMetrics;
+  metrics?: ReportsMetrics | undefined;
   dict: Dictionary;
-  loading?: boolean;
+  loading?: boolean | undefined;
 }) {
   const theme = useTheme();
   const { compact, format } = useCurrency();

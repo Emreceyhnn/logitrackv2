@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -40,7 +40,7 @@ mock.module("./useUser.ts", {
 
 // 2. TEST GRUPLARI
 describe("useVehicleTracking Hooks", () => {
-  let trackingMod: any;
+  let trackingMod: unknown;
 
   before(async () => {
     trackingMod = await import("./useVehicleTracking");

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, after } from "node:test";
 import { expect } from "expect";
 import "dotenv/config";
@@ -42,7 +42,7 @@ describe("firebase-admin.ts Admin Connection & Initialization", async () => {
       // is already proven by the Database test above.
       const customToken = await adminAuth.createCustomToken("test-uid");
       expect(customToken).toBeDefined();
-    } catch (error: any) {
+    } catch (error: Record<string, unknown>) {
       throw new Error(`Firebase Admin Auth connection failed: ${error.message}`);
     }
   });

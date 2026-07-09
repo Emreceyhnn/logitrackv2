@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 import { renderToString } from "react-dom/server";
@@ -8,7 +8,7 @@ global.React = React;
 // MOCKLAR
 mock.module("@mui/material", {
   namedExports: {
-    Card: ({ children }: any) => <div data-testid="Card">{children}</div>,
+    Card: ({ children  }: Record<string, unknown>) => <div data-testid="Card">{children}</div>,
     useTheme: mock.fn(() => ({
       palette: {
         mode: "light",
@@ -20,7 +20,7 @@ mock.module("@mui/material", {
 });
 
 describe("CustomCard Component", () => {
-  let CustomCard: any;
+  let CustomCard: unknown;
 
   before(async () => {
     const mod = await import("./card");

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -118,7 +118,7 @@ mock.module("jose", {
 
 // 2. TEST GRUPLARI
 describe("Users Controller", () => {
-  let usersController: any;
+  let usersController: unknown;
 
   before(async () => {
     // Dynamically import the module after mocks are defined
@@ -143,7 +143,7 @@ describe("Users Controller", () => {
     it("should_RegisterUser_AndCreateSession_WhenDataIsValid", async () => {
       // Arrange
       dbMock.user.findFirst.mock.mockImplementation(async () => null); // Email doesn't exist
-      dbMock.user.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.user.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "user-1",
         ...args.data,
       }));
@@ -274,7 +274,7 @@ describe("Users Controller", () => {
       expect(dbMock.user.update.mock.calls.length).toBe(1);
       // Successful login is audit-logged as LOGIN
       const auditActions = sessionMock.logAuditEvent.mock.calls.map(
-        (c: any) => c.arguments[0].action
+        (c: Record<string, unknown>) => c.arguments[0].action
       );
       expect(auditActions).toContain("LOGIN");
     });
@@ -297,7 +297,7 @@ describe("Users Controller", () => {
       expect(sessionMock.createSession.mock.calls.length).toBe(0);
       expect(dbMock.user.update.mock.calls.length).toBe(0);
       const failedAudit = sessionMock.logAuditEvent.mock.calls.find(
-        (c: any) => c.arguments[0].action === "LOGIN_FAILED"
+        (c: Record<string, unknown>) => c.arguments[0].action === "LOGIN_FAILED"
       );
       expect(failedAudit?.arguments[0].metadata.reason).toBe("Invalid password");
     });
@@ -318,7 +318,7 @@ describe("Users Controller", () => {
       expect(bcryptMock.compare.mock.calls.length).toBe(0);
       expect(sessionMock.createSession.mock.calls.length).toBe(0);
       const failedAudit = sessionMock.logAuditEvent.mock.calls.find(
-        (c: any) => c.arguments[0].action === "LOGIN_FAILED"
+        (c: Record<string, unknown>) => c.arguments[0].action === "LOGIN_FAILED"
       );
       expect(failedAudit?.arguments[0].metadata.reason).toBe("User not found");
     });

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -54,7 +54,7 @@ mock.module("../actions/notifications.ts", {
 
 // 2. TEST GRUPLARI
 describe("Documents Controller", () => {
-  let documentsController: any;
+  let documentsController: unknown;
 
   before(async () => {
     documentsController = await import("./documents");
@@ -78,7 +78,7 @@ describe("Documents Controller", () => {
     it("should_CreateDocument_AndSetStatusToExpired_WhenExpiryDateIsInThePast", async () => {
       // Arrange
       dbMock.driver.findUnique.mock.mockImplementation(async () => ({ companyId: "company-1" }));
-      dbMock.document.create.mock.mockImplementation(async (args: any) => ({ id: "doc-1", ...args.data }));
+      dbMock.document.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({ id: "doc-1", ...args.data }));
 
       const pastDate = new Date();
       pastDate.setDate(pastDate.getDate() - 10);

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -46,6 +45,26 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
+// EditCustomerDialog consumes useUser() and useDictionary(); without these
+// mocks the real context hooks throw "must be used within a UserProvider".
+mock.module("../../../hooks/useUser.ts", {
+  namedExports: {
+    useUser: mock.fn(() => ({
+      user: {
+        id: "user-1",
+        companyId: "company-1",
+        timezone: "UTC",
+        dateFormat: "DD/MM/YYYY",
+        timeFormat: "24h",
+      },
+    })),
+  },
+});
+
+mock.module("../../../lib/language/DictionaryContext.tsx", {
+  namedExports: { useDictionary: useDictionaryMock },
+});
+
 mock.module("../../../lib/controllers/customer.ts", {
   namedExports: { 
     updateCustomer: mock.fn(async () => ({}))
@@ -72,14 +91,14 @@ mock.module("./addCustomerDialog/sections/ContactSection.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
 const mockAlpha = { main_05: "rgba()", main_10: "rgba()", main_20: "rgba()", main_30: "rgba()", main_50: "rgba()" };
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.common as any) = { white_alpha: mockAlpha };
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.common as unknown) = { white_alpha: mockAlpha };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -91,7 +110,7 @@ mock.module("@mui/material", {
 });
 
 describe("EditCustomerDialog RTL Component", () => {
-  let EditCustomerDialog: any;
+  let EditCustomerDialog: unknown;
 
   before(async () => {
     const mod = await import("./editCustomerDialog");

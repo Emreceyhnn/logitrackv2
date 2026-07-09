@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -42,7 +42,7 @@ mock.module("../lib/actions/notifications.ts", { namedExports: notificationsActi
 
 // 2. TEST GRUPLARI
 describe("useNotifications Hook", () => {
-  let useNotificationsMod: any;
+  let useNotificationsMod: unknown;
 
   before(async () => {
     useNotificationsMod = await import("./useNotifications");

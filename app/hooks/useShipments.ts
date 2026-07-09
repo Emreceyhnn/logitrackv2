@@ -24,6 +24,8 @@ import { ShipmentStatus, ShipmentPriority, ShipmentServiceType } from "@/app/lib
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import type { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
+import { logger } from "@/app/lib/logger";
+
 
 async function fetchShipments(filters?: {
   page?: number;
@@ -195,7 +197,7 @@ export function useShipmentMutations() {
   };
 
   const handleError = (message: string, error: unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error(error instanceof Error ? error.message : message);
   };
 
@@ -239,7 +241,7 @@ export function useShipmentMutations() {
         "items",
         "stops",
         "companyId",
-      ]);
+      ]) as Parameters<typeof updateShipment>[1];
       return updateShipment(id, updateData);
     },
     onSuccess: () => handleSuccess(dict.toasts.successUpdate),

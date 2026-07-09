@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -51,15 +51,15 @@ mock.module("../../lib/actions/auth.ts", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Stack: (props: any) => ({ type: "Stack", props }),
-    CircularProgress: (props: any) => ({ type: "CircularProgress", props }),
-    Avatar: (props: any) => ({ type: "Avatar", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Menu: (props: any) => ({ type: "Menu", props }),
-    MenuItem: (props: any) => ({ type: "MenuItem", props }),
-    ListItemIcon: (props: any) => ({ type: "ListItemIcon", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
-    Box: (props: any) => ({ type: "Box", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    CircularProgress: (props: Record<string, unknown>) => ({ type: "CircularProgress", props }),
+    Avatar: (props: Record<string, unknown>) => ({ type: "Avatar", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Menu: (props: Record<string, unknown>) => ({ type: "Menu", props }),
+    MenuItem: (props: Record<string, unknown>) => ({ type: "MenuItem", props }),
+    ListItemIcon: (props: Record<string, unknown>) => ({ type: "ListItemIcon", props }),
+    Divider: (props: Record<string, unknown>) => ({ type: "Divider", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
   }
 });
 
@@ -78,7 +78,7 @@ mock.module("../dialogs/logoutConfirmationDialog.tsx", { defaultExport: () => ({
 
 
 describe("UserAccountNav Component", () => {
-  let UserAccountNav: any;
+  let UserAccountNav: unknown;
 
   before(async () => {
     const mod = await import("./UserAccountNav");

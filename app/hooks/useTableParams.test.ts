@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -33,7 +33,7 @@ mock.module("react", { namedExports: reactMock });
 
 // 2. TEST GRUPLARI
 describe("useTableParams Hook", () => {
-  let useTableParamsMod: any;
+  let useTableParamsMod: unknown;
 
   before(async () => {
     useTableParamsMod = await import("./useTableParams");

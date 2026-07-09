@@ -6,6 +6,8 @@ import {
   PolylineHelperResult,
 } from "../../valhalla/polylineHelper";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 const MapWithPolyline = dynamic(
   () => import("../../valhalla/mapWithPolyline"),
@@ -13,8 +15,8 @@ const MapWithPolyline = dynamic(
 );
 
 interface MapRoutesDialogCardProps {
-  origin?: string | { lat: number; lng: number; address?: string };
-  destination?: string | { lat: number; lng: number; address?: string };
+  origin?: string | { lat: number; lng: number; address?: string } | undefined;
+  destination?: string | { lat: number; lng: number; address?: string } | undefined;
   stops?: Array<{
     location: string | { lat: number; lng: number };
     stopover?: boolean;
@@ -102,7 +104,7 @@ const MapRoutesDialogCard = ({
           });
         }
       } catch (error) {
-        console.error("Valhalla API Error:", error);
+        logger.error("Valhalla API Error:", error);
       }
     };
 
@@ -113,7 +115,7 @@ const MapRoutesDialogCard = ({
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
       <MapWithPolyline
         Polylines={data?.mapPoints || []}
-        routePolyline={data?.polyline}
+        routePolyline={data?.polyline ?? null}
         vehicleLocation={
           vehicleLocation
             ? {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refreshExchangeRates, getExchangeRates } from "@/app/lib/services/exchangeRate";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * GET /api/exchange-rates
@@ -10,7 +12,7 @@ export async function GET() {
     const rates = await getExchangeRates();
     return NextResponse.json(rates);
   } catch (error) {
-    console.error("[exchange-rates] GET error:", error);
+    logger.error("[exchange-rates] GET error:", error);
     return NextResponse.json(
       { error: "Failed to fetch exchange rates" },
       { status: 500 }
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
       currencies: Object.keys(rates.rates).length,
     });
   } catch (error) {
-    console.error("[exchange-rates] POST error:", error);
+    logger.error("[exchange-rates] POST error:", error);
     return NextResponse.json(
       { error: "Failed to refresh exchange rates" },
       { status: 500 }

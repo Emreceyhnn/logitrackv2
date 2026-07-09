@@ -1,61 +1,249 @@
+#!/usr/bin/env node
 /**
- * Collects every *.test.ts / *.test.tsx under app/ and runs them with the
- * same tsx invocation `npm run test:single` uses. Referenced by `npm test`.
+ * Test runner for the LogiTrack suite.
+ *
+ * The project's tests use Node's built-in test runner (`node:test`) executed
+ * through `tsx`, together with:
+ *   - `--experimental-test-module-mocks` — required by `mock.module(...)`,
+ *     which every controller/route test relies on to inject Prisma/Redis/auth
+ *     doubles.
+ *   - `--test-force-exit` — tests open (mocked, but still real) module-level
+ *     resources; without this the process can hang after the last test because
+ *     of lingering handles. This is what makes the suite CI-safe.
+ *   - `--import global-jsdom/register` — the component tests (`*.test.tsx`)
+ *     render via @testing-library/react and need a DOM (`document`, `window`).
+ *
+ * Files are sharded across a bounded pool of worker processes. Sharding keeps
+ * `mock.module` state from leaking between unrelated files (each shard is a
+ * fresh process) and bounds wall-clock time. Each shard has a hard timeout so
+ * a single hung test file fails that shard instead of stalling the whole run.
+ *
+ * Usage:
+ *   node scripts/run-tests.mjs              # run everything
+ *   node scripts/run-tests.mjs app/api      # only files under a path substring
  */
-import { spawnSync } from "node:child_process";
-import { readdirSync } from "node:fs";
-import { join } from "node:path";
 
-const ROOT = process.cwd();
+import { spawn } from "node:child_process";
+import { readdir } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+import { dirname, join, relative } from "node:path";
+import os from "node:os";
+import dotenv from "dotenv";
 
-function collectTests(dir, out = []) {
-  for (const entry of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
-    if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
-    const rel = `${dir}/${entry.name}`;
-    if (entry.isDirectory()) collectTests(rel, out);
-    else if (/\.test\.tsx?$/.test(entry.name)) out.push(rel);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, "..");
+const TEST_ROOTS = ["app"];
+
+// Resolve tsx's CLI entry so we can spawn it with `node` directly — avoids the
+// npx/.cmd + shell dance that breaks (EINVAL / DEP0190) on Windows.
+const require = createRequire(import.meta.url);
+const TSX_CLI = require.resolve("tsx/cli");
+
+// Load env the same way `dotenv -c` did for the old script: `.env` as the base,
+// `.env.local` layered on top (local wins). Child processes inherit this.
+for (const file of [".env", ".env.local"]) {
+  dotenv.config({ path: join(ROOT, file), override: true });
+}
+
+/**
+ * Files are executed in small fixed-size batches, each in its own tsx process.
+ *
+ * Batch size is a deliberate sweet spot. Measured throughput:
+ *   1 file  ~8s | 5 files ~11s | 10 files ~56s
+ * Loading a handful of files in one process amortises tsx transpilation, but
+ * component tests (`*.test.tsx`) accumulate jsdom/module state, so throughput
+ * degrades super-linearly past ~5-6 files. A fresh process per batch caps that
+ * accumulation. `mock.module` isolation between unrelated files is a bonus.
+ *
+ * CONCURRENCY runs a few batches at once without oversaturating the CPU (which
+ * on Windows inflated per-file time ~5×).
+ */
+const BATCH_SIZE = 5;
+const CONCURRENCY = Math.max(2, Math.min(os.cpus().length - 1, 3));
+/**
+ * Hard timeout per batch (ms). A ~5-file batch completes well under this; a
+ * batch that exceeds it is genuinely hung and is killed so it fails that batch
+ * instead of stalling the whole run.
+ */
+const BATCH_TIMEOUT_MS = 120_000;
+
+const TSX_ARGS = [
+  "--import",
+  "global-jsdom/register",
+  "--experimental-test-module-mocks",
+  "--test-force-exit",
+  "--test",
+];
+
+const filterArg = process.argv[2];
+
+/** Recursively collect *.test.ts / *.test.tsx paths. */
+async function collectTests(dir) {
+  const out = [];
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name === "node_modules" || entry.name === ".next") continue;
+      out.push(...(await collectTests(full)));
+    } else if (/\.test\.tsx?$/.test(entry.name)) {
+      out.push(full);
+    }
   }
   return out;
 }
 
-const files = collectTests("app");
-
-if (files.length === 0) {
-  console.error("No test files found under app/");
-  process.exit(1);
+/** Split files into consecutive fixed-size batches. */
+function batchFiles(files, size) {
+  const batches = [];
+  for (let i = 0; i < files.length; i += size) {
+    batches.push(files.slice(i, i + size));
+  }
+  return batches;
 }
 
-console.log(`Running ${files.length} test file(s)...`);
+/** Run one batch (a handful of files) in a single tsx process. */
+function runBatch(files, index) {
+  return new Promise((resolve) => {
+    // Spawn `node <tsx-cli> <flags> <files>` directly. No shell, no npx, so no
+    // Windows .cmd quirks; env (loaded above) is inherited by the child.
+    const child = spawn(
+      process.execPath,
+      [TSX_CLI, ...TSX_ARGS, ...files],
+      {
+        cwd: ROOT,
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
 
-// Windows'ta komut satırı uzunluk limiti (~8k) nedeniyle partiler halinde koş.
-const BATCH_SIZE = 40;
-let failed = false;
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
 
-// node --test treats its arguments as glob patterns: an unescaped path like
-// app/[lang]/page.test.tsx is a character class ([l,a,n,g]) that matches
-// nothing, so every test under app/[lang]/ was silently skipped. Backslash
-// escapes don't survive Windows path handling, so substitute each bracket
-// with the single-character wildcard `?`, which matches the literal bracket.
-const escapeGlob = (p) => p.replace(/[[\]]/g, "?");
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      stderr += `\n[run-tests] batch ${index} exceeded ${BATCH_TIMEOUT_MS}ms and was killed.\n`;
+    }, BATCH_TIMEOUT_MS);
 
-for (let i = 0; i < files.length; i += BATCH_SIZE) {
-  const batch = files.slice(i, i + BATCH_SIZE).map(escapeGlob);
-  const result = spawnSync(
-    "npx",
-    [
-      "dotenv",
-      "-c",
-      "--",
-      "npx",
-      "tsx",
-      "--experimental-test-module-mocks",
-      "--test-force-exit",
-      "--test",
-      ...batch,
-    ],
-    { stdio: "inherit", shell: true }
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ index, code: code ?? 1, stdout, stderr, files });
+    });
+  });
+}
+
+/**
+ * Sum `tests N / pass N / fail N` from a batch's output. node:test prints one
+ * aggregate summary block per process, but we `matchAll` defensively so the
+ * totals stay correct even if that ever changes.
+ */
+function parseCounts(output) {
+  const sum = (label) => {
+    const re = new RegExp(`ℹ ${label} (\\d+)`, "g");
+    let total = 0;
+    for (const m of output.matchAll(re)) total += Number(m[1]);
+    return total;
+  };
+  return { tests: sum("tests"), pass: sum("pass"), fail: sum("fail") };
+}
+
+async function main() {
+  let files = (
+    await Promise.all(TEST_ROOTS.map((r) => collectTests(join(ROOT, r))))
+  ).flat();
+
+  if (filterArg) {
+    const needle = filterArg.replaceAll("\\", "/");
+    files = files.filter((f) =>
+      relative(ROOT, f).replaceAll("\\", "/").includes(needle)
+    );
+  }
+
+  if (files.length === 0) {
+    console.error(
+      filterArg
+        ? `No test files matched "${filterArg}".`
+        : "No test files found."
+    );
+    process.exit(1);
+  }
+
+  const batches = batchFiles(files, BATCH_SIZE);
+  console.log(
+    `Running ${files.length} test file(s) in ${batches.length} batch(es), ` +
+      `${CONCURRENCY} at a time...\n`
   );
-  if ((result.status ?? 1) !== 0) failed = true;
+
+  const started = Date.now();
+  const results = [];
+  let cursor = 0;
+  let done = 0;
+
+  // Bounded worker pool over the batches, printing a one-line progress tick as
+  // each batch finishes so a long run shows life instead of going silent.
+  async function worker() {
+    while (cursor < batches.length) {
+      const i = cursor++;
+      const r = await runBatch(batches[i], i);
+      results.push(r);
+      done++;
+      const counts = parseCounts(r.stdout + r.stderr);
+      const mark = r.code === 0 && counts.fail === 0 ? "✔" : "✖";
+      process.stdout.write(
+        `  ${mark} batch ${done}/${batches.length} ` +
+          `(${counts.pass}/${counts.tests} passed)\n`
+      );
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(CONCURRENCY, batches.length) }, worker)
+  );
+
+  let totalTests = 0;
+  let totalPass = 0;
+  let totalFail = 0;
+  const failedBatches = [];
+
+  for (const r of results) {
+    const counts = parseCounts(r.stdout + r.stderr);
+    totalTests += counts.tests;
+    totalPass += counts.pass;
+    totalFail += counts.fail;
+    if (r.code !== 0 || counts.fail > 0) {
+      failedBatches.push(r);
+    }
+  }
+
+  // Only dump full output for batches that failed — keeps the happy path quiet.
+  for (const r of failedBatches) {
+    console.log(`\n${"─".repeat(70)}`);
+    console.log(`Batch ${r.index} FAILED (exit ${r.code}):`);
+    for (const f of r.files) console.log(`  • ${relative(ROOT, f)}`);
+    console.log("─".repeat(70));
+    if (r.stdout.trim()) console.log(r.stdout.trim());
+    if (r.stderr.trim()) console.error(r.stderr.trim());
+  }
+
+  const elapsed = ((Date.now() - started) / 1000).toFixed(1);
+  console.log(`\n${"═".repeat(70)}`);
+  console.log(`Elapsed: ${elapsed}s`);
+  console.log(
+    `Totals: ${totalPass}/${totalTests} passed, ${totalFail} failed ` +
+      `(${failedBatches.length} batch(es) with failures).`
+  );
+  console.log("═".repeat(70));
+
+  process.exit(failedBatches.length > 0 ? 1 : 0);
 }
 
-process.exit(failed ? 1 : 0);
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

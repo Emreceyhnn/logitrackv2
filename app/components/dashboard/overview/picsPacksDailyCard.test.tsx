@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -24,7 +23,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Custom theme with alpha tokens
@@ -34,10 +33,10 @@ const customTheme = createTheme({
   },
 });
 
-(customTheme.palette as any).info = { main: "#2196f3", _alpha: { main_10: "rgba(33,150,243,0.1)" } };
-(customTheme.palette as any).success = { main: "#4caf50", _alpha: { main_10: "rgba(76,175,80,0.1)" } };
-(customTheme.palette as any).warning = { main: "#ff9800" };
-(customTheme.palette as any).divider_alpha = { main_50: "rgba(0,0,0,0.5)" };
+(customTheme.palette as unknown).info = { main: "#2196f3", _alpha: { main_10: "rgba(33,150,243,0.1)" } };
+(customTheme.palette as unknown).success = { main: "#4caf50", _alpha: { main_10: "rgba(76,175,80,0.1)" } };
+(customTheme.palette as unknown).warning = { main: "#ff9800" };
+(customTheme.palette as unknown).divider_alpha = { main_50: "rgba(0,0,0,0.5)" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -48,7 +47,7 @@ mock.module("@mui/material", {
 });
 
 describe("PicksPacksDailyCard RTL Component", () => {
-  let PicksPacksDailyCard: any;
+  let PicksPacksDailyCard: unknown;
 
   before(async () => {
     const mod = await import("./picsPacksDailyCard");

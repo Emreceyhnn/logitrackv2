@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -11,7 +11,7 @@ mock.module("../lib/context/UserContext.tsx", { namedExports: userContextMock })
 
 // 2. TEST GRUPLARI
 describe("useUser Hook", () => {
-  let useUserMod: any;
+  let useUserMod: unknown;
 
   before(async () => {
     useUserMod = await import("./useUser");

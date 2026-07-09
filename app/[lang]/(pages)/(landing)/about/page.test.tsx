@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -32,7 +31,7 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 
 // Mock next/image
 mock.module("next/image", {
-  defaultExport: (props: any) => <img {...props} data-testid="next-image" />,
+  defaultExport: (props: Record<string, unknown>) => <img {...props} data-testid="next-image" />,
 });
 
 // 2. Mock Theme
@@ -46,7 +45,7 @@ const customTheme = createTheme({
       slateDeepest_alpha: { main_50: "#000" }
     },
     common: { black_alpha: { main_40: "#000" } }
-  } as any
+  } as unknown
 });
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -58,7 +57,7 @@ mock.module("@mui/material", {
 });
 
 describe("AboutPage Component", () => {
-  let AboutPage: any;
+  let AboutPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

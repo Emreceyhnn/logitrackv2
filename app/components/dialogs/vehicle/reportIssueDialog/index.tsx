@@ -24,6 +24,8 @@ import { getPriorityColor } from "@/app/lib/priorityColor";
 import { ValidationError } from "yup";
 import { IssuePriority } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -65,7 +67,6 @@ const ReportIssueDialog = ({
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         title: "",
         priority: IssuePriority.MEDIUM,
@@ -136,7 +137,7 @@ const ReportIssueDialog = ({
         setFieldErrors(errors);
         setError(dict.validation.genericFormError);
       } else {
-        console.error("Failed to create issue:", err);
+        logger.error("Failed to create issue:", err);
         const errorMessage = err instanceof Error ? err.message : dict.toasts.errorGeneric;
         setError(errorMessage);
       }

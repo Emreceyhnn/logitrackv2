@@ -52,7 +52,7 @@ export interface RouteWithRelations extends Route {
     totalStops?: number;
     efficiencyShare?: number;
   };
-  stops?: { address: string; lat?: number; lng?: number }[] | null;
+  stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[] | null;
 }
 
 // KPI / Stats
@@ -162,5 +162,5 @@ export interface RouteFormValues {
   durationMin: number;
   driverId: string;
   vehicleId: string;
-  stops: { address: string; lat?: number; lng?: number }[];
+  stops: { address: string; lat?: number | undefined; lng?: number | undefined }[];
 }

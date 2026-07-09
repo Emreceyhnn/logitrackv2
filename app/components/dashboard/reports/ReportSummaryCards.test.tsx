@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -16,7 +15,7 @@ mock.module("../../../hooks/useCurrency.ts", {
 });
 
 mock.module("../../skeletons/KpiSkeleton.tsx", {
-  defaultExport: ({ count }: any) => (
+  defaultExport: ({ count  }: Record<string, unknown>) => (
     <div data-testid="kpi-skeleton">Loading {count} KPIs</div>
   ),
 });
@@ -67,10 +66,10 @@ const mockDict = {
       deadStock: "Dead Stock",
     },
   },
-} as any;
+} as unknown;
 
 describe("ReportSummaryCards RTL Component", () => {
-  let ReportSummaryCards: any;
+  let ReportSummaryCards: unknown;
 
   before(async () => {
     const mod = await import("./ReportSummaryCards");
@@ -84,7 +83,7 @@ describe("ReportSummaryCards RTL Component", () => {
     onTimeRate: 92.5,
     activeVehicles: 18,
     totalInventoryValue: 550000,
-  } as any;
+  } as unknown;
 
   describe("ReportSummaryCards() bileşeni", () => {
     it("should_RenderKpiSkeleton_WhenLoadingIsTrue", async () => {

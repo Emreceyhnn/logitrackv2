@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -38,7 +37,7 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 
 // Mock NotificationRow to easily trigger onChange
 mock.module("./NotificationRow.tsx", {
-  defaultExport: ({ label, checked, onChange }: any) => (
+  defaultExport: ({ label, checked, onChange  }: Record<string, unknown>) => (
     <div data-testid={`notification-row-${label}`}>
       <span>{label}</span>
       <input 
@@ -55,11 +54,11 @@ mock.module("./NotificationRow.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_10: "rgba()", main_25: "rgba()", main_35: "rgba()" };
-(customTheme.palette.common as any) = { white_alpha: { main_05: "rgba()", main_60: "rgba()" } };
+(customTheme.palette.primary as unknown)._alpha = { main_10: "rgba()", main_25: "rgba()", main_35: "rgba()" };
+(customTheme.palette.common as unknown) = { white_alpha: { main_05: "rgba()", main_60: "rgba()" } };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -71,7 +70,7 @@ mock.module("@mui/material", {
 });
 
 describe("NotificationsTab RTL Component", () => {
-  let NotificationsTab: any;
+  let NotificationsTab: unknown;
 
   before(async () => {
     const mod = await import("./NotificationsTab");

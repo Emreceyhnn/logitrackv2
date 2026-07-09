@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "../db";
-import { revalidatePath } from "next/cache";
 import {
   TrailerStatus,
   TrailerType,
@@ -10,29 +9,22 @@ import {
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import {
-  redis,
-  withCache,
   invalidatePattern,
   hashFilters,
-  trailerCacheKeys,
   TRAILER_CACHE_TTL,
 } from "../redis";
 import { TrailerFilters } from "../type/trailer";
 import { trailerSchema } from "../validation/serverSchemas";
+import { controllerGuard } from "./utils/controllerGuard";
+import { createCacheManager } from "./utils/cacheFactory";
+import { NotFoundError, NoCompanyError, ConflictError } from "../errors";
 
-// ── Cache invalidation helper ─────────────────────────────────────────────────
-async function invalidateTrailerCache(
-  companyId: string,
-  trailerId?: string
-): Promise<void> {
-  await Promise.all([
-    invalidatePattern(trailerCacheKeys.companyPattern(companyId)),
-    trailerId ? redis.del(trailerCacheKeys.detail(trailerId)) : Promise.resolve(),
-  ]);
-  revalidatePath("/", "layout");
-}
+// ── Cache manager ─────────────────────────────────────────────────────────────
+const trailerCache = createCacheManager("trailers", TRAILER_CACHE_TTL);
 
-
+// Override the list key to use the v2 version bump (matches redis.ts pattern)
+trailerCache.keys.list = (companyId: string, filtersHash: string) =>
+  `trailers:${companyId}:list_v2:${filtersHash}`;
 
 interface TrailerInput {
   plate?: string;
@@ -46,14 +38,14 @@ interface TrailerInput {
 export const createTrailer = authenticatedAction(
   async (user, trailerData: TrailerInput) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("createTrailer", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
       ]);
 
-      if (!companyId) throw new Error("User has no company");
+      if (!companyId) throw new NoCompanyError();
 
       const parsed = trailerSchema.parse(trailerData);
 
@@ -65,7 +57,7 @@ export const createTrailer = authenticatedAction(
       });
 
       if (existingTrailer) {
-        throw new Error("Plate or Fleet Number already exists.");
+        throw new ConflictError("Plate or fleet number already exists");
       }
 
       const newTrailer = await db.trailer.create({
@@ -80,26 +72,29 @@ export const createTrailer = authenticatedAction(
         },
       });
 
-      await invalidateTrailerCache(companyId);
+      await trailerCache.invalidate(companyId);
       return newTrailer;
-    } catch (error) {
-      console.error("Failed to create trailer:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getTrailers = authenticatedAction(
   async (user, filters: TrailerFilters = {}) => {
     const companyId = user?.companyId || "";
-    if (!companyId) throw new Error("User has no company");
+    if (!companyId) throw new NoCompanyError();
+
+    await checkPermission(user, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
 
     const filtersHash = hashFilters(filters);
-    const cacheKey = trailerCacheKeys.list(companyId, filtersHash);
 
-    return withCache(cacheKey, TRAILER_CACHE_TTL, async () => {
+    return trailerCache.cached(companyId, filtersHash, async () => {
       const where: Prisma.TrailerWhereInput = {
         companyId,
+        deletedAt: null,
         ...(filters.search && {
           OR: [
             { plate: { contains: filters.search, mode: "insensitive" } },
@@ -177,7 +172,13 @@ export const getTrailers = authenticatedAction(
 export const getTrailerById = authenticatedAction(
   async (user, trailerId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getTrailerById", async () => {
+      await checkPermission(user, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         include: {
@@ -197,28 +198,31 @@ export const getTrailerById = authenticatedAction(
       });
 
       if (!foundTrailer || foundTrailer.companyId !== companyId) {
-        throw new Error("Trailer not found or unauthorized");
+        throw new NotFoundError("Trailer");
       }
 
       return foundTrailer;
-    } catch (error) {
-      console.error("Failed to get trailer:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const updateTrailer = authenticatedAction(
   async (user, trailerId: string, data: Partial<Prisma.TrailerUpdateInput>) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateTrailer", async () => {
+      await checkPermission(user, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         select: { companyId: true },
       });
 
       if (!foundTrailer || foundTrailer.companyId !== companyId) {
-        throw new Error("Trailer not found or unauthorized");
+        throw new NotFoundError("Trailer");
       }
 
       const updatedTrailer = await db.trailer.update({
@@ -226,26 +230,25 @@ export const updateTrailer = authenticatedAction(
         data,
       });
 
-      await invalidateTrailerCache(companyId, trailerId);
+      await trailerCache.invalidate(companyId, trailerId);
       return updatedTrailer;
-    } catch (error) {
-      console.error("Failed to update trailer:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const deleteTrailer = authenticatedAction(
   async (user, trailerId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("deleteTrailer", async () => {
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         select: { companyId: true },
       });
 
       if (!foundTrailer || foundTrailer.companyId !== companyId) {
-        throw new Error("Trailer not found or unauthorized");
+        throw new NotFoundError("Trailer");
       }
 
       // Soft delete: assignment history and compliance documents must survive
@@ -258,26 +261,29 @@ export const deleteTrailer = authenticatedAction(
         },
       });
 
-      await invalidateTrailerCache(companyId, trailerId);
+      await trailerCache.invalidate(companyId, trailerId);
       return { success: true };
-    } catch (error) {
-      console.error("Failed to delete trailer:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const assignTrailerToVehicle = authenticatedAction(
   async (user, trailerId: string, vehicleId: string | null) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("assignTrailerToVehicle", async () => {
+      await checkPermission(user, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         select: { companyId: true },
       });
 
       if (!foundTrailer || foundTrailer.companyId !== companyId) {
-        throw new Error("Trailer not found or unauthorized");
+        throw new NotFoundError("Trailer");
       }
 
       await db.$transaction(async (tx) => {
@@ -290,7 +296,9 @@ export const assignTrailerToVehicle = authenticatedAction(
         if (vehicleId) {
           // Check if vehicle exists
           const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
-          if (!vehicle || vehicle.companyId !== companyId) throw new Error("Vehicle not found");
+          if (!vehicle || vehicle.companyId !== companyId || vehicle.deletedAt) {
+            throw new NotFoundError("Vehicle");
+          }
 
           // Update trailer
           await tx.trailer.update({
@@ -322,14 +330,11 @@ export const assignTrailerToVehicle = authenticatedAction(
         }
       });
 
-      await invalidateTrailerCache(companyId, trailerId);
+      await trailerCache.invalidate(companyId, trailerId);
       // Also invalidate vehicle cache because vehicle state changed
       await invalidatePattern(`vehicles:${companyId}:*`);
       
       return { success: true };
-    } catch (error) {
-      console.error("Failed to assign trailer:", error);
-      throw error;
-    }
+    });
   }
 );

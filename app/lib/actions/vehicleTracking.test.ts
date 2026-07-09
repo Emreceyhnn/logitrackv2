@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -14,7 +14,7 @@ mock.module("../firebase-admin.ts", { namedExports: { adminDb: adminDbMock } });
 
 // 2. TEST GRUPLARI
 describe("Vehicle Tracking Actions", () => {
-  let trackingActions: any;
+  let trackingActions: unknown;
 
   before(async () => {
     trackingActions = await import("./vehicleTracking");

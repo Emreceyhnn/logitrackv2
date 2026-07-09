@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
-const validateSessionMock = mock.fn<(...args: any[]) => any>();
-const redirectMock = mock.fn<(...args: any[]) => any>();
-const headersMock = mock.fn<(...args: any[]) => any>();
+const validateSessionMock = mock.fn<(...args: unknown[]) => unknown>();
+const redirectMock = mock.fn<(...args: unknown[]) => unknown>();
+const headersMock = mock.fn<(...args: unknown[]) => unknown>();
 
 mock.module("./controllers/session.ts", {
   namedExports: {
@@ -26,7 +26,7 @@ mock.module("next/headers", {
 
 mock.module("react", {
   namedExports: {
-    cache: (fn: any) => fn,
+    cache: (fn: Record<string, unknown>) => fn,
   },
 });
 
@@ -38,9 +38,9 @@ mock.module("./constants.ts", {
 });
 
 describe("auth-middleware.ts", () => {
-  let getAuthenticatedUser: any;
-  let authenticatedAction: any;
-  let maybeAuthenticatedAction: any;
+  let getAuthenticatedUser: unknown;
+  let authenticatedAction: unknown;
+  let maybeAuthenticatedAction: unknown;
 
   before(async () => {
     const mod = await import("./auth-middleware");
@@ -109,7 +109,7 @@ describe("auth-middleware.ts", () => {
     it("should throw DYNAMIC_SERVER_USAGE errors", async () => {
       validateSessionMock.mock.mockImplementation(async () => {
         const err = new Error("Dynamic");
-        (err as any).digest = "DYNAMIC_SERVER_USAGE";
+        (err as unknown).digest = "DYNAMIC_SERVER_USAGE";
         throw err;
       });
 
@@ -155,7 +155,7 @@ describe("auth-middleware.ts", () => {
         language: "en",
       }));
 
-      const action = authenticatedAction(async (user: any, arg1: any) => {
+      const action = authenticatedAction(async (user: unknown, arg1: unknown) => {
         return `${user.name} - ${arg1}`;
       });
 
@@ -170,7 +170,7 @@ describe("auth-middleware.ts", () => {
         id: "user-1",
       }));
 
-      const action = maybeAuthenticatedAction(async (user: any) => {
+      const action = maybeAuthenticatedAction(async (user: Record<string, unknown>) => {
         return user?.id;
       });
 
@@ -181,7 +181,7 @@ describe("auth-middleware.ts", () => {
     it("should execute action with null if not authenticated", async () => {
       validateSessionMock.mock.mockImplementation(async () => null);
 
-      const action = maybeAuthenticatedAction(async (user: any) => {
+      const action = maybeAuthenticatedAction(async (user: Record<string, unknown>) => {
         return user;
       });
 

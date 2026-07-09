@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/app/lib/db";
 import { sendNotificationAction } from "@/app/lib/actions/notifications";
+import { logger } from "@/app/lib/logger";
+
 
 export async function GET(req: NextRequest) {
   // Security check: validate the authorization header
@@ -97,6 +99,7 @@ export async function GET(req: NextRequest) {
     // 3. Check Vehicle Registration & Inspection
     const expiringVehicles = await db.vehicle.findMany({
       where: {
+        deletedAt: null,
         OR: [
           { registrationExpiry: { lte: fifteenDaysFromNow } },
           { inspectionExpiry: { lte: fifteenDaysFromNow } },
@@ -299,7 +302,7 @@ export async function GET(req: NextRequest) {
         warehouses.length,
     });
   } catch (error) {
-    console.error("Cron check-expirations failed:", error);
+    logger.error("Cron check-expirations failed:", error);
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
       { status: 500 }

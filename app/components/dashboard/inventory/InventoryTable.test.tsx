@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -46,9 +45,9 @@ mock.module("../../../hooks/useCurrency.ts", {
 });
 
 // Mock DataTable to expose columns rendering
-let dataTableProps: any = null;
+let dataTableProps: unknown = null;
 mock.module("../../ui/DataTable/index.tsx", {
-  defaultExport: (props: any) => {
+  defaultExport: (props: Record<string, unknown>) => {
     dataTableProps = props;
     return (
       <div data-testid="data-table">
@@ -65,7 +64,7 @@ const customTheme = createTheme({
   },
 });
 
-Object.assign((customTheme.palette as any), {
+Object.assign((customTheme.palette as unknown), {
   kpi: {
     sky: "#0ea5e9",
     sky_alpha: { main_10: "rgba(14,165,233,0.1)", main_20: "rgba(14,165,233,0.2)" },
@@ -90,7 +89,7 @@ mock.module("@mui/material", {
 });
 
 describe("InventoryTable RTL Component", () => {
-  let InventoryTable: any;
+  let InventoryTable: unknown;
 
   before(async () => {
     const mod = await import("./InventoryTable");
@@ -147,7 +146,7 @@ describe("InventoryTable RTL Component", () => {
       render(
         <ThemeProvider theme={customTheme}>
           <InventoryTable
-            items={mockItems as any}
+            items={mockItems as unknown}
             onSelect={() => {}}
             onEdit={() => {}}
             onDelete={() => {}}
@@ -169,7 +168,7 @@ describe("InventoryTable RTL Component", () => {
       render(
         <ThemeProvider theme={customTheme}>
           <InventoryTable
-            items={mockItems as any}
+            items={mockItems as unknown}
             onSelect={() => {}}
             onEdit={() => {}}
             onDelete={() => {}}
@@ -180,34 +179,34 @@ describe("InventoryTable RTL Component", () => {
       const columns = dataTableProps.columns;
       
       // 1. productName
-      const productNameCol = columns.find((c: any) => c.key === "productName");
+      const productNameCol = columns.find((c: Record<string, unknown>) => c.key === "productName");
       const nameRender = productNameCol.render(mockItems[0]);
       const { container: nameContainer } = render(nameRender);
       expect(nameContainer.textContent).toContain("Laptop");
 
       // 2. sku
-      const skuCol = columns.find((c: any) => c.key === "sku");
+      const skuCol = columns.find((c: Record<string, unknown>) => c.key === "sku");
       expect(skuCol.render(mockItems[0])).toBe("SKU-LAP-001");
 
       // 3. category
-      const catCol = columns.find((c: any) => c.key === "category");
+      const catCol = columns.find((c: Record<string, unknown>) => c.key === "category");
       const catRender = catCol.render(mockItems[1]); // FROZEN_FOOD
       const { container: catContainer } = render(catRender);
       expect(catContainer.textContent).toContain("FROZEN_FOOD");
 
       // 4. stockLevel (LOW_STOCK)
-      const stockCol = columns.find((c: any) => c.key === "stockLevel");
+      const stockCol = columns.find((c: Record<string, unknown>) => c.key === "stockLevel");
       const stockRenderLow = stockCol.render(mockItems[1]); // quantity: 5, min: 20
       const { container: stockContainerLow } = render(stockRenderLow);
       expect(stockContainerLow.textContent).toContain("5");
       expect(stockContainerLow.textContent).toContain("(Low)");
 
       // 5. unitPrice
-      const priceCol = columns.find((c: any) => c.key === "unitPrice");
+      const priceCol = columns.find((c: Record<string, unknown>) => c.key === "unitPrice");
       expect(priceCol.render(mockItems[0])).toBe("$1200");
 
       // 6. warehouse
-      const whCol = columns.find((c: any) => c.key === "warehouse");
+      const whCol = columns.find((c: Record<string, unknown>) => c.key === "warehouse");
       const whRender = whCol.render(mockItems[0]);
       const { container: whContainer } = render(whRender);
       expect(whContainer.textContent).toContain("WH-A");
@@ -221,7 +220,7 @@ describe("InventoryTable RTL Component", () => {
       render(
         <ThemeProvider theme={customTheme}>
           <InventoryTable
-            items={mockItems as any}
+            items={mockItems as unknown}
             onSelect={onSelect}
             onEdit={onEdit}
             onDelete={onDelete}

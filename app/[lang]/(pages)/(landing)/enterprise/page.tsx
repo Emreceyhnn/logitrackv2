@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
 import EnterpriseClient from './EnterpriseClient';
 import { getDictionary } from '@/app/lib/language/language';
+import { buildSeoAlternates } from '@/app/lib/language/navigation';
 
-export const metadata: Metadata = {
-  title: 'Enterprise Solutions - LogiTrack v2',
-  description: 'Built for the scale of global operations with dedicated infrastructure and white-glove onboarding.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.landing.pageMeta.enterprise.title,
+    description: dict.landing.pageMeta.enterprise.description,
+    alternates: buildSeoAlternates('/enterprise', lang),
+  };
+}
 
 export default async function EnterprisePage(props: {
   params: Promise<{ lang: string }>;

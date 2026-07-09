@@ -6,15 +6,16 @@ import { checkPermission } from "./utils/checkPermission";
 import { FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
+import { controllerGuard } from "./utils/controllerGuard";
+import { createFuelLogSchema } from "../validation/serverSchemas";
+import { logger } from "../logger";
 
 export const getFuelLogs = authenticatedAction(
   async (user, filters: FuelPageState["filters"]) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getFuelLogs", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId);
-      if (!companyId) {
-        throw new Error("User has no company assigned");
-      }
+      
       const { vehicleId, driverId, startDate, endDate } = filters;
 
       const logs = await db.fuelLog.findMany({
@@ -59,10 +60,7 @@ export const getFuelLogs = authenticatedAction(
         cost: Number(log.cost),
       }));
       return typedLogs;
-    } catch (error) {
-      console.error("Failed to get fuel logs:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -75,57 +73,55 @@ export const createFuelLog = authenticatedAction(
       volumeLiter: number;
       cost: number;
       odometerKm: number;
-      location?: string;
+      location?: string | undefined;
       fuelType: FuelType;
-      date?: Date;
-      receiptUrl?: string;
-      currency?: string;
+      date?: Date | undefined;
+      receiptUrl?: string | undefined;
+      currency?: string | undefined;
     }
   ) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("createFuelLog", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId);
-      if (!companyId) throw new Error("User has no company assigned");
+      
+      const parsed = createFuelLogSchema.parse(data);
 
       // Normalize cost to USD
-      let normalizedCost = data.cost;
-      const currency = data.currency || "USD";
+      let normalizedCost = parsed.cost;
+      const currency = parsed.currency;
       if (currency !== "USD") {
         try {
           const rates = await getExchangeRates();
           const rate = rates.rates[currency] || 1;
-          normalizedCost = data.cost / rate;
+          normalizedCost = parsed.cost / rate;
         } catch (err) {
-          console.warn("[fuel] Currency conversion failed:", err);
+          logger.warn("[fuel] Currency conversion failed", err);
         }
       }
 
       const log = await db.fuelLog.create({
         data: {
-          ...data,
+          ...parsed,
+          location: parsed.location ?? null,
+          receiptUrl: parsed.receiptUrl ?? null,
           cost: normalizedCost,
           currency: "USD",
           companyId,
         },
       });
       return { ...log, cost: Number(log.cost) };
-    } catch (error) {
-      console.error("Failed to create fuel log:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getFuelStats = authenticatedAction(async (user) => {
-  const companyId = user?.companyId || "";
-  try {
+  return controllerGuard("getFuelStats", async () => {
+    const companyId = user?.companyId || "";
     await checkPermission(user, companyId);
-    if (!companyId) {
-      throw new Error("User has no company assigned");
-    }
 
     const logs = await db.fuelLog.findMany({
       where: { companyId },
+      select: { cost: true, volumeLiter: true, odometerKm: true },
       orderBy: { date: "desc" },
     });
 
@@ -148,9 +144,12 @@ export const getFuelStats = authenticatedAction(async (user) => {
     let efficiencyKml = 0;
     if (logs.length >= 2) {
       const sortedLogs = [...logs].sort((a, b) => b.odometerKm - a.odometerKm);
-      const totalDist =
-        sortedLogs[0].odometerKm - sortedLogs[sortedLogs.length - 1].odometerKm;
-      efficiencyKml = totalDist / totalVolume;
+      const highest = sortedLogs[0];
+      const lowest = sortedLogs[sortedLogs.length - 1];
+      if (highest && lowest) {
+        const totalDist = highest.odometerKm - lowest.odometerKm;
+        efficiencyKml = totalDist / totalVolume;
+      }
     }
 
     return {
@@ -159,8 +158,5 @@ export const getFuelStats = authenticatedAction(async (user) => {
       avgFuelPrice: totalCost / totalVolume,
       efficiencyKml,
     };
-  } catch (error) {
-    console.error("Failed to get fuel stats:", error);
-    throw error;
-  }
+  });
 });

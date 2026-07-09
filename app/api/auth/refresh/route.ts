@@ -17,16 +17,13 @@ export async function GET(request: NextRequest) {
     // Clear search params to not carry over redirect_to
     url.search = "";
     
-    // If redirectTo contained query params itself, we need to parse them.
-    // It's cleaner to just construct a new URL using the origin and redirectTo string
+    // Ensure redirectTo is a safe relative path to prevent Open Redirect vulnerabilities.
+    // It must start with a single '/' and not with '//' or '/\'.
+    const isSafeRelativePath = redirectTo.startsWith("/") && !redirectTo.startsWith("//") && !redirectTo.startsWith("/\\");
+    const safeRedirectTo = isSafeRelativePath ? redirectTo : "/";
+
     try {
-      let targetUrl = new URL(redirectTo, request.nextUrl.origin);
-      // Only same-origin targets are allowed: an absolute or protocol-relative
-      // redirect_to (e.g. "https://evil.com", "//evil.com") must not send the
-      // user off-site after a successful refresh.
-      if (targetUrl.origin !== request.nextUrl.origin) {
-        targetUrl = new URL("/", request.nextUrl.origin);
-      }
+      const targetUrl = new URL(safeRedirectTo, request.nextUrl.origin);
       return NextResponse.redirect(targetUrl);
     } catch {
       // Fallback
@@ -38,7 +35,7 @@ export async function GET(request: NextRequest) {
   // If refresh failed (e.g. refresh token expired or revoked), send them to login.
   // We should try to guess the locale from the redirect_to path, or default.
   const localeMatch = redirectTo.match(/^\/([a-z]{2})(?:\/|$)/);
-  const locale = localeMatch ? localeMatch[1] : DEFAULT_LOCALE;
+  const locale = localeMatch?.[1] ?? DEFAULT_LOCALE;
 
   const url = request.nextUrl.clone();
   url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -68,7 +67,7 @@ mock.module("@mui/material", {
 });
 
 describe("AssignDriverDialog RTL Component", () => {
-  let AssignDriverDialog: any;
+  let AssignDriverDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

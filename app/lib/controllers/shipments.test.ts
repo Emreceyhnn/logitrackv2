@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { ShipmentStatus, ShipmentPriority } from "@prisma/client";
 import { rejects } from "node:assert";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
@@ -103,7 +104,7 @@ mock.module("next/cache", {
 
 // 2. TEST GRUPLARI
 describe("Shipments Controller", () => {
-  let shipmentsController: any;
+  let shipmentsController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -136,7 +137,7 @@ describe("Shipments Controller", () => {
       // Arrange
       dbMock.shipment.findUnique.mock.mockImplementation(async () => null); // No existing tracking ID
       dbMock.customer.findUnique.mock.mockImplementation(async () => null); // No customer details
-      dbMock.shipment.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.shipment.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "shipment-1",
         trackingId: "TRK-123456",
         ...args.data,
@@ -147,7 +148,7 @@ describe("Shipments Controller", () => {
         destination: "Ankara",
         weightKg: 1000,
         volumeM3: 5,
-        priority: "HIGH",
+        priority: ShipmentPriority.HIGH,
       };
 
       // Act
@@ -196,9 +197,9 @@ describe("Shipments Controller", () => {
       dbMock.shipment.findUnique.mock.resetCalls();
       dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
         companyId: "company-1",
-        status: "ASSIGNED",
+        status: ShipmentStatus.ASSIGNED,
       }));
-      dbMock.shipment.update.mock.mockImplementation(async (args: any) => ({
+      dbMock.shipment.update.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "shipment-1",
         trackingId: "TRK-123456",
         status: args.data.status,
@@ -223,7 +224,7 @@ describe("Shipments Controller", () => {
       expect(updateArgs.data.status).toBe("IN_TRANSIT");
       // Every transition must leave an audit trail in ShipmentHistory
       expect(updateArgs.data.history.create).toMatchObject({
-        status: "IN_TRANSIT",
+        status: ShipmentStatus.IN_TRANSIT,
         companyId: "company-1",
         location: "Istanbul Hub",
         description: "Departed origin warehouse",
@@ -302,7 +303,7 @@ describe("Shipments Controller", () => {
       // Arrange: DELIVERED is only reachable from IN_TRANSIT / DELAYED
       dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
         companyId: "company-1",
-        status: "IN_TRANSIT",
+        status: ShipmentStatus.IN_TRANSIT,
       }));
 
       // Act
@@ -336,7 +337,7 @@ describe("Shipments Controller", () => {
       // Arrange
       dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
         companyId: "company-1",
-        status: "IN_TRANSIT",
+        status: ShipmentStatus.IN_TRANSIT,
       }));
       dbMock.shipment.update.mock.mockImplementation(async () => {
         throw new Error("DB write failed");
@@ -355,7 +356,7 @@ describe("Shipments Controller", () => {
       // Arrange: a delivered shipment is terminal — no move back to IN_TRANSIT
       dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
         companyId: "company-1",
-        status: "DELIVERED",
+        status: ShipmentStatus.DELIVERED,
       }));
       const consoleMock = mock.method(console, "error", () => {});
 
@@ -371,7 +372,7 @@ describe("Shipments Controller", () => {
       // Arrange: FAILED is reachable from IN_TRANSIT but needs a reason
       dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
         companyId: "company-1",
-        status: "IN_TRANSIT",
+        status: ShipmentStatus.IN_TRANSIT,
       }));
       const consoleMock = mock.method(console, "error", () => {});
 
@@ -387,7 +388,7 @@ describe("Shipments Controller", () => {
       // Arrange
       dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
         companyId: "company-1",
-        status: "IN_TRANSIT",
+        status: ShipmentStatus.IN_TRANSIT,
       }));
 
       // Act

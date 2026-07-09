@@ -1,49 +1,45 @@
 "use server";
 
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { 
-  ShipmentStatus, 
-  VehicleStatus, 
-  RouteStatus, 
-  IssueStatus, 
-  IssuePriority, 
-  IssueType 
+import { controllerGuard } from "./utils/controllerGuard";
+import {
+  ShipmentStatus,
+  VehicleStatus,
+  RouteStatus,
+  IssueStatus,
+  IssuePriority,
 } from "@prisma/client";
-import { 
-  DashboardData, 
-  ActionRequiredItems, 
-  OverviewStats, 
-  DailyOperationsData, 
-  FuelStat, 
-  WarehouseCapacityStat, 
-  LowStockItemStat, 
-  PicksAndPacksData, 
-  ShipmentDayStat,
-  MapData
+import {
+  DashboardData,
+  ActionRequiredItems,
+  OverviewStats,
+  DailyOperationsData,
+  LowStockItemStat,
+  PicksAndPacksData,
 } from "../type/overview";
-import { 
+import {
   withCache,
   overviewCacheKeys,
   OVERVIEW_CACHE_TTL,
 } from "../redis";
 import { getExchangeRates } from "../services/exchangeRate";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
+import {
+  buildAlerts,
+  buildFuelStats,
+  buildWarehouseCapacity,
+  buildShipmentVolume,
+  buildMapData,
+} from "./overview/transforms";
 
 /**
  * Aggregates all data required for the Overview Dashboard in a single server-side pass.
  * This replaces 10 separate server actions to minimize network overhead and database connections.
  */
 export const getOverviewDashboardData = authenticatedAction(async (user): Promise<DashboardData & { alerts: ActionRequiredItems[] }> => {
-  try {
+  return controllerGuard("getOverviewDashboardData", async () => {
     if (!user.companyId) {
       return {
         stats: null,
@@ -64,9 +60,6 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     const companyId = user.companyId;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    const sixtyDaysAgo = new Date();
-    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
     const oneHundredEightyDaysAgo = new Date();
     oneHundredEightyDaysAgo.setDate(oneHundredEightyDaysAgo.getDate() - 179);
@@ -138,6 +131,16 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
           status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
           priority: { in: [IssuePriority.HIGH, IssuePriority.CRITICAL] },
         },
+        select: {
+          type: true,
+          title: true,
+          priority: true,
+          status: true,
+          vehicleId: true,
+          driverId: true,
+          shipmentId: true,
+          createdAt: true,
+        },
         take: 10,
         orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
       }),
@@ -148,6 +151,12 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
           companyId,
           expiryDate: { not: null, lte: thirtyDaysFromNow },
           status: { not: "EXPIRED" },
+        },
+        select: {
+          name: true,
+          expiryDate: true,
+          driverId: true,
+          vehicleId: true,
         },
         take: 5,
         orderBy: { expiryDate: "asc" },
@@ -197,13 +206,13 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
           date: { gte: oneHundredEightyDaysAgo },
         },
       }),
-      
+
       // 5b. Exchange Rates for processing
       getExchangeRates(),
 
       // 5b. Parallel Vehicle Plate Fetching (Eliminate waterfall)
       db.vehicle.findMany({
-        where: { companyId },
+        where: { companyId, deletedAt: null },
         select: { id: true, plate: true },
       }),
 
@@ -261,18 +270,18 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
 
       // 11. Optimized Map Data (Select only required fields)
       Promise.all([
-        db.warehouse.findMany({ 
-          where: { companyId }, 
-          select: { id: true, name: true, lat: true, lng: true } 
+        db.warehouse.findMany({
+          where: { companyId },
+          select: { id: true, name: true, lat: true, lng: true }
         }),
-        db.vehicle.findMany({ 
-          where: { companyId }, 
-          select: { id: true, plate: true, currentLat: true, currentLng: true } 
+        db.vehicle.findMany({
+          where: { companyId, deletedAt: null },
+          select: { id: true, plate: true, currentLat: true, currentLng: true }
         }),
-        db.customer.findMany({ 
-          where: { companyId }, 
-          select: { 
-            id: true, 
+        db.customer.findMany({
+          where: { companyId },
+          select: {
+            id: true,
             name: true,
             locations: {
               select: {
@@ -281,7 +290,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
                 isDefault: true,
               }
             }
-          } 
+          }
         }),
       ]),
 
@@ -306,8 +315,8 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       ]),
     ]);
 
-    // Data Processing
-    
+    // ── Data Processing ─────────────────────────────────────────────────────
+
     // 1. Stats
     const stats: OverviewStats = {
       activeShipments: statsCounts[0],
@@ -333,39 +342,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     };
 
     // 2 & 3. Alerts (Issues + Docs)
-    const issueAlerts: ActionRequiredItems[] = openIssues.map((issue) => ({
-      type: (issue.type === IssueType.VEHICLE
-        ? "vehicle"
-        : issue.type === IssueType.DRIVER
-        ? "driver"
-        : issue.type === IssueType.SHIPMENT
-        ? "SHIPMENT_DELAY"
-        : "vehicle") as ActionRequiredItems["type"],
-      title: issue.title,
-      messageKey: "ISSUE_ALERT",
-      messageParams: { priority: issue.priority, status: issue.status },
-      link: issue.type === IssueType.VEHICLE && issue.vehicleId 
-        ? `/vehicle?id=${issue.vehicleId}&tab=2` 
-        : issue.type === IssueType.DRIVER && issue.driverId 
-        ? `/drivers?id=${issue.driverId}` 
-        : issue.type === IssueType.SHIPMENT && issue.shipmentId 
-        ? `/shipments?id=${issue.shipmentId}` 
-        : undefined,
-    }));
-
-    const docAlerts: ActionRequiredItems[] = expiringDocs.map((doc) => ({
-      type: "DOCUMENT_DUE" as const,
-      title: doc.name,
-      messageKey: doc.expiryDate ? "DOC_EXPIRES" : "DOC_EXPIRY_APPROACHING",
-      messageParams: doc.expiryDate ? { date: doc.expiryDate.toISOString() } : undefined,
-      link: doc.driverId 
-        ? `/drivers?id=${doc.driverId}` 
-        : doc.vehicleId 
-        ? `/vehicle?id=${doc.vehicleId}&tab=1` 
-        : undefined,
-    }));
-
-    const alerts = [...issueAlerts, ...docAlerts];
+    const alerts = buildAlerts(openIssues, expiringDocs);
 
     // 4. Daily Ops
     const dailyOps: DailyOperationsData = {
@@ -378,50 +355,10 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
 
     // 5. Fuel Stats
     const vehicleMap = new Map(vehiclePlates.map((v) => [v.id, v.plate]));
-    const rates = exchangeRates.rates;
-    const fuelStatsMap = new Map<string, { volume: number; costUsd: number }>();
-
-    fuelLogsRaw.forEach((log) => {
-      const current = fuelStatsMap.get(log.vehicleId) || { volume: 0, costUsd: 0 };
-      const rate = rates[log.currency || "USD"] || 1;
-      const costUsd = Number(log.cost) / rate;
-
-      fuelStatsMap.set(log.vehicleId, {
-        volume: current.volume + log.volumeLiter,
-        costUsd: current.costUsd + costUsd,
-      });
-    });
-
-    const fuelStats: FuelStat[] = Array.from(fuelStatsMap.entries())
-      .sort((a, b) => b[1].volume - a[1].volume)
-      .slice(0, 8)
-      .map(([id, data]) => ({
-        id,
-        plate: vehicleMap.get(id) ?? id,
-        value: Math.round(data.volume * 10) / 10,
-        totalCost: Math.round(data.costUsd),
-      }));
+    const fuelStats = buildFuelStats(fuelLogsRaw, vehicleMap, exchangeRates.rates);
 
     // 6. Warehouse Capacity
-    const palletMap = new Map(palletSumsRaw.map((p) => [p.warehouseId, { pallets: p._sum.palletCount ?? 0, volume: p._sum.volumeM3 ?? 0 }]));
-
-    const warehouseCapacity: WarehouseCapacityStat[] = warehousesRaw.map((w) => {
-      const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };
-      const palletCapacity = w.capacityPallets || 5000;
-      const volumeCapacity = w.capacityVolumeM3 || 100000;
-      const palletUsed = Math.round(used.pallets);
-      const volumeUsed = Math.round(used.volume);
-      return {
-        warehouseName: w.name,
-        warehouseId: w.id,
-        capacity: Math.min(Math.round((palletUsed / palletCapacity) * 100), 100),
-        volume: Math.min(Math.round((volumeUsed / volumeCapacity) * 100), 100),
-        palletUsed,
-        palletCapacity,
-        volumeUsed,
-        volumeCapacity,
-      };
-    });
+    const warehouseCapacity = buildWarehouseCapacity(warehousesRaw, palletSumsRaw);
 
     // 7. Low Stock
     const lowStockItems: LowStockItemStat[] = lowStockItemsData.map((i) => ({
@@ -444,55 +381,11 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     });
     const picksAndPacks: PicksAndPacksData = { picks, packs };
 
-    // 10. Shipment Volume History — O(n) single pass instead of O(n×180)
-    // Build a Map of "YYYY-MM-DD" → count first, then read each day in O(1).
-    const shipmentCountByDay = new Map<string, number>();
-    for (const s of shipmentVolumeRaw) {
-      const d = new Date(s.createdAt);
-      // Shift to the user's timezone via dayjs to get the correct local date
-      const localDate = dayjs.utc(d).tz(user.timezone || "UTC").format("YYYY-MM-DD");
-      shipmentCountByDay.set(localDate, (shipmentCountByDay.get(localDate) ?? 0) + 1);
-    }
-
-    const shipmentVolume: ShipmentDayStat[] = [];
-    for (let i = 179; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      d.setHours(0, 0, 0, 0);
-      const dayjsDate = dayjs.utc(d).tz(user.timezone || "UTC");
-      const label = dayjsDate.format("MMM DD");
-      const key   = dayjsDate.format("YYYY-MM-DD");
-      shipmentVolume.push({ date: label, count: shipmentCountByDay.get(key) ?? 0 });
-    }
+    // 10. Shipment Volume History
+    const shipmentVolume = buildShipmentVolume(shipmentVolumeRaw, user.timezone || "UTC");
 
     // 11. Map Data
-    const [mapWarehouses, mapVehicles, mapCustomers] = mapDataRaw;
-    const mapData: MapData[] = [
-      ...mapWarehouses.map((w) => ({
-        position: { lat: w.lat || 40.7128, lng: w.lng || -74.006 },
-        name: w.name,
-        id: w.id,
-        type: "W" as const,
-      })),
-      ...mapVehicles.map((v) => ({
-        position: { lat: v.currentLat || 40.7128, lng: v.currentLng || -74.006 },
-        name: v.plate,
-        id: v.id,
-        type: "V" as const,
-      })),
-      ...mapCustomers.map((c) => {
-        const defaultLoc = c.locations.find((l) => l.isDefault) || c.locations[0];
-        return {
-          position: {
-            lat: defaultLoc?.lat ?? 40.7128,
-            lng: defaultLoc?.lng ?? -74.006,
-          },
-          name: c.name,
-          id: c.id,
-          type: "C" as const,
-        };
-      }),
-    ];
+    const mapData = buildMapData(mapDataRaw);
 
     return {
       stats,
@@ -514,8 +407,5 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         alerts
       };
     });
-  } catch (error) {
-    console.error("Failed to get unified overview dashboard data:", error);
-    throw error;
-  }
+  });
 });

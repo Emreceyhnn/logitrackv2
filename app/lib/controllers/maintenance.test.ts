@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { MaintenanceType, MaintenanceStatus } from "@prisma/client";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
 
@@ -68,7 +69,7 @@ mock.module("dayjs", {
 
 // 2. TEST GRUPLARI
 describe("Maintenance Controller", () => {
-  let maintenanceController: any;
+  let maintenanceController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -100,7 +101,7 @@ describe("Maintenance Controller", () => {
       const expectedRecord = {
         id: "record-1",
         vehicleId: "v-1",
-        type: "OIL_CHANGE",
+        type: MaintenanceType.OIL_CHANGE,
         vehicle: { plate: "34 ABC 12" }
       };
       dbMock.maintenanceRecord.create.mock.mockImplementation(async () => expectedRecord);
@@ -121,7 +122,7 @@ describe("Maintenance Controller", () => {
       expect(dbMock.maintenanceRecord.create.mock.calls.length).toBe(1);
       
       // Cost should be normalized (3000 / 30.0 = 100)
-      const createArgs = dbMock.maintenanceRecord.create.mock.calls[0].arguments[0] as any;
+      const createArgs = dbMock.maintenanceRecord.create.mock.calls[0].arguments[0] as unknown;
       expect(createArgs.data.cost).toBe(100);
       expect(createArgs.data.currency).toBe("USD");
       
@@ -136,8 +137,8 @@ describe("Maintenance Controller", () => {
 
       // Act & Assert
       await expect(
-        maintenanceController.createMaintenanceRecord(mockUser, "v-1", "OIL_CHANGE", new Date(), 100)
-      ).rejects.toThrow("Invalid vehicle or vehicle does not belong to this company");
+        maintenanceController.createMaintenanceRecord(mockUser, "v-1", MaintenanceType.OIL_CHANGE, new Date(), 100)
+      ).rejects.toThrow("Vehicle not found or unauthorized");
 
       expect(dbMock.maintenanceRecord.create.mock.calls.length).toBe(0);
     });
@@ -149,15 +150,15 @@ describe("Maintenance Controller", () => {
     it("should_UpdateRecordAndSendNotification_WhenStatusChanges", async () => {
       // Arrange
       dbMock.maintenanceRecord.findUnique.mock.mockImplementation(async () => ({
-        status: "SCHEDULED",
-        type: "ENGINE_REPAIR",
+        status: MaintenanceStatus.SCHEDULED,
+        type: MaintenanceType.ENGINE_REPAIR,
         companyId: "company-1",
         vehicle: { plate: "34 XYZ 99" }
       }));
 
       dbMock.maintenanceRecord.update.mock.mockImplementation(async () => ({
-        status: "COMPLETED", // changed status
-        type: "ENGINE_REPAIR",
+        status: MaintenanceStatus.COMPLETED, // changed status
+        type: MaintenanceType.ENGINE_REPAIR,
         cost: 100,
         originalCost: null,
         vehicle: { plate: "34 XYZ 99", id: "v-1" }
@@ -167,7 +168,7 @@ describe("Maintenance Controller", () => {
       const result = await maintenanceController.updateMaintenanceRecord(
         mockUser, 
         "record-1", 
-        { status: "COMPLETED" }
+        { status: MaintenanceStatus.COMPLETED }
       );
 
       // Assert
@@ -177,7 +178,7 @@ describe("Maintenance Controller", () => {
       // Status changed from SCHEDULED to COMPLETED, so a notification should be sent
       expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(1);
       
-      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as any;
+      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as unknown;
       expect(notifArgs.title).toBe("Bakım Tamamlandı! ✅");
       expect(notifArgs.type).toBe("SUCCESS");
     });

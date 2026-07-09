@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -8,9 +7,9 @@ import React from "react";
 // 1. Mocks — the map is a dynamic() Leaflet import; stub the factory and
 // render the markers it receives so the mapping logic can be asserted.
 mock.module("next/dynamic", {
-  defaultExport: () => (props: any) => (
+  defaultExport: () => (props: Record<string, unknown>) => (
     <div data-testid="map-with-marker">
-      {props.markers?.map((m: any) => (
+      {props.markers?.map((m: Record<string, unknown>) => (
         <div key={m.name} data-testid={`marker-${m.name}`}>
           {`${m.type}:${m.lat},${m.len}`}
         </div>
@@ -23,12 +22,12 @@ import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
   namedExports: {
     ...originalMui,
-    Skeleton: ({ variant }: any) => <div data-testid="loading-skeleton" data-variant={variant} />,
+    Skeleton: ({ variant  }: Record<string, unknown>) => <div data-testid="loading-skeleton" data-variant={variant} />,
   }
 });
 
 describe("RoutesMainMap RTL Component", () => {
-  let RoutesMainMap: any;
+  let RoutesMainMap: unknown;
 
   before(async () => {
     const mod = await import("./routesMainMap");

@@ -3,9 +3,10 @@
 import { db } from "../db";
 import { ReportsData } from "../type/reports";
 import { authenticatedAction } from "../auth-middleware";
+import { controllerGuard } from "./utils/controllerGuard";
 
 export const getReportsDataAction = authenticatedAction(async (user): Promise<ReportsData | null> => {
-  try {
+  return controllerGuard("getReportsDataAction", async () => {
     if (!user.companyId) return null;
     const companyId = user.companyId;
 
@@ -51,11 +52,11 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
     );
 
     const vehicles = await db.vehicle.findMany({
-      where: { companyId },
-      select: { 
-        plate: true, 
-        currentLat: true, 
-        currentLng: true, 
+      where: { companyId, deletedAt: null },
+      select: {
+        plate: true,
+        currentLat: true,
+        currentLng: true,
         status: true,
         avgFuelConsumption: true,
         odometerKm: true,
@@ -90,9 +91,10 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
 
     const categoryStats = enrichedInventory.reduce(
       (acc, item) => {
-        if (!acc[item.category]) acc[item.category] = { value: 0, count: 0 };
-        acc[item.category].value += item.quantity * item.unitPrice;
-        acc[item.category].count += 1;
+        const entry = acc[item.category] ?? { value: 0, count: 0 };
+        entry.value += item.quantity * item.unitPrice;
+        entry.count += 1;
+        acc[item.category] = entry;
         return acc;
       },
       {} as Record<string, { value: number; count: number }>
@@ -133,11 +135,5 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
         totalInventoryValue: totalInventoryValue,
       },
     };
-  } catch (error) {
-    if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
-      throw error;
-    }
-    console.error("Failed to get reports data:", error);
-    return null;
-  }
+  }, { fallback: null });
 });

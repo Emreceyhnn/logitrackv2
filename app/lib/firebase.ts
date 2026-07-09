@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { stripUndefined } from "./utils/stripUndefined";
 import {
   getDatabase,
   ref,
@@ -21,7 +22,7 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-export const app = initializeApp(firebaseConfig);
+export const app = initializeApp(stripUndefined(firebaseConfig));
 export const db = getDatabase(app);
 export const auth = getAuth(app);
 export { ref, push, set, update, onValue, off };

@@ -33,6 +33,8 @@ import {
 import { getVehiclesWithDashboard } from "@/app/lib/controllers/vehicle";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import VehicleContent from "./components/VehicleContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -105,7 +107,7 @@ export default async function VehiclePage() {
   } catch (error) {
     // If prefetch fails (e.g. cold DB) the client will hydrate with no cache
     // and show the loading state gracefully — no hard crash.
-    console.error("[VehiclePage SSR] prefetch failed:", error);
+    logger.error("[VehiclePage SSR] prefetch failed:", error);
   }
 
   /* ── 4. Serialize & stream to client ───────────────────────────────── */

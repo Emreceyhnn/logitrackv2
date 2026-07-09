@@ -14,6 +14,8 @@ import {
 import { getWarehousesWithDashboardData } from "@/app/lib/controllers/warehouse";
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
 import WarehouseContent from "./components/WarehouseContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -63,7 +65,7 @@ export default async function WarehousePage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[WarehousePage SSR] prefetch failed:", error);
+    logger.error("[WarehousePage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

@@ -17,18 +17,29 @@ import {
 import { rateLimit } from "@/app/lib/rate-limiter";
 
 /* -------------------------------------------------------------------------- */
+/*  Startup Validations                                                         */
+/* -------------------------------------------------------------------------- */
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("CRITICAL: JWT_SECRET environment variable is missing. Application cannot start safely.");
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Helpers                                                                     */
 /* -------------------------------------------------------------------------- */
 
 function getClientIp(request: NextRequest): string {
-  // Trust order:
-  // 1. x-real-ip — overwritten by our own reverse proxy (or Vercel), so it
-  //    cannot be forged from outside.
-  // 2. LAST hop of x-forwarded-for — appended by the nearest trusted proxy.
-  //    Earlier entries are client-supplied and trivially spoofable, so they
-  //    must never be used for rate limiting.
-  // 3. "unknown" — a distinct bucket instead of a shared constant, so header
-  //    stripping can't merge every anonymous client into one legit-looking IP.
+  // Trust order for Next.js / Vercel environments (request.ip was removed
+  // from NextRequest in Next 15, so we read it from trusted proxy headers):
+  // 1. x-vercel-forwarded-for - Vercel specific secure header
+  // 2. x-real-ip - Reliable if overwritten by a trusted proxy
+  // 3. LAST hop of x-forwarded-for (fallback, but can be spoofed)
+  const vercelIp = request.headers.get("x-vercel-forwarded-for");
+  if (vercelIp) {
+    const firstVercelIp = vercelIp.split(",")[0];
+    if (firstVercelIp) return firstVercelIp.trim();
+  }
+
   const realIp = request.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
 
@@ -38,7 +49,7 @@ function getClientIp(request: NextRequest): string {
       .split(",")
       .map((h) => h.trim())
       .filter(Boolean);
-    if (hops.length > 0) return hops[hops.length - 1];
+    if (hops.length > 0) return hops[hops.length - 1] ?? "unknown";
   }
 
   return "unknown";
@@ -62,32 +73,59 @@ function getLocaleFromPathname(pathname: string): {
   return { locale: DEFAULT_LOCALE, restPath: pathname };
 }
 
+// Dashboard responses get a strict per-request nonce on script-src: every
+// script tag in that subtree (JsonLd is landing-only, MUI/emotion styles are
+// untouched since style-src stays relaxed) must carry it via `x-nonce`.
+// Marketing/static routes keep the relaxed script-src so the root [lang]
+// layout can stay free of headers()/cookies() (see layout.tsx) and remain
+// statically rendered.
+function buildCsp(nonce: string, strict: boolean): string {
+  const scriptSrc = strict
+    ? `'self' 'nonce-${nonce}' https://maps.googleapis.com`
+    : `'self' 'unsafe-inline' https://maps.googleapis.com`;
+
+  return [
+    `script-src ${scriptSrc}`,
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ");
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Proxy (Next.js 16+ proxy/middleware convention)                             */
 /* -------------------------------------------------------------------------- */
 
-export default async function proxy(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const nonce = crypto.randomUUID().replace(/-/g, "");
 
   // ── Rate Limiting for API Routes ───────────────────────────────────────────
   if (pathname.startsWith("/api")) {
-    const ip = getClientIp(request);
+    const isMutation = ["POST", "PUT", "PATCH", "DELETE"].includes(request.method);
+    const isAuth = pathname.startsWith("/api/auth");
+    
+    // Optimizasyon: Kritik olmayan GET isteklerinde Redis ağ gecikmesini (+50-100ms) 
+    // önlemek için Rate Limiter sadece mutasyon ve yetkilendirme rotalarında çalıştırılır.
+    if (isMutation || isAuth) {
+      const ip = getClientIp(request);
+      const limitResult = await rateLimit(ip, 120, 60, "rate-limit:api:");
 
-    const limitResult = await rateLimit(ip, 120, 60, "rate-limit:api:");
-
-    if (!limitResult.success) {
-      return new NextResponse(
-        JSON.stringify({ error: "Too many requests. Please try again later." }),
-        {
-          status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "X-RateLimit-Limit": limitResult.limit.toString(),
-            "X-RateLimit-Remaining": limitResult.remaining.toString(),
-            "X-RateLimit-Reset": limitResult.reset.toString(),
-          },
-        }
-      );
+      if (!limitResult.success) {
+        return new NextResponse(
+          JSON.stringify({ error: "Too many requests. Please try again later." }),
+          {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "X-RateLimit-Limit": limitResult.limit.toString(),
+              "X-RateLimit-Remaining": limitResult.remaining.toString(),
+              "X-RateLimit-Reset": limitResult.reset.toString(),
+            },
+          }
+        );
+      }
     }
   }
 
@@ -97,7 +135,9 @@ export default async function proxy(request: NextRequest) {
     pathname.startsWith("/api") ||
     /\.(.+)$/.test(pathname)
   ) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", buildCsp(nonce, false));
+    return response;
   }
 
   // ── 1. Locale redirect ─────────────────────────────────────────────────────
@@ -115,7 +155,7 @@ export default async function proxy(request: NextRequest) {
       const acceptLanguage = request.headers.get("accept-language");
       if (acceptLanguage) {
         // 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7' -> pick the first matching language
-        const preferredLang = acceptLanguage.split(',')[0].split('-')[0].toLowerCase();
+        const preferredLang = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase() ?? "";
         if ((LOCALES as readonly string[]).includes(preferredLang)) {
           locale = preferredLang as Locale;
         }
@@ -170,10 +210,7 @@ export default async function proxy(request: NextRequest) {
 
   if (token) {
     try {
-      if (!process.env.JWT_SECRET) {
-        throw new Error("JWT_SECRET is not defined");
-      }
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
       const { payload } = await jwtVerify(token, secret);
       companyId = (payload.companyId as string) || null;
       isTokenValid = true;
@@ -228,11 +265,19 @@ export default async function proxy(request: NextRequest) {
   }
 
   // ── 6. Final Response ───────────────────────────────────────────────────────
-  if (rewriteUrl) {
-    return NextResponse.rewrite(rewriteUrl);
-  }
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
 
-  return NextResponse.next();
+  const response = rewriteUrl
+    ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
+    : NextResponse.next({ request: { headers: requestHeaders } });
+
+  response.headers.set(
+    "Content-Security-Policy",
+    buildCsp(nonce, isProtectedRoute)
+  );
+
+  return response;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -19,6 +19,8 @@ import { useRouter, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { LoginUser } from "@/app/lib/controllers/users";
 import { loginValidationSchema } from "@/app/lib/validationSchema";
+import { logger } from "@/app/lib/logger";
+
 
 interface LoginFormValues {
   email: string;
@@ -61,7 +63,7 @@ export default function LoginForm() {
         }
       }
     } catch (error: unknown) {
-      console.error("Login failed:", error);
+      logger.error("Login failed:", error);
       const message =
         error instanceof Error ? error.message : dict.auth.loginFailed;
       actions.setFieldError("email", message);

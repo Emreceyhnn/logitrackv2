@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 import { renderToString } from "react-dom/server";
@@ -18,7 +18,7 @@ mock.module("next/navigation", {
 mock.module("../../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 mock.module("../../../lib/controllers/users.ts", { namedExports: { RegisterUser: mock.fn() } });
 mock.module("../../../lib/validationSchema.ts", { namedExports: { signUpValidationSchema: mock.fn(() => [{}, {}, {}]) } });
-mock.module("../../ui/AuthButton.tsx", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
+mock.module("../../ui/AuthButton.tsx", { defaultExport: ({ children  }: Record<string, unknown>) => <button data-testid="AuthButton">{children}</button> });
 
 mock.module("./step1PersonalInfo.tsx", { defaultExport: () => <div data-testid="Step1PersonalInfo" /> });
 mock.module("./step2Security.tsx", { defaultExport: () => <div data-testid="Step2Security" /> });
@@ -26,21 +26,21 @@ mock.module("./step3Profile.tsx", { defaultExport: () => <div data-testid="Step3
 
 mock.module("formik", {
   namedExports: {
-    Form: ({ children }: any) => <form data-testid="Form">{children}</form>,
-    Formik: ({ children }: any) => <div data-testid="Formik">{typeof children === "function" ? children({ handleSubmit: () => {} }) : children}</div>
+    Form: ({ children  }: Record<string, unknown>) => <form data-testid="Form">{children}</form>,
+    Formik: ({ children  }: Record<string, unknown>) => <div data-testid="Formik">{typeof children === "function" ? children({ handleSubmit: () => {} }) : children}</div>
   }
 });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Button: ({ children }: any) => <button data-testid="Button">{children}</button>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Step: ({ children }: any) => <div data-testid="Step">{children}</div>,
-    StepLabel: ({ children }: any) => <div data-testid="StepLabel">{children}</div>,
-    Stepper: ({ children }: any) => <div data-testid="Stepper">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
-    styled: () => () => function StyledMock({ children }: any) { return <div data-testid="Styled">{children}</div>; },
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Button: ({ children  }: Record<string, unknown>) => <button data-testid="Button">{children}</button>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
+    Step: ({ children  }: Record<string, unknown>) => <div data-testid="Step">{children}</div>,
+    StepLabel: ({ children  }: Record<string, unknown>) => <div data-testid="StepLabel">{children}</div>,
+    Stepper: ({ children  }: Record<string, unknown>) => <div data-testid="Stepper">{children}</div>,
+    Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>,
+    styled: () => () => function StyledMock({ children  }: Record<string, unknown>) { return <div data-testid="Styled">{children}</div>; },
     StepConnector: function StepConnectorMock() { return <div data-testid="StepConnector" />; },
     stepConnectorClasses: { alternativeLabel: "", active: "", completed: "", line: "" }
   }
@@ -49,7 +49,7 @@ mock.module("@mui/material", {
 mock.module("@mui/icons-material/Check", { defaultExport: () => <div data-testid="CheckIcon" /> });
 
 describe("SignUpStepper Component", () => {
-  let SignUpStepper: any;
+  let SignUpStepper: unknown;
 
   before(async () => {
     const mod = await import("./signUpStepper");

@@ -26,6 +26,8 @@ import { buildLocalizedHref, getCanonicalPath } from "@/app/lib/language/navigat
 import LogoutConfirmationDialog from "../dialogs/logoutConfirmationDialog";
 import { useGuidedTour } from "@/app/lib/context/GuidedTourContext";
 import { getTourStepsForPage } from "@/app/components/guidedTour/tourSteps";
+import { logger } from "@/app/lib/logger";
+
 
 const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   /* -------------------------------- variables ------------------------------- */
@@ -60,7 +62,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
       const logoutHref = buildLocalizedHref("/auth/sign-in", lang);
       router.push(logoutHref);
     } catch (error) {
-      console.error("Logout failed:", error);
+      logger.error("Logout failed:", error);
     }
   };
 

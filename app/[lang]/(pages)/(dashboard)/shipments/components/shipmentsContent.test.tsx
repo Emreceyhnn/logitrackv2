@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -64,7 +63,7 @@ mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
 mock.module("../../../../../components/dashboard/shipments/shipmentTable/index.tsx", {
-  defaultExport: ({ actions }: any) => (
+  defaultExport: ({ actions  }: Record<string, unknown>) => (
     <div data-testid="shipment-table">
       <button onClick={() => actions.onDelete("s1")}>Delete s1</button>
     </div>
@@ -83,7 +82,7 @@ mock.module("../../../../../components/dialogs/shipment/addShipmentDialog/index.
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
 mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm  }: Record<string, unknown>) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -94,10 +93,10 @@ mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    info: { main: "#0288d1" } as any,
-    success: { main: "#2e7d32" } as any,
-    error: { main: "#d32f2f" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -110,7 +109,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentContent Component", () => {
-  let ShipmentContent: any;
+  let ShipmentContent: unknown;
 
   before(async () => {
     const mod = await import("./shipmentsContent");
@@ -132,10 +131,11 @@ describe("ShipmentContent Component", () => {
         </ThemeProvider>
       );
 
-      // Assert basic renders
+      // Assert basic renders. shipment-analytics loads via next/dynamic (lazy),
+      // so findByTestId waits for it to resolve.
       expect(screen.getByTestId("kpi-cards")).toBeTruthy();
       expect(screen.getByTestId("shipment-table")).toBeTruthy();
-      expect(screen.getByTestId("shipment-analytics")).toBeTruthy();
+      expect(await screen.findByTestId("shipment-analytics")).toBeTruthy();
     });
 
     it("should_OpenDeleteDialog_WhenDeleteClicked", async () => {

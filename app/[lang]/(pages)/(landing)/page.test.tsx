@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -7,7 +6,7 @@ import React from "react";
 
 // Mock next/dynamic
 mock.module("next/dynamic", {
-  defaultExport: (dynamicImport: any) => {
+  defaultExport: (dynamicImport: Record<string, unknown>) => {
     return () => {
       dynamicImport(); // Execute the import function to satisfy test coverage if needed
       return <div data-testid="dynamic-component">Dynamic Component</div>;
@@ -27,7 +26,7 @@ mock.module("../../../components/landing/FeaturesSection.tsx", { defaultExport: 
 mock.module("../../../components/landing/LandingFooter.tsx", { defaultExport: () => null });
 
 describe("LandingPage Component", () => {
-  let LandingPage: any;
+  let LandingPage: unknown;
 
   before(async () => {
     const mod = await import("./page");
@@ -46,9 +45,10 @@ describe("LandingPage Component", () => {
       // Assert
       expect(screen.getByTestId("hero-section")).toBeTruthy();
       
-      // 4 dynamic components are rendered
+      // DeferredSections renders 3 lazy sections (SocialProof, OperationsDashboard,
+      // FeaturesSection) via next/dynamic.
       const dynamicComponents = screen.getAllByTestId("dynamic-component");
-      expect(dynamicComponents.length).toBe(4);
+      expect(dynamicComponents.length).toBe(3);
     });
   });
 });

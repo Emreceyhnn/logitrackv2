@@ -26,6 +26,8 @@ import { toast } from "sonner";
 
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 async function fetchDrivers(
   page: number,
@@ -227,7 +229,7 @@ export function useDriverMutations() {
   };
 
   const handleError = (message: string, error: unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error(error instanceof Error ? error.message : message);
   };
 

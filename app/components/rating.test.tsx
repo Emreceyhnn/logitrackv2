@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 
@@ -18,7 +18,7 @@ mock.module("@mui/icons-material/StarBorder", {
 });
 
 describe("CustomRating Component", () => {
-  let CustomRating: any;
+  let CustomRating: unknown;
 
   before(async () => {
     // Modülü dinamik import ile yüklüyoruz

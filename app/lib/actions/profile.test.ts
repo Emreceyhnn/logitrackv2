@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -30,7 +30,7 @@ mock.module("bcryptjs", { defaultExport: bcryptMock });
 
 // 2. TEST GRUPLARI
 describe("Profile Actions", () => {
-  let profileActions: any;
+  let profileActions: unknown;
 
   before(async () => {
     profileActions = await import("./profile");

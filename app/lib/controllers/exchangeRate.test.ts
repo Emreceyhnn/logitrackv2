@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -22,7 +22,7 @@ mock.module("../services/exchangeRate.ts", {
 
 // 2. TEST GRUPLARI
 describe("Exchange Rate Controller", () => {
-  let exchangeRateController: any;
+  let exchangeRateController: unknown;
 
   before(async () => {
     exchangeRateController = await import("./exchangeRate");

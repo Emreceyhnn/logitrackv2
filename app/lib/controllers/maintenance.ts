@@ -2,11 +2,16 @@
 
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
+import { stripUndefined } from "../utils/stripUndefined";
 import { checkPermission } from "./utils/checkPermission";
 import type { MaintenanceStatus, MaintenanceType, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
+import { logger } from "../logger";
+import { controllerGuard } from "./utils/controllerGuard";
+import { createMaintenanceRecordSchema, updateMaintenanceRecordSchema } from "../validation/serverSchemas";
+import { NotFoundError } from "../errors";
 
 /** Decimal columns are not serializable across the server-action boundary. */
 function serializeRecord<T extends { cost: Prisma.Decimal; originalCost: Prisma.Decimal | null }>(
@@ -30,85 +35,83 @@ export const createMaintenanceRecord = authenticatedAction(
     currency: string = "USD",
     documentUrl?: string
   ) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("createMaintenanceRecord", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
       ]);
 
+      const parsed = createMaintenanceRecordSchema.parse({
+        vehicleId,
+        type,
+        date,
+        cost,
+        description,
+        currency,
+        documentUrl,
+      });
+
       const vehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+        where: { id: parsed.vehicleId },
         select: { companyId: true },
       });
 
       if (!vehicle || vehicle.companyId !== companyId) {
-        throw new Error(
-          "Invalid vehicle or vehicle does not belong to this company"
-        );
+        throw new NotFoundError("Vehicle");
       }
 
-      // Normalize cost to USD, keeping the original amount for auditability
-      let normalizedCost = cost;
-      if (currency && currency !== "USD") {
+      let normalizedCost = parsed.cost;
+      if (parsed.currency && parsed.currency !== "USD") {
         try {
           const rates = await getExchangeRates();
-          const rate = rates.rates[currency] || 1;
-          normalizedCost = cost / rate;
+          const rate = rates.rates[parsed.currency] || 1;
+          normalizedCost = parsed.cost / rate;
         } catch (err) {
-          console.warn("[maintenance] Currency conversion failed:", err);
+          logger.warn("[maintenance] Currency conversion failed", err);
         }
       }
 
       const newRecord = await db.maintenanceRecord.create({
         data: {
-          vehicleId,
+          vehicleId: parsed.vehicleId,
           companyId,
-          type,
-          date,
+          type: parsed.type,
+          date: parsed.date,
           cost: normalizedCost,
-          originalCost: cost,
-          originalCurrency: currency || "USD",
-          description,
+          originalCost: parsed.cost,
+          originalCurrency: parsed.currency || "USD",
+          description: parsed.description ?? null,
           currency: "USD",
-          documentUrl,
+          documentUrl: parsed.documentUrl ?? null,
         },
         include: { vehicle: { select: { plate: true } } },
       });
 
-      // Dispatch Notification
       await createNotification(
         { companyId },
         {
           title: "Yeni Bakım Kaydı 👨‍🔧",
-          message: `${newRecord.vehicle.plate} plakalı araç için ${type} bakımı planlandı.`,
+          message: `${newRecord.vehicle.plate} plakalı araç için ${parsed.type} bakımı planlandı.`,
           type: "INFO",
           category: "MAINTENANCE_ALERT",
-          link: `/dashboard/vehicles/${vehicleId}`,
+          link: `/dashboard/vehicles/${parsed.vehicleId}`,
         }
       );
 
       return { maintenanceRecord: serializeRecord(newRecord) };
-    } catch (error) {
-      console.error("Failed to create maintenance record:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to create maintenance record"
-      );
-    }
+    });
   }
 );
 
 export const getMaintenanceRecords = authenticatedAction(
   async (user, vehicleId?: string) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getMaintenanceRecords", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const whereClause: Prisma.MaintenanceRecordWhereInput = { companyId };
-
       if (vehicleId) {
         whereClause.vehicleId = vehicleId;
       }
@@ -117,54 +120,33 @@ export const getMaintenanceRecords = authenticatedAction(
         where: whereClause,
         include: {
           vehicle: {
-            select: {
-              plate: true,
-              brand: true,
-              model: true,
-            },
+            select: { plate: true, brand: true, model: true },
           },
         },
         orderBy: { date: "desc" },
       });
       return records.map(serializeRecord);
-    } catch (error) {
-      console.error("Failed to get maintenance records:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to get maintenance records"
-      );
-    }
+    });
   }
 );
 
 export const getMaintenanceRecordById = authenticatedAction(
   async (user, recordId: string) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getMaintenanceRecordById", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+      
       const record = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
-        include: {
-          vehicle: true,
-        },
+        include: { vehicle: true },
       });
 
-      if (!record) throw new Error("Maintenance record not found");
-
-      if (record.companyId !== companyId) {
-        throw new Error("Unauthorized");
+      if (!record || record.companyId !== companyId) {
+        throw new NotFoundError("Maintenance record");
       }
 
       return serializeRecord(record);
-    } catch (error) {
-      console.error("Failed to get maintenance record:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to get maintenance record"
-      );
-    }
+    });
   }
 );
 
@@ -180,45 +162,44 @@ export interface MaintenanceRecordUpdateData {
 
 export const updateMaintenanceRecord = authenticatedAction(
   async (user, recordId: string, data: MaintenanceRecordUpdateData) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateMaintenanceRecord", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+
+      const parsed = updateMaintenanceRecordSchema.parse(data);
+
       const existingRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
         select: {
           status: true,
           type: true,
           companyId: true,
-          vehicle: {
-            select: {
-              plate: true,
-            },
-          },
+          vehicle: { select: { plate: true } },
         },
       });
 
-      if (!existingRecord || existingRecord.companyId !== companyId)
-        throw new Error("Maintenance record not found");
+      if (!existingRecord || existingRecord.companyId !== companyId) {
+        throw new NotFoundError("Maintenance record");
+      }
 
-      // Normalize cost to USD if provided, keeping the original amount
-      const finalData: Prisma.MaintenanceRecordUpdateInput = { ...data };
+      const finalData: Prisma.MaintenanceRecordUpdateInput = stripUndefined(parsed);
 
-      if (data.cost !== undefined && data.currency && data.currency !== "USD") {
+      if (parsed.cost !== undefined && parsed.currency && parsed.currency !== "USD") {
         try {
           const rates = await getExchangeRates();
-          const rate = rates.rates[data.currency] || 1;
-          finalData.cost = data.cost / rate;
-          finalData.originalCost = data.cost;
-          finalData.originalCurrency = data.currency;
+          const rate = rates.rates[parsed.currency] || 1;
+          finalData.cost = parsed.cost / rate;
+          finalData.originalCost = parsed.cost;
+          finalData.originalCurrency = parsed.currency;
           finalData.currency = "USD";
         } catch (err) {
-          console.warn("[maintenance] Currency conversion failed in update:", err);
+          logger.warn("[maintenance] Currency conversion failed in update", err);
         }
-      } else if (data.cost !== undefined) {
-        finalData.originalCost = data.cost;
-        finalData.originalCurrency = data.currency || "USD";
+      } else if (parsed.cost !== undefined) {
+        finalData.originalCost = parsed.cost;
+        finalData.originalCurrency = parsed.currency || "USD";
         finalData.currency = "USD";
-      } else if (data.currency) {
+      } else if (parsed.currency) {
         finalData.currency = "USD";
       }
 
@@ -228,9 +209,8 @@ export const updateMaintenanceRecord = authenticatedAction(
         include: { vehicle: { select: { plate: true, id: true } } },
       });
 
-      // Dispatch Notification if status changed
       const oldStatus = existingRecord.status;
-      const newStatus = data.status || updatedRecord.status;
+      const newStatus = parsed.status || updatedRecord.status;
 
       if (newStatus !== oldStatus) {
         let title = "Bakım Güncellendi 👨‍🔧";
@@ -273,44 +253,32 @@ export const updateMaintenanceRecord = authenticatedAction(
       }
 
       return serializeRecord(updatedRecord);
-    } catch (error) {
-      console.error("Failed to update maintenance record:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to update maintenance record"
-      );
-    }
+    });
   }
 );
 
 export const deleteMaintenanceRecord = authenticatedAction(
   async (user, recordId: string) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("deleteMaintenanceRecord", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+      
       const existingRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
         select: {
           type: true,
           vehicleId: true,
           companyId: true,
-          vehicle: {
-            select: {
-              plate: true,
-            },
-          },
+          vehicle: { select: { plate: true } },
         },
       });
 
-      if (!existingRecord || existingRecord.companyId !== companyId)
-        throw new Error("Maintenance record not found");
+      if (!existingRecord || existingRecord.companyId !== companyId) {
+        throw new NotFoundError("Maintenance record");
+      }
 
-      await db.maintenanceRecord.delete({
-        where: { id: recordId },
-      });
+      await db.maintenanceRecord.delete({ where: { id: recordId } });
 
-      // Dispatch Notification
       await createNotification(
         { companyId },
         {
@@ -323,20 +291,13 @@ export const deleteMaintenanceRecord = authenticatedAction(
       );
 
       return { success: true };
-    } catch (error) {
-      console.error("Failed to delete maintenance record:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to delete maintenance record"
-      );
-    }
+    });
   }
 );
 
 export const getMaintenanceStats = authenticatedAction(async (user) => {
-  const companyId = user?.companyId || "";
-  try {
+  return controllerGuard("getMaintenanceStats", async () => {
+    const companyId = user?.companyId || "";
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -351,47 +312,27 @@ export const getMaintenanceStats = authenticatedAction(async (user) => {
     const records = await db.maintenanceRecord.findMany({
       where: {
         companyId,
-        date: {
-          gte: startOfYear,
-          lte: endOfYear,
-        },
+        date: { gte: startOfYear, lte: endOfYear },
       },
-      select: {
-        cost: true,
-        type: true,
-        date: true,
-      },
+      select: { cost: true, type: true, date: true },
     });
 
     const totalCost = records.reduce((sum, record) => sum + Number(record.cost), 0);
-
     const costByType: Record<string, number> = {};
+    
     records.forEach((record) => {
       costByType[record.type] = (costByType[record.type] || 0) + Number(record.cost);
     });
 
-    return {
-      totalCost,
-      costByType,
-      recordCount: records.length,
-    };
-  } catch (error) {
-    console.error("Failed to get maintenance stats:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get maintenance stats"
-    );
-  }
+    return { totalCost, costByType, recordCount: records.length };
+  });
 });
 
-/**
- * Scans for scheduled maintenance records in the next 3 days and sends notifications.
- * This can be triggered by a cron job or a dashboard load.
- */
 export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
-  const companyId = user?.companyId;
-  if (!companyId) return;
+  return controllerGuard("checkUpcomingMaintenance", async () => {
+    const companyId = user?.companyId;
+    if (!companyId) return { count: 0 };
 
-  try {
     const threeDaysFromNow = new Date();
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
@@ -405,9 +346,7 @@ export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
         },
       },
       include: {
-        vehicle: {
-          select: { plate: true, id: true },
-        },
+        vehicle: { select: { plate: true, id: true } },
       },
     });
 
@@ -425,8 +364,5 @@ export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
     }
 
     return { count: upcomingRecords.length };
-  } catch (error) {
-    console.error("Failed to check upcoming maintenance:", error);
-    return { error: "Failed to check upcoming maintenance" };
-  }
+  });
 });

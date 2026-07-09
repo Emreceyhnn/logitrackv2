@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 
 // 1. Mock Server-Side Data Fetching
@@ -20,7 +20,7 @@ mock.module("./components/WarehouseContent.tsx", {
 });
 
 describe("WarehousePage Component", () => {
-  let WarehousePage: any;
+  let WarehousePage: unknown;
 
   before(async () => {
     const mod = await import("./page");
@@ -36,7 +36,11 @@ describe("WarehousePage Component", () => {
     it("should_RenderWarehouseContent_WithHydratedState", async () => {
       // Act
       const PageComponent = await WarehousePage();
-      render(PageComponent);
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          {PageComponent}
+        </QueryClientProvider>
+      );
 
       // Assert basic renders
       await waitFor(() => {

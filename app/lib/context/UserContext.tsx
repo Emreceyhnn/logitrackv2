@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
 interface UserContextType {

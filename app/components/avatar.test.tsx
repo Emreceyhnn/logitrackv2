@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 
 // 1. MOCK'LAR
 // Rating bileşenini izole etmek için mockluyoruz
 mock.module("./rating.tsx", {
-  defaultExport: (props: any) => ({ type: "CustomRatingMock", props }),
+  defaultExport: (props: Record<string, unknown>) => ({ type: "CustomRatingMock", props }),
 });
 
 mock.module("@mui/material", {
@@ -17,7 +17,7 @@ mock.module("@mui/material", {
 });
 
 describe("DriverAvatar Component", () => {
-  let DriverAvatar: any;
+  let DriverAvatar: unknown;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

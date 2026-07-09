@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -22,13 +21,13 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    error: { main: "#d32f2f" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_12: "rgba()", main_20: "rgba()" };
-(customTheme.palette.error as any)._alpha = { main_10: "rgba()" };
-(customTheme.palette.common as any) = { white_alpha: { main_30: "rgba()", main_45: "rgba()" } };
+(customTheme.palette.primary as unknown)._alpha = { main_12: "rgba()", main_20: "rgba()" };
+(customTheme.palette.error as unknown)._alpha = { main_10: "rgba()" };
+(customTheme.palette.common as unknown) = { white_alpha: { main_30: "rgba()", main_45: "rgba()" } };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -40,7 +39,7 @@ mock.module("@mui/material", {
 });
 
 describe("ProfileHeader RTL Component", () => {
-  let ProfileHeader: any;
+  let ProfileHeader: unknown;
 
   before(async () => {
     const mod = await import("./ProfileHeader");

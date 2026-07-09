@@ -30,13 +30,13 @@ export interface GooglePlaceResult {
 
 interface AddressAutocompleteProps {
   onAddressSelect?: (data: AddressData) => void;
-  value?: string;
+  value?: string | undefined;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   name?: string;
   disabled?: boolean;
-  error?: boolean;
-  helperText?: string;
+  error?: boolean | undefined;
+  helperText?: string | undefined;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   sx?: SxProps<Theme>;
 }
@@ -152,10 +152,10 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           options={{
             types: ["geocode", "establishment"],
           }}
-          name={name}
+          name={name ?? ""}
           value={internalValue}
           onChange={handleChange}
-          disabled={disabled}
+          disabled={disabled ?? false}
           style={{
             width: "100%",
             padding: "0.6rem 0.6rem 0.6rem 2.2rem",

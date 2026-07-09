@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
+import { DriverStatus } from "@prisma/client";
 
 // 1. MOCK'LAR
 
@@ -98,7 +99,7 @@ mock.module("next/cache", { namedExports: { revalidatePath: () => {} } });
 
 // 2. TEST GRUPLARI
 describe("Driver Controller", () => {
-  let driverController: any;
+  let driverController: unknown;
 
   before(async () => {
     driverController = await import("./driver");
@@ -152,7 +153,7 @@ describe("Driver Controller", () => {
         employeeId: "EMP-100",
         licenseNumber: "LIC-123",
         licenseType: "CLASS A",
-        status: "AVAILABLE",
+        status: DriverStatus.OFF_DUTY,
       });
 
       // Assert
@@ -173,7 +174,7 @@ describe("Driver Controller", () => {
 
       // Act & Assert
       await expect(
-        driverController.createDriver(mockUser, { userId: "target-user-1", phone: "123", licenseNumber: "123", licenseType: "A", status: "AVAILABLE" })
+        driverController.createDriver(mockUser, { userId: "target-user-1", phone: "123", licenseNumber: "123", licenseType: "A", status: DriverStatus.OFF_DUTY })
       ).rejects.toThrow("User is already assigned as a driver");
 
       expect(dbMock.driver.create.mock.calls.length).toBe(0);
@@ -192,18 +193,18 @@ describe("Driver Controller", () => {
 
       dbMock.driver.update.mock.mockImplementation(async () => ({
         id: "driver-1",
-        status: "ON_JOB"
+        status: DriverStatus.ON_JOB
       }));
 
       // Act
-      const result = await driverController.updateDriverStatus(mockUser, "driver-1", "ON_JOB");
+      const result = await driverController.updateDriverStatus(mockUser, "driver-1", DriverStatus.ON_JOB);
 
       // Assert
       expect(result.status).toBe("ON_JOB");
       expect(dbMock.driver.update.mock.calls.length).toBe(1);
       
       expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(1);
-      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as any;
+      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as unknown;
       expect(notifArgs.title).toContain("Görevde");
     });
   });

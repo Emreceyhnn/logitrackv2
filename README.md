@@ -34,3 +34,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Architecture & Validation Stack
+
+This project intentionally uses a **dual validation stack** to optimize client bundle size and separation of concerns:
+
+- **Client-Side Validation (`Yup` + `Formik`)**: 
+  Used exclusively for client-side forms. Schemas are defined in `app/lib/validationSchema/`. We avoid using Zod or `@prisma/client` here to prevent shipping heavy native modules or backend dependencies to the browser (saving ~350kB in chunk size).
+- **Server-Side Validation (`Zod`)**:
+  Used exclusively for API routes and server actions. Schemas are defined in `app/lib/validation/serverSchemas.ts`. These schemas have access to Prisma enums and other server-side types for strict type safety.
+
+*Note: Developers should be mindful of "drift risk" when updating domain entities. If a field constraint changes, ensure both the Yup client schema and Zod server schema are updated accordingly.*

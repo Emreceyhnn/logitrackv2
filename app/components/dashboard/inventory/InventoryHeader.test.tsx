@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -48,7 +47,7 @@ const customTheme = createTheme({
   },
 });
 
-Object.assign((customTheme.palette as any), {
+Object.assign((customTheme.palette as unknown), {
   buttonPrimary: {
     buttonBg: "#000",
     primaryText: "#fff",
@@ -68,7 +67,7 @@ mock.module("@mui/material", {
 });
 
 describe("InventoryHeader RTL Component", () => {
-  let InventoryHeader: any;
+  let InventoryHeader: unknown;
 
   before(async () => {
     const mod = await import("./InventoryHeader");

@@ -2,49 +2,27 @@
 
 import React, { useState, useEffect } from "react";
 import {
+  Avatar,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogContent,
-  IconButton,
-  Paper,
-  Stack,
-  Typography,
-  Chip,
   Divider,
-  Avatar,
-  useTheme,
   Grid,
-  Tabs,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  CircularProgress,
+  IconButton,
   PaletteColor,
-  TextField,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+  useTheme,
 } from "@mui/material";
 import {
   Close as CloseIcon,
-  Inventory as InventoryIcon,
-  Scale as ScaleIcon,
-  ViewInAr as VolumeIcon,
-  GridOn as PalletIcon,
   Edit as EditIcon,
-  Warehouse as WarehouseIcon,
   History as HistoryIcon,
   Assessment as OverviewIcon,
-  TrendingDown as OutIcon,
-  TrendingUp as InIcon,
-  Build as AdjustIcon,
-  AutoAwesome as IntelIcon,
 } from "@mui/icons-material";
 import {
   InventoryDetailsProps,
@@ -57,10 +35,11 @@ import {
 } from "@/app/lib/controllers/inventory";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useInventoryMutations } from "@/app/hooks/useInventory";
-import { useCurrency } from "@/app/hooks/useCurrency";
-import { useDateSettings } from "@/app/hooks/useDateSettings";
-import { formatDisplayDateTime } from "@/app/lib/utils/date";
 import { toast } from "sonner";
+import StockMetricsPanel from "./sections/StockMetricsPanel";
+import PhysicalSpecsPanel from "./sections/PhysicalSpecsPanel";
+import { logger } from "@/app/lib/logger";
+import MovementHistoryPanel from "./sections/MovementHistoryPanel";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -92,42 +71,6 @@ export default function InventoryDetailsDialog({
   const theme = useTheme();
   const dict = useDictionary();
   const [tabValue, setTabValue] = useState(0);
-  const { formatFrom } = useCurrency();
-  const dateSettings = useDateSettings();
-
-  const fieldSx = {
-    "& .MuiOutlinedInput-root": {
-      height: 42,
-      borderRadius: "10px",
-      bgcolor:
-        theme.palette.mode === "dark"
-          ? "rgba(255, 255, 255, 0.03)"
-          : "rgba(0, 0, 0, 0.02)",
-      transition: "all 0.2s ease-in-out",
-      "& fieldset": { borderColor: theme.palette.divider },
-      "&:hover fieldset": { borderColor: theme.palette.text.secondary },
-      "&.Mui-focused": {
-        bgcolor: "transparent",
-        "& fieldset": {
-          borderColor: theme.palette.primary.main,
-          borderWidth: "2px",
-        },
-      },
-    },
-    "& .MuiInputLabel-root": {
-      color: theme.palette.text.secondary,
-      fontSize: "14px",
-      fontWeight: 500,
-      transform: "translate(14px, 11px) scale(1)",
-    },
-    "& .MuiInputLabel-root.MuiInputLabel-shrink": {
-      transform: "translate(14px, -9px) scale(0.75)",
-    },
-    "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
-    "& legend": {
-      fontSize: "0.75em", 
-    },
-  };
 
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
@@ -142,7 +85,7 @@ export default function InventoryDetailsDialog({
       const data = await getInventoryMovements(item.sku, item.warehouseId);
       setMovements(data as InventoryMovement[]);
     } catch (error) {
-      console.error("Failed to load movements", error);
+      logger.error("Failed to load movements", error);
     } finally {
       setLoadingMovements(false);
     }
@@ -182,20 +125,20 @@ export default function InventoryDetailsDialog({
         data.filter((l: InventoryWithRelations) => l.id !== item.id)
       );
     } catch (err) {
-      console.error("Failed to load other locations", err);
+      logger.error("Failed to load other locations", err);
     }
   }, [item]);
 
   useEffect(() => {
     if (isOpen && item) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       loadOtherLocations();
     }
   }, [isOpen, item, loadOtherLocations]);
 
   useEffect(() => {
     if (isOpen && item && tabValue === 1) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       loadMovements();
     }
   }, [isOpen, item, tabValue, loadMovements]);
@@ -212,23 +155,6 @@ export default function InventoryDetailsDialog({
 
   const statusColor =
     item.quantity === 0 ? "error" : isLowStock ? "warning" : "success";
-
-  const getMovementIcon = (type: string) => {
-    switch (type) {
-      case "PICK":
-      case "SHIPMENT":
-      case "ALLOCATION":
-        return <OutIcon sx={{ color: "error.main" }} />;
-      case "PUTAWAY":
-      case "SHIPMENT_REVERT":
-      case "SHIPMENT_CANCEL":
-      case "ALLOCATION_REVERT":
-      case "ALLOCATION_CANCEL":
-        return <InIcon sx={{ color: "success.main" }} />;
-      default:
-        return <AdjustIcon sx={{ color: "info.main" }} />;
-    }
-  };
 
   return (
     <Dialog
@@ -369,782 +295,27 @@ export default function InventoryDetailsDialog({
         {/* Overview Tab */}
         <CustomTabPanel value={tabValue} index={0}>
           <Grid container>
-            {/* Left Metrics */}
-            <Grid size={{ xs: 12, md: 5 }}>
-              <Box
-                sx={{
-                  p: 4,
-                  borderRight: {
-                    md: `1px solid ${theme.palette.divider_alpha.main_10}`,
-                  },
-                  bgcolor: theme.palette.background.default_alpha.main_20,
-                  height: "100%",
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  fontWeight={800}
-                  color="text.secondary"
-                  sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
-                >
-                  {dict.inventory.dialogs.stockLevels}
-                </Typography>
-
-                <Stack spacing={2} mt={2}>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      bgcolor: theme.palette.background.paper_alpha.main_05,
-                      borderColor: theme.palette.divider_alpha.main_10,
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar
-                        sx={{
-                          bgcolor: theme.palette.primary._alpha.main_10,
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        <InventoryIcon />
-                      </Avatar>
-                      <Box>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          fontWeight={600}
-                        >
-                          {dict.inventory.dialogs.available || "AVAILABLE"}
-                        </Typography>
-                        <Typography
-                          variant="h4"
-                          fontWeight={800}
-                          color="text.primary"
-                        >
-                          {(
-                            item.quantity - (item.allocatedQuantity || 0)
-                          ).toLocaleString("en-US")}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Paper>
-
-                  {(item.allocatedQuantity || 0) > 0 && (
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 2,
-                        bgcolor: theme.palette.error._alpha.main_05,
-                        borderColor: theme.palette.error._alpha.main_10,
-                        borderRadius: 3,
-                      }}
-                    >
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Avatar
-                          sx={{
-                            bgcolor: theme.palette.error._alpha.main_10,
-                            color: theme.palette.error.main,
-                          }}
-                        >
-                          <InventoryIcon />
-                        </Avatar>
-                        <Box>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            fontWeight={600}
-                          >
-                            {dict.inventory.status.blocked || "BLOCKED"}
-                          </Typography>
-                          <Typography
-                            variant="h5"
-                            fontWeight={800}
-                            color="text.primary"
-                          >
-                            {item.allocatedQuantity.toLocaleString("en-US")}
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </Paper>
-                  )}
-
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      bgcolor: theme.palette.background.paper_alpha.main_05,
-                      borderColor: theme.palette.divider_alpha.main_10,
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar
-                        sx={{
-                          bgcolor: theme.palette.info._alpha.main_10,
-                          color: theme.palette.info.light,
-                        }}
-                      >
-                        <InventoryIcon />
-                      </Avatar>
-                      <Box>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          fontWeight={600}
-                        >
-                          {dict.inventory.dialogs.physical || "PHYSICAL"}
-                        </Typography>
-                        <Typography
-                          variant="h4"
-                          fontWeight={800}
-                          color="text.primary"
-                        >
-                          {item.quantity.toLocaleString("en-US")}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Paper>
-
-                  {/* Stock Adjustment Form */}
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2.5,
-                      bgcolor: theme.palette.background.paper_alpha.main_05,
-                      borderColor: theme.palette.divider_alpha.main_10,
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        mb: 2,
-                        color: "text.primary",
-                        fontWeight: 800,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5,
-                      }}
-                    >
-                      <AdjustIcon
-                        sx={{ fontSize: 18, color: "primary.main" }}
-                      />
-                      {dict.inventory.dialogs.quickAdjustment}
-                    </Typography>
-                    <Stack spacing={1}>
-                      <Grid container spacing={1}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            label={dict.inventory.dialogs.adjustmentAmount}
-                            type="number"
-                            value={adjustAmount}
-                            onChange={(e) =>
-                              setAdjustAmount(Number(e.target.value))
-                            }
-                            variant="outlined"
-                            sx={fieldSx}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                          <FormControl fullWidth size="small" sx={fieldSx}>
-                            <InputLabel sx={{ color: "text.secondary" }}>
-                              {dict.inventory.dialogs.adjustmentType}
-                            </InputLabel>
-                            <Select
-                              value={adjustType}
-                              label={dict.inventory.dialogs.adjustmentType}
-                              onChange={(e) => setAdjustType(e.target.value)}
-                              sx={{ color: "text.primary" }}
-                            >
-                              <MenuItem value="ADJUSTMENT">{dict.inventory.dialogs.historyTypes?.ADJUSTMENT || "Adjustment"}</MenuItem>
-                              <MenuItem value="PURCHASE">{dict.inventory.dialogs.historyTypes?.PURCHASE || "Purchase"}</MenuItem>
-                              <MenuItem value="RETURN">{dict.inventory.dialogs.historyTypes?.RETURN || "Return"}</MenuItem>
-                              <MenuItem value="DAMAGE">{dict.inventory.dialogs.historyTypes?.DAMAGE || "Damage"}</MenuItem>
-                              <MenuItem value="LOSS">{dict.inventory.dialogs.historyTypes?.LOSS || "Loss"}</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                      </Grid>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label={dict.inventory.dialogs.notes}
-                        value={adjustNote}
-                        onChange={(e) => setAdjustNote(e.target.value)}
-                        variant="outlined"
-                        multiline
-                        rows={2}
-                        sx={fieldSx}
-                      />
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        onClick={handleAdjustStock}
-                        disabled={adjustAmount === 0 || adjustStock.isPending}
-                        startIcon={
-                          adjustStock.isPending ? (
-                            <CircularProgress size={20} color="inherit" />
-                          ) : (
-                            <AdjustIcon />
-                          )
-                        }
-                        sx={{
-                          height: 48,
-                          borderRadius: 2.5,
-                          background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                          fontWeight: 800,
-                          fontSize: "0.95rem",
-                          boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_30}`,
-                          textTransform: "none",
-                          "&:hover": {
-                            boxShadow: `0 12px 32px ${theme.palette.primary._alpha.main_40}`,
-                            transform: "translateY(-1px)",
-                          },
-                          "&.Mui-disabled": {
-                            background: theme.palette.action.disabledBackground,
-                            boxShadow: "none",
-                            transform: "none",
-                          },
-                        }}
-                      >
-                        {dict.common.apply}
-                      </Button>
-                    </Stack>
-                  </Paper>
-
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      bgcolor: theme.palette.background.paper_alpha.main_05,
-                      borderColor: theme.palette.divider_alpha.main_10,
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar
-                        sx={{
-                          bgcolor: theme.palette.warning._alpha.main_10,
-                          color: theme.palette.warning.light,
-                        }}
-                      >
-                        <WarehouseIcon />
-                      </Avatar>
-                      <Box>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          fontWeight={600}
-                        >
-                          {dict.inventory.dialogs.safetyStock}
-                        </Typography>
-                        <Typography
-                          variant="h4"
-                          fontWeight={800}
-                          color="text.primary"
-                        >
-                          {item.minStock.toLocaleString("en-US")}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Paper>
-
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      bgcolor: theme.palette.success._alpha.main_05,
-                      borderColor: theme.palette.success._alpha.main_10,
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar
-                        sx={{
-                          bgcolor: theme.palette.success._alpha.main_10,
-                          color: theme.palette.success.light,
-                        }}
-                      >
-                        <InventoryIcon />
-                      </Avatar>
-                      <Box>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          fontWeight={600}
-                        >
-                          {dict.inventory.fields.unitValue.toLocaleUpperCase('en-US')}
-                        </Typography>
-                        <Typography
-                          variant="h4"
-                          fontWeight={800}
-                          color="text.primary"
-                        >
-                          {formatFrom(
-                            item.unitValue || 0,
-                            item.currency || "USD"
-                          )}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Paper>
-                </Stack>
-
-                <Box mt={4}>
-                  <Typography
-                    variant="caption"
-                    fontWeight={800}
-                    color="text.secondary"
-                    sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
-                  >
-                    {dict.inventory.dialogs.locationData}
-                  </Typography>
-                  <Stack spacing={2} mt={1.5}>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        {dict.inventory.dialogs.warehouseCode}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                        color="text.primary"
-                      >
-                        {item.warehouse.code}
-                      </Typography>
-                    </Box>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        {dict.inventory.dialogs.cargoType}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                        color="text.primary"
-                      >
-                        {dict.inventory?.dialogs?.cargoTypes?.[(item.cargoType || "General") as keyof typeof dict.inventory.dialogs.cargoTypes] || item.cargoType || "General"}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Box>
-              </Box>
-            </Grid>
-
-            {/* Right Specs */}
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Box sx={{ p: 4 }}>
-                <Typography
-                  variant="caption"
-                  fontWeight={800}
-                  color="text.secondary"
-                  sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
-                >
-                  {dict.inventory.dialogs.physicalSpecs}
-                </Typography>
-
-                <Grid container spacing={3} mt={1}>
-                  <Grid size={{ xs: 12, sm: 4 }}>
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 2.5,
-                        textAlign: "center",
-                        borderRadius: 4,
-                        bgcolor: theme.palette.background.paper_alpha.main_05,
-                        borderColor: theme.palette.divider_alpha.main_10,
-                        transition: "all 0.2s",
-                        "&:hover": {
-                          borderColor: theme.palette.primary._alpha.main_30,
-                          bgcolor: theme.palette.primary._alpha.main_05,
-                        },
-                      }}
-                    >
-                      <ScaleIcon
-                        sx={{ color: "primary.main", mb: 1.5, fontSize: 32 }}
-                      />
-                      <Typography
-                        variant="caption"
-                        display="block"
-                        color="text.secondary"
-                      >
-                        {dict.inventory.fields.weight.toLocaleUpperCase('en-US')}
-                      </Typography>
-                      <Typography
-                        component="div"
-                        variant="h6"
-                        fontWeight={800}
-                        color="text.primary"
-                      >
-                        {item.weightKg}kg
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 4 }}>
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 2.5,
-                        textAlign: "center",
-                        borderRadius: 4,
-                        bgcolor: theme.palette.background.paper_alpha.main_05,
-                        borderColor: theme.palette.divider_alpha.main_10,
-                        transition: "all 0.2s",
-                        "&:hover": {
-                          borderColor: theme.palette.secondary._alpha.main_30,
-                          bgcolor: theme.palette.secondary._alpha.main_05,
-                        },
-                      }}
-                    >
-                      <VolumeIcon
-                        sx={{ color: "secondary.main", mb: 1.5, fontSize: 32 }}
-                      />
-                      <Typography
-                        variant="caption"
-                        display="block"
-                        color="text.secondary"
-                      >
-                        {dict.inventory.fields.volume.toLocaleUpperCase('en-US')}
-                      </Typography>
-                      <Typography
-                        component="div"
-                        variant="h6"
-                        fontWeight={800}
-                        color="text.primary"
-                      >
-                        {item.volumeM3}m³
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 4 }}>
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 2.5,
-                        textAlign: "center",
-                        borderRadius: 4,
-                        bgcolor: theme.palette.background.paper_alpha.main_05,
-                        borderColor: theme.palette.divider_alpha.main_10,
-                        transition: "all 0.2s",
-                        "&:hover": {
-                          borderColor: theme.palette.success._alpha.main_30,
-                          bgcolor: theme.palette.success._alpha.main_05,
-                        },
-                      }}
-                    >
-                      <PalletIcon
-                        sx={{ color: "success.main", mb: 1.5, fontSize: 32 }}
-                      />
-                      <Typography
-                        variant="caption"
-                        display="block"
-                        color="text.secondary"
-                      >
-                        {dict.inventory.fields.pallets.toLocaleUpperCase('en-US')}
-                      </Typography>
-                      <Typography
-                        component="div"
-                        variant="h6"
-                        fontWeight={800}
-                        color="text.primary"
-                      >
-                        {item.palletCount}
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                </Grid>
-
-                <Box
-                  sx={{
-                    mt: 4,
-                    p: 2.5,
-                    borderRadius: 4,
-                    bgcolor: theme.palette.info._alpha.main_05,
-                    border: `1px solid ${theme.palette.info._alpha.main_10}`,
-                    display: "flex",
-                    gap: 2,
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <Avatar
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      bgcolor: theme.palette.info._alpha.main_10,
-                      color: theme.palette.info.main,
-                      flexShrink: 0,
-                    }}
-                  >
-                    <IntelIcon fontSize="small" />
-                  </Avatar>
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      fontWeight={800}
-                      color="info.main"
-                      sx={{ display: "block", mb: 0.5, letterSpacing: 0.5 }}
-                    >
-                      {dict.inventory.dialogs.intelTitle}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ fontSize: "0.8rem", lineHeight: 1.6 }}
-                    >
-                      {dict.inventory.dialogs.intelDesc.replace(
-                        "{minStock}",
-                        item.minStock.toString()
-                      )}
-                    </Typography>
-                  </Box>
-
-                  {/* Other Locations Section */}
-                  {otherLocations.length > 0 && (
-                    <Box sx={{ mt: 4 }}>
-                      <Typography
-                        variant="caption"
-                        fontWeight={800}
-                        color="text.secondary"
-                        sx={{
-                          letterSpacing: "1px",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {dict.inventory.dialogs.otherLocations}
-                      </Typography>
-                      <Stack spacing={1.5} mt={2}>
-                        {otherLocations.map((loc) => (
-                          <Paper
-                            key={loc.id}
-                            variant="outlined"
-                            sx={{
-                              p: 2,
-                              bgcolor:
-                                theme.palette.background.paper_alpha.main_05,
-                              borderColor: theme.palette.divider_alpha.main_10,
-                              borderRadius: 2,
-                              transition: "all 0.2s",
-                              "&:hover": {
-                                borderColor:
-                                  theme.palette.primary._alpha.main_30,
-                                bgcolor:
-                                  theme.palette.background.paper_alpha.main_10,
-                              },
-                            }}
-                          >
-                            <Stack
-                              direction="row"
-                              justifyContent="space-between"
-                              alignItems="center"
-                            >
-                              <Stack
-                                direction="row"
-                                spacing={2}
-                                alignItems="center"
-                              >
-                                <WarehouseIcon
-                                  sx={{ color: "text.secondary", fontSize: 20 }}
-                                />
-                                <Box>
-                                  <Typography
-                                    variant="subtitle2"
-                                    color="text.primary"
-                                    fontWeight={700}
-                                  >
-                                    {loc.warehouse.name}
-                                  </Typography>
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                  >
-                                    {loc.warehouse.code}
-                                  </Typography>
-                                </Box>
-                              </Stack>
-                              <Box sx={{ textAlign: "right" }}>
-                                <Typography
-                                  component="div"
-                                  variant="h6"
-                                  color="primary.light"
-                                  fontWeight={800}
-                                >
-                                  {loc.quantity}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  color="text.secondary"
-                                  sx={{
-                                    textTransform: "uppercase",
-                                    fontSize: "0.6rem",
-                                  }}
-                                >
-                                  {dict.inventory.dialogs.units || "UNITS"}
-                                </Typography>
-                              </Box>
-                            </Stack>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            </Grid>
+            <StockMetricsPanel
+              item={item}
+              adjustAmount={adjustAmount}
+              setAdjustAmount={setAdjustAmount}
+              adjustType={adjustType}
+              setAdjustType={setAdjustType}
+              adjustNote={adjustNote}
+              setAdjustNote={setAdjustNote}
+              onAdjust={handleAdjustStock}
+              isAdjusting={adjustStock.isPending}
+            />
+            <PhysicalSpecsPanel item={item} otherLocations={otherLocations} />
           </Grid>
         </CustomTabPanel>
 
         {/* History Tab */}
         <CustomTabPanel value={tabValue} index={1}>
-          <Box sx={{ p: 0 }}>
-            {loadingMovements ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: 300,
-                }}
-              >
-                <CircularProgress size={24} />
-              </Box>
-            ) : movements.length === 0 ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 300,
-                  color: "text.secondary",
-                }}
-              >
-                <HistoryIcon sx={{ fontSize: 48, opacity: 0.2, mb: 1 }} />
-                <Typography variant="body2">
-                  {dict.inventory.dialogs.noHistory}
-                </Typography>
-              </Box>
-            ) : (
-              <TableContainer sx={{ maxHeight: 400 }}>
-                <Table stickyHeader size="small">
-                  <TableHead>
-                    <TableRow
-                      sx={{
-                        "& th": {
-                          bgcolor: theme.palette.background.paper_alpha.main_10,
-                          color: "text.secondary",
-                          fontWeight: 700,
-                          fontSize: "0.7rem",
-                          borderBottom: `1px solid ${theme.palette.divider_alpha.main_10}`,
-                        },
-                      }}
-                    >
-                      <TableCell>
-                        {dict.inventory.dialogs.historyFields.type}
-                      </TableCell>
-                      <TableCell align="right">
-                        {dict.inventory.dialogs.historyFields.quantity}
-                      </TableCell>
-                      <TableCell>
-                        {dict.inventory.dialogs.historyFields.notes || "Notes"}
-                      </TableCell>
-                      <TableCell>
-                        {dict.inventory.dialogs.historyFields.user}
-                      </TableCell>
-                      <TableCell align="right">
-                        {dict.inventory.dialogs.historyFields.date}
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {movements.map((move) => (
-                      <TableRow
-                        key={move.id}
-                        sx={{
-                          "& td": {
-                            color: "text.secondary",
-                            borderColor: theme.palette.divider_alpha.main_05,
-                          },
-                        }}
-                      >
-                        <TableCell>
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                          >
-                            {getMovementIcon(move.type)}
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "text.primary",
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {(
-                                dict.inventory.dialogs.historyTypes as Record<
-                                  string,
-                                  string
-                                >
-                              )?.[move.type] || move.type}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color:
-                                move.quantity > 0
-                                  ? "success.light"
-                                  : "error.light",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {move.quantity > 0
-                              ? `+${move.quantity}`
-                              : move.quantity}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: "text.secondary",
-                              fontStyle: "italic",
-                            }}
-                          >
-                            {move.notes || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="caption">
-                            {move.user
-                              ? `${move.user.name} ${move.user.surname}`
-                              : dict.inventory.dialogs.historyFields.system}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography variant="caption">
-                            {formatDisplayDateTime(move.date, dateSettings)}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </Box>
+          <MovementHistoryPanel
+            movements={movements}
+            loadingMovements={loadingMovements}
+          />
         </CustomTabPanel>
       </DialogContent>
 

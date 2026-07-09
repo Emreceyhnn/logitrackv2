@@ -1,137 +1,79 @@
 import { Redis } from "@upstash/redis";
+import { createCacheKeys } from "./controllers/utils/cacheFactory";
+import { logger } from "@/app/lib/logger";
 
-// CI/CD (GitHub Actions vb.) ortamlarında eğer şifreler yüklenemezse sistemi fail-fast (anında çökert) ile durduruyoruz.
-// Böylece 50 saniyelik anlamsız timeout'lar yerine hatanın ne olduğunu saniyesinde görüyoruz.
-if (process.env.CI && !process.env.KV_REST_API_URL) {
+
+const redisUrl =
+  process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const redisToken =
+  process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+// In environments where Redis must be configured (CI and production) we
+// fail-fast on missing credentials. Otherwise CI suffers pointless 50s
+// timeouts, and production hits a silent cache-miss on EVERY request
+// (try/catch swallows them) — both far worse than a clear error at boot.
+// The "dummy" fallback is intentionally kept only for local dev/test,
+// where Redis is often not set up.
+const redisRequired =
+  Boolean(process.env.CI) || process.env.NODE_ENV === "production";
+if (redisRequired && (!redisUrl || !redisToken)) {
   throw new Error(
-    "🚨 CRITICAL CI ERROR: 'KV_REST_API_URL' bulunamadı! GitHub 'ENV_FILE' secret'ınız BOŞ geliyor veya hatalı tanımlanmış."
+    "🚨 Redis yapılandırması eksik: 'KV_REST_API_URL' ve 'KV_REST_API_TOKEN' " +
+      "(veya 'UPSTASH_REDIS_REST_URL' / 'UPSTASH_REDIS_REST_TOKEN') tanımlı değil. " +
+      "CI için 'ENV_FILE' secret'ını, production için ortam değişkenlerini kontrol edin."
   );
 }
 
 export const redis = new Redis({
-  url:
-    process.env.KV_REST_API_URL ||
-    process.env.UPSTASH_REDIS_REST_URL ||
-    "https://dummy.upstash.io",
-  token:
-    process.env.KV_REST_API_TOKEN ||
-    process.env.UPSTASH_REDIS_REST_TOKEN ||
-    "dummy",
+  url: redisUrl || "https://dummy.upstash.io",
+  token: redisToken || "dummy",
 });
 
 export const VEHICLE_CACHE_TTL = 3600;
-
-export const vehicleCacheKeys = {
-  companyPattern: (companyId: string) => `vehicles:${companyId}:*`,
-  detail: (vehicleId: string) => `vehicles:detail:${vehicleId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `vehicles:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `vehicles:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `vehicles:${companyId}:kpis`,
-};
+export const vehicleCacheKeys = createCacheKeys("vehicles");
 
 export const TRAILER_CACHE_TTL = 3600;
-
 export const trailerCacheKeys = {
-  companyPattern: (companyId: string) => `trailers:${companyId}:*`,
-  detail: (trailerId: string) => `trailers:detail:${trailerId}`,
+  ...createCacheKeys("trailers"),
+  // Override: trailer list keys carry a "_v2" version bump so a change to the
+  // trailer list payload shape does not serve stale entries cached under the
+  // old key. (companyPattern's wildcard still covers these for invalidation.)
   list: (companyId: string, filtersHash: string) =>
     `trailers:${companyId}:list_v2:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `trailers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `trailers:${companyId}:kpis`,
 };
 
 export const DRIVER_CACHE_TTL = 3600;
-
-export const driverCacheKeys = {
-  companyPattern: (companyId: string) => `drivers:${companyId}:*`,
-  detail: (driverId: string) => `drivers:detail:${driverId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `drivers:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `drivers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `drivers:${companyId}:kpis`,
-};
+export const driverCacheKeys = createCacheKeys("drivers");
 
 export const ROUTE_CACHE_TTL = 3600;
-
-export const routeCacheKeys = {
-  companyPattern: (companyId: string) => `routes:${companyId}:*`,
-  detail: (routeId: string) => `routes:detail:${routeId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `routes:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `routes:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `routes:${companyId}:kpis`,
-};
+export const routeCacheKeys = createCacheKeys("routes");
 
 export const SHIPMENT_CACHE_TTL = 3600;
-
-export const shipmentCacheKeys = {
-  companyPattern: (companyId: string) => `shipments:${companyId}:*`,
-  detail: (shipmentId: string) => `shipments:detail:${shipmentId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `shipments:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `shipments:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `shipments:${companyId}:kpis`,
-};
+export const shipmentCacheKeys = createCacheKeys("shipments");
 
 export const OVERVIEW_CACHE_TTL = 300;
-
 export const overviewCacheKeys = {
   dashboard: (companyId: string) => `overview:${companyId}:dashboard`,
 };
 
 export const WAREHOUSE_CACHE_TTL = 3600;
-
-export const warehouseCacheKeys = {
-  companyPattern: (companyId: string) => `warehouses:${companyId}:*`,
-  detail: (warehouseId: string) => `warehouses:detail:${warehouseId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `warehouses:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `warehouses:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `warehouses:${companyId}:kpis`,
-};
+export const warehouseCacheKeys = createCacheKeys("warehouses");
 
 export const INVENTORY_CACHE_TTL = 3600;
-
 export const inventoryCacheKeys = {
-  companyPattern: (companyId: string) => `inventories:${companyId}:*`,
-  detail: (inventoryId: string) => `inventories:detail:${inventoryId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `inventories:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `inventories:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `inventories:${companyId}:kpis`,
+  ...createCacheKeys("inventories"),
   movements: (companyId: string, warehouseId: string, sku: string) =>
     `inventories:${companyId}:movements:${warehouseId}:${sku}`,
 };
 
 export const CUSTOMER_CACHE_TTL = 3600;
-
-export const customerCacheKeys = {
-  companyPattern: (companyId: string) => `customers:${companyId}:*`,
-  detail: (customerId: string) => `customers:detail:${customerId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `customers:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `customers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `customers:${companyId}:kpis`,
-};
+export const customerCacheKeys = createCacheKeys("customers");
 
 export const COMPANY_CACHE_TTL = 3600;
-
 export const companyCacheKeys = {
-  companyPattern: (companyId: string) => `companies:${companyId}:*`,
-  detail: (companyId: string) => `companies:detail:${companyId}`,
+  ...createCacheKeys("companies"),
+  // Override: company list key does not include companyId
   list: (filtersHash: string) => `companies:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `companies:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `companies:${companyId}:kpis`,
 };
 
 export const EXCHANGE_RATE_CACHE_TTL = 3600;
@@ -159,7 +101,7 @@ function getTrackingSetKey(key: string): string | null {
     "customers",
     "companies",
   ];
-  if (parts.length >= 3 && categories.includes(parts[0])) {
+  if (parts.length >= 3 && parts[0] !== undefined && categories.includes(parts[0])) {
     if (parts[1] !== "detail") {
       return `keysSet:${parts[0]}:${parts[1]}`;
     }
@@ -201,7 +143,7 @@ export async function withCache<T>(
     const cached = await redis.get<T>(key);
     if (cached !== null && cached !== undefined) return cached;
   } catch (err) {
-    console.error("Redis get error:", err);
+    logger.error("Redis get error:", err);
   }
 
   const lockKey = `lock:${key}`;
@@ -216,7 +158,7 @@ export async function withCache<T>(
     });
     lockAcquired = acquired === "OK";
   } catch (err) {
-    console.error("Redis lock acquire error:", err);
+    logger.error("Redis lock acquire error:", err);
   }
 
   if (!lockAcquired) {
@@ -231,7 +173,7 @@ export async function withCache<T>(
         const cached = await redis.get<T>(key);
         if (cached !== null && cached !== undefined) return cached;
       } catch (err) {
-        console.error("Redis get retry error:", err);
+        logger.error("Redis get retry error:", err);
       }
     }
     // Fallback: If lock owner timed out, call the fetcher directly
@@ -251,7 +193,7 @@ export async function withCache<T>(
       }
       await p.exec();
     } catch (err) {
-      console.error("Redis cache set error:", err);
+      logger.error("Redis cache set error:", err);
     }
     return data;
   } finally {
@@ -264,7 +206,7 @@ export async function withCache<T>(
           [lockValue]
         );
       } catch (err) {
-        console.error("Redis lock release error:", err);
+        logger.error("Redis lock release error:", err);
       }
     }
   }
@@ -288,7 +230,7 @@ export async function invalidatePattern(pattern: string) {
         }
       } while (cursor !== 0);
     } catch (err) {
-      console.error("Redis invalidate scan fallback error:", err);
+      logger.error("Redis invalidate scan fallback error:", err);
     }
     return;
   }
@@ -302,6 +244,6 @@ export async function invalidatePattern(pattern: string) {
       await p.exec();
     }
   } catch (err) {
-    console.error("Redis invalidate pattern error:", err);
+    logger.error("Redis invalidate pattern error:", err);
   }
 }

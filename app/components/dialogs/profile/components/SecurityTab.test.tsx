@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -38,18 +37,18 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    error: { main: "#d32f2f" } as any,
-    warning: { main: "#ed6c02" } as any,
-    success: { main: "#2e7d32" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_06: "rgba()", main_10: "rgba()", main_15: "rgba()", main_30: "rgba()", main_40: "rgba()" };
-(customTheme.palette.error as any)._alpha = { main_40: "rgba()" };
-(customTheme.palette.warning as any)._alpha = { main_40: "rgba()" };
-(customTheme.palette.success as any)._alpha = { main_40: "rgba()" };
-(customTheme.palette as any).divider_alpha = { main_08: "rgba()" };
-(customTheme.palette.common as any) = { 
+(customTheme.palette.primary as unknown)._alpha = { main_06: "rgba()", main_10: "rgba()", main_15: "rgba()", main_30: "rgba()", main_40: "rgba()" };
+(customTheme.palette.error as unknown)._alpha = { main_40: "rgba()" };
+(customTheme.palette.warning as unknown)._alpha = { main_40: "rgba()" };
+(customTheme.palette.success as unknown)._alpha = { main_40: "rgba()" };
+(customTheme.palette as unknown).divider_alpha = { main_08: "rgba()" };
+(customTheme.palette.common as unknown) = { 
   white_alpha: { main_03: "rgba()", main_05: "rgba()", main_06: "rgba()", main_10: "rgba()", main_20: "rgba()", main_30: "rgba()", main_40: "rgba()", main_45: "rgba()" }
 };
 
@@ -63,7 +62,7 @@ mock.module("@mui/material", {
 });
 
 describe("SecurityTab RTL Component", () => {
-  let SecurityTab: any;
+  let SecurityTab: unknown;
 
   before(async () => {
     const mod = await import("./SecurityTab");
@@ -93,7 +92,7 @@ describe("SecurityTab RTL Component", () => {
       // Act
       render(
         <ThemeProvider theme={customTheme}>
-          <SecurityTab state={mockState as any} actions={mockActions as any} />
+          <SecurityTab state={mockState as unknown} actions={mockActions as unknown} />
         </ThemeProvider>
       );
 
@@ -111,15 +110,27 @@ describe("SecurityTab RTL Component", () => {
     });
 
     it("should_CallUpdatePassword_WhenSubmitted", async () => {
+      // The submit button also requires a non-empty current password, so use a
+      // fully-filled state here (mockState leaves currentPassword blank on purpose
+      // for the render test above).
+      const filledState = {
+        isSaving: false,
+        passwordForm: {
+          currentPassword: "OldPassword123!",
+          newPassword: "TestPassword123!",
+          confirmPassword: "TestPassword123!",
+        },
+      };
+
       // Act
       render(
         <ThemeProvider theme={customTheme}>
-          <SecurityTab state={mockState as any} actions={mockActions as any} />
+          <SecurityTab state={filledState as unknown} actions={mockActions as unknown} />
         </ThemeProvider>
       );
 
       const updateButton = screen.getByText(/Update Password/i);
-      
+
       // Button should be enabled because strength is strong, and passwords match
       expect((updateButton as HTMLButtonElement).disabled).toBe(false);
 

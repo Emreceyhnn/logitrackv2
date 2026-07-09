@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -96,7 +96,7 @@ mock.module("next/cache", {
 
 // 2. TEST GRUPLARI
 describe("Vehicle Controller", () => {
-  let vehicleController: any;
+  let vehicleController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -127,7 +127,7 @@ describe("Vehicle Controller", () => {
     it("should_CreateVehicle_AndSyncToFirebase_WhenValidDataProvided", async () => {
       // Arrange
       dbMock.vehicle.findFirst.mock.mockImplementation(async () => null); // No existing vehicle
-      dbMock.vehicle.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.vehicle.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "veh-1",
         ...args.data,
       }));

@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
 import SecurityCenterClient from './SecurityCenterClient';
 import { getDictionary } from '@/app/lib/language/language';
+import { buildSeoAlternates } from '@/app/lib/language/navigation';
 
-export const metadata: Metadata = {
-  title: 'Security Center - LogiTrack v2',
-  description: 'Zero-trust security for mission-critical logistics with enterprise-grade encryption and compliance.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.landing.pageMeta.securityCenter.title,
+    description: dict.landing.pageMeta.securityCenter.description,
+    alternates: buildSeoAlternates('/security-center', lang),
+  };
+}
 
 export default async function SecurityCenterPage(props: {
   params: Promise<{ lang: string }>;

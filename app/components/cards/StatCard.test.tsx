@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 import { renderToString } from "react-dom/server";
@@ -14,17 +14,17 @@ mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDic
 
 mock.module("framer-motion", {
   namedExports: {
-    motion: { div: ({ children }: any) => <div data-testid="MotionDiv">{children}</div> },
-    AnimatePresence: ({ children }: any) => <div data-testid="AnimatePresence">{children}</div>
+    motion: { div: ({ children  }: Record<string, unknown>) => <div data-testid="MotionDiv">{children}</div> },
+    AnimatePresence: ({ children  }: Record<string, unknown>) => <div data-testid="AnimatePresence">{children}</div>
   }
 });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Card: ({ children }: any) => <div data-testid="Card">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Card: ({ children  }: Record<string, unknown>) => <div data-testid="Card">{children}</div>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>,
     useTheme: mock.fn(() => ({
       palette: {
         getColorAlpha: () => ({ main_20: "", main_05: "", main_30: "", main_50: "", main_10: "", main_40: "", main_60: "", main_15: "", main_12: "" }),
@@ -39,7 +39,7 @@ mock.module("@mui/material", {
 });
 
 describe("StatCard Component", () => {
-  let StatCard: any;
+  let StatCard: unknown;
 
   before(async () => {
     const mod = await import("./StatCard");

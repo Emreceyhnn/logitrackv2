@@ -12,7 +12,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 
   return (
     <Sonner
-      theme={theme.palette.mode as ToasterProps["theme"]}
+      theme={theme.palette.mode as "light" | "dark" | "system"}
       className="toaster group"
       icons={{
         success: (

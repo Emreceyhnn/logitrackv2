@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -36,7 +35,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../charts/TimeRangeSelector.tsx", {
-  defaultExport: ({ value, onChange }: any) => (
+  defaultExport: ({ value, onChange  }: Record<string, unknown>) => (
     <div data-testid="time-range-selector">
       Current: {value}
       <button onClick={() => onChange("12m")}>Change to 12m</button>
@@ -46,9 +45,9 @@ mock.module("../../charts/TimeRangeSelector.tsx", {
 
 mock.module("@mui/x-charts/PieChart", {
   namedExports: {
-    PieChart: ({ series }: any) => (
+    PieChart: ({ series  }: Record<string, unknown>) => (
       <div data-testid="pie-chart">
-        {series[0].data.map((d: any) => (
+        {series[0].data.map((d: Record<string, unknown>) => (
           <span key={d.label}>{d.label}-{d.value}</span>
         ))}
       </div>
@@ -59,9 +58,9 @@ mock.module("@mui/x-charts/PieChart", {
 
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ series }: any) => (
+    BarChart: ({ series  }: Record<string, unknown>) => (
       <div data-testid="bar-chart">
-        {series.map((s: any) => (
+        {series.map((s: Record<string, unknown>) => (
           <span key={s.label}>{s.label}:{s.data.join(",")}</span>
         ))}
       </div>
@@ -79,7 +78,7 @@ mock.module("@mui/material", {
 });
 
 describe("CostAnalysisCharts RTL Component", () => {
-  let CostAnalysisCharts: any;
+  let CostAnalysisCharts: unknown;
 
   before(async () => {
     const mod = await import("./CostAnalysisCharts");

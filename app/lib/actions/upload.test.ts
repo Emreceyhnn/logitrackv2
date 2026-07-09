@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -25,7 +25,7 @@ mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 
 // 2. TEST GRUPLARI
 describe("Upload Actions", () => {
-  let uploadActions: any;
+  let uploadActions: unknown;
 
   before(async () => {
     uploadActions = await import("./upload");
@@ -53,7 +53,7 @@ describe("Upload Actions", () => {
             getPublicUrl: mock.fn(() => ({
               data: { publicUrl: "http://public.url/test.png" },
             })),
-          }) as any
+          }) as unknown
       );
 
       // Act
@@ -90,7 +90,7 @@ describe("Upload Actions", () => {
         () =>
           ({
             createSignedUrl: createSignedUrlMock,
-          }) as any
+          }) as unknown
       );
 
       // Act

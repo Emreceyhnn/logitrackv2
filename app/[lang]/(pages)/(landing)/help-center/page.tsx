@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
 import HelpCenterClient from './HelpCenterClient';
 import { getDictionary } from '@/app/lib/language/language';
+import { buildSeoAlternates } from '@/app/lib/language/navigation';
 
-export const metadata: Metadata = {
-  title: 'Help Center - LogiTrack v2',
-  description: 'Find answers, get support, and access resources to make the most of your LogiTrack platform.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.landing.pageMeta.helpCenter.title,
+    description: dict.landing.pageMeta.helpCenter.description,
+    alternates: buildSeoAlternates('/help-center', lang),
+  };
+}
 
 export default async function HelpCenterPage(props: {
   params: Promise<{ lang: string }>;

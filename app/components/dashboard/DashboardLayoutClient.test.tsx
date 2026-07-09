@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -25,11 +24,11 @@ mock.module("../sidebar/index.tsx", {
   defaultExport: () => <div data-testid="sidebar">Sidebar</div>,
 });
 mock.module("./DashboardHeader.tsx", {
-  defaultExport: ({ user }: any) => <div data-testid="header">Header for {user?.name}</div>,
+  defaultExport: ({ user  }: Record<string, unknown>) => <div data-testid="header">Header for {user?.name}</div>,
 });
 mock.module("../../lib/context/GuidedTourContext.tsx", {
   namedExports: {
-    GuidedTourProvider: ({ children }: any) => <>{children}</>,
+    GuidedTourProvider: ({ children  }: Record<string, unknown>) => <>{children}</>,
   },
 });
 mock.module("../guidedTour/GuidedTourOverlay.tsx", {
@@ -50,11 +49,11 @@ mock.module("../../lib/language/DictionaryContext.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
-(customTheme.palette.background as any).dashboardBg = "#f5f5f5";
+(customTheme.palette.background as unknown).dashboardBg = "#f5f5f5";
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -66,7 +65,7 @@ mock.module("@mui/material", {
 });
 
 describe("DashboardLayoutClient RTL Component", () => {
-  let DashboardLayoutClient: any;
+  let DashboardLayoutClient: unknown;
 
   before(async () => {
     const mod = await import("./DashboardLayoutClient");

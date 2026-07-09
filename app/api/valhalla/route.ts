@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 
+import { logger } from "@/app/lib/logger";
+
 // Cap the proxied body so this endpoint can't be used to tunnel large payloads
 // to the routing backend.
 const MAX_BODY_BYTES = 64 * 1024; // 64 KB
@@ -56,6 +58,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
+      signal: AbortSignal.timeout(10_000),
     });
 
     const data = await response.text();
@@ -68,6 +71,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: unknown) {
+    logger.error("[Valhalla API] Rota hesaplanamadı:", error);
     return new NextResponse(
       JSON.stringify({
         error: error instanceof Error ? error.message : String(error),

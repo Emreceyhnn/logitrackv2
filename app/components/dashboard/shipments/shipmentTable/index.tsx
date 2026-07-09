@@ -119,7 +119,6 @@ const ShipmentTable = ({
     if (!state.selectedShipmentId) return;
     const match = shipments.find((s) => s.id === state.selectedShipmentId);
     if (match) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedShipment(match);
       setDetailOpen(true);
     }

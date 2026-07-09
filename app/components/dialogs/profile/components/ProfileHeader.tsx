@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Stack, Typography, IconButton, useTheme } from "@mui/material";
 import { Close as CloseIcon, Person as PersonIcon } from "@mui/icons-material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

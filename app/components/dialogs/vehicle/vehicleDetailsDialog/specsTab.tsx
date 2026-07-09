@@ -4,7 +4,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface SpecsTabProps {
-  vehicle?: VehicleWithRelations;
+  vehicle?: VehicleWithRelations | undefined;
 }
 
 const SpecsTab = ({ vehicle }: SpecsTabProps) => {

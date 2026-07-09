@@ -4,6 +4,8 @@ import {
   exchangeRateCacheKeys,
 } from "@/app/lib/redis";
 import { db } from "@/app/lib/db";
+import { logger } from "@/app/lib/logger";
+
 
 export type SupportedCurrency = "USD" | "EUR" | "TRY" | "GBP";
 
@@ -49,7 +51,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
       };
     }
   } catch (err) {
-    console.warn("[exchangeRate] DB get failed:", err);
+    logger.warn("[exchangeRate] DB get failed", err);
   }
 
   // 2. Fall through to Redis cache (fast, in-memory)
@@ -59,7 +61,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     );
     if (cached) return cached;
   } catch (err) {
-    console.warn("[exchangeRate] Redis get failed:", err);
+    logger.warn("[exchangeRate] Redis get failed", err);
   }
 
   // 3. Fetch from external API
@@ -70,7 +72,9 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     );
   }
 
-  const response = await fetch(`${baseUrl}/latest/USD`);
+  const response = await fetch(`${baseUrl}/latest/USD`, {
+    signal: AbortSignal.timeout(10_000),
+  });
 
   if (!response.ok) {
     throw new Error(
@@ -106,7 +110,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
       },
     });
   } catch (err) {
-    console.warn("[exchangeRate] DB save failed:", err);
+    logger.warn("[exchangeRate] DB save failed", err);
   }
 
   // 5. Persist to Redis (fire-and-forget, non-blocking)
@@ -115,7 +119,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
       ex: EXCHANGE_RATE_CACHE_TTL,
     });
   } catch (err) {
-    console.warn("[exchangeRate] Redis set failed:", err);
+    logger.warn("[exchangeRate] Redis set failed", err);
   }
 
   return rates;
@@ -131,7 +135,7 @@ export async function getExchangeRate(
     const rates = await getExchangeRates();
     return rates.rates[currency] ?? 1;
   } catch (err) {
-    console.error("[exchangeRate] Failed to get exchange rate:", err);
+    logger.error("[exchangeRate] Failed to get exchange rate:", err);
     return 1; // Fail-open: default to 1 to avoid breaking the UI
   }
 }

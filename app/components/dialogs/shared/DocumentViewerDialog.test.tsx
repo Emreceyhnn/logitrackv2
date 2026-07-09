@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -28,17 +27,17 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2" } as any,
-    success: { main: "#2e7d32" } as any,
-    error: { main: "#d32f2f" } as any,
-    divider_alpha: { main_10: "rgba()" } as any,
-    background: { midnight: { _alpha: { main_80: "rgba()" } } } as any,
-    common: { white_alpha: { main_10: "rgba()", main_50: "rgba()", main_70: "rgba()" } } as any,
+    primary: { main: "#1976d2" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    divider_alpha: { main_10: "rgba()" } as unknown,
+    background: { midnight: { _alpha: { main_80: "rgba()" } } } as unknown,
+    common: { white_alpha: { main_10: "rgba()", main_50: "rgba()", main_70: "rgba()" } } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_05: "rgba()", main_10: "rgba()" };
-(customTheme.palette.success as any)._alpha = { main_05: "rgba()" };
-(customTheme.palette.error as any)._alpha = { main_10: "rgba()", main_50: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_05: "rgba()", main_10: "rgba()" };
+(customTheme.palette.success as unknown)._alpha = { main_05: "rgba()" };
+(customTheme.palette.error as unknown)._alpha = { main_10: "rgba()", main_50: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -50,7 +49,7 @@ mock.module("@mui/material", {
 });
 
 describe("DocumentViewerDialog RTL Component", () => {
-  let DocumentViewerDialog: any;
+  let DocumentViewerDialog: unknown;
 
   before(async () => {
     const mod = await import("./DocumentViewerDialog");

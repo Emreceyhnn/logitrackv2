@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -72,7 +71,7 @@ mock.module("../../../lib/validationSchema.ts", {
 
 // Mock step components
 mock.module("./Step1Branding.tsx", {
-  defaultExport: ({ actions }: any) => {
+  defaultExport: ({ actions  }: Record<string, unknown>) => {
     return (
       <div data-testid="step1">
         <button onClick={() => actions.updateFormData({ name: "My Company", industry: "Tech" })}>Fill Valid Step 1</button>
@@ -88,18 +87,18 @@ mock.module("./Step2Regional.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
 const mockAlpha = { main_05: "rgba(0,0,0,0.5)", main_10: "rgba(0,0,0,0.5)", main_20: "rgba(0,0,0,0.5)", main_25: "rgba(0,0,0,0.5)", main_35: "rgba(0,0,0,0.5)", main_40: "rgba(0,0,0,0.5)", main_80: "rgba(0,0,0,0.5)" };
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.background as any).paper_alpha = mockAlpha;
-(customTheme.palette.text as any).primary_alpha = mockAlpha;
-(customTheme.palette.text as any).secondary_alpha = mockAlpha;
-(customTheme.palette.error as any)._alpha = mockAlpha;
-(customTheme.palette.common as any) = { white_alpha: mockAlpha };
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
+(customTheme.palette.text as unknown).primary_alpha = mockAlpha;
+(customTheme.palette.text as unknown).secondary_alpha = mockAlpha;
+(customTheme.palette.error as unknown)._alpha = mockAlpha;
+(customTheme.palette.common as unknown) = { white_alpha: mockAlpha };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -111,7 +110,7 @@ mock.module("@mui/material", {
 });
 
 describe("CreateCompanyDialog RTL Component", () => {
-  let CreateCompanyDialog: any;
+  let CreateCompanyDialog: unknown;
 
   before(async () => {
     const mod = await import("./CreateCompanyDialog");

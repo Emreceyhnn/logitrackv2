@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 import "@/app/style/globals.css";
 import Providers from "@/app/lib/theme/themeProviders";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getDictionary } from "@/app/lib/language/language";
 import { DictionaryProvider } from "@/app/lib/language/DictionaryContext";
-import JsonLd from "@/app/components/seo/JsonLd";
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-poppins",
-  display: "swap",
-});
+const poppins = {
+  variable: "font-poppins",
+};
 
 export async function generateStaticParams() {
   return [{ lang: "tr" }, { lang: "en" }];
@@ -54,7 +49,7 @@ export async function generateMetadata({
       description: dict.landing.metaDescription,
       images: [
         {
-          url: "/logo.svg",
+          url: "/og-image.png",
           width: 1200,
           height: 630,
           alt: "LogiTrack AI Logistics",
@@ -65,11 +60,11 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: dict.landing.metaTitle,
       description: dict.landing.metaDescription,
-      images: ["/logo.svg"],
+      images: ["/og-image.png"],
     },
     icons: {
       icon: "/logo.svg",
-      apple: "/logo.svg",
+      apple: "/apple-touch-icon.png",
     },
     robots: {
       index: true,
@@ -83,7 +78,7 @@ export async function generateMetadata({
       },
     },
     verification: {
-      google: "google-site-verification-id", // Search Console'dan alınan kodu buraya ekleyin
+      google: "google-site-verification-id", // Add the code obtained from Search Console here
     },
   };
 }
@@ -103,29 +98,9 @@ export default async function LangLayout({
   const { lang } = await params;
   const dict = await getDictionary(lang);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "https://logitrack.emreceyhan.xyz";
-
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "LogiTrack",
-    url: baseUrl,
-    logo: `${baseUrl}/logo.svg`,
-    sameAs: [
-      "https://twitter.com/logitrack",
-      "https://linkedin.com/company/logitrack",
-    ],
-    description: dict.landing.metaDescription,
-  };
-
   return (
     <html lang={lang}>
       <body className={poppins.variable}>
-        <JsonLd data={organizationSchema} />
         <Providers>
           <DictionaryProvider dict={dict} lang={lang}>{children}</DictionaryProvider>
         </Providers>

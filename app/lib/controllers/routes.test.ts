@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { DriverStatus, VehicleStatus } from "@prisma/client";
 import { rejects } from "node:assert";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
@@ -24,7 +25,7 @@ const dbMock = {
   },
   driver: {
     update: mock.fn(),
-    findFirst: mock.fn(async () => ({ status: "OFF_DUTY", employeeId: "E1" })),
+    findFirst: mock.fn(async () => ({ status: DriverStatus.OFF_DUTY, employeeId: "E1" })),
   },
   shipment: {
     update: mock.fn(),
@@ -34,7 +35,7 @@ const dbMock = {
   vehicle: {
     count: mock.fn(),
     findFirst: mock.fn(async () => ({
-      status: "AVAILABLE",
+      status: VehicleStatus.AVAILABLE,
       fleetNo: "V1",
       maxLoadKg: 10000,
       currentTrailer: null,
@@ -95,7 +96,9 @@ mock.module("../redis.ts", {
   namedExports: cacheUtilsMock,
 });
 
-mock.module("./shipments.ts", {
+// invalidateShipmentCache now lives in the shipments/cache submodule (the barrel
+// no longer re-exports it — see shipments.ts note), so mock that path directly.
+mock.module("./shipments/cache.ts", {
   namedExports: shipmentsCacheMock,
 });
 
@@ -119,7 +122,7 @@ mock.module("next/cache", { namedExports: { revalidatePath: () => {} } });
 
 // 2. TEST GRUPLARI
 describe("Routes Controller", () => {
-  let routesController: any;
+  let routesController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz

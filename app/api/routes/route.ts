@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRoutes } from "@/app/lib/controllers/routes";
+import { parseQueryParams, pageParam, pageSizeParam } from "@/app/lib/api/queryParams";
+import { z } from "zod";
+import { logger } from "@/app/lib/logger";
+
+
+const querySchema = z.object({
+  page: pageParam,
+  pageSize: pageSizeParam(),
+  status: z.string().optional(),
+});
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = req.nextUrl;
-    
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
-    const status = searchParams.get("status") || undefined;
+    const query = parseQueryParams(req, querySchema);
+    if (!query.success) return query.response;
+    const { page, pageSize, status } = query.data;
 
     const data = await getRoutes(page, pageSize, status);
     return NextResponse.json(data);
   } catch (error: unknown) {
-    console.error("[/api/routes] error:", error);
+    logger.error("[/api/routes] error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

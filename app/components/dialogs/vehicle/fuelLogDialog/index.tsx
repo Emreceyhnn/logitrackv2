@@ -25,13 +25,15 @@ import { createFuelLog } from "@/app/lib/controllers/fuel";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
+import { logger } from "@/app/lib/logger";
+
 
 interface AddFuelLogDialogProps {
   open: boolean;
   onClose: () => void;
   vehicleId: string;
   vehiclePlate: string;
-  currentDriverId?: string;
+  currentDriverId?: string | undefined;
   onSuccess: () => void;
 }
 
@@ -92,7 +94,7 @@ export default function AddFuelLogDialog({
       onSuccess();
       handleClose();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError(dict.fuel.dialogs.error || "Failed to add fuel log");
     } finally {
       setLoading(false);

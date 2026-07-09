@@ -24,6 +24,8 @@ import {
 } from "@mui/icons-material";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
+import { logger } from "@/app/lib/logger";
+
 
 interface InventoryTabProps {
   warehouse: WarehouseWithRelations;
@@ -121,7 +123,7 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       await deleteMutation.mutateAsync(selectedItemId);
       setIsDeleteOpen(false);
     } catch (error) {
-      console.error("Delete failed", error);
+      logger.error("Delete failed", error);
     }
   };
 

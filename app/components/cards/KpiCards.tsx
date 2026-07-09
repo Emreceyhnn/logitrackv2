@@ -11,7 +11,7 @@ interface KpiItem {
   value: number | string;
   icon: React.ReactNode;
   color: string;
-  trend?: { value: number; isUp: boolean };
+  trend?: { value: number; isUp: boolean } | undefined;
 }
 
 interface KpiCardsProps {

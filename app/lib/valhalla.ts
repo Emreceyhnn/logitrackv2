@@ -61,6 +61,7 @@ export async function fetchRoute(
           ? params.exclude_locations
           : undefined,
     }),
+    signal: AbortSignal.timeout(15_000),
   });
 
   if (!response.ok) {

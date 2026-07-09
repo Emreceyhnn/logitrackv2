@@ -1,6 +1,8 @@
 "use server";
 
 import { supabase } from "../supabase";
+import { logger } from "@/app/lib/logger";
+import { db } from "../db";
 import {
   authenticatedAction,
   maybeAuthenticatedAction,
@@ -91,8 +93,8 @@ export const uploadImageAction = maybeAuthenticatedAction(
 
     validateBase64Image(fileData);
 
-    const base64Part = fileData.split(",")[1];
-    const mimeType = fileData.split(";")[0].split(":")[1];
+    const base64Part = fileData.split(",")[1] ?? "";
+    const mimeType = fileData.split(";")[0]?.split(":")[1] ?? "";
     const buffer = Buffer.from(base64Part, "base64");
 
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
@@ -109,7 +111,7 @@ export const uploadImageAction = maybeAuthenticatedAction(
       });
 
     if (error) {
-      console.error("[uploadImageAction] Supabase upload failed:", error);
+      logger.error("[uploadImageAction] Supabase upload failed:", error);
       throw new Error(`Failed to upload to Supabase: ${error.message}`);
     }
 
@@ -127,11 +129,25 @@ export const uploadImageAction = maybeAuthenticatedAction(
 
 export const getSignedUrlAction = authenticatedAction(
   async (
-    _user,
+    user,
     fileUrl: string,
     bucket: string = "documents"
   ): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
+
+    // A signed URL grants time-limited read access to the underlying file, so
+    // the caller must own a Document row pointing at this exact URL within
+    // their own tenant — otherwise any authenticated user could request a
+    // signed URL for another company's document by guessing/observing its
+    // storage path (IDOR).
+    const companyId = user?.companyId || "";
+    const ownedDocument = await db.document.findFirst({
+      where: { url: fileUrl, companyId },
+      select: { id: true },
+    });
+    if (!ownedDocument) {
+      throw new Error("Document not found or unauthorized.");
+    }
 
     const urlParts = fileUrl.split("/");
     const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/");
@@ -145,7 +161,7 @@ export const getSignedUrlAction = authenticatedAction(
       .createSignedUrl(path, 3600);
 
     if (error) {
-      console.error(
+      logger.error(
         "[getSignedUrlAction] Failed to generate signed URL:",
         error
       );

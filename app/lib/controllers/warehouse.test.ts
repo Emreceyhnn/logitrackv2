@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -84,7 +84,7 @@ mock.module("next/cache", {
 
 // 2. TEST GRUPLARI
 describe("Warehouse Controller", () => {
-  let warehouseController: any;
+  let warehouseController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -112,7 +112,7 @@ describe("Warehouse Controller", () => {
     it("should_CreateWarehouse_AndSendNotification_WhenValidDataProvided", async () => {
       // Arrange
       dbMock.warehouse.findUnique.mock.mockImplementation(async () => null); // No existing warehouse
-      dbMock.warehouse.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.warehouse.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "wh-1",
         ...args.data,
       }));

@@ -1,6 +1,8 @@
 import admin from "firebase-admin";
 import * as dotenv from "dotenv";
 import path from "path";
+import { logger } from "@/app/lib/logger";
+import { stripUndefined } from "./utils/stripUndefined";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -22,19 +24,21 @@ if (!admin.apps.length) {
       firebaseAdminConfig.privateKey.includes("BEGIN PRIVATE KEY")
     ) {
       admin.initializeApp({
-        credential: admin.credential.cert(firebaseAdminConfig),
-        databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+        credential: admin.credential.cert(stripUndefined(firebaseAdminConfig)),
+        ...(process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
+          ? { databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL }
+          : {}),
       });
       adminDb = admin.database();
       adminMessaging = admin.messaging();
       adminAuth = admin.auth();
     } else {
-      console.warn(
+      logger.warn(
         "⚠️ Firebase credentials missing or invalid in .env. Realtime features will be disabled."
       );
     }
   } catch (error) {
-    console.error("❌ Firebase admin initialization error:", error);
+    logger.error("❌ Firebase admin initialization error:", error);
   }
 } else {
   adminDb = admin.database();

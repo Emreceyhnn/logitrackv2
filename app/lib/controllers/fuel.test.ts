@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { FuelType } from "@prisma/client";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
 
@@ -45,7 +46,7 @@ mock.module("../services/exchangeRate.ts", {
 
 // 2. TEST GRUPLARI
 describe("Fuel Controller", () => {
-  let fuelController: any;
+  let fuelController: unknown;
 
   before(async () => {
     fuelController = await import("./fuel");
@@ -72,7 +73,7 @@ describe("Fuel Controller", () => {
         volumeLiter: 50,
         cost: 3000,
         odometerKm: 150000,
-        fuelType: "DIESEL",
+        fuelType: FuelType.DIESEL,
         currency: "TRY" // Should convert to USD
       });
 
@@ -80,7 +81,7 @@ describe("Fuel Controller", () => {
       expect(result.id).toBe("log-1");
       expect(dbMock.fuelLog.create.mock.calls.length).toBe(1);
       
-      const createArgs = dbMock.fuelLog.create.mock.calls[0].arguments[0] as any;
+      const createArgs = dbMock.fuelLog.create.mock.calls[0].arguments[0] as unknown;
       expect(createArgs.data.cost).toBe(100); // 3000 / 30.0 = 100
       expect(createArgs.data.currency).toBe("USD");
     });

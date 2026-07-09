@@ -21,7 +21,7 @@ interface StatCardProps {
   trend?: {
     value: number;
     isUp: boolean;
-  };
+  } | undefined;
   onClick?: () => void;
   sx?: SxProps<Theme>;
 }

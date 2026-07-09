@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -25,7 +24,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 describe("AnalyticsHeader RTL Component", () => {
-  let AnalyticsHeader: any;
+  let AnalyticsHeader: unknown;
 
   before(async () => {
     const mod = await import("./AnalyticsHeader");

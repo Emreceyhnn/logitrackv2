@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -63,7 +62,7 @@ mock.module("../../../../../hooks/useDateSettings.ts", {
 
 // Mock child components
 mock.module("../../../../../components/cards/KpiCards.tsx", {
-  defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
+  defaultExport: ({ kpis  }: Record<string, unknown>) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
 });
 mock.module("../../../../../components/dashboard/overview/dailyOperations.tsx", {
   defaultExport: () => <div data-testid="daily-ops">Daily Ops</div>,
@@ -94,13 +93,13 @@ mock.module("../../../../../components/dashboard/overview/overViewMapCard.tsx", 
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    info: { main: "#0288d1" } as any,
-    secondary: { main: "#9c27b0" } as any,
-    warning: { main: "#ed6c02" } as any,
-    success: { main: "#2e7d32" } as any,
-    error: { main: "#d32f2f" } as any,
-    kpi: { violet: "#ccc", indigo: "#ccc", sky: "#ccc" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    secondary: { main: "#9c27b0" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    kpi: { violet: "#ccc", indigo: "#ccc", sky: "#ccc" } as unknown,
   }
 });
 
@@ -114,7 +113,7 @@ mock.module("@mui/material", {
 });
 
 describe("OverviewContent Component", () => {
-  let OverviewContent: any;
+  let OverviewContent: unknown;
 
   before(async () => {
     const mod = await import("./OverviewContent");

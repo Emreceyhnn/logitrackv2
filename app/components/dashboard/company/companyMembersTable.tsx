@@ -19,6 +19,8 @@ import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
 
 import { Dictionary } from "@/app/lib/language/language";
+import { logger } from "@/app/lib/logger";
+
 
 function StatusChip({ status, dict }: { status: string; dict: Dictionary }) {
   const normalized = status.toLocaleUpperCase('en-US');
@@ -87,7 +89,7 @@ export default function CompanyMembersTable({
       await actions.deleteMember(selectedMember.id);
       setDeleteOpen(false);
     } catch (error) {
-      console.error("Delete failed", error);
+      logger.error("Delete failed", error);
     } finally {
       setDeleteLoading(false);
     }

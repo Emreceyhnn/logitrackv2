@@ -2,6 +2,11 @@
 
 import { db } from "../../db";
 import rolesConfig from "@/roles.json";
+import {
+  ForbiddenError,
+  NoCompanyError,
+  NotFoundError,
+} from "../../errors";
 
 export interface CheckPermissionUser {
   id: string;
@@ -17,7 +22,7 @@ export async function checkPermission(
   options: { allowNoCompany?: boolean } = {}
 ) {
   if (!companyId && !options.allowNoCompany) {
-    throw new Error("No company assigned to this user");
+    throw new NoCompanyError();
   }
 
   let resolvedUser: {
@@ -37,7 +42,7 @@ export async function checkPermission(
     });
 
     if (!dbUser) {
-      throw new Error("User not found");
+      throw new NotFoundError("User");
     }
 
     resolvedUser = {
@@ -54,7 +59,7 @@ export async function checkPermission(
   }
 
   if (resolvedUser.companyId !== companyId) {
-    throw new Error("User is not authorized to access this company");
+    throw new ForbiddenError("User is not authorized to access this company");
   }
 
   if (requiredRoles.length > 0) {
@@ -76,7 +81,7 @@ export async function checkPermission(
     const userRoleNameLower = userRoleName.toLocaleLowerCase('en-US');
 
     if (!normalizedRequired.includes(userRoleNameLower)) {
-      throw new Error(
+      throw new ForbiddenError(
         `Insufficient permissions. Required roles: ${requiredRoles.join(", ")}`
       );
     }

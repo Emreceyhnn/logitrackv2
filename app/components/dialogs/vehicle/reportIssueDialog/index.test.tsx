@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -82,7 +81,7 @@ mock.module("@mui/material", {
 });
 
 describe("ReportIssueDialog RTL Component", () => {
-  let ReportIssueDialog: any;
+  let ReportIssueDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

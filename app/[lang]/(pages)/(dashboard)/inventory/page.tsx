@@ -14,6 +14,8 @@ import {
 import { getInventoryWithDashboardData } from "@/app/lib/controllers/inventory";
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
 import InventoryContent from "./components/InventoryContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -85,7 +87,7 @@ export default async function InventoryPage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[InventoryPage SSR] prefetch failed:", error);
+    logger.error("[InventoryPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

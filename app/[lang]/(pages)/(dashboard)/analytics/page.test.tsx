@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
@@ -23,7 +22,7 @@ mock.module("./components/AnalyticsContent.tsx", {
 });
 
 describe("AnalyticsPage Component", () => {
-  let AnalyticsPage: any;
+  let AnalyticsPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

@@ -2,6 +2,8 @@
 
 import { Component, type ReactNode } from "react";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import { logger } from "@/app/lib/logger";
+
 
 interface DialogErrorBoundaryProps {
   children: ReactNode;
@@ -31,7 +33,7 @@ export default class DialogErrorBoundary extends Component<
   }
 
   componentDidCatch(error: unknown) {
-    console.error("[DialogErrorBoundary]", error);
+    logger.error("[DialogErrorBoundary]", error);
   }
 
   private handleRetry = () => {

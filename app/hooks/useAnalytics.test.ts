@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -26,11 +26,11 @@ mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 
 // Fetch'i global seviyede mocklama (eğer fetch doğrudan hook içinde çağrılırsa diye)
 const globalFetchMock = mock.fn();
-(globalThis as any).fetch = globalFetchMock;
+(globalThis as unknown).fetch = globalFetchMock;
 
 // 2. TEST GRUPLARI
 describe("useAnalytics Hook", () => {
-  let useAnalyticsMod: any;
+  let useAnalyticsMod: unknown;
 
   before(async () => {
     useAnalyticsMod = await import("./useAnalytics");

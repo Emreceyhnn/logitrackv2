@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -25,7 +25,7 @@ mock.module("../db.ts", { namedExports: { db: dbMock } });
 
 // 2. TEST GRUPLARI
 describe("Notifications Actions", () => {
-  let notificationsActions: any;
+  let notificationsActions: unknown;
 
   before(async () => {
     notificationsActions = await import("./notifications");
@@ -50,7 +50,7 @@ describe("Notifications Actions", () => {
       ]);
 
       // Act
-      const result = await notificationsActions.sendNotificationAction(target, notification as any);
+      const result = await notificationsActions.sendNotificationAction(target, notification as unknown);
 
       // Assert
       expect(result.success).toBe(true);
@@ -72,7 +72,7 @@ describe("Notifications Actions", () => {
       const notification = { title: "Global", message: "Hello", type: "SYSTEM" };
 
       // Act
-      const result = await notificationsActions.sendNotificationAction(target, notification as any);
+      const result = await notificationsActions.sendNotificationAction(target, notification as unknown);
 
       // Assert
       expect(result.success).toBe(true);

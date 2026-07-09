@@ -1,20 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, beforeEach, after, mock } from "node:test";
 import { expect } from "expect";
 
 // NextResponse is used both as a constructor and via the static json() helper.
 class MockNextResponse {
-  _body: any;
+  _body: unknown;
   _status: number;
   _headers: Record<string, string>;
 
-  constructor(body: any, init?: { status?: number; headers?: Record<string, string> }) {
+  constructor(body: unknown, init?: { status?: number; headers?: Record<string, string> }) {
     this._body = body;
     this._status = init?.status ?? 200;
     this._headers = init?.headers ?? {};
   }
 
-  static json = mock.fn((body: any, init?: { status?: number }) => ({
+  static json = mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   }));
@@ -31,9 +31,9 @@ mock.module("../../lib/auth-middleware.ts", {
 
 const originalFetch = globalThis.fetch;
 const fetchMock = mock.fn<any>();
-globalThis.fetch = fetchMock as any;
+globalThis.fetch = fetchMock as unknown;
 
-const makeRequest = (body: string) => ({ text: async () => body }) as any;
+const makeRequest = (body: string) => ({ text: async () => body }) as unknown;
 
 const validBody = JSON.stringify({
   locations: [
@@ -44,7 +44,7 @@ const validBody = JSON.stringify({
 });
 
 describe("POST /api/valhalla", () => {
-  let POST: any;
+  let POST: unknown;
 
   before(async () => {
     const mod = await import("./route");
@@ -72,7 +72,7 @@ describe("POST /api/valhalla", () => {
     getAuthenticatedUserMock.mock.mockImplementation(async () => null);
 
     // Act
-    const res: any = await POST(makeRequest(validBody));
+    const res: unknown = await POST(makeRequest(validBody));
 
     // Assert
     expect(res._status).toBe(401);
@@ -83,7 +83,7 @@ describe("POST /api/valhalla", () => {
 
   it("should_Return413_WhenBodyExceedsSizeCap", async () => {
     // Act
-    const res: any = await POST(makeRequest("x".repeat(64 * 1024 + 1)));
+    const res: unknown = await POST(makeRequest("x".repeat(64 * 1024 + 1)));
 
     // Assert
     expect(res._status).toBe(413);
@@ -92,7 +92,7 @@ describe("POST /api/valhalla", () => {
 
   it("should_Return400_WhenBodyIsNotJson", async () => {
     // Act
-    const res: any = await POST(makeRequest("not-json{"));
+    const res: unknown = await POST(makeRequest("not-json{"));
 
     // Assert
     expect(res._status).toBe(400);
@@ -102,7 +102,7 @@ describe("POST /api/valhalla", () => {
 
   it("should_Return400_WhenFewerThanTwoLocations", async () => {
     // Act
-    const res: any = await POST(
+    const res: unknown = await POST(
       makeRequest(JSON.stringify({ locations: [{ lat: 1, lon: 2 }], costing: "truck" }))
     );
 
@@ -113,7 +113,7 @@ describe("POST /api/valhalla", () => {
 
   it("should_Return400_WhenCostingIsMissing", async () => {
     // Act
-    const res: any = await POST(
+    const res: unknown = await POST(
       makeRequest(
         JSON.stringify({
           locations: [
@@ -131,7 +131,7 @@ describe("POST /api/valhalla", () => {
 
   it("should_ProxyToValhallaAndReturnUpstreamBody_WhenRequestIsValid", async () => {
     // Act
-    const res: any = await POST(makeRequest(validBody));
+    const res: unknown = await POST(makeRequest(validBody));
 
     // Assert
     expect(res._status).toBe(200);
@@ -153,7 +153,7 @@ describe("POST /api/valhalla", () => {
     }));
 
     // Act
-    const res: any = await POST(makeRequest(validBody));
+    const res: unknown = await POST(makeRequest(validBody));
 
     // Assert
     expect(res._status).toBe(400);
@@ -167,7 +167,7 @@ describe("POST /api/valhalla", () => {
     });
 
     // Act
-    const res: any = await POST(makeRequest(validBody));
+    const res: unknown = await POST(makeRequest(validBody));
 
     // Assert
     expect(res._status).toBe(500);

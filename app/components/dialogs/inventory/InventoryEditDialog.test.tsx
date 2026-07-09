@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -89,9 +88,9 @@ mock.module("../../../hooks/useCurrency.ts", {
 mock.module("yup", {
   namedExports: {
     object: () => ({
-      validate: async (val: any) => val,
+      validate: async (val: Record<string, unknown>) => val,
       isValid: async () => true,
-      validateSync: (val: any) => val,
+      validateSync: (val: Record<string, unknown>) => val,
       isValidSync: () => true,
     }),
     string: () => ({ required: () => ({}), optional: () => ({ nullable: () => ({}) }) }),
@@ -103,23 +102,23 @@ mock.module("yup", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    secondary: { main: "#9c27b0" } as any,
-    error: { main: "#d32f2f" } as any,
-    warning: { main: "#ed6c02" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    secondary: { main: "#9c27b0" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
   }
 });
 
 const mockAlpha = { main_05: "rgba()", main_10: "rgba()", main_20: "rgba()", main_30: "rgba()", main_80: "rgba()" };
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette.secondary as any)._alpha = mockAlpha;
-(customTheme.palette.error as any)._alpha = mockAlpha;
-(customTheme.palette.warning as any)._alpha = mockAlpha;
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette.secondary as unknown)._alpha = mockAlpha;
+(customTheme.palette.error as unknown)._alpha = mockAlpha;
+(customTheme.palette.warning as unknown)._alpha = mockAlpha;
 
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.background as any).paper_alpha = mockAlpha;
-(customTheme.palette.background as any).default_alpha = mockAlpha;
-(customTheme.palette.common as any) = { white_alpha: { main_20: "rgba()", main_30: "rgba()", main_50: "rgba()" } };
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
+(customTheme.palette.background as unknown).default_alpha = mockAlpha;
+(customTheme.palette.common as unknown) = { white_alpha: { main_20: "rgba()", main_30: "rgba()", main_50: "rgba()" } };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -131,7 +130,7 @@ mock.module("@mui/material", {
 });
 
 describe("InventoryEditDialog RTL Component", () => {
-  let InventoryEditDialog: any;
+  let InventoryEditDialog: unknown;
 
   before(async () => {
     const mod = await import("./InventoryEditDialog");

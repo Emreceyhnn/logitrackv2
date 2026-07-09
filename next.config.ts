@@ -51,23 +51,13 @@ const nextConfig: NextConfig = {
   },
 
   // ── Security headers ──────────────────────────────────────────────────────
-  // Applied to every response. The CSP here is intentionally minimal — it locks
-  // the framing / base-uri / plugin surface (kills clickjacking and <base>
-  // injection) without constraining script/style origins, so it cannot break
-  // MUI/emotion inline styles or the Google Maps / Firebase / Leaflet / Valhalla
-  // integrations. Tighten to a nonce-based script-src/connect-src allowlist once
-  // those external origins are enumerated per environment.
+  // Applied to every response. Content-Security-Policy is NOT set here: it
+  // needs a per-request nonce (for a strict script-src on dashboard routes)
+  // and a path-dependent value, neither of which this static headers() config
+  // can produce, so proxy.ts sets it per-request instead. style-src stays
+  // unconstrained everywhere to avoid breaking MUI/emotion inline styles.
   async headers() {
     const securityHeaders = [
-      {
-        key: "Content-Security-Policy",
-        value: [
-          "frame-ancestors 'none'",
-          "object-src 'none'",
-          "base-uri 'self'",
-          "form-action 'self'",
-        ].join("; "),
-      },
       {
         key: "Strict-Transport-Security",
         value: "max-age=63072000; includeSubDomains; preload",

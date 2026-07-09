@@ -1,24 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 
 // 1. MOCK'LAR
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: any) => ({ type: "Box", props }),
-    Skeleton: (props: any) => ({ type: "Skeleton", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Skeleton: (props: Record<string, unknown>) => ({ type: "Skeleton", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Divider: (props: Record<string, unknown>) => ({ type: "Divider", props }),
   }
 });
 
 mock.module("../cards/card.tsx", {
-  defaultExport: (props: any) => ({ type: "CustomCard", props }),
+  defaultExport: (props: Record<string, unknown>) => ({ type: "CustomCard", props }),
 });
 
 describe("AnalyticsSkeleton Component", () => {
-  let AnalyticsSkeleton: any;
+  let AnalyticsSkeleton: unknown;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

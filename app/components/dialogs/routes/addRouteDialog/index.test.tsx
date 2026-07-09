@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -94,12 +93,12 @@ mock.module("./thirdStep.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
-(customTheme.palette.primary as any)._alpha = { main_20: "rgba()" };
-(customTheme.palette as any).divider_alpha = { main_05: "rgba()", main_10: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_20: "rgba()" };
+(customTheme.palette as unknown).divider_alpha = { main_05: "rgba()", main_10: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -111,7 +110,7 @@ mock.module("@mui/material", {
 });
 
 describe("AddRouteDialog RTL Component", () => {
-  let AddRouteDialog: any;
+  let AddRouteDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

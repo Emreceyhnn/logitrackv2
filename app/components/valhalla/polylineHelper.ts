@@ -4,6 +4,7 @@ import {
   fetchRoute,
   RoutingParams,
 } from "@/app/lib/valhalla";
+import { logger } from "@/app/lib/logger";
 
 export interface LocationPoint {
   lat: number;
@@ -27,7 +28,7 @@ export const polylineHelper = async (params: PolylineHelperParams): Promise<Poly
   const input: RoutingParams = {
     locations: params.locations.map((i) => ({ lat: i.lat, lon: i.lon })),
     costing: params.costing || "auto",
-    costing_options: params.costing_options,
+    ...(params.costing_options ? { costing_options: params.costing_options } : {}),
   };
 
   try {
@@ -59,6 +60,7 @@ export const polylineHelper = async (params: PolylineHelperParams): Promise<Poly
       },
     };
   } catch (err: unknown) {
-    console.error("Valhalla Routing Error:", err);
+    logger.error("Valhalla Routing Error:", err);
+    return undefined;
   }
 };

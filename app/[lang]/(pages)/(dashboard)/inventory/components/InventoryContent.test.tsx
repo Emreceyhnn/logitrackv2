@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -82,7 +81,7 @@ mock.module("../../../../../components/dashboard/inventory/InventoryHeader.tsx",
   defaultExport: () => <div data-testid="inventory-header">Header</div>,
 });
 mock.module("../../../../../components/dashboard/inventory/InventoryTable.tsx", {
-  defaultExport: ({ onDelete }: any) => (
+  defaultExport: ({ onDelete  }: Record<string, unknown>) => (
     <div data-testid="inventory-table">
       <button onClick={() => onDelete("i1")}>Delete i1</button>
     </div>
@@ -98,7 +97,7 @@ mock.module("../../../../../components/dialogs/inventory/addInventoryDialog/inde
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
 mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm  }: Record<string, unknown>) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -109,10 +108,10 @@ mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    success: { main: "#2e7d32" } as any,
-    warning: { main: "#ed6c02" } as any,
-    error: { main: "#d32f2f" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -125,7 +124,7 @@ mock.module("@mui/material", {
 });
 
 describe("InventoryContent Component", () => {
-  let InventoryContent: any;
+  let InventoryContent: unknown;
 
   before(async () => {
     const mod = await import("./InventoryContent");

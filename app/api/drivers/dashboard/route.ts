@@ -20,41 +20,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDriverWithDashboardData } from "@/app/lib/controllers/driver";
 import { DriverFilters } from "@/app/lib/type/driver";
+import { DriverStatus } from "@prisma/client";
+import { parseQueryParams, pageParam, pageSizeParam, searchParam, enumArrayParam, boolParam, sortFieldParam, sortOrderParam } from "@/app/lib/api/queryParams";
+import { z } from "zod";
+import { logger } from "@/app/lib/logger";
+
+
+const querySchema = z.object({
+  page: pageParam,
+  limit: pageSizeParam(),
+  search: searchParam,
+  status: enumArrayParam(DriverStatus),
+  hasVehicle: boolParam,
+  sortField: sortFieldParam,
+  sortOrder: sortOrderParam,
+});
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = req.nextUrl;
-    const filters: DriverFilters = {
-      page: 1,
-      limit: 10,
-    };
-
-    const page = searchParams.get("page");
-    if (page) filters.page = parseInt(page);
-
-    const limit = searchParams.get("limit");
-    if (limit) filters.limit = parseInt(limit);
-
-    const search = searchParams.get("search");
-    if (search) filters.search = search;
-
-    const status = searchParams.getAll("status");
-    if (status.length > 0) filters.status = status as DriverFilters["status"];
-
-    const hasVehicle = searchParams.get("hasVehicle");
-    if (hasVehicle !== null) filters.hasVehicle = hasVehicle === "true";
-
-    const sortField = searchParams.get("sortField");
-    if (sortField) filters.sortField = sortField;
-
-    const sortOrder = searchParams.get("sortOrder");
-    if (sortOrder) filters.sortOrder = sortOrder as "asc" | "desc";
+    const query = parseQueryParams(req, querySchema);
+    if (!query.success) return query.response;
+    
+    // query.data exactly matches DriverFilters structure
+    const filters: DriverFilters = query.data;
 
     const data = await getDriverWithDashboardData(filters);
 
     return NextResponse.json(data);
   } catch (error: unknown) {
-    console.error("[/api/drivers/dashboard] error:", error);
+    logger.error("[/api/drivers/dashboard] error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

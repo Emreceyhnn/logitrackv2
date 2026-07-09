@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -91,15 +90,15 @@ mock.module("./secondStep.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    background: { midnight: { main: "#0B0F19" } } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    background: { midnight: { main: "#0B0F19" } } as unknown,
   }
 });
 
 const mockAlpha = { main_05: "rgba()", main_10: "rgba()", main_20: "rgba()", main_30: "rgba()", main_50: "rgba()" };
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.common as any) = { white_alpha: mockAlpha };
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.common as unknown) = { white_alpha: mockAlpha };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -111,7 +110,7 @@ mock.module("@mui/material", {
 });
 
 describe("EditDriverDialog RTL Component", () => {
-  let EditDriverDialog: any;
+  let EditDriverDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

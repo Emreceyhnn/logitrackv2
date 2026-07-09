@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -76,7 +76,7 @@ mock.module("next/cache", {
 
 // 2. TEST GRUPLARI
 describe("Trailer Controller", () => {
-  let trailerController: any;
+  let trailerController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -105,7 +105,7 @@ describe("Trailer Controller", () => {
     it("should_CreateTrailer_WhenValidDataProvided", async () => {
       // Arrange
       dbMock.trailer.findFirst.mock.mockImplementation(async () => null); // No existing trailer
-      dbMock.trailer.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.trailer.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "trailer-1",
         ...args.data,
       }));
@@ -147,7 +147,7 @@ describe("Trailer Controller", () => {
       // Act & Assert
       await expect(
         trailerController.createTrailer(mockUser, trailerData)
-      ).rejects.toThrow("Plate or Fleet Number already exists.");
+      ).rejects.toThrow("Plate or fleet number already exists");
 
       expect(dbMock.trailer.create.mock.calls.length).toBe(0);
     });

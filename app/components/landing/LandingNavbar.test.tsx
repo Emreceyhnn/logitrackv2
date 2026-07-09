@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -17,12 +17,12 @@ mock.module("../../lib/language/navigation.ts", { namedExports: { getLocalizedPa
 mock.module("@mui/material", {
   namedExports: {
     useScrollTrigger: useScrollTriggerMock,
-    AppBar: (props: any) => ({ type: "AppBar", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Container: (props: any) => ({ type: "Container", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Toolbar: (props: any) => ({ type: "Toolbar", props }),
-    Typography: (props: any) => ({ type: "Typography", props })
+    AppBar: (props: Record<string, unknown>) => ({ type: "AppBar", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Container: (props: Record<string, unknown>) => ({ type: "Container", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Toolbar: (props: Record<string, unknown>) => ({ type: "Toolbar", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props })
   }
 });
 
@@ -32,7 +32,7 @@ mock.module("./LandingHeaderAuth.tsx", { defaultExport: () => ({ type: "LandingH
 mock.module("../nav/LanguageSwitcher.tsx", { defaultExport: () => ({ type: "LanguageSwitcher" }) });
 
 describe("LandingNavbar Component", () => {
-  let LandingNavbar: any;
+  let LandingNavbar: unknown;
 
   before(async () => {
     const mod = await import("./LandingNavbar");

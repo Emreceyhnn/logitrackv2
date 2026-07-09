@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
 import GlobalTrackingClient from './GlobalTrackingClient';
 import { getDictionary } from '@/app/lib/language/language';
+import { buildSeoAlternates } from '@/app/lib/language/navigation';
 
-export const metadata: Metadata = {
-  title: 'Global Tracking - LogiTrack v2',
-  description: 'Real-time visibility across every continent. Monitor your fleet and shipments with sub-second precision.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.landing.pageMeta.globalTracking.title,
+    description: dict.landing.pageMeta.globalTracking.description,
+    alternates: buildSeoAlternates('/global-tracking', lang),
+  };
+}
 
 export default async function GlobalTrackingPage(props: {
   params: Promise<{ lang: string }>;

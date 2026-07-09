@@ -15,6 +15,8 @@ import { trailerKeys } from "@/app/lib/query-keys/trailer.keys";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 async function fetchTrailers(filters: TrailerFilters): Promise<{
   trailers: import("@/app/lib/type/trailer").TrailerWithRelations[];
@@ -104,7 +106,7 @@ export function useTrailerMutations() {
   };
 
   const handleError = (message: string, error: unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error(error instanceof Error ? error.message : message);
   };
 

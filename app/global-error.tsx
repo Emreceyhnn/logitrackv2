@@ -2,6 +2,8 @@
 
 import NextError from "next/error";
 import { useEffect } from "react";
+import { logger } from "@/app/lib/logger";
+
 
 export default function GlobalError({
   error,
@@ -9,7 +11,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
 }) {
   useEffect(() => {
-    console.error(error);
+    logger.error(error);
   }, [error]);
 
   return (

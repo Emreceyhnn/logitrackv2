@@ -14,6 +14,8 @@ import {
 import { getReportsDataAction } from "@/app/lib/controllers/reports";
 import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
 import ReportsContent from "./components/ReportsContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -59,7 +61,7 @@ export default async function ReportsPage() {
       staleTime: 1000 * 60 * 15,
     });
   } catch (error) {
-    console.error("[ReportsPage SSR] prefetch failed:", error);
+    logger.error("[ReportsPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

@@ -252,18 +252,29 @@ const WarehouseListTable = ({
           }
 
           const [opening, closing] = rawTxt.split(" - ");
+          if (!opening || !closing) {
+            return (
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                sx={{ fontFamily: "monospace" }}
+              >
+                {rawTxt}
+              </Typography>
+            );
+          }
           const whTz = row.timezone || "UTC";
           const userTz = dateSettings.timezone;
 
           const whOpening = dayjs()
             .tz(whTz)
-            .set("hour", parseInt(opening.split(":")[0]))
-            .set("minute", parseInt(opening.split(":")[1]))
+            .set("hour", parseInt(opening.split(":")[0] ?? "0"))
+            .set("minute", parseInt(opening.split(":")[1] ?? "0"))
             .set("second", 0);
           let whClosing = dayjs()
             .tz(whTz)
-            .set("hour", parseInt(closing.split(":")[0]))
-            .set("minute", parseInt(closing.split(":")[1]))
+            .set("hour", parseInt(closing.split(":")[0] ?? "0"))
+            .set("minute", parseInt(closing.split(":")[1] ?? "0"))
             .set("second", 0);
 
           if (whClosing.isBefore(whOpening)) {

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -19,14 +18,14 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 
 // Mock next/image
 mock.module("next/image", {
-  defaultExport: (props: any) => <img {...props} data-testid="next-image" />,
+  defaultExport: (props: Record<string, unknown>) => <img {...props} data-testid="next-image" />,
 });
 
 // 2. Mock Theme
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -39,7 +38,7 @@ mock.module("@mui/material", {
 });
 
 describe("AuthLayout Component", () => {
-  let AuthLayout: any;
+  let AuthLayout: unknown;
 
   before(async () => {
     const mod = await import("./layout");

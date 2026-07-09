@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,8 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateCompanyMember } from "@/app/lib/controllers/company";
 import { UserStatus } from "@/app/lib/type/enums";
 import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
+import { logger } from "@/app/lib/logger";
+
 
 const mapToStandardRoleId = (roleId: string | null, roleName: string | null): string => {
   if (!roleId) return "role_default";
@@ -96,7 +98,7 @@ export default function EditCompanyMemberDialog({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Failed to update member", error);
+      logger.error("Failed to update member", error);
     }
   };
 

@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { Box } from "@mui/material";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * Route-level error boundary for the dashboard group. Renders inside the
@@ -17,7 +19,7 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("[DashboardError]", error);
+    logger.error("[DashboardError]", error);
   }, [error]);
 
   return (

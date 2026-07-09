@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -47,7 +46,7 @@ const customTheme = createTheme({
       slateDeepest_alpha: { main_50: "#000" }
     },
     common: { black_alpha: { main_50: "#000" } }
-  } as any
+  } as unknown
 });
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -59,7 +58,7 @@ mock.module("@mui/material", {
 });
 
 describe("FeaturesPage Component", () => {
-  let FeaturesPage: any;
+  let FeaturesPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

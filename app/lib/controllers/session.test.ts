@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { UserStatus } from "@prisma/client";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
 
@@ -77,7 +78,7 @@ process.env.JWT_SECRET = "super-secret-key-for-testing-only";
 
 // 2. TEST GRUPLARI
 describe("Session Controller", () => {
-  let sessionController: any;
+  let sessionController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -142,7 +143,7 @@ describe("Session Controller", () => {
         user: {
           id: "user-1",
           companyId: "company-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
           role: { name: "Admin" },
         },
       }));
@@ -173,7 +174,7 @@ describe("Session Controller", () => {
         isRevoked: true, // Revoked!
         user: {
           id: "user-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
         },
       }));
 
@@ -201,7 +202,7 @@ describe("Session Controller", () => {
         isRevoked: false,
         user: {
           id: "user-1",
-          status: "SUSPENDED",
+          status: UserStatus.SUSPENDED,
         },
       }));
 
@@ -228,7 +229,7 @@ describe("Session Controller", () => {
         isRevoked: false,
         user: {
           id: "user-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
         },
       }));
 
@@ -277,7 +278,7 @@ describe("Session Controller", () => {
           id: "user-1",
           roleId: "role-1",
           companyId: "company-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
         },
       };
     };
@@ -312,7 +313,7 @@ describe("Session Controller", () => {
       expect(updateArgs.data.refreshToken).not.toBe(lookupHash);
       // New cookies set for token + refreshToken
       const setNames = cookieStoreMock.set.mock.calls.map(
-        (c: any) => c.arguments[0]
+        (c: Record<string, unknown>) => c.arguments[0]
       );
       expect(setNames).toContain("token");
       expect(setNames).toContain("refreshToken");
@@ -320,7 +321,7 @@ describe("Session Controller", () => {
       expect(redisMock.del.mock.calls.length).toBe(1);
       // Refresh is audit-logged
       const auditArgs = dbMock.auditLog.create.mock.calls.map(
-        (c: any) => c.arguments[0]?.data?.action
+        (c: Record<string, unknown>) => c.arguments[0]?.data?.action
       );
       expect(auditArgs).toContain("TOKEN_REFRESH");
     });

@@ -56,7 +56,7 @@ export default function ReportsContent() {
   const [tabIndex, setTabIndex] = useState(0);
 
   /* -------------------------------- handlers -------------------------------- */
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
@@ -185,7 +185,7 @@ export default function ReportsContent() {
         <Box sx={{ mt: 2 }}>
           <CustomTabPanel value={tabIndex} index={0}>
             <ShipmentCharts
-              data={state.data?.shipments}
+              data={state.data?.shipments ?? null}
               loading={state.loading}
               dict={dict}
             />

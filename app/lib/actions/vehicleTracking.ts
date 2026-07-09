@@ -2,6 +2,8 @@
 
 import { adminDb } from "@/app/lib/firebase-admin";
 import { VehicleLocation } from "@/app/lib/type/vehicle";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * All Realtime Database paths are tenant-scoped as
@@ -26,7 +28,7 @@ export async function updateVehicleLocationAction(
     await adminDb.ref(path).set(data);
     return { success: true };
   } catch (error) {
-    console.error(`Failed to update location for vehicle ${vehicleId}:`, error);
+    logger.error(`Failed to update location for vehicle ${vehicleId}:`, error);
     return { success: false, error: String(error) };
   }
 }
@@ -46,7 +48,7 @@ export async function updateVehicleDataAction(
     await adminDb.ref(path).update(updateData);
     return { success: true };
   } catch (error) {
-    console.error(`Failed to update data for vehicle ${vehicleId}:`, error);
+    logger.error(`Failed to update data for vehicle ${vehicleId}:`, error);
     return { success: false, error: String(error) };
   }
 }
@@ -67,7 +69,7 @@ export async function syncVehicleToFirebaseAction(
     });
     return { success: true };
   } catch (error) {
-    console.error(`Failed to sync vehicle ${vehicle.id} to Firebase:`, error);
+    logger.error(`Failed to sync vehicle ${vehicle.id} to Firebase:`, error);
     return { success: false, error: String(error) };
   }
 }

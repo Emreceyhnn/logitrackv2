@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -47,8 +46,8 @@ const customTheme = createTheme({
       slateDark_alpha: { main_40: "#000", main_60: "#000", main_70: "#000" },
       slateDeepest_alpha: { main_50: "#000" }
     },
-    success: { _alpha: { main_10: "#000", main_30: "#000" } }
-  } as any
+    success: { main: "#2e7d32", _alpha: { main_10: "#000", main_30: "#000" } }
+  } as unknown
 });
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -60,7 +59,7 @@ mock.module("@mui/material", {
 });
 
 describe("PricingPage Component", () => {
-  let PricingPage: any;
+  let PricingPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

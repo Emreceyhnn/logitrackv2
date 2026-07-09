@@ -1,5 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { getTenantCompanyId } from "./tenant-context";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
+
+neonConfig.webSocketConstructor = ws;
 
 /**
  * Models that carry a required `companyId` column. Every query against them
@@ -59,7 +64,13 @@ const WHERE_OPS = new Set<string>([
 ]);
 
 function createPrismaClient() {
-  return new PrismaClient().$extends({
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString && process.env.NEXT_PHASE !== "phase-production-build") {
+    throw new Error("DATABASE_URL is not set — cannot initialise the database pool");
+  }
+  
+  const adapter = new PrismaNeon({ connectionString: connectionString! });
+  return new PrismaClient({ adapter }).$extends({
     name: "tenant-guard",
     query: {
       $allModels: {
@@ -98,25 +109,36 @@ function createPrismaClient() {
             }
           }
 
-          // Block cross-tenant writes: a create inside tenant context must
-          // target the caller's own company.
+          // Block cross-tenant writes and auto-inject companyId: a create inside
+          // tenant context must target the caller's own company.
           if (
             isTenantModel &&
             companyId &&
             (operation === "create" || operation === "upsert")
           ) {
-            const data =
-              operation === "create"
-                ? (args as { data?: { companyId?: unknown } }).data
-                : (args as { create?: { companyId?: unknown } }).create;
-            if (
-              data &&
-              typeof data.companyId === "string" &&
-              data.companyId !== companyId
-            ) {
-              throw new Error(
-                `Tenant guard: attempted to create ${model} for another company`
-              );
+            // TypeScript trick to cast args so we can mutate the inner object safely
+            type MutArgs = { data?: { companyId?: unknown }, create?: { companyId?: unknown } };
+            const mArgs = args as MutArgs;
+
+            const data = operation === "create" ? mArgs.data : mArgs.create;
+
+            if (data) {
+              if (typeof data.companyId === "string" && data.companyId !== companyId) {
+                throw new Error(
+                  `Tenant guard: attempted to create ${model} for another company`
+                );
+              }
+              // Auto-inject companyId if omitted
+              if (data.companyId === undefined) {
+                data.companyId = companyId;
+              }
+            } else {
+              // If data/create object is completely missing but the operation was called
+              if (operation === "create") {
+                mArgs.data = { companyId };
+              } else {
+                mArgs.create = { companyId };
+              }
             }
           }
 

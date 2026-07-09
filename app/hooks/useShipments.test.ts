@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -9,8 +9,8 @@ const queryClientMock = {
 
 const reactQueryMock = {
   useQuery: mock.fn(() => ({ data: null })),
-  useMutation: mock.fn((options: any) => ({
-    mutateAsync: async (variables: any) => {
+  useMutation: mock.fn((options: Record<string, unknown>) => ({
+    mutateAsync: async (variables: Record<string, unknown>) => {
       try {
         const res = await options.mutationFn(variables);
         options.onSuccess?.(res);
@@ -60,11 +60,11 @@ mock.module("../lib/controllers/shipments.ts", { namedExports: shipmentsControll
 mock.module("../lib/language/DictionaryContext.tsx", { namedExports: dictContextMock });
 
 const globalFetchMock = mock.fn();
-(globalThis as any).fetch = globalFetchMock;
+(globalThis as unknown).fetch = globalFetchMock;
 
 // 2. TEST GRUPLARI
 describe("useShipments Hook", () => {
-  let useShipmentsMod: any;
+  let useShipmentsMod: unknown;
 
   before(async () => {
     useShipmentsMod = await import("./useShipments");

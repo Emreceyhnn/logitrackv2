@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -20,20 +20,20 @@ mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDic
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: any) => ({ type: "Box", props }),
-    Button: (props: any) => ({ type: "Button", props }),
-    Container: (props: any) => ({ type: "Container", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props })
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Button: (props: Record<string, unknown>) => ({ type: "Button", props }),
+    Container: (props: Record<string, unknown>) => ({ type: "Container", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props })
   }
 });
 
 mock.module("next/image", { defaultExport: () => ({ type: "Image" }) });
 mock.module("@mui/icons-material/PlayCircleOutline", { defaultExport: () => ({ type: "PlayCircleOutlineIcon" }) });
-mock.module("framer-motion", { namedExports: { motion: { div: (props: any) => ({ type: "MotionDiv", props }) } } });
+mock.module("framer-motion", { namedExports: { motion: { div: (props: Record<string, unknown>) => ({ type: "MotionDiv", props }) } } });
 
 describe("HeroSection Component", () => {
-  let HeroSection: any;
+  let HeroSection: unknown;
 
   before(async () => {
     const mod = await import("./HeroSection");

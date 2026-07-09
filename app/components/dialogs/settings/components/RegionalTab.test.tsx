@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
@@ -58,18 +57,18 @@ mock.module("../../../../lib/constants.ts", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    divider_alpha: { main_08: "rgba()" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    divider_alpha: { main_08: "rgba()" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { 
+(customTheme.palette.primary as unknown)._alpha = { 
   main_04: "rgba()", 
   main_10: "rgba()", 
   main_50: "rgba()", 
   main_25: "rgba()", 
   main_35: "rgba()" 
 };
-(customTheme.palette.common as any) = { 
+(customTheme.palette.common as unknown) = { 
   white_alpha: { main_45: "rgba()", main_60: "rgba()" } 
 };
 
@@ -83,7 +82,7 @@ mock.module("@mui/material", {
 });
 
 describe("RegionalTab RTL Component", () => {
-  let RegionalTab: any;
+  let RegionalTab: unknown;
 
   before(async () => {
     const mod = await import("./RegionalTab");

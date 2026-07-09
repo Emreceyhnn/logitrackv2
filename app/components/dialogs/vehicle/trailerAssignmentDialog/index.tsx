@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -17,6 +17,8 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useTrailerMutations } from "@/app/hooks/useTrailers";
 import { useVehicles } from "@/app/hooks/useVehicles";
 import { TrailerWithRelations } from "@/app/lib/type/trailer";
+import { logger } from "@/app/lib/logger";
+
 
 interface TrailerAssignmentDialogProps {
   open: boolean;
@@ -44,7 +46,7 @@ export default function TrailerAssignmentDialog({
       });
       onClose();
     } catch (error) {
-      console.error("Failed to assign trailer:", error);
+      logger.error("Failed to assign trailer:", error);
     }
   };
 

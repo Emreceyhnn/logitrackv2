@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 import { renderToString } from "react-dom/server";
@@ -6,20 +6,20 @@ import React from "react";
 global.React = React;
 
 // MOCKLAR
-mock.module("next/link", { defaultExport: ({ children }: any) => <a data-testid="Link">{children}</a> });
+mock.module("next/link", { defaultExport: ({ children  }: Record<string, unknown>) => <a data-testid="Link">{children}</a> });
 mock.module("../../lib/language/language.ts", { namedExports: { getDictionary: mock.fn(async () => ({ auth: { register: "Register", login: "Login" } })) } });
 mock.module("./register/signUpStepper.tsx", { defaultExport: () => <div data-testid="SignUpStepper" /> });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>
   }
 });
 
 describe("RegisterForm Component", () => {
-  let RegisterForm: any;
+  let RegisterForm: unknown;
 
   before(async () => {
     const mod = await import("./signUpForm");

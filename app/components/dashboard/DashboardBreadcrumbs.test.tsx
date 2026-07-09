@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import "global-jsdom/register";
+ 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -44,7 +43,7 @@ mock.module("../../lib/language/navigation.ts", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
@@ -58,7 +57,7 @@ mock.module("@mui/material", {
 });
 
 describe("DashboardBreadcrumbs RTL Component", () => {
-  let DashboardBreadcrumbs: any;
+  let DashboardBreadcrumbs: unknown;
 
   before(async () => {
     const mod = await import("./DashboardBreadcrumbs");

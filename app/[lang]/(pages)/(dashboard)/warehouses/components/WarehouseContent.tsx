@@ -30,6 +30,8 @@ import {
 } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import { logger } from "@/app/lib/logger";
+
 
 export default function WarehouseContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -107,7 +109,7 @@ export default function WarehouseContent() {
       setDeleteDialogOpen(false);
     } catch (error) {
       toast.error(dict.toasts.errorGeneric || "Failed to delete warehouse");
-      console.error(error);
+      logger.error(error);
     } finally {
       setWarehouseToDeleteId(null);
     }

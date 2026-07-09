@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 import { renderToString } from "react-dom/server";
@@ -24,12 +24,12 @@ mock.module("@/app/lib/priorityColor", {
 
 mock.module("@mui/material", {
   namedExports: {
-    Chip: ({ label }: any) => <div data-testid={`Chip-${label}`}>{label}</div>,
+    Chip: ({ label  }: Record<string, unknown>) => <div data-testid={`Chip-${label}`}>{label}</div>,
   }
 });
 
 describe("PriorityChip Component", () => {
-  let PriorityChip: any;
+  let PriorityChip: unknown;
 
   before(async () => {
     const mod = await import("./priorityChips");
