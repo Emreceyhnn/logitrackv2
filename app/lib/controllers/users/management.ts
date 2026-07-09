@@ -218,7 +218,7 @@ export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
 
 export const searchPlatformUsers = authenticatedAction(
   async (user, query: string) => {
-    if (!query || query.length < 2) {
+    if (!query || query.length < 2 || query.length > 100) {
       return [];
     }
 

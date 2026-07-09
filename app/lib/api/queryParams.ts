@@ -94,6 +94,7 @@ export const searchParam = z
   .string()
   .trim()
   .min(1)
+  .max(100)
   .optional()
   .catch(undefined);
 
@@ -101,7 +102,7 @@ export const searchParam = z
 export const sortOrderParam = z.enum(["asc", "desc"]).optional();
 
 /** Free-form sort field name, optional. */
-export const sortFieldParam = z.string().trim().min(1).optional();
+export const sortFieldParam = z.string().trim().min(1).max(50).optional();
 
 /** "true"/"false" flag → boolean, or undefined when the param is absent. */
 export const boolParam = z
