@@ -28,7 +28,9 @@ export async function GET() {
  */
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
+  const expectedSecret = process.env.CRON_SECRET;
+  
+  if (!secret || !expectedSecret || !timingSafeEqual(secret, expectedSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
