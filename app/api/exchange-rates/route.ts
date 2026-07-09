@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refreshExchangeRates, getExchangeRates } from "@/app/lib/services/exchangeRate";
 import { logger } from "@/app/lib/logger";
+import { timingSafeEqual } from "@/app/lib/utils/timingSafeEqual";
 
 
 /**
@@ -27,7 +28,11 @@ export async function GET() {
  */
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
+  if (
+    !process.env.CRON_SECRET ||
+    !secret ||
+    !timingSafeEqual(secret, process.env.CRON_SECRET)
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
