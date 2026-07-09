@@ -73,12 +73,33 @@ function getLocaleFromPathname(pathname: string): {
   return { locale: DEFAULT_LOCALE, restPath: pathname };
 }
 
+// Dashboard responses get a strict per-request nonce on script-src: every
+// script tag in that subtree (JsonLd is landing-only, MUI/emotion styles are
+// untouched since style-src stays relaxed) must carry it via `x-nonce`.
+// Marketing/static routes keep the relaxed script-src so the root [lang]
+// layout can stay free of headers()/cookies() (see layout.tsx) and remain
+// statically rendered.
+function buildCsp(nonce: string, strict: boolean): string {
+  const scriptSrc = strict
+    ? `'self' 'nonce-${nonce}' https://maps.googleapis.com`
+    : `'self' 'unsafe-inline' https://maps.googleapis.com`;
+
+  return [
+    `script-src ${scriptSrc}`,
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ");
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Proxy (Next.js 16+ proxy/middleware convention)                             */
 /* -------------------------------------------------------------------------- */
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const nonce = crypto.randomUUID().replace(/-/g, "");
 
   // ── Rate Limiting for API Routes ───────────────────────────────────────────
   if (pathname.startsWith("/api")) {
@@ -114,7 +135,9 @@ export default async function middleware(request: NextRequest) {
     pathname.startsWith("/api") ||
     /\.(.+)$/.test(pathname)
   ) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", buildCsp(nonce, false));
+    return response;
   }
 
   // ── 1. Locale redirect ─────────────────────────────────────────────────────
@@ -242,11 +265,19 @@ export default async function middleware(request: NextRequest) {
   }
 
   // ── 6. Final Response ───────────────────────────────────────────────────────
-  if (rewriteUrl) {
-    return NextResponse.rewrite(rewriteUrl);
-  }
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
 
-  return NextResponse.next();
+  const response = rewriteUrl
+    ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
+    : NextResponse.next({ request: { headers: requestHeaders } });
+
+  response.headers.set(
+    "Content-Security-Policy",
+    buildCsp(nonce, isProtectedRoute)
+  );
+
+  return response;
 }
 
 /* -------------------------------------------------------------------------- */

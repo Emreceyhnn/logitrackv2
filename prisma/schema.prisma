@@ -85,8 +85,8 @@ model User {
   inventoryMovements     InventoryMovement[]
   sessions               Session[]
   shipmentHistoryEntries ShipmentHistory[]   @relation("ShipmentHistoryCreatedBy")
-  company                Company?            @relation(fields: [companyId], references: [id])
-  role                   Role?               @relation(fields: [roleId], references: [id])
+  company                Company?            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  role                   Role?               @relation(fields: [roleId], references: [id], onDelete: Restrict)
   managedWarehouses      Warehouse[]
   assignedWarehouseTasks WarehouseTask[]
 
@@ -116,8 +116,8 @@ model Driver {
   updatedAt           DateTime     @updatedAt
   documents           Document[]
   company             Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  currentVehicle      Vehicle?     @relation(fields: [currentVehicleId], references: [id])
-  homeBaseWarehouse   Warehouse?   @relation(fields: [homeBaseWarehouseId], references: [id])
+  currentVehicle      Vehicle?     @relation(fields: [currentVehicleId], references: [id], onDelete: Restrict)
+  homeBaseWarehouse   Warehouse?   @relation(fields: [homeBaseWarehouseId], references: [id], onDelete: Restrict)
   user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   fuelLogs            FuelLog[]
   issues              Issue[]
@@ -222,7 +222,7 @@ model Warehouse {
   movements        InventoryMovement[]
   shipmentsOrigin  Shipment[]          @relation("ShipmentOrigin")
   company          Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  manager          User?               @relation(fields: [managerId], references: [id])
+  manager          User?               @relation(fields: [managerId], references: [id], onDelete: Restrict)
   zones            WarehouseZone[]
   tasks            WarehouseTask[]
 
@@ -265,7 +265,7 @@ model WarehouseTask {
   assignedToId String?
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
-  assignedTo   User?                 @relation(fields: [assignedToId], references: [id])
+  assignedTo   User?                 @relation(fields: [assignedToId], references: [id], onDelete: Restrict)
   company      Company               @relation(fields: [companyId], references: [id], onDelete: Restrict)
   warehouse    Warehouse             @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
 
@@ -338,7 +338,7 @@ model Inventory {
   companyId         String
   createdAt         DateTime  @default(now())
   company           Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  warehouse         Warehouse @relation(fields: [warehouseId], references: [id])
+  warehouse         Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
 
   @@unique([warehouseId, sku])
   @@index([companyId])
@@ -357,8 +357,8 @@ model InventoryMovement {
   companyId   String
   updatedAt   DateTime     @updatedAt
   company     Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  user        User?        @relation(fields: [userId], references: [id])
-  warehouse   Warehouse    @relation(fields: [warehouseId], references: [id])
+  user        User?        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  warehouse   Warehouse    @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
 
   @@index([warehouseId, sku, date])
   @@index([companyId, date])
@@ -383,8 +383,8 @@ model Shipment {
   destinationLat     Float?
   destinationLng     Float?
   itemsCount         Int                  @default(1)
-  priority           ShipmentPriority?    @default(MEDIUM)
-  type               ShipmentServiceType? @default(STANDARD_FREIGHT)
+  priority           ShipmentPriority     @default(MEDIUM)
+  type               ShipmentServiceType  @default(STANDARD_FREIGHT)
   slaDeadline        DateTime?
   weightKg           Float?               @default(0)
   volumeM3           Float?               @default(0)
@@ -403,16 +403,20 @@ model Shipment {
   items              ShipmentItem[]
   stops              ShipmentStop[]
   company            Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer           Customer?            @relation(fields: [customerId], references: [id])
-  customerLocation   CustomerLocation?    @relation(fields: [customerLocationId], references: [id])
-  driver             Driver?              @relation(fields: [driverId], references: [id])
-  originWarehouse    Warehouse?           @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
-  route              Route?               @relation(fields: [routeId], references: [id])
-  trailer            Trailer?             @relation(fields: [trailerId], references: [id])
+  customer           Customer?            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customerLocation   CustomerLocation?    @relation(fields: [customerLocationId], references: [id], onDelete: Restrict)
+  driver             Driver?              @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  originWarehouse    Warehouse?           @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id], onDelete: Restrict)
+  route              Route?               @relation(fields: [routeId], references: [id], onDelete: Restrict)
+  trailer            Trailer?             @relation(fields: [trailerId], references: [id], onDelete: Restrict)
 
   @@index([companyId, status])
   @@index([companyId, createdAt(sort: Desc)])
   @@index([companyId, trackingId])
+  // Serves the check-expirations cron's cross-tenant SLA sweep
+  // (`status IN (...) AND slaDeadline < now`), which has no companyId filter
+  // by design — it processes every tenant in one pass.
+  @@index([status, slaDeadline])
   @@index([driverId, status])
   @@index([customerId])
   @@index([customerLocationId])
@@ -458,8 +462,8 @@ model ShipmentStop {
   updatedAt          DateTime          @updatedAt
   contactEmail       String?
   company            Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer           Customer?         @relation(fields: [customerId], references: [id])
-  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
+  customer           Customer?         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id], onDelete: Restrict)
   shipment           Shipment          @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
   @@index([shipmentId, sequence])
@@ -506,8 +510,8 @@ model Route {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   company     Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  driver      Driver?     @relation(fields: [driverId], references: [id])
-  vehicle     Vehicle?    @relation(fields: [vehicleId], references: [id])
+  driver      Driver?     @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  vehicle     Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
   shipments   Shipment[]
   stops       RouteStop[]
 
@@ -549,11 +553,14 @@ model Document {
   updatedAt  DateTime       @updatedAt
   trailerId  String?
   company    Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  driver     Driver?        @relation(fields: [driverId], references: [id])
+  driver     Driver?        @relation(fields: [driverId], references: [id], onDelete: Restrict)
   trailer    Trailer?       @relation(fields: [trailerId], references: [id], onDelete: Restrict)
   vehicle    Vehicle?       @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
 
   @@index([companyId, expiryDate])
+  // Serves the check-expirations cron's cross-tenant sweep (expiryDate
+  // filtered with no companyId), which can't use the composite index above.
+  @@index([expiryDate])
   @@index([driverId])
   @@index([vehicleId])
   @@index([trailerId])
@@ -600,10 +607,10 @@ model Issue {
   updatedAt   DateTime      @updatedAt
   trailerId   String?
   company     Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  driver      Driver?       @relation(fields: [driverId], references: [id])
-  shipment    Shipment?     @relation(fields: [shipmentId], references: [id])
-  trailer     Trailer?      @relation(fields: [trailerId], references: [id])
-  vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id])
+  driver      Driver?       @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  shipment    Shipment?     @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
+  trailer     Trailer?      @relation(fields: [trailerId], references: [id], onDelete: Restrict)
+  vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
 
   @@index([companyId, status])
   @@index([vehicleId])
@@ -640,7 +647,7 @@ model AuditLog {
   deviceInfo String?
   createdAt  DateTime    @default(now())
   metadata   Json?
-  user       User?       @relation(fields: [userId], references: [id])
+  user       User?       @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([userId, createdAt])
   @@index([action])
@@ -678,7 +685,7 @@ model Trailer {
   shipments        Shipment[]
   assignments      TrailerAssignment[]
   company          Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  currentVehicle   Vehicle?            @relation(fields: [currentVehicleId], references: [id])
+  currentVehicle   Vehicle?            @relation(fields: [currentVehicleId], references: [id], onDelete: Restrict)
 
   @@unique([companyId, fleetNo])
   @@unique([companyId, plate])

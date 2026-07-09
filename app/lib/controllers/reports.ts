@@ -52,11 +52,11 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
     );
 
     const vehicles = await db.vehicle.findMany({
-      where: { companyId },
-      select: { 
-        plate: true, 
-        currentLat: true, 
-        currentLng: true, 
+      where: { companyId, deletedAt: null },
+      select: {
+        plate: true,
+        currentLat: true,
+        currentLng: true,
         status: true,
         avgFuelConsumption: true,
         odometerKm: true,

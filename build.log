@@ -1,0 +1,13 @@
+
+> logitrackv2@0.1.0 build
+> prisma generate && eslint && next build
+
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+
+✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 518ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+

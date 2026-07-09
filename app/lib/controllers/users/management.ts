@@ -9,7 +9,8 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { authenticatedAction } from "../../auth-middleware";
 import { getUserFromToken } from "./auth";
 import { controllerGuard } from "../utils/controllerGuard";
-import { ConflictError, ForbiddenError, NoCompanyError } from "../../errors";
+import { ConflictError, ForbiddenError, NoCompanyError, NotFoundError } from "../../errors";
+import { logger } from "@/app/lib/logger";
 
 export const getUsers = authenticatedAction(async (user) => {
   return controllerGuard("getUsers", async () => {
@@ -27,13 +28,14 @@ export const getUsers = authenticatedAction(async (user) => {
         driver: true,
       },
     });
-    return allUsers;
+    return allUsers.map((u) => exclude(u, ["password"]));
   });
 });
 
 export const updateUser = authenticatedAction(
   async (
     user,
+    userId: string,
     name: string,
     surname: string,
     password: string, // Password should be hashed if it's being updated
@@ -42,43 +44,60 @@ export const updateUser = authenticatedAction(
     role: string
   ) => {
     return controllerGuard("updateUser", async () => {
-      await checkPermission(user, user.companyId, ["role_admin"]);
+      const companyId = user?.companyId || "";
+      await checkPermission(user, companyId, ["role_admin"]);
 
-      // Check if we are updating ourselves or if we are admin
-      const foundUser = await db.user.upsert({
-        where: { email },
-        update: {
+      const targetUser = await db.user.findUnique({ where: { id: userId } });
+      if (!targetUser || targetUser.companyId !== companyId) {
+        throw new NotFoundError("User");
+      }
+
+      // A role can be assigned only if it's a shared system role (companyId
+      // null) or one owned by this same tenant — prevents assigning a role
+      // belonging to another company.
+      const targetRole = await db.role.findUnique({ where: { id: role } });
+      if (!targetRole || (targetRole.companyId !== null && targetRole.companyId !== companyId)) {
+        throw new NotFoundError("Role");
+      }
+
+      // Email uniqueness is enforced separately from lookup: changing email
+      // to one already used by a different user must be rejected explicitly
+      // rather than silently upserting into that other account.
+      if (email !== targetUser.email) {
+        const emailOwner = await db.user.findUnique({ where: { email } });
+        if (emailOwner && emailOwner.id !== userId) {
+          throw new ConflictError("Email already in use");
+        }
+      }
+
+      const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
+
+      const updatedUser = await db.user.update({
+        where: { id: userId },
+        data: {
           name,
           surname,
           email,
           avatarUrl,
           roleId: role,
-          ...(password ? { password: await bcrypt.hash(password, 10) } : {}),
-        },
-        create: {
-          name,
-          surname,
-          password: await bcrypt.hash(password, 10), // Password must be hashed on creation
-          email,
-          avatarUrl,
-          roleId: role,
-          currency: "USD",
-          companyId: user.companyId, // Set current user's company
+          ...(hashedPassword ? { password: hashedPassword } : {}),
         },
       });
 
       // Invalidate the updated user's cached sessions to ensure they reflect updated profile fields immediately
       const activeSessions = await db.session.findMany({
-        where: { userId: foundUser.id },
+        where: { userId: updatedUser.id },
         select: { token: true },
       });
       for (const s of activeSessions) {
         if (s.token) {
-          await redis.del(`session:${s.token}`).catch(() => {});
+          await redis.del(`session:${s.token}`).catch((err) => {
+            logger.warn("[UserManagement] Redis session silinirken hata:", err);
+          });
         }
       }
 
-      return foundUser;
+      return exclude(updatedUser, ["password"]);
     });
   }
 );
@@ -103,6 +122,10 @@ export const createUserForCompany = authenticatedAction(
 
       if (!user.companyId) {
         throw new NoCompanyError();
+      }
+
+      if (!userData.password) {
+        throw new ConflictError("Password is required for new users");
       }
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -146,7 +169,7 @@ export const createUserForCompany = authenticatedAction(
         }
       );
 
-      return newUser;
+      return exclude(newUser, ["password"]);
     });
   }
 );

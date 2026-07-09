@@ -72,7 +72,7 @@ export const getCompanyVehicles = authenticatedAction(async (user) => {
     ]);
 
     const vehicles = await db.vehicle.findMany({
-      where: { companyId },
+      where: { companyId, deletedAt: null },
     });
     return vehicles;
   });

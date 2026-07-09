@@ -36,7 +36,7 @@ export const getVehicles = authenticatedAction(
 
       if (!companyId) throw new Error("User has no company");
 
-      const whereClause: Prisma.VehicleWhereInput = { companyId };
+      const whereClause: Prisma.VehicleWhereInput = { companyId, deletedAt: null };
 
       if (filters) {
         if (filters.search) {
@@ -126,7 +126,7 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
 
     return await withCache(cacheKey, VEHICLE_CACHE_TTL, async () => {
       const vehicles = await db.vehicle.findMany({
-        where: { companyId },
+        where: { companyId, deletedAt: null },
         select: {
           id: true,
           plate: true,
@@ -210,7 +210,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
       );
 
       return await withCache(cacheKey, VEHICLE_CACHE_TTL, async () => {
-        const whereClause: Prisma.VehicleWhereInput = { companyId };
+        const whereClause: Prisma.VehicleWhereInput = { companyId, deletedAt: null };
 
         if (filters) {
           if (filters.search) {

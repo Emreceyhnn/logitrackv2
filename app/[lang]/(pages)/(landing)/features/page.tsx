@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import FeaturesClient from './FeaturesClient';
 import { getDictionary } from '@/app/lib/language/language';
-import { buildSeoAlternates } from '@/app/lib/language/navigation';
+import { buildSeoAlternates, buildBreadcrumbSchema } from '@/app/lib/language/navigation';
+import { getBaseUrl } from '@/app/lib/utils/baseUrl';
+import JsonLd from '@/app/components/seo/JsonLd';
 
 export async function generateMetadata({
   params,
@@ -17,6 +19,24 @@ export async function generateMetadata({
   };
 }
 
-export default function FeaturesPage() {
-  return <FeaturesClient />;
+export default async function FeaturesPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  const breadcrumbSchema = buildBreadcrumbSchema(
+    '/features',
+    dict.landing.pageMeta.features.title,
+    lang,
+    getBaseUrl()
+  );
+
+  return (
+    <>
+      <JsonLd data={breadcrumbSchema} />
+      <FeaturesClient />
+    </>
+  );
 }

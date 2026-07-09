@@ -134,6 +134,37 @@ export function buildSeoAlternates(
 }
 
 /**
+ * Build a BreadcrumbList JSON-LD schema (Home → page) for a public landing
+ * page. Lets search engines and AI answer engines render/understand the
+ * page's position in the site hierarchy.
+ */
+export function buildBreadcrumbSchema(
+  canonicalPath: string,
+  pageName: string,
+  lang: string,
+  baseUrl: string
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${baseUrl}${buildLocalizedHref("/", lang)}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: pageName,
+        item: `${baseUrl}${buildLocalizedHref(canonicalPath, lang)}`,
+      },
+    ],
+  };
+}
+
+/**
  * Check whether a localized pathname is 'active' for a given canonical path.
  * Supports exact match and optional prefix (startsWith) matching.
  */

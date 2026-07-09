@@ -93,7 +93,7 @@ export const getOpenIssuesForUser = authenticatedAction(async (user) => {
     if (!companyId) throw new Error("User has no company");
 
     const vehiclesWithIssues = await db.vehicle.findMany({
-      where: { companyId },
+      where: { companyId, deletedAt: null },
       include: {
         issues: {
           where: {

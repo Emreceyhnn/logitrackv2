@@ -80,7 +80,7 @@ export const createDriver = authenticatedAction(
           where: { id: parsed.currentVehicleId },
           include: { driver: true },
         });
-        if (!vehicle) {
+        if (!vehicle || vehicle.companyId !== companyId || vehicle.deletedAt) {
           throw new NotFoundError("Selected vehicle");
         }
         if (vehicle.driver && vehicle.driver.userId !== parsed.userId) {
@@ -183,7 +183,7 @@ export const updateDriver = authenticatedAction(
           where: { id: parsed.currentVehicleId },
           include: { driver: true },
         });
-        if (!vehicle) {
+        if (!vehicle || vehicle.companyId !== companyId || vehicle.deletedAt) {
           throw new NotFoundError("Selected vehicle");
         }
         if (vehicle.driver && vehicle.driver.userId !== foundDriver.userId) {

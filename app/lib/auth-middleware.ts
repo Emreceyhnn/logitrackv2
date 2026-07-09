@@ -5,7 +5,9 @@ import { jwtVerify } from "jose";
 import { getJwtSecret, type SessionJWTPayload } from "./controllers/session/internal";
 import { DEFAULT_LOCALE, LOCALES } from "./constants";
 import { runWithTenant } from "./tenant-context";
+import { rateLimit } from "./rate-limiter";
 import { logger } from "@/app/lib/logger";
+import { RateLimitError } from "./errors";
 
 export type AuthenticatedUser = {
   id: string;
@@ -94,6 +96,15 @@ async function getLocaleFromReferer(): Promise<string> {
   return DEFAULT_LOCALE;
 }
 
+// Generous cap on top of the /api mutation limiter in proxy.ts: this wrapper
+// is the single choke point for every authenticated Server Action (~150+
+// across all controllers), which the edge middleware never sees because
+// Server Action POSTs land on the page route, not /api/*. Without this,
+// rate limiting only covered the handful of real /api routes and the
+// hand-rolled checks in auth.ts, leaving the bulk of the app unprotected.
+const ACTION_RATE_LIMIT = 300;
+const ACTION_RATE_WINDOW_SECONDS = 60;
+
 export function authenticatedAction<T, Args extends unknown[]>(
   action: (user: AuthenticatedUser, ...args: Args) => Promise<T>
 ) {
@@ -103,6 +114,16 @@ export function authenticatedAction<T, Args extends unknown[]>(
     if (!user) {
       const locale = await getLocaleFromReferer();
       redirect(`/${locale}/auth/sign-in`);
+    }
+
+    const limitResult = await rateLimit(
+      user.sessionId || user.id,
+      ACTION_RATE_LIMIT,
+      ACTION_RATE_WINDOW_SECONDS,
+      "rate-limit:action:user:"
+    );
+    if (!limitResult.success) {
+      throw new RateLimitError();
     }
 
     // Every DB query inside the action is automatically scoped to the

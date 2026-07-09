@@ -54,6 +54,11 @@ export const updateShipment = authenticatedAction(
         inventoryItems?: InventoryShipmentItem[];
         stops?: ShipmentStopInput[];
       };
+      // companyId must never come from client input — it's fixed to the
+      // authenticated user's tenant, otherwise a caller could reassign a
+      // shipment to a company they don't belong to (tenant hijacking).
+      delete (updateData as Record<string, unknown>).companyId;
+      delete (updateData as Record<string, unknown>).company;
       if (updateData.trackingId === "") {
         updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toLocaleUpperCase('en-US')}`;
       }

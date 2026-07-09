@@ -50,7 +50,7 @@ export const getDirections = authenticatedAction(
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originStr}&destination=${destStr}${waypointsStr}&key=${apiKey}`;
 
     return controllerGuard("getDirections", async () => {
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
       if (!res.ok) {
         throw new Error(`Directions API error: ${res.statusText}`);
       }

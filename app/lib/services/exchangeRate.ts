@@ -72,7 +72,9 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     );
   }
 
-  const response = await fetch(`${baseUrl}/latest/USD`);
+  const response = await fetch(`${baseUrl}/latest/USD`, {
+    signal: AbortSignal.timeout(10_000),
+  });
 
   if (!response.ok) {
     throw new Error(

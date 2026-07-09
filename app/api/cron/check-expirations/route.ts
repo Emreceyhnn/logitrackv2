@@ -99,6 +99,7 @@ export async function GET(req: NextRequest) {
     // 3. Check Vehicle Registration & Inspection
     const expiringVehicles = await db.vehicle.findMany({
       where: {
+        deletedAt: null,
         OR: [
           { registrationExpiry: { lte: fifteenDaysFromNow } },
           { inspectionExpiry: { lte: fifteenDaysFromNow } },

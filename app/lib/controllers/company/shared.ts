@@ -3,6 +3,7 @@
 import { db } from "../../db";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
+import { logger } from "@/app/lib/logger";
 import { redis, invalidatePattern, companyCacheKeys } from "../../redis";
 
 export async function invalidateCompanyCache(companyId: string) {
@@ -62,6 +63,7 @@ export async function ensureStandardRoles() {
           });
         }
       } else {
+        logger.error("[CompanyShared] Role işlemi başarısız:", error);
         throw error;
       }
     }

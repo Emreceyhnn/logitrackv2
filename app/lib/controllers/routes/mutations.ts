@@ -191,6 +191,11 @@ export const updateRoute = authenticatedAction(
 
       const { stops, ...scalarData } = data;
       const updateData: Prisma.RouteUncheckedUpdateInput = stripUndefined(scalarData);
+      // companyId must never come from client input — RouteUpdateData doesn't
+      // declare it, but a caller bypassing the TS type at runtime could still
+      // smuggle it in; strip defensively so a route can't be reassigned
+      // to a company the caller doesn't belong to.
+      delete (updateData as Record<string, unknown>).companyId;
       if (updateData.name === "") {
         updateData.name = `ROUTE-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }

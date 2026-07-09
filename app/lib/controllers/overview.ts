@@ -131,6 +131,16 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
           status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
           priority: { in: [IssuePriority.HIGH, IssuePriority.CRITICAL] },
         },
+        select: {
+          type: true,
+          title: true,
+          priority: true,
+          status: true,
+          vehicleId: true,
+          driverId: true,
+          shipmentId: true,
+          createdAt: true,
+        },
         take: 10,
         orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
       }),
@@ -141,6 +151,12 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
           companyId,
           expiryDate: { not: null, lte: thirtyDaysFromNow },
           status: { not: "EXPIRED" },
+        },
+        select: {
+          name: true,
+          expiryDate: true,
+          driverId: true,
+          vehicleId: true,
         },
         take: 5,
         orderBy: { expiryDate: "asc" },
@@ -196,7 +212,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
 
       // 5b. Parallel Vehicle Plate Fetching (Eliminate waterfall)
       db.vehicle.findMany({
-        where: { companyId },
+        where: { companyId, deletedAt: null },
         select: { id: true, plate: true },
       }),
 
@@ -259,7 +275,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
           select: { id: true, name: true, lat: true, lng: true }
         }),
         db.vehicle.findMany({
-          where: { companyId },
+          where: { companyId, deletedAt: null },
           select: { id: true, plate: true, currentLat: true, currentLng: true }
         }),
         db.customer.findMany({

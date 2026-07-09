@@ -1,5 +1,0 @@
-- 🟡 Rate-limit sinyali zayıf (yalnızca 4 dosyada referans) — Upstash Redis mevcut ama API rotalarında yaygın uygulanmamış.
-- 🟡 `proxy.ts` içinde `request.ip` kullanımı (Next 16'da yok) — guard'lı olduğu için crash etmez ama IP tespiti çalışmıyor + tip hatası.
-- 🟡 CSP script/style origin'lerini kısıtlamıyor (bilinçli tercih, ama nonce'a sıkılaştırılmalı).
-- 🟡 PageSpeed ölçümü alınamadı (`pagespeed-issues.json` → API kotası 429). Gerçek Lighthouse/LCP verisi yok — build düzeldikten sonra ölçülmeli.
-- 🟡 106 `findMany` — `select`/`include` disiplini denetlenmeli (over-fetch riski).

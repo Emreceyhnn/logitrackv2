@@ -25,6 +25,9 @@ export const ErrorCode = {
   // Resource
   NOT_FOUND: "NOT_FOUND",
   CONFLICT: "CONFLICT",
+
+  // Rate limiting
+  RATE_LIMITED: "RATE_LIMITED",
 } as const;
 
 export type ErrorCodeType = (typeof ErrorCode)[keyof typeof ErrorCode];
@@ -94,6 +97,14 @@ export class ConflictError extends AppError {
   constructor(message: string = "Resource already exists") {
     super(message, ErrorCode.CONFLICT, 409);
     this.name = "ConflictError";
+  }
+}
+
+// ─── 429 — Rate Limited ─────────────────────────────────────────────────────
+export class RateLimitError extends AppError {
+  constructor(message: string = "Too many requests. Please try again later.") {
+    super(message, ErrorCode.RATE_LIMITED, 429);
+    this.name = "RateLimitError";
   }
 }
 

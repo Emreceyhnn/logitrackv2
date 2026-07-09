@@ -2,6 +2,7 @@
 
 import { supabase } from "../supabase";
 import { logger } from "@/app/lib/logger";
+import { db } from "../db";
 import {
   authenticatedAction,
   maybeAuthenticatedAction,
@@ -128,11 +129,25 @@ export const uploadImageAction = maybeAuthenticatedAction(
 
 export const getSignedUrlAction = authenticatedAction(
   async (
-    _user,
+    user,
     fileUrl: string,
     bucket: string = "documents"
   ): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
+
+    // A signed URL grants time-limited read access to the underlying file, so
+    // the caller must own a Document row pointing at this exact URL within
+    // their own tenant — otherwise any authenticated user could request a
+    // signed URL for another company's document by guessing/observing its
+    // storage path (IDOR).
+    const companyId = user?.companyId || "";
+    const ownedDocument = await db.document.findFirst({
+      where: { url: fileUrl, companyId },
+      select: { id: true },
+    });
+    if (!ownedDocument) {
+      throw new Error("Document not found or unauthorized.");
+    }
 
     const urlParts = fileUrl.split("/");
     const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/");

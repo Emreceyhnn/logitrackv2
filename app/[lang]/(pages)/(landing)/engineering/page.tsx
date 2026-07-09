@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
 import EngineeringClient from './EngineeringClient';
 import { getDictionary } from '@/app/lib/language/language';
+import { buildSeoAlternates } from '@/app/lib/language/navigation';
 
-export const metadata: Metadata = {
-  title: 'Engineering - LogiTrack v2',
-  description: 'The technology behind the intelligence. Cloud-native architecture and real-time data processing at global scale.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.landing.pageMeta.engineering.title,
+    description: dict.landing.pageMeta.engineering.description,
+    alternates: buildSeoAlternates('/engineering', lang),
+  };
+}
 
 export default async function EngineeringPage(props: {
   params: Promise<{ lang: string }>;

@@ -18,9 +18,15 @@ import type {
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+type AlertIssue = Pick<
+  Issue,
+  "type" | "title" | "priority" | "status" | "vehicleId" | "driverId" | "shipmentId"
+>;
+type AlertDocument = Pick<Document, "name" | "expiryDate" | "driverId" | "vehicleId">;
+
 export function buildAlerts(
-  openIssues: Issue[],
-  expiringDocs: Document[]
+  openIssues: AlertIssue[],
+  expiringDocs: AlertDocument[]
 ): ActionRequiredItems[] {
   const issueAlerts: ActionRequiredItems[] = openIssues.map((issue) => ({
     type: (issue.type === IssueType.VEHICLE

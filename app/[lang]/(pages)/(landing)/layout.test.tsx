@@ -22,6 +22,14 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
     useLanguage: mock.fn(() => ({ lang: "en" })),
   },
 });
+mock.module("../../../lib/language/language.ts", {
+  namedExports: {
+    getDictionary: mock.fn(async () => ({ landing: { metaDescription: "desc" } })),
+  },
+});
+mock.module("../../../components/seo/JsonLd.tsx", {
+  defaultExport: () => <script data-testid="json-ld" />,
+});
 
 describe("LandingLayout Component", () => {
   let LandingLayout: unknown;
@@ -38,15 +46,16 @@ describe("LandingLayout Component", () => {
   describe("LandingLayout() Render Testleri", () => {
     it("should_RenderNavbarAndChildren_Correctly", async () => {
       // Act
-      render(
-        <LandingLayout>
-          <div data-testid="child-content">Landing Content</div>
-        </LandingLayout>
-      );
+      const element = await (LandingLayout as (props: unknown) => Promise<React.ReactElement>)({
+        children: <div data-testid="child-content">Landing Content</div>,
+        params: Promise.resolve({ lang: "en" }),
+      });
+      render(element);
 
       // Assert
       expect(screen.getByTestId("landing-navbar")).toBeTruthy();
       expect(screen.getByTestId("child-content")).toBeTruthy();
+      expect(screen.getByTestId("json-ld")).toBeTruthy();
     });
   });
 });

@@ -15,6 +15,8 @@ import { invalidateInventoryCache } from "../inventory";
 import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import type { CustomerWithLocations, ShipmentStopInput } from "./types";
+import { createShipmentSchema } from "../../validation/serverSchemas";
+import { NotFoundError } from "../../errors";
 
 export const createShipment = authenticatedAction(
   async (
@@ -50,6 +52,10 @@ export const createShipment = authenticatedAction(
     const userId = user?.id;
     const companyId = user?.companyId;
 
+    // Validate the scalar fields; inventoryItems/stops keep their original
+    // (non-Zod-inferred) types below so exactOptionalPropertyTypes stays
+    // satisfied against InventoryShipmentItem/ShipmentStopInput.
+    createShipmentSchema.parse(data);
     const {
       customerId,
       origin,
@@ -106,6 +112,10 @@ export const createShipment = authenticatedAction(
           })) as CustomerWithLocations | null)
         : null;
 
+      if (customerId && (!customer || customer.companyId !== companyId)) {
+        throw new NotFoundError("Customer");
+      }
+
       const defaultCustomerLocation = customer?.locations?.find(
         (l) => l.isDefault
       );
@@ -138,6 +148,9 @@ export const createShipment = authenticatedAction(
         const trailer = await db.trailer.findUnique({
           where: { id: trailerId },
         });
+        if (trailer && trailer.companyId !== companyId) {
+          throw new NotFoundError("Trailer");
+        }
         if (trailer) {
           const currentLoad = await db.shipment.aggregate({
             where: {

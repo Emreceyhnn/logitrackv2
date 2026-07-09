@@ -26,6 +26,7 @@ export const getFuelStats = authenticatedAction(async (user) => {
         companyId: user.companyId,
         date: { gte: thirtyDaysAgo },
       },
+      select: { vehicleId: true, currency: true, cost: true, volumeLiter: true },
     });
 
     if (fuelByVehicleRaw.length === 0) return [];
@@ -51,7 +52,7 @@ export const getFuelStats = authenticatedAction(async (user) => {
 
     const vehicleIds = topVehicles.map(([id]) => id);
     const vehicles = await db.vehicle.findMany({
-      where: { id: { in: vehicleIds } },
+      where: { id: { in: vehicleIds }, deletedAt: null },
       select: { id: true, plate: true },
     });
 
@@ -75,11 +76,23 @@ export const getMapData = authenticatedAction(async (user): Promise<MapData[]> =
     if (!user.companyId) return [];
 
     const [warehouses, vehicles, customers] = await Promise.all([
-      db.warehouse.findMany({ where: { companyId: user.companyId } }),
-      db.vehicle.findMany({ where: { companyId: user.companyId } }),
+      db.warehouse.findMany({
+        where: { companyId: user.companyId },
+        select: { id: true, name: true, lat: true, lng: true },
+      }),
+      db.vehicle.findMany({
+        where: { companyId: user.companyId, deletedAt: null },
+        select: { id: true, plate: true, currentLat: true, currentLng: true },
+      }),
       db.customer.findMany({
         where: { companyId: user.companyId },
-        include: { locations: true }
+        select: {
+          id: true,
+          name: true,
+          locations: {
+            select: { lat: true, lng: true, isDefault: true },
+          },
+        },
       }),
     ]);
 

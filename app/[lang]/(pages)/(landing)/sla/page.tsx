@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
 import SlaClient from './SlaClient';
 import { getDictionary } from '@/app/lib/language/language';
+import { buildSeoAlternates } from '@/app/lib/language/navigation';
 
-export const metadata: Metadata = {
-  title: 'SLA - LogiTrack v2',
-  description: 'Our commitment to reliability with industry-leading uptime guarantees and transparent incident reporting.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.landing.pageMeta.sla.title,
+    description: dict.landing.pageMeta.sla.description,
+    alternates: buildSeoAlternates('/sla', lang),
+  };
+}
 
 export default async function SlaPage(props: {
   params: Promise<{ lang: string }>;

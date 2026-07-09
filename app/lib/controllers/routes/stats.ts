@@ -84,13 +84,13 @@ export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
     if (!user.companyId) throw new Error("User has no company");
 
     const [totalVehicles, vehiclesOnTrip, totalShipments, delayedShipments, allVehicles] = await Promise.all([
-      db.vehicle.count({ where: { companyId: user.companyId } }),
+      db.vehicle.count({ where: { companyId: user.companyId, deletedAt: null } }),
       db.vehicle.count({
-        where: { companyId: user.companyId, status: "ON_TRIP" },
+        where: { companyId: user.companyId, status: "ON_TRIP", deletedAt: null },
       }),
       db.shipment.count({ where: { companyId: user.companyId } }),
       db.shipment.count({ where: { companyId: user.companyId, status: "DELAYED" } }),
-      db.vehicle.findMany({ where: { companyId: user.companyId }, select: { avgFuelConsumption: true } }),
+      db.vehicle.findMany({ where: { companyId: user.companyId, deletedAt: null }, select: { avgFuelConsumption: true } }),
     ]);
 
     const vehicleUtilization =

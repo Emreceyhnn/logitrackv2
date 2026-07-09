@@ -83,11 +83,18 @@ export const getTrailers = authenticatedAction(
     const companyId = user?.companyId || "";
     if (!companyId) throw new NoCompanyError();
 
+    await checkPermission(user, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
     const filtersHash = hashFilters(filters);
 
     return trailerCache.cached(companyId, filtersHash, async () => {
       const where: Prisma.TrailerWhereInput = {
         companyId,
+        deletedAt: null,
         ...(filters.search && {
           OR: [
             { plate: { contains: filters.search, mode: "insensitive" } },
@@ -166,6 +173,12 @@ export const getTrailerById = authenticatedAction(
   async (user, trailerId: string) => {
     const companyId = user?.companyId || "";
     return controllerGuard("getTrailerById", async () => {
+      await checkPermission(user, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         include: {
@@ -197,6 +210,12 @@ export const updateTrailer = authenticatedAction(
   async (user, trailerId: string, data: Partial<Prisma.TrailerUpdateInput>) => {
     const companyId = user?.companyId || "";
     return controllerGuard("updateTrailer", async () => {
+      await checkPermission(user, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         select: { companyId: true },
@@ -221,6 +240,8 @@ export const deleteTrailer = authenticatedAction(
   async (user, trailerId: string) => {
     const companyId = user?.companyId || "";
     return controllerGuard("deleteTrailer", async () => {
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         select: { companyId: true },
@@ -250,6 +271,12 @@ export const assignTrailerToVehicle = authenticatedAction(
   async (user, trailerId: string, vehicleId: string | null) => {
     const companyId = user?.companyId || "";
     return controllerGuard("assignTrailerToVehicle", async () => {
+      await checkPermission(user, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
       const foundTrailer = await db.trailer.findUnique({
         where: { id: trailerId },
         select: { companyId: true },
@@ -269,7 +296,9 @@ export const assignTrailerToVehicle = authenticatedAction(
         if (vehicleId) {
           // Check if vehicle exists
           const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
-          if (!vehicle || vehicle.companyId !== companyId) throw new NotFoundError("Vehicle");
+          if (!vehicle || vehicle.companyId !== companyId || vehicle.deletedAt) {
+            throw new NotFoundError("Vehicle");
+          }
 
           // Update trailer
           await tx.trailer.update({

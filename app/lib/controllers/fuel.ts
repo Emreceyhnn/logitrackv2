@@ -121,6 +121,7 @@ export const getFuelStats = authenticatedAction(async (user) => {
 
     const logs = await db.fuelLog.findMany({
       where: { companyId },
+      select: { cost: true, volumeLiter: true, odometerKm: true },
       orderBy: { date: "desc" },
     });
 
