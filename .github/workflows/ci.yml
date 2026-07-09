@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      ENV_FILE: ${{ secrets.ENV_FILE }}
+      DATABASE_URL: "postgresql://user:pass@localhost:5432/db"
 
     steps:
       - name: 📥 Checkout Repository
