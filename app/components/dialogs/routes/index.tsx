@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Box, Dialog, DialogContent, Stack, useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { lookupTranslation } from "@/app/lib/priorityColor";
@@ -57,7 +56,7 @@ export default function RouteDialog({ open, onClose, onSuccess, route }: RouteDi
   const statusMeta = getStatusMeta(route.status || "PENDING", dict);
   const statusColor = statusMeta.color.includes(".") ? (resolvePaletteColor(theme.palette, statusMeta.color) || theme.palette.text.primary) : statusMeta.color;
   const paletteKey = statusMeta.color.split(".")[0] ?? "";
-  const statusAlpha = resolvePaletteAlpha(theme.palette, paletteKey) ?? paletteTheme.primary?._alpha;
+  const statusAlpha = resolvePaletteAlpha(theme.palette, paletteKey) ?? paletteTheme.primary?._alpha ?? { main_05: "", main_10: "", main_20: "" };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth PaperProps={{ sx: { borderRadius: 4, backgroundImage: "none", border: `1px solid ${paletteTheme.divider_alpha?.main_10}`, overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", display: "flex", flexDirection: "column", height: { md: "85vh" }, maxHeight: "90vh" } }}>

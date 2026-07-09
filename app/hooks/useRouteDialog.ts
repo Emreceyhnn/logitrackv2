@@ -56,10 +56,10 @@ export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, 
     setStatusLoading(true);
     try {
       await updateRouteStatus(route.id, newStatus);
-      toast.success(dict.toasts.successUpdate || "Successfully updated!");
+      toast.success(dict?.toasts.successUpdate || "Successfully updated!");
       onSuccess?.();
     } catch (error) {
-      const message = error instanceof Error ? error.message : dict.toasts.errorGeneric;
+      const message = error instanceof Error ? error.message : (dict?.toasts.errorGeneric || "Error");
       toast.error(message);
     } finally {
       setStatusLoading(false);

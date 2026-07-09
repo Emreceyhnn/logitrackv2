@@ -56,6 +56,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
     } finally {
       setLoadingDoc(false);
     }
+    return;
   };
 
   const handleDownloadDoc = async (url: string) => {
@@ -71,6 +72,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
       logger.error("Download doc error:", error);
       toast.error(dict.toasts.errorUpload);
     }
+    return;
   };
 
   const handleDeleteClick = (id: string, name: string) => {

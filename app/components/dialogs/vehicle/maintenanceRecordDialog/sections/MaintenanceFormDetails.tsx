@@ -9,6 +9,7 @@ import { openSignedDoc } from "@/app/lib/openSignedDoc";
 import { Dictionary } from "@/app/lib/language/language";
 import { Dayjs } from "dayjs";
 import { MaintenanceStatus } from "@/app/lib/type/enums";
+import { Dispatch, SetStateAction } from "react";
 
 interface MaintenanceFormData {
   type: string;
@@ -28,7 +29,7 @@ interface TextFieldSxType {
 interface MaintenanceFormDetailsProps {
   dict: Dictionary;
   formData: MaintenanceFormData;
-  setFormData: (data: MaintenanceFormData) => void;
+  setFormData: Dispatch<SetStateAction<MaintenanceFormData>>;
   textFieldSx: TextFieldSxType;
   uploading: boolean;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;

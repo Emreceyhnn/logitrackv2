@@ -12,6 +12,7 @@ import { Dictionary } from "@/app/lib/language/language";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus } from "@/app/lib/type/enums";
 import { SxProps, Theme } from "@mui/material";
+import { Dispatch, SetStateAction } from "react";
 
 interface MaintenanceFormData {
   type: string;
@@ -26,7 +27,7 @@ interface MaintenanceFormConfigurationProps {
   dict: Dictionary;
   userCurrency: string;
   formData: MaintenanceFormData;
-  setFormData: (data: MaintenanceFormData) => void;
+  setFormData: Dispatch<SetStateAction<MaintenanceFormData>>;
   textFieldSx: SxProps<Theme>;
 }
 

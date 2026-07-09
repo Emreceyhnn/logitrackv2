@@ -241,7 +241,7 @@ export function useShipmentMutations() {
         "items",
         "stops",
         "companyId",
-      ]);
+      ]) as Parameters<typeof updateShipment>[1];
       return updateShipment(id, updateData);
     },
     onSuccess: () => handleSuccess(dict.toasts.successUpdate),

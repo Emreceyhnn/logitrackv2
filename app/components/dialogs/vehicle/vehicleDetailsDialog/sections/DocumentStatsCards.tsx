@@ -5,7 +5,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
 import WarningIcon from "@mui/icons-material/Warning";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { formatDisplayDate } from "@/app/lib/utils/date";
+import { formatDisplayDate, DateSettings } from "@/app/lib/utils/date";
 
 import { Dictionary } from "@/app/lib/language/language";
 
@@ -17,7 +17,7 @@ interface ExtendedPalette {
 
 interface DocumentStatsCardsProps {
   dict: Dictionary;
-  dateSettings: { dateFormat: string; timeFormat: string };
+  dateSettings: DateSettings;
   activeCount: number;
   expiringSoonCount: number;
   missingOrExpiredCount: number;

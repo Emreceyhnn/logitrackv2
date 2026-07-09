@@ -12,6 +12,15 @@ import { logger } from "@/app/lib/logger";
 import MaintenanceFormConfiguration from "./sections/MaintenanceFormConfiguration";
 import MaintenanceFormDetails from "./sections/MaintenanceFormDetails";
 
+interface MaintenanceFormData {
+  type: string;
+  date: Dayjs;
+  cost: string;
+  status: MaintenanceStatus;
+  description: string;
+  documentUrl: string;
+}
+
 interface MaintenanceRecordDialogProps {
   open: boolean;
   onClose: () => void;
@@ -36,7 +45,7 @@ export default function MaintenanceRecordDialog({ open, onClose, vehicleId, onSu
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState({ type: "", date: dayjs() as Dayjs, cost: "", status: MaintenanceStatus.SCHEDULED, description: "", documentUrl: "" });
+  const [formData, setFormData] = useState<MaintenanceFormData>({ type: "", date: dayjs() as Dayjs, cost: "", status: MaintenanceStatus.SCHEDULED, description: "", documentUrl: "" });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +96,7 @@ export default function MaintenanceRecordDialog({ open, onClose, vehicleId, onSu
   };
 
   const handleClose = () => {
-    setFormData({ type: "", date: dayjs(), cost: "", status: MaintenanceStatus.SCHEDULED, description: "", documentUrl: "" });
+    setFormData(prev => ({ ...prev, type: "", date: dayjs(), cost: "", status: MaintenanceStatus.SCHEDULED, description: "", documentUrl: "" }));
     setError(null);
     onClose();
   };

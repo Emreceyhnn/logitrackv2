@@ -7,6 +7,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Theme } from "@mui/material";
 import { Dictionary } from "@/app/lib/language/language";
 import { RouteWithRelations } from "@/app/lib/type/routes";
+import { RouteStatus } from "@/app/lib/type/enums";
 
 interface StatusMeta {
   color: string;
@@ -33,7 +34,7 @@ interface RouteDialogHeaderProps {
   route: RouteWithRelations;
   dict: Dictionary;
   theme: Theme;
-  handleStatusChange: (status: string) => Promise<void>;
+  handleStatusChange: (status: RouteStatus) => Promise<void>;
   statusLoading: boolean;
   onClose: () => void;
   statusMeta: StatusMeta;
@@ -67,15 +68,15 @@ export default function RouteDialogHeader({ route, dict, theme, handleStatusChan
         <Stack direction="row" spacing={1.5} alignItems="center">
           {route.status === "PLANNED" && (
             <>
-              <Button variant="contained" onClick={() => handleStatusChange("ACTIVE")} disabled={statusLoading} sx={{ bgcolor: theme.palette.success.main, "&:hover": { bgcolor: theme.palette.success.dark }, borderRadius: "10px", textTransform: "none", fontWeight: 600, px: 2, height: 36 }}>{dict.common.start}</Button>
-              <Button variant="outlined" onClick={() => handleStatusChange("CANCELED")} disabled={statusLoading} sx={{ color: theme.palette.error.main, borderColor: theme.palette.error.main, "&:hover": { bgcolor: paletteTheme.error?._alpha?.main_05, borderColor: theme.palette.error.dark }, borderRadius: "10px", textTransform: "none", fontWeight: 600, px: 2, height: 36 }}>{dict.common.cancel}</Button>
+              <Button variant="contained" onClick={() => handleStatusChange(RouteStatus.ACTIVE)} disabled={statusLoading} sx={{ bgcolor: theme.palette.success.main, "&:hover": { bgcolor: theme.palette.success.dark }, borderRadius: "10px", textTransform: "none", fontWeight: 600, px: 2, height: 36 }}>{dict.common.start}</Button>
+              <Button variant="outlined" onClick={() => handleStatusChange(RouteStatus.CANCELED)} disabled={statusLoading} sx={{ color: theme.palette.error.main, borderColor: theme.palette.error.main, "&:hover": { bgcolor: paletteTheme.error?._alpha?.main_05, borderColor: theme.palette.error.dark }, borderRadius: "10px", textTransform: "none", fontWeight: 600, px: 2, height: 36 }}>{dict.common.cancel}</Button>
             </>
           )}
 
           {route.status === "ACTIVE" && (
             <>
-              <Button variant="contained" onClick={() => handleStatusChange("COMPLETED")} disabled={statusLoading} startIcon={statusLoading ? <CircularProgress size={16} color="inherit" /> : <CheckCircleIcon sx={{ fontSize: 18 }} />} sx={{ bgcolor: theme.palette.primary.main, "&:hover": { bgcolor: theme.palette.primary.dark }, borderRadius: "10px", textTransform: "none", fontWeight: 600, px: 2, height: 36 }}>{dict.common.complete}</Button>
-              <Button variant="text" onClick={() => handleStatusChange("CANCELED")} disabled={statusLoading} sx={{ color: paletteTheme.common?.white_alpha?.main_50, "&:hover": { color: theme.palette.error.main, bgcolor: paletteTheme.error?._alpha?.main_05 }, borderRadius: "10px", textTransform: "none", fontWeight: 600, height: 36 }}>{dict.common.cancel}</Button>
+              <Button variant="contained" onClick={() => handleStatusChange(RouteStatus.COMPLETED)} disabled={statusLoading} startIcon={statusLoading ? <CircularProgress size={16} color="inherit" /> : <CheckCircleIcon sx={{ fontSize: 18 }} />} sx={{ bgcolor: theme.palette.primary.main, "&:hover": { bgcolor: theme.palette.primary.dark }, borderRadius: "10px", textTransform: "none", fontWeight: 600, px: 2, height: 36 }}>{dict.common.complete}</Button>
+              <Button variant="text" onClick={() => handleStatusChange(RouteStatus.CANCELED)} disabled={statusLoading} sx={{ color: paletteTheme.common?.white_alpha?.main_50, "&:hover": { color: theme.palette.error.main, bgcolor: paletteTheme.error?._alpha?.main_05 }, borderRadius: "10px", textTransform: "none", fontWeight: 600, height: 36 }}>{dict.common.cancel}</Button>
             </>
           )}
 

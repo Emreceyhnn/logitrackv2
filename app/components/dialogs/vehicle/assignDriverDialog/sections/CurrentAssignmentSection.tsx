@@ -17,7 +17,7 @@ interface ExtendedPalette {
 }
 
 interface CurrentAssignmentSectionProps {
-  currentDriver?: DriverWithUser | null;
+  currentDriver?: DriverWithUser | null | undefined;
   handleUnassign: () => Promise<void>;
   actionLoading: boolean;
   dict: Dictionary;

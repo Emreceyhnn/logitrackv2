@@ -5,7 +5,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { StatusChip } from "../../../../chips/statusChips";
-import { formatDisplayDate } from "@/app/lib/utils/date";
+import { formatDisplayDate, DateSettings } from "@/app/lib/utils/date";
 
 import { Dictionary } from "@/app/lib/language/language";
 
@@ -14,7 +14,7 @@ interface DocumentType {
   name: string;
   type: string;
   status: string;
-  expiryDate: string | null;
+  expiryDate?: string | Date | null;
   url: string;
 }
 
@@ -26,7 +26,7 @@ interface ExtendedPalette {
 
 interface DocumentTableProps {
   dict: Dictionary;
-  dateSettings: { dateFormat: string; timeFormat: string };
+  dateSettings: DateSettings;
   documents: DocumentType[];
   onViewDoc: (url: string, name: string) => void;
   onDownloadDoc: (url: string) => void;
