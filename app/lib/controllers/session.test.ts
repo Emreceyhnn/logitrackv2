@@ -247,17 +247,16 @@ describe("Session Controller", () => {
   describe("revokeSession() metodu", () => {
     it("should_MarkSessionAsRevoked_AndRemoveFromRedis", async () => {
       // Arrange
-      dbMock.session.update.mock.mockImplementation(async () => ({
-        id: "session-1",
+      dbMock.session.findUnique.mock.mockImplementation(async () => ({
         token: "hashed-token",
-        isRevoked: true,
       }));
+      dbMock.session.updateMany.mock.mockImplementation(async () => ({ count: 1 }));
 
       // Act
       await sessionController.revokeSession("session-1");
 
       // Assert
-      expect(dbMock.session.update.mock.calls.length).toBe(1);
+      expect(dbMock.session.updateMany.mock.calls.length).toBe(1);
       expect(redisMock.del.mock.calls.length).toBe(1);
       expect(redisMock.del.mock.calls[0].arguments[0]).toBe("session:hashed-token");
     });

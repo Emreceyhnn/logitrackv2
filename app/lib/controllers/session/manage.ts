@@ -9,10 +9,21 @@ import { logger } from "../../logger";
  * Revokes a specific session (soft-delete).
  */
 export async function revokeSession(sessionId: string): Promise<void> {
-  const session = await db.session.update({
+  // Read the token first so we can invalidate the Redis cache entry.
+  const session = await db.session.findUnique({
+    where: { id: sessionId },
+    select: { token: true },
+  });
+
+  // Idempotent: a session that was already deleted (e.g. by
+  // cleanExpiredSessions, a concurrent logout, or an expired-then-cleaned
+  // row) is a no-op success — not a P2025 crash. updateMany matches 0 rows
+  // silently instead of throwing.
+  await db.session.updateMany({
     where: { id: sessionId },
     data: { isRevoked: true },
   });
+
   if (session?.token) {
     await redis.del(`session:${session.token}`).catch(() => {});
   }
