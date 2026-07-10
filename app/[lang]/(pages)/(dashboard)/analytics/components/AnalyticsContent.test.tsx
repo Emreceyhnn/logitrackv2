@@ -1,38 +1,48 @@
- 
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
-// Mock Hooks
 mock.module("../../../../../hooks/useAnalytics.ts", {
-  namedExports: { 
+  namedExports: {
     useAnalyticsData: mock.fn(() => ({
       state: {
         loading: false,
         data: {
           performance: {},
           forecast: {},
-          costs: {}
-        }
-      }
-    }))
+          costs: {},
+        },
+      },
+    })),
   },
 });
 
 // Mock child components
-mock.module("../../../../../components/dashboard/analytics/AnalyticsHeader.tsx", {
-  defaultExport: () => <div data-testid="analytics-header">Header</div>,
-});
-mock.module("../../../../../components/dashboard/analytics/PerformanceGauges.tsx", {
-  defaultExport: () => <div data-testid="performance-gauges">Gauges</div>,
-});
-mock.module("../../../../../components/dashboard/analytics/CostAnalysisCharts.tsx", {
-  defaultExport: () => <div data-testid="cost-analysis">Costs</div>,
-});
-mock.module("../../../../../components/dashboard/analytics/ForecastingWidget.tsx", {
-  defaultExport: () => <div data-testid="forecasting-widget">Forecast</div>,
-});
+mock.module(
+  "../../../../../components/dashboard/analytics/AnalyticsHeader.tsx",
+  {
+    defaultExport: () => <div data-testid="analytics-header">Header</div>,
+  }
+);
+mock.module(
+  "../../../../../components/dashboard/analytics/PerformanceGauges.tsx",
+  {
+    defaultExport: () => <div data-testid="performance-gauges">Gauges</div>,
+  }
+);
+mock.module(
+  "../../../../../components/dashboard/analytics/CostAnalysisCharts.tsx",
+  {
+    defaultExport: () => <div data-testid="cost-analysis">Costs</div>,
+  }
+);
+mock.module(
+  "../../../../../components/dashboard/analytics/ForecastingWidget.tsx",
+  {
+    defaultExport: () => <div data-testid="forecasting-widget">Forecast</div>,
+  }
+);
 
 describe("AnalyticsContent Component", () => {
   let AnalyticsContent: unknown;
