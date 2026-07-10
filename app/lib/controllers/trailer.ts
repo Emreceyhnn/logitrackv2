@@ -68,7 +68,7 @@ export const createTrailer = authenticatedAction(
           capacityVolumeM3: parsed.capacityVolumeM3,
           maxLoadKg: parsed.maxLoadKg,
           isColdChain: parsed.isColdChain,
-          company: { connect: { id: companyId } },
+          companyId,
         },
       });
 

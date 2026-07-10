@@ -38,7 +38,7 @@ export const createVehicle = authenticatedAction(
           ...parsedData,
           fuelType: parsedData.fuelType as FuelType,
           fleetNo: vehicleFleetNo,
-          company: { connect: { id: companyId } },
+          companyId,
         }),
       });
 
