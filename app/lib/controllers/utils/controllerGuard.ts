@@ -7,7 +7,8 @@
  */
 
 import { ZodError } from "zod";
-import { AppError, fromZodError } from "../../errors";
+import { Prisma } from "@prisma/client";
+import { AppError, ConflictError, fromZodError } from "../../errors";
 import { logger } from "@/app/lib/logger";
 
 
@@ -45,6 +46,21 @@ export async function controllerGuard<T>(
     if (options) {
       logger.error(`[${operationName}] Failed, returning fallback:`, error);
       return options.fallback;
+    }
+
+    // Prisma unique constraint violations → structured ConflictError
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      const target = (error.meta?.target as string[] | undefined)?.join(", ");
+      const conflictError = new ConflictError(
+        target
+          ? `A record with this ${target} already exists.`
+          : "A record with these values already exists."
+      );
+      logger.error(`[${operationName}] Unique constraint violation:`, target);
+      throw conflictError;
     }
 
     // Zod validation failures → structured ValidationError
