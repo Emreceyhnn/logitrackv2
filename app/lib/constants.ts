@@ -22,6 +22,9 @@ export const PROTECTED_ROUTES = [
   "/reports",
   "/users",
   "/company",
+  // Requires a signed-in user, but must NOT be in COMPANY_REQUIRED_ROUTES —
+  // it is the destination for users without a company (loop otherwise).
+  "/onboarding",
 ];
 
 export const COMPANY_REQUIRED_ROUTES = [

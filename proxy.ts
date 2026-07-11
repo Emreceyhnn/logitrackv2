@@ -233,10 +233,14 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Already authenticated on auth routes → redirect to dashboard
-  if (isAuthRoute && isTokenValid && companyId) {
+  // Already authenticated on auth routes → redirect to dashboard,
+  // or to onboarding when the user has no company yet.
+  if (isAuthRoute && isTokenValid) {
     const url = request.nextUrl.clone();
-    url.pathname = buildLocalizedHref(DEFAULT_REDIRECT_AFTER_LOGIN, locale);
+    url.pathname = buildLocalizedHref(
+      companyId ? DEFAULT_REDIRECT_AFTER_LOGIN : "/onboarding",
+      locale
+    );
     return NextResponse.redirect(url);
   }
 
@@ -260,7 +264,10 @@ export default async function middleware(request: NextRequest) {
   // crawlers) must reach the landing page, so no redirect for them.
   if (currentPath === "/" && isTokenValid) {
     const url = request.nextUrl.clone();
-    url.pathname = buildLocalizedHref(DEFAULT_REDIRECT_AFTER_LOGIN, locale);
+    url.pathname = buildLocalizedHref(
+      companyId ? DEFAULT_REDIRECT_AFTER_LOGIN : "/onboarding",
+      locale
+    );
     return NextResponse.redirect(url);
   }
 
