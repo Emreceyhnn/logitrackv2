@@ -1,8 +1,10 @@
 "use server";
 
+import { headers } from "next/headers";
 import { supabase } from "../supabase";
 import { logger } from "@/app/lib/logger";
 import { db } from "../db";
+import { rateLimit } from "../rate-limiter";
 import {
   authenticatedAction,
   maybeAuthenticatedAction,
@@ -89,6 +91,22 @@ export const uploadImageAction = maybeAuthenticatedAction(
   ): Promise<UploadImageResult> => {
     if (!_user && !ANON_WRITABLE_BUCKETS.has(bucket)) {
       throw new Error("Authentication required to upload to this bucket.");
+    }
+
+    // Authenticated callers are already throttled per-session by
+    // `authenticatedAction`; anonymous ones (pre-registration avatar/logo
+    // uploads) have no other limiter — Server Action POSTs never pass the
+    // /api middleware limiter — so cap them per IP to prevent storage abuse.
+    if (!_user) {
+      const headerStore = await headers();
+      const ip =
+        headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        headerStore.get("x-real-ip") ||
+        "127.0.0.1";
+      const ipLimit = await rateLimit(ip, 10, 3600, "rate-limit:upload-anon:");
+      if (!ipLimit.success) {
+        throw new Error("Too many uploads. Please try again later.");
+      }
     }
 
     validateBase64Image(fileData);

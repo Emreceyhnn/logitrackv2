@@ -20,6 +20,10 @@ import {
 } from "../session";
 import { headers } from "next/headers";
 import { rateLimit } from "../../rate-limiter";
+import {
+  registerUserSchema,
+  loginUserSchema,
+} from "../../validation/serverSchemas";
 import { logger } from "@/app/lib/logger";
 
 
@@ -74,14 +78,33 @@ export const RegisterUser = maybeAuthenticatedAction(
     surname: string,
     password: string,
     email: string,
-    avatarUrl?: string,
-    deviceInfo?: string,
-    ipAddress?: string
+    avatarUrl?: string
   ) => {
     try {
+      // Server actions are directly callable from the network, so input must
+      // be validated here — the client-side yup schema is not a boundary.
+      const parsed = registerUserSchema.safeParse({
+        name,
+        surname,
+        password,
+        email,
+        avatarUrl,
+      });
+      if (!parsed.success) {
+        const first = parsed.error.issues[0];
+        return {
+          error: first?.message ?? "Invalid registration data",
+          field: String(first?.path[0] ?? "general"),
+        };
+      }
+      const input = parsed.data;
+
+      // IP and device info come exclusively from trusted request headers —
+      // never from client-supplied arguments, which would let a caller pick
+      // its own rate-limit key and poison the audit trail.
       const headerStore = await headers();
-      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
-      const userAgent = deviceInfo || headerStore.get("user-agent") || "Unknown Device";
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = headerStore.get("user-agent") || "Unknown Device";
 
       // Rate limit registration by IP: Max 5 attempts per hour
       const ipLimit = await rateLimit(ip, 5, 3600, "rate-limit:register-ip:");
@@ -94,33 +117,33 @@ export const RegisterUser = maybeAuthenticatedAction(
         await checkPermission(user, user.companyId, ["role_admin"]);
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
       const isExist = await db.user.findFirst({
-        where: {
-          OR: [{ email }],
-        },
+        where: { email: input.email },
       });
 
       if (isExist) {
         return { error: "Email already exists", field: "email" };
       }
 
+      const hashedPassword = await bcrypt.hash(input.password, 10);
+
       const newUser = await db.user.create({
         data: {
-          name,
-          surname,
+          name: input.name,
+          surname: input.surname,
           password: hashedPassword,
-          email,
-          avatarUrl: avatarUrl ?? null,
+          email: input.email,
+          avatarUrl: input.avatarUrl ?? null,
           currency: "USD",
           companyId: user?.companyId || null, // Guest registration has no company initially
         },
       });
 
-      // Create server-side session (sets httpOnly cookies automatically)
-      // Note: This creates a session for the newly registered user, not the admin.
-      await createSession(newUser, userAgent, ip);
+      // Only a guest self-registration signs this browser in as the new user.
+      // An admin registering someone else keeps their own session cookies.
+      if (!user) {
+        await createSession(newUser, userAgent, ip);
+      }
 
       // Audit log
       await logAuditEvent({
@@ -128,7 +151,7 @@ export const RegisterUser = maybeAuthenticatedAction(
         action: "REGISTER",
         ipAddress: ip,
         deviceInfo: userAgent,
-        metadata: { email, avatarUrl },
+        metadata: { email: input.email, avatarUrl: input.avatarUrl },
       });
 
       return {
@@ -156,14 +179,24 @@ export const LoginUser = maybeAuthenticatedAction(
   async (
     _user: AuthenticatedUser | null,
     email: string,
-    password: string,
-    deviceInfo?: string,
-    ipAddress?: string
+    password: string
   ) => {
     try {
+      // Reject malformed input before touching the rate limiter or the DB.
+      // A malformed email can never belong to an account, so the generic
+      // credentials error is accurate and leaks nothing.
+      const parsed = loginUserSchema.safeParse({ email, password });
+      if (!parsed.success) {
+        return { error: "Invalid credentials" };
+      }
+      const input = parsed.data;
+
+      // IP and device info come exclusively from trusted request headers —
+      // never from client-supplied arguments, which would let a caller pick
+      // its own rate-limit key and poison the audit trail.
       const headerStore = await headers();
-      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
-      const userAgent = deviceInfo || headerStore.get("user-agent") || "Unknown Device";
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = headerStore.get("user-agent") || "Unknown Device";
 
       // 1. IP Rate Limiting: Max 5 login attempts per minute
       const ipLimit = await rateLimit(ip, 5, 60, "rate-limit:login-ip:");
@@ -172,7 +205,7 @@ export const LoginUser = maybeAuthenticatedAction(
       }
 
       // 2. Email Rate Limiting: Max 5 login attempts per minute per email (prevent distributed brute force on single account)
-      const emailLimit = await rateLimit(email.toLocaleLowerCase('en-US').trim(), 5, 60, "rate-limit:login-email:");
+      const emailLimit = await rateLimit(input.email.toLocaleLowerCase('en-US'), 5, 60, "rate-limit:login-email:");
       if (!emailLimit.success) {
         return { error: "Too many login attempts for this account. Please try again later." };
       }
@@ -181,7 +214,7 @@ export const LoginUser = maybeAuthenticatedAction(
       // But authenticatedAction already verifies the user.
 
       const foundUser = await db.user.findUnique({
-        where: { email },
+        where: { email: input.email },
       });
 
       if (!foundUser) {
@@ -189,13 +222,13 @@ export const LoginUser = maybeAuthenticatedAction(
           action: "LOGIN_FAILED",
           ipAddress: ip,
           deviceInfo: userAgent,
-          metadata: { email, reason: "User not found" },
+          metadata: { email: input.email, reason: "User not found" },
         });
         return { error: "Invalid credentials" };
       }
 
       const isPasswordValid = await bcrypt.compare(
-        password,
+        input.password,
         foundUser.password || ""
       );
       if (!isPasswordValid) {
@@ -204,7 +237,7 @@ export const LoginUser = maybeAuthenticatedAction(
           action: "LOGIN_FAILED",
           ipAddress: ip,
           deviceInfo: userAgent,
-          metadata: { email, reason: "Invalid password" },
+          metadata: { email: input.email, reason: "Invalid password" },
         });
         return { error: "Invalid credentials" };
       }

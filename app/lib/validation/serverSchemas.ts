@@ -23,6 +23,30 @@ import {
   MovementType,
 } from "@prisma/client";
 
+// ─── Auth ───────────────────────────────────────────────────────────────────
+// Server-side mirror of the client rules in validationSchema/auth.ts. The auth
+// server actions are directly callable from the network, so the client-side
+// yup schema alone is not a security boundary.
+export const registerUserSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
+  surname: z.string().trim().min(2, "Surname must be at least 2 characters").max(100),
+  email: z.string().trim().email("Invalid email address").max(254),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    // bcrypt only uses the first 72 bytes; longer input silently truncates
+    .max(72, "Password must be at most 72 characters")
+    .regex(/[a-z]/, "Password must contain a lowercase letter")
+    .regex(/[A-Z]/, "Password must contain an uppercase letter")
+    .regex(/[0-9]/, "Password must contain a digit"),
+  avatarUrl: z.string().max(2048).optional(),
+});
+
+export const loginUserSchema = z.object({
+  email: z.string().trim().email().max(254),
+  password: z.string().min(1).max(1024),
+});
+
 export const updateWarehouseSchema = z.object({
   name: z.string().optional(),
   code: z.string().min(1, "Warehouse code is required").optional(),

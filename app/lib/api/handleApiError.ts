@@ -16,7 +16,13 @@ import { logger } from "@/app/lib/logger";
 export function handleApiError(routeName: string, error: unknown): NextResponse {
   // `authenticatedAction` calls redirect() when there is no session; inside a
   // route handler that surfaces as a NEXT_REDIRECT error → translate to 401.
-  if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+  // Next.js marks redirect errors via `digest` ("NEXT_REDIRECT;<type>;<url>;…"),
+  // the message is an implementation detail — check both.
+  const digest = (error as { digest?: unknown } | null)?.digest;
+  if (
+    (typeof digest === "string" && digest.startsWith("NEXT_REDIRECT")) ||
+    (error instanceof Error && error.message === "NEXT_REDIRECT")
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

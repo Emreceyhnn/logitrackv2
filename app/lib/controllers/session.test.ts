@@ -18,6 +18,11 @@ const dbMock = {
   auditLog: {
     create: mock.fn(),
   },
+  // createSession resolves roleName from roleId when the caller doesn't
+  // provide one (session/core.ts) — the mock must cover that lookup.
+  role: {
+    findUnique: mock.fn(async () => ({ name: "Admin" })),
+  },
 };
 
 // Redis Mock

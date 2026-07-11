@@ -154,7 +154,7 @@ describe("Users Controller", () => {
         null, // No authenticated user (guest registration)
         "John",
         "Doe",
-        "secret-password",
+        "Secret-Passw0rd",
         "john.doe@example.com"
       );
 
@@ -183,7 +183,7 @@ describe("Users Controller", () => {
         null,
         "John",
         "Doe",
-        "secret-password",
+        "Secret-Passw0rd",
         "john.doe@example.com"
       );
 
@@ -195,6 +195,46 @@ describe("Users Controller", () => {
       expect(sessionMock.createSession.mock.calls.length).toBe(0);
     });
 
+    it("should_ReturnValidationError_WhenPasswordIsWeak", async () => {
+      // Arrange
+      rateLimiterMock.rateLimit.mock.mockImplementation(async () => ({ success: true }));
+
+      // Act — password lacks uppercase and digit, violating the server policy
+      const result = await usersController.RegisterUser(
+        null,
+        "John",
+        "Doe",
+        "weakpassword",
+        "john.doe@example.com"
+      );
+
+      // Assert
+      expect(result.error).toBeDefined();
+      expect(result.field).toBe("password");
+      expect(dbMock.user.findFirst.mock.calls.length).toBe(0);
+      expect(dbMock.user.create.mock.calls.length).toBe(0);
+      expect(sessionMock.createSession.mock.calls.length).toBe(0);
+    });
+
+    it("should_ReturnValidationError_WhenEmailIsMalformed", async () => {
+      // Arrange
+      rateLimiterMock.rateLimit.mock.mockImplementation(async () => ({ success: true }));
+
+      // Act
+      const result = await usersController.RegisterUser(
+        null,
+        "John",
+        "Doe",
+        "Secret-Passw0rd",
+        "not-an-email"
+      );
+
+      // Assert
+      expect(result.error).toBeDefined();
+      expect(result.field).toBe("email");
+      expect(dbMock.user.create.mock.calls.length).toBe(0);
+    });
+
     it("should_ReturnRateLimitError_WhenTooManyAttempts", async () => {
       // Arrange
       rateLimiterMock.rateLimit.mock.mockImplementation(async () => ({ success: false }));
@@ -204,7 +244,7 @@ describe("Users Controller", () => {
         null,
         "John",
         "Doe",
-        "secret-password",
+        "Secret-Passw0rd",
         "john.doe@example.com"
       );
 
@@ -321,6 +361,20 @@ describe("Users Controller", () => {
         (c: Record<string, unknown>) => c.arguments[0].action === "LOGIN_FAILED"
       );
       expect(failedAudit?.arguments[0].metadata.reason).toBe("User not found");
+    });
+
+    it("should_RejectMalformedEmail_BeforeLimiterAndDb", async () => {
+      // Act
+      const result = await usersController.LoginUser(
+        null,
+        "not-an-email",
+        "any-password"
+      );
+
+      // Assert — same generic message, nothing downstream is touched
+      expect(result.error).toBe("Invalid credentials");
+      expect(rateLimiterMock.rateLimit.mock.calls.length).toBe(0);
+      expect(dbMock.user.findUnique.mock.calls.length).toBe(0);
     });
 
     it("should_BlockBeforeUserLookup_WhenIpRateLimitExceeded", async () => {
