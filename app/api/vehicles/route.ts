@@ -4,7 +4,7 @@ import { VehicleStatus, VehicleType } from "@prisma/client";
 import { VehicleFilters } from "@/app/lib/type/vehicle";
 import { parseQueryParams, searchParam, enumArrayParam, boolParam } from "@/app/lib/api/queryParams";
 import { z } from "zod";
-import { logger } from "@/app/lib/logger";
+import { handleApiError } from "@/app/lib/api/handleApiError";
 
 
 const querySchema = z.object({
@@ -26,13 +26,6 @@ export async function GET(req: NextRequest) {
     const data = await getVehicles(filters);
     return NextResponse.json(data);
   } catch (error: unknown) {
-    logger.error("[/api/vehicles] error:", error);
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError("/api/vehicles", error);
   }
 }

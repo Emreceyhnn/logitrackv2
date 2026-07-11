@@ -139,6 +139,62 @@ describe("db.ts tenant-guard extension", () => {
       });
       expect(queryMock.mock.calls.length).toBe(1);
     });
+
+    it("should_InjectCompanyIdIntoEveryRow_OnCreateMany", async () => {
+      await invoke("comp-A", "ShipmentItem", "createMany", {
+        data: [{ sku: "A-1" }, { sku: "A-2", companyId: "comp-A" }],
+      });
+      expect(passedArgs().data).toEqual([
+        { sku: "A-1", companyId: "comp-A" },
+        { sku: "A-2", companyId: "comp-A" },
+      ]);
+    });
+
+    it("should_ThrowTenantGuardError_WhenCreateManyTargetsAnotherCompany", () => {
+      expect(() =>
+        invoke("comp-A", "ShipmentItem", "createMany", {
+          data: [{ sku: "A-1" }, { sku: "B-1", companyId: "comp-B" }],
+        })
+      ).toThrow(/Tenant guard: attempted to create ShipmentItem for another company/);
+      expect(queryMock.mock.calls.length).toBe(0);
+    });
+
+    it("should_ThrowTenantGuardError_WhenUpdateReassignsCompanyId", () => {
+      expect(() =>
+        invoke("comp-A", "Shipment", "update", {
+          where: { id: "s1" },
+          data: { companyId: "comp-B" },
+        })
+      ).toThrow(/Tenant guard: attempted to move Shipment to another company/);
+      expect(queryMock.mock.calls.length).toBe(0);
+    });
+
+    it("should_ThrowTenantGuardError_WhenUpdateReassignsCompanyIdViaSet", () => {
+      expect(() =>
+        invoke("comp-A", "Shipment", "updateMany", {
+          where: { status: "PENDING" },
+          data: { companyId: { set: "comp-B" } },
+        })
+      ).toThrow(/Tenant guard: attempted to move Shipment to another company/);
+    });
+
+    it("should_ThrowTenantGuardError_WhenUpsertUpdateReassignsCompanyId", () => {
+      expect(() =>
+        invoke("comp-A", "Vehicle", "upsert", {
+          where: { id: "v1" },
+          create: { companyId: "comp-A" },
+          update: { companyId: "comp-B" },
+        })
+      ).toThrow(/Tenant guard: attempted to move Vehicle to another company/);
+    });
+
+    it("should_AllowUpdate_WhenCompanyIdMatchesTenant", async () => {
+      await invoke("comp-A", "Shipment", "update", {
+        where: { id: "s1" },
+        data: { companyId: "comp-A", status: "DELIVERED" },
+      });
+      expect(queryMock.mock.calls.length).toBe(1);
+    });
   });
 
   describe("soft delete filtering", () => {

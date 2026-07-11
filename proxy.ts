@@ -272,17 +272,19 @@ export default async function middleware(request: NextRequest) {
   }
 
   // ── 6. Final Response ───────────────────────────────────────────────────────
+  const csp = buildCsp(nonce, isProtectedRoute);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // Next.js reads the nonce for its own inline scripts (bootstrap/flight
+  // payload) from the REQUEST's Content-Security-Policy header — without this,
+  // a strict script-src would block them and protected pages would not hydrate.
+  requestHeaders.set("content-security-policy", csp);
 
   const response = rewriteUrl
     ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
     : NextResponse.next({ request: { headers: requestHeaders } });
 
-  response.headers.set(
-    "Content-Security-Policy",
-    buildCsp(nonce, isProtectedRoute)
-  );
+  response.headers.set("Content-Security-Policy", csp);
 
   return response;
 }

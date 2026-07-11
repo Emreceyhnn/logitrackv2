@@ -127,6 +127,9 @@ model Driver {
   @@unique([companyId, employeeId])
   @@index([companyId, status])
   @@index([homeBaseWarehouseId])
+  // Serves the check-expirations cron's cross-tenant license sweep
+  // (`licenseExpiry <= cutoff` with no companyId filter).
+  @@index([licenseExpiry])
   @@map("drivers")
 }
 
@@ -172,6 +175,10 @@ model Vehicle {
   @@unique([companyId, fleetNo])
   @@unique([companyId, plate])
   @@index([companyId, status])
+  // Serve the check-expirations cron's cross-tenant registration/inspection
+  // sweep (`registrationExpiry <= cutoff OR inspectionExpiry <= cutoff`).
+  @@index([registrationExpiry])
+  @@index([inspectionExpiry])
   @@map("vehicles")
 }
 
@@ -518,6 +525,9 @@ model Route {
   @@index([companyId, date])
   @@index([driverId, date])
   @@index([vehicleId])
+  // Serves the check-expirations cron's cross-tenant delayed/upcoming sweep
+  // (`status IN ('PLANNED','ACTIVE')` with no companyId filter).
+  @@index([status])
   @@map("routes")
 }
 

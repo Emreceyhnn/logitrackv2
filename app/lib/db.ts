@@ -142,6 +142,58 @@ function createPrismaClient() {
             }
           }
 
+          // Same protection for bulk creates: every row must belong to the
+          // caller's company; rows without an explicit companyId get it injected.
+          if (
+            isTenantModel &&
+            companyId &&
+            (operation === "createMany" || operation === "createManyAndReturn")
+          ) {
+            const mArgs = args as { data?: unknown };
+            const rows = Array.isArray(mArgs.data)
+              ? (mArgs.data as { companyId?: unknown }[])
+              : mArgs.data !== undefined
+                ? [mArgs.data as { companyId?: unknown }]
+                : [];
+            for (const row of rows) {
+              if (typeof row.companyId === "string" && row.companyId !== companyId) {
+                throw new Error(
+                  `Tenant guard: attempted to create ${model} for another company`
+                );
+              }
+              if (row.companyId === undefined) {
+                row.companyId = companyId;
+              }
+            }
+          }
+
+          // Block companyId reassignment on updates: a tenant row must never be
+          // moved to another company (accepts both `companyId: "x"` and the
+          // `companyId: { set: "x" }` update forms).
+          if (
+            isTenantModel &&
+            companyId &&
+            (operation === "update" ||
+              operation === "updateMany" ||
+              operation === "updateManyAndReturn" ||
+              operation === "upsert")
+          ) {
+            const mArgs = args as {
+              data?: { companyId?: unknown };
+              update?: { companyId?: unknown };
+            };
+            const data = operation === "upsert" ? mArgs.update : mArgs.data;
+            const target =
+              typeof data?.companyId === "object" && data.companyId !== null
+                ? (data.companyId as { set?: unknown }).set
+                : data?.companyId;
+            if (typeof target === "string" && target !== companyId) {
+              throw new Error(
+                `Tenant guard: attempted to move ${model} to another company`
+              );
+            }
+          }
+
           return query(args);
         },
       },

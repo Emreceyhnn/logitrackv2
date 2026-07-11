@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCustomers } from "@/app/lib/controllers/customer";
-import { logger } from "@/app/lib/logger";
+import { handleApiError } from "@/app/lib/api/handleApiError";
 
 
 export async function GET() {
@@ -8,13 +8,6 @@ export async function GET() {
     const data = await getCustomers();
     return NextResponse.json(data);
   } catch (error: unknown) {
-    logger.error("[/api/customers] error:", error);
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError("/api/customers", error);
   }
 }

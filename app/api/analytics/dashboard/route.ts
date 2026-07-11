@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
-import { logger } from "@/app/lib/logger";
+import { handleApiError } from "@/app/lib/api/handleApiError";
 
 
 export async function GET() {
@@ -8,14 +8,6 @@ export async function GET() {
     const data = await getAnalyticsDashboardData();
     return NextResponse.json(data);
   } catch (error: unknown) {
-    logger.error("[/api/analytics/dashboard] error:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    if (errorMessage === "NEXT_REDIRECT") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError("/api/analytics/dashboard", error);
   }
 }

@@ -40,7 +40,7 @@ import {
 } from "@/app/lib/controllers/utils/checkPermission";
 import { Prisma, VehicleStatus, VehicleType } from "@prisma/client";
 import type { VehicleDashboardProps, VehicleFilters, VehicleWithRelations } from "@/app/lib/type/vehicle";
-import { logger } from "@/app/lib/logger";
+import { handleApiError } from "@/app/lib/api/handleApiError";
 
 
 const querySchema = z.object({
@@ -194,13 +194,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error: unknown) {
-    logger.error("[/api/vehicles/dashboard] error:", error);
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError("/api/vehicles/dashboard", error);
   }
 }

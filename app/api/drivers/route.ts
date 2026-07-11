@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logger } from "@/app/lib/logger";
 import { parseQueryParams, pageParam, pageSizeParam, searchParam, enumArrayParam, boolParam, sortOrderParam, sortFieldParam } from "@/app/lib/api/queryParams";
 import { z } from "zod";
 import { getDrivers } from "@/app/lib/controllers/driver";
 import { DriverStatus } from "@/app/lib/type/enums";
+import { handleApiError } from "@/app/lib/api/handleApiError";
 
 const querySchema = z.object({
   page: pageParam,
@@ -25,13 +25,6 @@ export async function GET(req: NextRequest) {
     const data = await getDrivers(page, limit, search, status as DriverStatus[] | undefined, hasVehicle, sortField, sortOrder);
     return NextResponse.json(data);
   } catch (error: unknown) {
-    logger.error("[/api/drivers] error:", error);
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError("/api/drivers", error);
   }
 }
