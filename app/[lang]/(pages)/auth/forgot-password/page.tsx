@@ -30,11 +30,11 @@ export default function ForgotPasswordPage() {
       <Stack spacing={3}>
         <Box>
           <Typography variant="h4" fontWeight={800} gutterBottom>
-            Forgot Password
+            {dict.auth?.forgotPasswordTitle || "Forgot Password"}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Enter your email address and we&apos;ll send you a link to reset your
-            password.
+            {dict.auth?.forgotPasswordDescription ||
+              "Enter your email address and we'll send you a link to reset your password."}
           </Typography>
         </Box>
 
@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
           <Stack spacing={3}>
             <TextField
               fullWidth
-              label="Email Address"
+              label={dict.auth?.emailAddress || "Email Address"}
               type="email"
               variant="outlined"
               value={email}
@@ -69,7 +69,9 @@ export default function ForgotPasswordPage() {
                 fontWeight: 600,
               }}
             >
-              {isSubmitting ? "Sending..." : "Send Reset Link"}
+              {isSubmitting
+                ? dict.auth?.sending || "Sending..."
+                : dict.auth?.sendResetLink || "Send Reset Link"}
             </Button>
           </Stack>
         </form>
@@ -81,7 +83,7 @@ export default function ForgotPasswordPage() {
             startIcon={<ArrowBack />}
             sx={{ textTransform: "none", color: "text.secondary" }}
           >
-            Back to Sign In
+            {dict.auth?.backToSignIn || "Back to Sign In"}
           </Button>
         </Box>
       </Stack>

@@ -156,7 +156,9 @@
       "startTour": "Tur Başlat"
     },
     "searchPlaceholder": "Ara...",
-    "underDevelopment": "Bu özellik şu anda geliştirme aşamasındadır."
+    "underDevelopment": "Bu özellik şu anda geliştirme aşamasındadır.",
+    "comingSoon": "Çok Yakında",
+    "manualEntry": "Manuel Giriş"
   },
   "guidedTour": {
     "overview": {
@@ -423,7 +425,14 @@
     "emailExists": "E-posta adresi zaten mevcut",
     "tooManyAttempts": "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
     "tooManyAttemptsAccount": "Bu hesap için çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
-    "tooManyRegistrationAttempts": "Bu IP adresinden çok fazla kayıt denemesi. Lütfen bir saat sonra tekrar deneyin."
+    "tooManyRegistrationAttempts": "Bu IP adresinden çok fazla kayıt denemesi. Lütfen bir saat sonra tekrar deneyin.",
+    "emailAddress": "E-posta Adresi",
+    "forgotPasswordTitle": "Şifremi Unuttum",
+    "forgotPasswordDescription": "E-posta adresinizi girin, şifrenizi sıfırlamanız için size bir bağlantı gönderelim.",
+    "sendResetLink": "Sıfırlama Bağlantısı Gönder",
+    "sending": "Gönderiliyor...",
+    "backToSignIn": "Girişe Dön",
+    "tagline": "Küresel tedarik zincirlerini gerçek zamanlı zeka ve kusursuz koordinasyonla güçlendiriyoruz."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
@@ -2574,7 +2583,6 @@
       "vehicleAssignment": "Araç Ataması",
       "loadingVehicles": "Araçlar yükleniyor...",
       "assignmentSummary": "ATAMA ÖZETİ",
-
       "noDriverSelected": "Sürücü seçilmedi",
       "statusOnDuty": "Durum: Görevde",
       "vehicleMaintenance": "Araç Bakımı",
@@ -3136,7 +3144,9 @@
       "addTitle": "Yakıt Kaydı Ekle",
       "success": "Yakıt kaydı başarıyla eklendi",
       "error": "Yakıt kaydı eklenemedi"
-    }
+    },
+    "pageSubtitle": "Yakıt kayıtlarını yönetin, tüketimi izleyin ve araç verimliliğini takip edin.",
+    "comingSoonDescription": "Gelişmiş yakıt yönetimi modülünü şu anda geliştiriyoruz. Bu özellik araç başına yakıt tüketimini takip etmenizi, yakıt kartlarıyla entegrasyonu ve verimlilik raporları oluşturmanızı sağlayacak."
   },
   "warehouseWorker": {
     "backToPanel": "Panele dön",
@@ -3144,24 +3154,20 @@
     "warehouseWorker": "Depo Çalışanı",
     "justNow": "az önce",
     "ago": "önce",
-
     "unrecognizedItem": "Tanınmayan ürün",
     "noInventoryToScan": "Bu depoda taranacak ürün yok",
     "logged": "Kaydedildi",
     "couldNotLog": "Hareket kaydedilemedi",
     "taskComplete": "Görev tamamlandı",
     "couldNotUpdateTask": "Görev güncellenemedi",
-
     "restockRequested": "Besleme talebi oluşturuldu",
     "couldNotRequestRestock": "Besleme talebi oluşturulamadı",
     "issueReported": "Sorun amire bildirildi",
     "couldNotReportIssue": "Sorun bildirilemedi",
-
     "high": "yüksek",
     "med": "orta",
     "low": "düşük",
     "ui": {
-
       "aisles": "Koridor 1–48",
       "liveMovements": "Canlı stok hareketleri",
       "type": "Tip",
@@ -3176,7 +3182,6 @@
       "simScan": "Okutma Simülasyonu",
       "logPick": "Toplama (Pick)",
       "logPack": "Paketleme (Pack)",
-
       "doneBtn": "Bitti",
       "advanceBtn": "İlerle",
       "PICK": "TOPLA",
@@ -3217,14 +3222,12 @@
       "capacity": "Kapasite",
       "activity": "Aktivite"
     },
-    "status": {
-    },
+    "status": {},
     "dashboard": {
       "picksToday": "Bugünkü Toplama (Pick)",
       "packsToday": "Bugünkü Paketleme (Pack)",
       "throughput": "Performans",
       "unitsHr": "ürün/sa",
-
       "latestTasks": "Son görevler",
       "viewAll": "Tümünü gör",
       "zones": "Bölgeler",
@@ -3268,5 +3271,20 @@
       "pick": "Pick (Topla)",
       "pack": "Pack (Paketle)"
     }
+  },
+  "onboarding": {
+    "welcomeTitle": "{name} uygulamasına hoş geldiniz",
+    "welcomeSubtitle": "Hesabınızı başarıyla oluşturdunuz. Panele geçmek için bir şirketle ilişkilendirilmeniz gerekir.",
+    "createTitle": "Yeni Şirket Oluştur",
+    "createDescription": "Yeni bir lojistik veya taşımacılık şirketi kaydedin. Tam yetkiyle ilk Yönetici olarak atanacaksınız.",
+    "createButton": "Şirket Oluştur",
+    "joinTitle": "Mevcut Bir Şirkete Katıl",
+    "joinDescription": "Şirketiniz zaten LogiTrack kullanıyorsa, bir davet kodu veya şirket e-postanızla katılma isteği gönderebilirsiniz.",
+    "joinButton": "Şirkete Katıl"
+  },
+  "users": {
+    "title": "Kullanıcı Yönetimi",
+    "subtitle": "Şirket kullanıcılarını, rollerini ve erişim izinlerini yönetin.",
+    "comingSoonDescription": "Kullanıcı Yönetimi modülü şu anda geliştirilme aşamasında. Yakında ekip üyelerini davet edebilecek, belirli roller (ör. Sevkiyatçı, Yönetici, Yönetici) atayabilecek ve kullanıcı etkinlik günlüklerini takip edebileceksiniz."
   }
 }

@@ -181,7 +181,7 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
                         >
                           <MenuItem value="">
                             <Typography variant="body2" color="text.secondary">
-                              Manual Entry
+                              {dict.common?.manualEntry || "Manual Entry"}
                             </Typography>
                           </MenuItem>
                           {customers.map((c) => (

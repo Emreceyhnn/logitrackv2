@@ -126,7 +126,8 @@ export default function AuthLayout({
                   lineHeight: 1.6,
                 }}
               >
-                Empowering global supply chains with real-time intelligence and seamless coordination.
+                {dict.auth?.tagline ||
+                  "Empowering global supply chains with real-time intelligence and seamless coordination."}
               </Typography>
             </Stack>
 

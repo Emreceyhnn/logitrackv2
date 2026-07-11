@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { Business, AddBusiness } from "@mui/icons-material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { formatMessage } from "@/app/lib/language/language";
 import { toast } from "sonner";
 import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
 
@@ -44,7 +45,10 @@ export default function OnboardingPage() {
       <Container maxWidth="md">
         <Box textAlign="center" mb={6}>
           <Typography variant="h3" fontWeight={800} gutterBottom>
-            Welcome to {dict.common.logitrack}
+            {formatMessage(
+              dict.onboarding?.welcomeTitle || "Welcome to {name}",
+              { name: dict.common.logitrack }
+            )}
           </Typography>
           <Typography
             variant="body1"
@@ -52,8 +56,8 @@ export default function OnboardingPage() {
             maxWidth="sm"
             mx="auto"
           >
-            You have successfully registered your account. To proceed to the
-            dashboard, you need to be associated with a company.
+            {dict.onboarding?.welcomeSubtitle ||
+              "You have successfully registered your account. To proceed to the dashboard, you need to be associated with a company."}
           </Typography>
         </Box>
 
@@ -102,15 +106,15 @@ export default function OnboardingPage() {
                 <AddBusiness fontSize="large" />
               </Box>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Create a New Company
+                {dict.onboarding?.createTitle || "Create a New Company"}
               </Typography>
               <Typography
                 variant="body2"
                 color="text.secondary"
                 sx={{ mb: 4, flex: 1 }}
               >
-                Register a new logistics or transport company. You will be set
-                as the initial Administrator with full control.
+                {dict.onboarding?.createDescription ||
+                  "Register a new logistics or transport company. You will be set as the initial Administrator with full control."}
               </Typography>
               <Button
                 variant="contained"
@@ -119,7 +123,7 @@ export default function OnboardingPage() {
                 onClick={() => handleAction("create")}
                 sx={{ borderRadius: 2, py: 1.5 }}
               >
-                Create Company
+                {dict.onboarding?.createButton || "Create Company"}
               </Button>
             </CardContent>
           </Card>
@@ -166,15 +170,15 @@ export default function OnboardingPage() {
                 <Business fontSize="large" />
               </Box>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Join an Existing Company
+                {dict.onboarding?.joinTitle || "Join an Existing Company"}
               </Typography>
               <Typography
                 variant="body2"
                 color="text.secondary"
                 sx={{ mb: 4, flex: 1 }}
               >
-                If your company already uses LogiTrack, you can request to join
-                using an invite code or your company email.
+                {dict.onboarding?.joinDescription ||
+                  "If your company already uses LogiTrack, you can request to join using an invite code or your company email."}
               </Typography>
               <Button
                 variant="outlined"
@@ -189,7 +193,7 @@ export default function OnboardingPage() {
                   "&:hover": { borderWidth: 2 },
                 }}
               >
-                Join Company
+                {dict.onboarding?.joinButton || "Join Company"}
               </Button>
             </CardContent>
           </Card>

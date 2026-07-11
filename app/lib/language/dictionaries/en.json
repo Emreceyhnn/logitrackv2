@@ -156,7 +156,9 @@
       "startTour": "Start Tour"
     },
     "searchPlaceholder": "Search...",
-    "underDevelopment": "This feature is currently under development."
+    "underDevelopment": "This feature is currently under development.",
+    "comingSoon": "Coming Soon",
+    "manualEntry": "Manual Entry"
   },
   "guidedTour": {
     "overview": {
@@ -423,7 +425,14 @@
     "emailExists": "Email already exists",
     "tooManyAttempts": "Too many login attempts. Please try again later.",
     "tooManyAttemptsAccount": "Too many login attempts for this account. Please try again later.",
-    "tooManyRegistrationAttempts": "Too many registration attempts from this IP. Please try again in an hour."
+    "tooManyRegistrationAttempts": "Too many registration attempts from this IP. Please try again in an hour.",
+    "emailAddress": "Email Address",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordDescription": "Enter your email address and we'll send you a link to reset your password.",
+    "sendResetLink": "Send Reset Link",
+    "sending": "Sending...",
+    "backToSignIn": "Back to Sign In",
+    "tagline": "Empowering global supply chains with real-time intelligence and seamless coordination."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Logistics Management Platform",
@@ -2573,7 +2582,6 @@
       "vehicleAssignment": "Vehicle Assignment",
       "loadingVehicles": "Loading vehicles...",
       "assignmentSummary": "ASSIGNMENT SUMMARY",
-
       "noDriverSelected": "No driver selected",
       "statusOnDuty": "Status: On Duty",
       "vehicleMaintenance": "Vehicle Maintenance",
@@ -3135,7 +3143,9 @@
       "addTitle": "Add Fuel Log",
       "success": "Fuel log added successfully",
       "error": "Failed to add fuel log"
-    }
+    },
+    "pageSubtitle": "Manage fuel logs, track consumption, and monitor vehicle efficiency.",
+    "comingSoonDescription": "We are currently building the advanced fuel management module. This feature will allow you to track fuel consumption per vehicle, integrate with fuel cards, and generate efficiency reports."
   },
   "warehouseWorker": {
     "backToPanel": "Back to panel",
@@ -3143,24 +3153,20 @@
     "warehouseWorker": "Warehouse Worker",
     "justNow": "just now",
     "ago": "ago",
-
     "unrecognizedItem": "Unrecognized item",
     "noInventoryToScan": "No inventory to scan in this warehouse",
     "logged": "Logged",
     "couldNotLog": "Could not log movement",
     "taskComplete": "Task complete",
     "couldNotUpdateTask": "Could not update task",
-
     "restockRequested": "Restock requested",
     "couldNotRequestRestock": "Could not request restock",
     "issueReported": "Issue reported to supervisor",
     "couldNotReportIssue": "Could not report issue",
-
     "high": "high",
     "med": "med",
     "low": "low",
     "ui": {
-
       "aisles": "Aisles 1–48",
       "liveMovements": "Live stock movements",
       "type": "Type",
@@ -3175,7 +3181,6 @@
       "simScan": "Simulate scan",
       "logPick": "Log Pick",
       "logPack": "Log Pack",
-
       "doneBtn": "Done",
       "advanceBtn": "Advance",
       "PICK": "PICK",
@@ -3216,14 +3221,12 @@
       "capacity": "Capacity",
       "activity": "Activity"
     },
-    "status": {
-    },
+    "status": {},
     "dashboard": {
       "picksToday": "Picks today",
       "packsToday": "Packs today",
       "throughput": "Throughput",
       "unitsHr": "units/hr",
-
       "latestTasks": "Latest tasks",
       "viewAll": "View all",
       "zones": "Zones",
@@ -3267,5 +3270,20 @@
       "pick": "Pick",
       "pack": "Pack"
     }
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to {name}",
+    "welcomeSubtitle": "You have successfully registered your account. To proceed to the dashboard, you need to be associated with a company.",
+    "createTitle": "Create a New Company",
+    "createDescription": "Register a new logistics or transport company. You will be set as the initial Administrator with full control.",
+    "createButton": "Create Company",
+    "joinTitle": "Join an Existing Company",
+    "joinDescription": "If your company already uses LogiTrack, you can request to join using an invite code or your company email.",
+    "joinButton": "Join Company"
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage company users, roles, and access permissions.",
+    "comingSoonDescription": "The User Management module is currently under development. Soon you will be able to invite team members, assign specific roles (e.g. Dispatcher, Manager, Admin), and track user activity logs."
   }
 }
