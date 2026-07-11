@@ -80,7 +80,7 @@ const RouteRowActions = ({
         onClose={() => setAnchorEl(null)}
         PaperProps={{
           sx: {
-            backgroundColor: "#0B1019",
+            backgroundColor: theme.palette.background.paper,
             backgroundImage: "none",
             borderRadius: "12px",
             minWidth: 180,

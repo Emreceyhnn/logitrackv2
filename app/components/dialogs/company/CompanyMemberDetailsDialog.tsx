@@ -233,8 +233,8 @@ export default function CompanyMemberDetailsDialog({
               color: "text.secondary",
               borderColor: "theme.palette.divider_alpha.main_20",
               "&:hover": {
-                borderColor: "white",
-                color: "white",
+                borderColor: "text.primary",
+                color: "text.primary",
                 bgcolor: "theme.palette.common.white_alpha.main_02",
               },
             }}

@@ -320,7 +320,7 @@ export default function InventoryEditDialog({
                     fontWeight: 600,
                     color: "text.secondary",
                     textTransform: "none",
-                    "&:hover": { color: "white" },
+                    "&:hover": { color: "text.primary" },
                   }}
                 >
                   {dict.inventory.dialogs.discardChanges}

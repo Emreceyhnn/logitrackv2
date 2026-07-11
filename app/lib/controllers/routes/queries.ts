@@ -74,7 +74,10 @@ export const getRoutes = authenticatedAction(
               },
             },
           },
-          orderBy: { date: "desc" },
+          orderBy: [
+            { date: "desc" },
+            { id: "desc" },
+          ],
           skip,
           take: pageSize,
         }),

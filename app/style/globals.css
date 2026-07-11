@@ -143,13 +143,20 @@ select {
   perspective: 1000px;
 }
 
-/* ── Accessibility: visible keyboard focus (WCAG 2.4.7) ──────────────────── */
-/* MUI components ship with outline: none; restore a clear indicator for
-   keyboard navigation only (mouse clicks stay outline-free). */
-:focus-visible {
-  outline: 2px solid #3ea6ff;
-  outline-offset: 2px;
+/* Remove outline completely from all focused elements */
+*:focus,
+*:focus-visible,
+input:focus,
+input:focus-visible,
+button:focus,
+button:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  outline: none !important;
 }
+
 
 /* Skip link: visually hidden until keyboard-focused (WCAG 2.4.1) */
 .skip-link {

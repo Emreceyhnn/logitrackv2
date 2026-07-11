@@ -32,12 +32,12 @@ export default function DriverDetailsForm({ driverData, handleDriverDataChange, 
         <TextField
           fullWidth size="small" label={dict.drivers.fields.employeeId + " *"} placeholder="e.g. EMP-10023"
           value={driverData.employeeId} onChange={(e) => handleDriverDataChange("employeeId", e.target.value)}
-          error={!!validationErrors.employeeId} helperText={validationErrors.employeeId || "Company assigned unique identifier"} required
+          error={!!validationErrors.employeeId} helperText={validationErrors.employeeId || dict.company.dialogs.employeeIdHelper} required
         />
         <TextField
           fullWidth size="small" label={dict.drivers.fields.phone + " *"} placeholder="e.g. +90 555 123 4567"
           value={driverData.phone} onChange={(e) => handleDriverDataChange("phone", e.target.value)}
-          error={!!validationErrors.phone} helperText={validationErrors.phone || "Required for driver contact"} required
+          error={!!validationErrors.phone} helperText={validationErrors.phone || dict.company.dialogs.phoneHelper} required
         />
         <TextField
           fullWidth size="small" label={dict.drivers.fields.licenseType} placeholder="e.g. B, C, CE, CDL-A"

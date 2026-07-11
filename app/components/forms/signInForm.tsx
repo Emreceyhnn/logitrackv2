@@ -48,8 +48,17 @@ export default function LoginForm() {
       const res = await LoginUser(values.email, values.password);
 
       if (res && "error" in res && res.error) {
-        actions.setFieldError("email", res.error);
-        actions.setFieldError("password", res.error);
+        let errorMsg = res.error;
+        if (res.error === "Invalid credentials") {
+          errorMsg = dict.auth.invalidCredentials;
+        } else if (res.error === "Too many login attempts. Please try again later.") {
+          errorMsg = dict.auth.tooManyAttempts;
+        } else if (res.error === "Too many login attempts for this account. Please try again later.") {
+          errorMsg = dict.auth.tooManyAttemptsAccount;
+        }
+
+        actions.setFieldError("email", errorMsg);
+        actions.setFieldError("password", errorMsg);
         setLoading(false);
         return;
       }

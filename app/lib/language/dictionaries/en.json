@@ -418,7 +418,12 @@
     "continue": "Continue",
     "unexpectedError": "An unexpected network error occurred.",
     "loginFailed": "Login failed",
-    "resetLinkSent": "Password reset link sent to your email!"
+    "resetLinkSent": "Password reset link sent to your email!",
+    "invalidCredentials": "Invalid credentials",
+    "emailExists": "Email already exists",
+    "tooManyAttempts": "Too many login attempts. Please try again later.",
+    "tooManyAttemptsAccount": "Too many login attempts for this account. Please try again later.",
+    "tooManyRegistrationAttempts": "Too many registration attempts from this IP. Please try again in an hour."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Logistics Management Platform",
@@ -2192,6 +2197,8 @@
       "invitationNote": "The selected user will receive an invitation to join your organization.",
       "driverDetailsRequired": "Driver details are required for this role.",
       "addToCompany": "Add to Company",
+      "employeeIdHelper": "Company assigned unique identifier",
+      "phoneHelper": "Required for driver contact",
       "steps": {
         "branding": "Branding",
         "regional": "Regional",
@@ -2202,8 +2209,8 @@
         "currency": "Currency",
         "language": "Interface Language",
         "integrity": "Data Integrity",
-        "standardize": "Standardize date/time formats across all users",
-        "overrides": "Allow per-user regional overrides"
+        "standardize": "Standardize date/time formats for all users",
+        "overrides": "Allow user-level regional overrides"
       }
     },
     "members": {
@@ -2257,7 +2264,8 @@
         "ACTIVE": "Active",
         "INACTIVE": "Inactive",
         "SUSPENDED": "Suspended"
-      }
+      },
+      "driverRoleWarning": "Driver roles must be managed from the Drivers dashboard."
     }
   },
   "shipments": {

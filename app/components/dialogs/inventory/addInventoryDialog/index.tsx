@@ -149,7 +149,7 @@ const AddInventoryDialog = ({
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: "#0B0F19",
+          bgcolor: theme.palette.background.paper,
           backgroundImage: "none",
           borderRadius: 4,
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,

@@ -20,7 +20,7 @@ interface InventoryPickerModalProps {
 export default function InventoryPickerModal({ open, onClose, availableInventory, dict, selectProduct }: InventoryPickerModalProps) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3, border: (theme) => `1px solid ${(theme.palette as unknown as ExtendedPalette).divider_alpha?.main_10}` } }}>
-      <DialogTitle sx={{ color: "white", fontWeight: 700 }}>
+      <DialogTitle sx={{ color: "text.primary", fontWeight: 700 }}>
         {dict.shipments.dialogs.fields.warehouseInventory}
       </DialogTitle>
       <DialogContent dividers sx={{ borderColor: (theme) => (theme.palette as unknown as ExtendedPalette).divider_alpha?.main_10 }}>
@@ -31,7 +31,7 @@ export default function InventoryPickerModal({ open, onClose, availableInventory
                 <ListItemText
                   primary={product.name}
                   secondary={`SKU: ${product.sku} | In Stock: ${product.quantity} | U/Pallet: ${product.palletCount}`}
-                  primaryTypographyProps={{ color: "white", fontWeight: 600 }}
+                  primaryTypographyProps={{ color: "text.primary", fontWeight: 600 }}
                   secondaryTypographyProps={{ color: "text.secondary" }}
                 />
               </ListItemButton>

@@ -167,11 +167,18 @@ export default function SignUpStepper() {
         logger.error("Registration failed:", res.error);
 
         if (typeof res.error === "string") {
+          let errorMsg = res.error;
+          if (res.error === "Email already exists") {
+            errorMsg = dict.auth.emailExists;
+          } else if (res.error === "Too many registration attempts from this IP. Please try again in an hour.") {
+            errorMsg = dict.auth.tooManyRegistrationAttempts;
+          }
+
           if (res.field === "email") {
             setActiveStep(0);
-            actions.setFieldError("email", res.error);
+            actions.setFieldError("email", errorMsg);
           } else {
-            actions.setFieldError("email", res.error);
+            actions.setFieldError("email", errorMsg);
             setActiveStep(0);
           }
         }

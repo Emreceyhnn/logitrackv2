@@ -183,7 +183,7 @@ function MapWithMarkers({
 
           return (
             <Marker
-              key={marker.id || index}
+              key={`${marker.id || "marker"}-${index}`}
               position={[marker.lat, marker.len]}
               // Leaflet renders each marker as a keyboard-focusable role="button";
               // `title` + the aria-label on the html root give it an accessible

@@ -172,7 +172,7 @@ export const AdditionalDocsSection = ({
                           borderColor: theme.palette.primary._alpha.main_20,
                         },
                       },
-                      "& .MuiOutlinedInput-input": { color: "white" },
+                      "& .MuiOutlinedInput-input": { color: "text.primary" },
                       "& .MuiIconButton-root": {
                         color: theme.palette.common.white_alpha.main_50,
                       },

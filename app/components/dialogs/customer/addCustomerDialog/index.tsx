@@ -128,11 +128,11 @@ const AddCustomerDialog = ({
         }}
         PaperProps={{
           sx: {
-            bgcolor: "#0B0F19",
+            bgcolor: theme.palette.background.paper,
             backgroundImage:
               "radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent), radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.03), transparent)",
             borderRadius: 4,
-            border: `1px solid ${theme.palette.common.white_alpha.main_08}`,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             maxHeight: "90vh",
             boxShadow: "0 24px 48px -12px rgba(0,0,0,0.5)",
           },
@@ -175,7 +175,7 @@ const AddCustomerDialog = ({
                       <Typography component="div"
                         variant="h6"
                         fontWeight={700}
-                        color="white"
+                        color="text.primary"
                         lineHeight={1.2}
                       >
                         {dict.customers.dialogs.addTitle}
@@ -195,8 +195,8 @@ const AddCustomerDialog = ({
                       color: "text.secondary",
                       bgcolor: theme.palette.common.white_alpha.main_03,
                       "&:hover": {
-                        bgcolor: theme.palette.common.white_alpha.main_08,
-                        color: "white",
+                        bgcolor: theme.palette.action.hover,
+                        color: "text.primary",
                       },
                     }}
                    aria-label="close">
@@ -210,7 +210,7 @@ const AddCustomerDialog = ({
                     mb: 4,
                     px: 1,
                     "& .MuiStepLabel-label": {
-                      color: theme.palette.common.white_alpha.main_30,
+                      color: theme.palette.text.secondary_alpha.main_60,
                       fontWeight: 600,
                       fontSize: "0.7rem",
                       textTransform: "uppercase",
@@ -218,16 +218,16 @@ const AddCustomerDialog = ({
                       mt: 1,
                     },
                     "& .MuiStepLabel-label.Mui-active": {
-                      color: "white",
+                      color: "text.primary",
                     },
                     "& .MuiStepLabel-label.Mui-completed": {
-                      color: theme.palette.common.white_alpha.main_60,
+                      color: theme.palette.text.secondary,
                     },
                     "& .MuiStepIcon-root": {
                       width: 28,
                       height: 28,
-                      color: theme.palette.common.white_alpha.main_05,
-                      border: `1px solid ${theme.palette.common.white_alpha.main_08}`,
+                      color: theme.palette.action.hover,
+                      border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                       borderRadius: "50%",
                       transition: "all 0.3s ease",
                     },
@@ -244,7 +244,7 @@ const AddCustomerDialog = ({
                       fontWeight: 700,
                     },
                     "& .MuiStepConnector-line": {
-                      borderColor: theme.palette.common.white_alpha.main_05,
+                      borderColor: theme.palette.divider_alpha.main_10,
                       borderTopWidth: 2,
                     },
                     "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line":
@@ -274,7 +274,7 @@ const AddCustomerDialog = ({
                 sx={{
                   p: 3,
                   pt: 2,
-                  borderTop: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                  borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
                   justifyContent: "space-between",
                 }}
               >
@@ -285,13 +285,13 @@ const AddCustomerDialog = ({
                       : () => setCurrentStep(currentStep - 1)
                   }
                   sx={{
-                    color: theme.palette.common.white_alpha.main_50,
+                    color: theme.palette.text.secondary,
                     textTransform: "none",
                     fontWeight: 600,
                     px: 3,
                     "&:hover": {
-                      color: "white",
-                      bgcolor: theme.palette.common.white_alpha.main_05,
+                      color: "text.primary",
+                      bgcolor: theme.palette.action.hover,
                     },
                   }}
                 >

@@ -70,7 +70,7 @@ export const RouteDialogHeader = ({
               <Typography
                 variant="h5"
                 fontWeight={800}
-                sx={{ color: "white", letterSpacing: "-0.02em" }}
+                sx={{ color: "text.primary", letterSpacing: "-0.02em" }}
               >
                 {dict.routes.title} #{route.id.slice(-6).toLocaleUpperCase('en-US')}
               </Typography>
@@ -90,7 +90,7 @@ export const RouteDialogHeader = ({
             </Stack>
             <Typography
               variant="body2"
-              color="rgba(255,255,255,0.5)"
+              color="text.secondary"
               sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
             >
               <PlaceIcon sx={{ fontSize: 16 }} />
@@ -172,7 +172,7 @@ export const RouteDialogHeader = ({
                 onClick={() => onStatusChange("CANCELED")}
                 disabled={statusLoading}
                 sx={{
-                  color: theme.palette.common.white_alpha.main_50,
+                  color: theme.palette.text.secondary,
                   "&:hover": {
                     color: theme.palette.error.main,
                     bgcolor: theme.palette.error._alpha.main_05,
@@ -191,10 +191,10 @@ export const RouteDialogHeader = ({
           <IconButton
             onClick={onClose}
             sx={{
-              color: "rgba(255,255,255,0.4)",
+              color: "text.secondary",
               "&:hover": {
-                color: "white",
-                bgcolor: theme.palette.common.white_alpha.main_05,
+                color: "text.primary",
+                bgcolor: theme.palette.action.hover,
               },
             }}
             aria-label="close">

@@ -263,7 +263,7 @@ const BasicInfoSection = () => {
                         },
                       },
                       "& .MuiOutlinedInput-input": {
-                        color: "white",
+                        color: "text.primary",
                       },
                     },
                   },

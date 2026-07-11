@@ -53,12 +53,12 @@ export default function RouteDialogHeader({ route, dict, theme, handleStatusChan
           </Box>
           <Stack spacing={0.5}>
             <Stack direction="row" spacing={1.5} alignItems="center">
-              <Typography variant="h5" fontWeight={800} sx={{ color: "white", letterSpacing: "-0.02em" }}>
+              <Typography variant="h5" fontWeight={800} sx={{ color: "text.primary", letterSpacing: "-0.02em" }}>
                 {dict.routes.title} #{route.id.slice(-6).toLocaleUpperCase('en-US')}
               </Typography>
               <Chip label={statusMeta.label} sx={{ height: 24, fontWeight: 700, fontSize: "0.75rem", bgcolor: statusAlpha.main_10, color: statusColor, border: `1px solid ${statusAlpha.main_20}`, borderRadius: "6px", textTransform: "uppercase" }} />
             </Stack>
-            <Typography variant="body2" color="rgba(255,255,255,0.5)" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <PlaceIcon sx={{ fontSize: 16 }} />
               {route.name || dict.routes.dialogs.deliveryLabel}
             </Typography>
@@ -76,11 +76,11 @@ export default function RouteDialogHeader({ route, dict, theme, handleStatusChan
           {route.status === "ACTIVE" && (
             <>
               <Button variant="contained" onClick={() => handleStatusChange(RouteStatus.COMPLETED)} disabled={statusLoading} startIcon={statusLoading ? <CircularProgress size={16} color="inherit" /> : <CheckCircleIcon sx={{ fontSize: 18 }} />} sx={{ bgcolor: theme.palette.primary.main, "&:hover": { bgcolor: theme.palette.primary.dark }, borderRadius: "10px", textTransform: "none", fontWeight: 600, px: 2, height: 36 }}>{dict.common.complete}</Button>
-              <Button variant="text" onClick={() => handleStatusChange(RouteStatus.CANCELED)} disabled={statusLoading} sx={{ color: paletteTheme.common?.white_alpha?.main_50, "&:hover": { color: theme.palette.error.main, bgcolor: paletteTheme.error?._alpha?.main_05 }, borderRadius: "10px", textTransform: "none", fontWeight: 600, height: 36 }}>{dict.common.cancel}</Button>
+              <Button variant="text" onClick={() => handleStatusChange(RouteStatus.CANCELED)} disabled={statusLoading} sx={{ color: theme.palette.text.secondary, "&:hover": { color: theme.palette.error.main, bgcolor: paletteTheme.error?._alpha?.main_05 }, borderRadius: "10px", textTransform: "none", fontWeight: 600, height: 36 }}>{dict.common.cancel}</Button>
             </>
           )}
 
-          <IconButton onClick={onClose} sx={{ color: "rgba(255,255,255,0.4)", "&:hover": { color: "white", bgcolor: paletteTheme.common?.white_alpha?.main_05 } }} aria-label="close">
+          <IconButton onClick={onClose} sx={{ color: theme.palette.text.secondary, "&:hover": { color: theme.palette.text.primary, bgcolor: theme.palette.action.hover } }} aria-label="close">
             <CloseIcon />
           </IconButton>
         </Stack>

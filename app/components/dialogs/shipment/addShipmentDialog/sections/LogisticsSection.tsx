@@ -49,8 +49,8 @@ const LogisticsSection = ({ warehouses, trailers }: LogisticsSectionProps) => {
               sx={{
                 p: 2,
                 borderRadius: 3,
-                bgcolor: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                bgcolor: (t) => t.palette.action.hover,
+                border: (t) => `1px solid ${t.palette.divider}`,
                 display: "flex",
                 alignItems: "center",
                 gap: 2,

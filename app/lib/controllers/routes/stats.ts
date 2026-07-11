@@ -280,7 +280,10 @@ export const getRoutesWithDashboardData = authenticatedAction(
             },
             stops: { orderBy: { sequence: "asc" } },
           },
-          orderBy: { date: "desc" },
+          orderBy: [
+            { date: "desc" },
+            { id: "desc" },
+          ],
           skip,
           take: pageSize,
         }),

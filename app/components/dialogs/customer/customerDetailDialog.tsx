@@ -128,7 +128,7 @@ const CustomerDetailDialog = ({
           <Box
             sx={{
               p: 3,
-              background: `linear-gradient(135deg, ${theme.palette.primary._alpha.main_05} 0%, #0B0F19 100%)`,
+              background: `linear-gradient(135deg, ${theme.palette.primary._alpha.main_05} 0%, ${theme.palette.background.paper} 100%)`,
               borderBottom: `1px solid ${theme.palette.divider_alpha.main_05}`,
             }}
           >
@@ -157,7 +157,7 @@ const CustomerDetailDialog = ({
                     <Typography
                       variant="h4"
                       fontWeight={700}
-                      sx={{ color: "white" }}
+                      sx={{ color: "text.primary" }}
                     >
                       {customer.name}
                     </Typography>
@@ -198,7 +198,7 @@ const CustomerDetailDialog = ({
                     bgcolor: theme.palette.divider_alpha.main_05,
                     "&:hover": {
                       bgcolor: theme.palette.divider_alpha.main_10,
-                      color: "white",
+                      color: "text.primary",
                     },
                   }}
                  aria-label="close">

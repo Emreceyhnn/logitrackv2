@@ -37,11 +37,11 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
         };
 
         return (
-          <Dialog open={open} onClose={closeDialog} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 4, bgcolor: "#0B1019", backgroundImage: "none", border: `1px solid ${paletteTheme.divider_alpha?.main_10}` } }}>
+          <Dialog open={open} onClose={closeDialog} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 4, bgcolor: theme.palette.background.paper, backgroundImage: "none", border: `1px solid ${paletteTheme.divider_alpha?.main_10}` } }}>
             <Box sx={{ p: 3, pb: 0 }}>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Stack spacing={0.5}>
-                  <Typography component="div" variant="h6" fontWeight={600} color="white">{dict.routes.dialogs.addTitle}</Typography>
+                  <Typography component="div" variant="h6" fontWeight={600} color="text.primary">{dict.routes.dialogs.addTitle}</Typography>
                   <Typography variant="caption" color="text.secondary">{dict.routes.dialogs.addSubtitle}</Typography>
                 </Stack>
                 <IconButton onClick={closeDialog} size="small" sx={{ color: "text.secondary" }} aria-label="close"><CloseIcon fontSize="small" /></IconButton>

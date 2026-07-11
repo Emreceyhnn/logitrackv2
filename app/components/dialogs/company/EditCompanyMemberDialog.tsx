@@ -108,7 +108,7 @@ export default function EditCompanyMemberDialog({
     "& .MuiOutlinedInput-root": {
       bgcolor: theme.palette.background.paper_alpha.main_05,
       borderRadius: 2.5,
-      color: "white",
+      color: theme.palette.text.primary,
       "& fieldset": { borderColor: theme.palette.divider_alpha.main_10 },
       "&:hover fieldset": { borderColor: theme.palette.primary._alpha.main_30 },
       "&.Mui-focused fieldset": { borderColor: theme.palette.primary.main },
@@ -217,7 +217,7 @@ export default function EditCompanyMemberDialog({
                   error={touched.roleId && !!errors.roleId}
                   helperText={
                     mapToStandardRoleId(member.roleId, member.roleName) === "role_driver"
-                      ? "Driver roles must be managed from the Drivers dashboard."
+                      ? dict.company.editMember.driverRoleWarning
                       : touched.roleId && (errors.roleId as string)
                   }
                   sx={textFieldSx}

@@ -418,7 +418,12 @@
     "continue": "Devam Et",
     "unexpectedError": "Beklenmedik bir ağ hatası oluştu.",
     "loginFailed": "Giriş başarısız",
-    "resetLinkSent": "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi!"
+    "resetLinkSent": "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi!",
+    "invalidCredentials": "Geçersiz e-posta veya şifre",
+    "emailExists": "E-posta adresi zaten mevcut",
+    "tooManyAttempts": "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
+    "tooManyAttemptsAccount": "Bu hesap için çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
+    "tooManyRegistrationAttempts": "Bu IP adresinden çok fazla kayıt denemesi. Lütfen bir saat sonra tekrar deneyin."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
@@ -2193,6 +2198,8 @@
       "invitationNote": "Seçilen kullanıcı organizasyonunuza katılmak için davet alacak.",
       "driverDetailsRequired": "Bu rol için sürücü bilgileri gereklidir.",
       "addToCompany": "Şirkete Ekle",
+      "employeeIdHelper": "Şirket tarafından atanan benzersiz kimlik",
+      "phoneHelper": "Sürücü iletişimi için gereklidir",
       "steps": {
         "branding": "Markalama",
         "regional": "Bölgesel",
@@ -2258,7 +2265,8 @@
         "ACTIVE": "Aktif",
         "INACTIVE": "Pasif",
         "SUSPENDED": "Askıya Alındı"
-      }
+      },
+      "driverRoleWarning": "Sürücü rolleri Sürücüler panelinden yönetilmelidir."
     }
   },
   "shipments": {

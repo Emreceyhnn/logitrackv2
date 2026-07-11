@@ -93,7 +93,7 @@ interface ExtendedPalette {
         </Box>
       )}
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} transformOrigin={{ horizontal: "right", vertical: "top" }} anchorOrigin={{ horizontal: "right", vertical: "bottom" }} PaperProps={{ sx: { minWidth: 150, borderRadius: 2, mt: 0.5, boxShadow: "0 4px 20px rgba(0,0,0,0.5)", border: `1px solid ${paletteTheme.divider_alpha?.main_10}`, bgcolor: "#0B0F19" } }}>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} transformOrigin={{ horizontal: "right", vertical: "top" }} anchorOrigin={{ horizontal: "right", vertical: "bottom" }} PaperProps={{ sx: { minWidth: 150, borderRadius: 2, mt: 0.5, boxShadow: "0 4px 20px rgba(0,0,0,0.5)", border: `1px solid ${paletteTheme.divider_alpha?.main_10}`, bgcolor: theme.palette.background.paper } }}>
         <MenuItem onClick={() => handleAction("details")}><ListItemIcon><InfoIcon fontSize="small" color="info" /></ListItemIcon><ListItemText primary={dict.customers.actions.details} primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} /></MenuItem>
         <MenuItem onClick={() => handleAction("edit")}><ListItemIcon><EditIcon fontSize="small" /></ListItemIcon><ListItemText primary={dict.customers.actions.edit} primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} /></MenuItem>
         <Divider sx={{ my: 0.5, borderColor: paletteTheme.divider_alpha?.main_10 }} />
