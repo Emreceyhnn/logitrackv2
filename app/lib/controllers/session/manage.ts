@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { db } from "../../db";
 import { redis } from "../../redis";
+import { revokedTokenKey, REVOCATION_TTL_SECONDS } from "./internal";
 import { logger } from "../../logger";
 
 /**
@@ -25,7 +26,15 @@ export async function revokeSession(sessionId: string): Promise<void> {
   });
 
   if (session?.token) {
-    await redis.del(`session:${session.token}`).catch(() => {});
+    // Drop the cached session and add the token hash to the revocation
+    // denylist so the JWT-only hot path (getAuthenticatedUser) rejects it
+    // immediately instead of waiting for the access token to expire.
+    await Promise.all([
+      redis.del(`session:${session.token}`).catch(() => {}),
+      redis
+        .set(revokedTokenKey(session.token), "1", { ex: REVOCATION_TTL_SECONDS })
+        .catch(() => {}),
+    ]);
   }
 }
 
@@ -45,7 +54,12 @@ export async function revokeAllUserSessions(userId: string): Promise<void> {
 
   for (const s of activeSessions) {
     if (s.token) {
-      await redis.del(`session:${s.token}`).catch(() => {});
+      await Promise.all([
+        redis.del(`session:${s.token}`).catch(() => {}),
+        redis
+          .set(revokedTokenKey(s.token), "1", { ex: REVOCATION_TTL_SECONDS })
+          .catch(() => {}),
+      ]);
     }
   }
 }

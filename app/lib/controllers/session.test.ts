@@ -250,8 +250,10 @@ describe("Session Controller", () => {
   });
 
   describe("revokeSession() metodu", () => {
-    it("should_MarkSessionAsRevoked_AndRemoveFromRedis", async () => {
+    it("should_MarkSessionAsRevoked_RemoveFromRedis_AndDenylistToken", async () => {
       // Arrange
+      redisMock.del.mock.resetCalls();
+      redisMock.set.mock.resetCalls();
       dbMock.session.findUnique.mock.mockImplementation(async () => ({
         token: "hashed-token",
       }));
@@ -260,10 +262,17 @@ describe("Session Controller", () => {
       // Act
       await sessionController.revokeSession("session-1");
 
-      // Assert
+      // Assert — DB flag set, cache dropped, token added to revocation denylist
       expect(dbMock.session.updateMany.mock.calls.length).toBe(1);
-      expect(redisMock.del.mock.calls.length).toBe(1);
       expect(redisMock.del.mock.calls[0].arguments[0]).toBe("session:hashed-token");
+
+      const denylistCall = redisMock.set.mock.calls.find(
+        (c: { arguments: unknown[] }) =>
+          c.arguments[0] === "revoked:token:hashed-token"
+      );
+      expect(denylistCall).toBeDefined();
+      // TTL is set so the entry auto-expires with the token
+      expect(denylistCall.arguments[2]).toHaveProperty("ex");
     });
   });
 
