@@ -64,7 +64,7 @@ describe("Rate Limiter Utils", () => {
     expect(result.remaining).toBe(0); // Kalan hak eksiye düşmemeli, 0 kalmalı
   });
 
-  it("should fail-open (allow) if redis throws an error (Redis çökerse sistemi kilitlememeli)", async () => {
+  it("should fall back to in-memory counting if redis throws an error (Redis çökerse in-memory sayaca geçmeli)", async () => {
     // Redis sunucusunun hata verdiğini veya çöktüğünü simüle ediyoruz
     mock.method(redis, "pipeline", () => {
       throw new Error("Redis connection timeout");
@@ -72,9 +72,10 @@ describe("Rate Limiter Utils", () => {
 
     const result = await rateLimit("192.168.1.1", 5, 60);
 
-    // "Fail-Open" stratejisi gereği, eğer Redis çökerse kullanıcıları engellememeliyiz.
-    // Yoksa tüm sistem durur. Bu yüzden success: true dönmeli.
+    // Redis çökünce sistem kilitlenmemeli (istek kabul edilmeli), ama tamamen
+    // korumasız da kalmamalı: in-memory fallback sayacı bu isteği sayar,
+    // dolayısıyla remaining 5 değil 4 olur.
     expect(result.success).toBe(true);
-    expect(result.remaining).toBe(5);
+    expect(result.remaining).toBe(4);
   });
 });

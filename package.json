@@ -16,6 +16,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:status": "prisma migrate status",
     "test": "node scripts/run-tests.mjs",
+    "test:live": "node scripts/run-tests.mjs --live",
     "test:single": "dotenv -c -- tsx --import global-jsdom/register --experimental-test-module-mocks --test-force-exit --test",
     "prepare": "husky"
   },

@@ -102,6 +102,7 @@ const mockAlpha = { main_03: "rgba()", main_05: "rgba()", main_08: "rgba()", mai
 (customTheme.palette as unknown).divider_alpha = mockAlpha;
 (customTheme.palette.background as unknown).default_alpha = mockAlpha;
 (customTheme.palette.common as unknown) = { white_alpha: mockAlpha };
+(customTheme.palette.text as unknown as { secondary_alpha: typeof mockAlpha }).secondary_alpha = mockAlpha;
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);

@@ -6,7 +6,8 @@ const withBundleAnalyzer = createBundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  // output: "standalone",
+  // Required by `npm start`, which runs `.next/standalone/server.js`.
+  output: "standalone",
 
   // ── Security & Transport ────────────────────────────────────────────────
   poweredByHeader: false, // Remove X-Powered-By header (security)

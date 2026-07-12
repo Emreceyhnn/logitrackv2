@@ -19,8 +19,10 @@
  * a single hung test file fails that shard instead of stalling the whole run.
  *
  * Usage:
- *   node scripts/run-tests.mjs              # run everything
+ *   node scripts/run-tests.mjs              # run all unit tests (no *.live.test.*)
  *   node scripts/run-tests.mjs app/api      # only files under a path substring
+ *   node scripts/run-tests.mjs --live       # run *.live.test.* integration tests
+ *                                           # (real services, no jsdom)
  */
 
 import { spawn } from "node:child_process";
@@ -68,15 +70,23 @@ const CONCURRENCY = Math.max(2, Math.min(os.cpus().length - 1, 3));
  */
 const BATCH_TIMEOUT_MS = 120_000;
 
+/**
+ * Live-integration tests (`*.live.test.ts[x]`) talk to real services
+ * (Firebase, Redis) and need real credentials, so they are excluded from the
+ * default run and executed via `--live` instead — without jsdom, because
+ * firebase-admin's token fetch breaks under a fake browser environment
+ * ("fetchImpl is not a function") and its RTDB client then retries forever.
+ */
+const args = process.argv.slice(2);
+const liveMode = args.includes("--live");
+const filterArg = args.find((a) => a !== "--live");
+
 const TSX_ARGS = [
-  "--import",
-  "global-jsdom/register",
+  ...(liveMode ? [] : ["--import", "global-jsdom/register"]),
   "--experimental-test-module-mocks",
   "--test-force-exit",
   "--test",
 ];
-
-const filterArg = process.argv[2];
 
 /** Recursively collect *.test.ts / *.test.tsx paths. */
 async function collectTests(dir) {
@@ -93,6 +103,7 @@ async function collectTests(dir) {
       if (entry.name === "node_modules" || entry.name === ".next") continue;
       out.push(...(await collectTests(full)));
     } else if (/\.test\.tsx?$/.test(entry.name)) {
+      if (/\.live\.test\.tsx?$/.test(entry.name) !== liveMode) continue;
       out.push(full);
     }
   }
@@ -113,12 +124,17 @@ function runBatch(files, index) {
   return new Promise((resolve) => {
     // Spawn `node <tsx-cli> <flags> <files>` directly. No shell, no npx, so no
     // Windows .cmd quirks; env (loaded above) is inherited by the child.
+    // `detached` puts the child in its own process group so the timeout can
+    // kill the WHOLE tree. tsx re-execs node: killing only the direct child
+    // leaves that grandchild alive holding the stdio pipes, which is why the
+    // old close-based version could deadlock the pool on a hung test.
     const child = spawn(
       process.execPath,
       [TSX_CLI, ...TSX_ARGS, ...files],
       {
         cwd: ROOT,
         stdio: ["ignore", "pipe", "pipe"],
+        detached: process.platform !== "win32",
       }
     );
 
@@ -127,14 +143,37 @@ function runBatch(files, index) {
     child.stdout.on("data", (d) => (stdout += d));
     child.stderr.on("data", (d) => (stderr += d));
 
+    const killTree = () => {
+      if (process.platform === "win32") {
+        spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"]);
+      } else {
+        try {
+          process.kill(-child.pid, "SIGKILL"); // negative pid = process group
+        } catch {
+          child.kill("SIGKILL");
+        }
+      }
+    };
+
     const timer = setTimeout(() => {
-      child.kill("SIGKILL");
+      killTree();
       stderr += `\n[run-tests] batch ${index} exceeded ${BATCH_TIMEOUT_MS}ms and was killed.\n`;
     }, BATCH_TIMEOUT_MS);
 
-    child.on("close", (code) => {
+    // Normally resolve on `close` (all output flushed). But `close` waits for
+    // the stdio pipes, which a surviving grandchild can hold open indefinitely
+    // — so after `exit`, give the pipes a short grace period and then resolve
+    // regardless, so one hung tree can never deadlock the worker pool.
+    let settled = false;
+    const settle = (code) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       resolve({ index, code: code ?? 1, stdout, stderr, files });
+    };
+    child.on("close", (code) => settle(code));
+    child.on("exit", (code) => {
+      setTimeout(() => settle(code), 2_000).unref();
     });
   });
 }
