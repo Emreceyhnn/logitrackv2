@@ -128,3 +128,17 @@ export function generateRefreshToken(): string {
 export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
+
+// ─── Revocation denylist ──────────────────────────────────────────────────────
+// `getAuthenticatedUser` (auth-middleware) authenticates on the JWT signature
+// alone — it never hits the DB — so a revoked session's still-unexpired access
+// token would otherwise keep working until it expires (up to ACCESS_TOKEN_MAX_AGE).
+// Revocation writes the token's hash to this Redis denylist with a TTL equal to
+// the max token lifetime, and the hot path checks it with a single GET. The
+// entry auto-expires exactly when the token could no longer be valid anyway, so
+// the denylist never grows unbounded.
+export const revokedTokenKey = (tokenHash: string): string =>
+  `revoked:token:${tokenHash}`;
+
+/** TTL (seconds) for a denylist entry — the longest an access token can live. */
+export const REVOCATION_TTL_SECONDS = ACCESS_TOKEN_MAX_AGE;

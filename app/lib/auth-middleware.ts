@@ -2,10 +2,16 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { headers, cookies } from "next/headers";
 import { jwtVerify } from "jose";
-import { getJwtSecret, type SessionJWTPayload } from "./controllers/session/internal";
+import {
+  getJwtSecret,
+  hashToken,
+  revokedTokenKey,
+  type SessionJWTPayload,
+} from "./controllers/session/internal";
 import { DEFAULT_LOCALE, LOCALES } from "./constants";
 import { runWithTenant } from "./tenant-context";
 import { rateLimit } from "./rate-limiter";
+import { redis } from "./redis";
 import { logger } from "@/app/lib/logger";
 import { RateLimitError } from "./errors";
 
@@ -43,6 +49,19 @@ export const getAuthenticatedUser = cache(
       const sessionUser = payload as SessionJWTPayload;
 
       if (!sessionUser || !sessionUser.id) return null;
+
+      // Reject tokens whose session was revoked (logout, admin deactivation,
+      // password change) before they expire. One Redis GET, and getAuthenticatedUser
+      // is React-cached so it runs at most once per request. Fail-open on a Redis
+      // error: the token is still signature-valid and short-lived, and failing
+      // closed would log everyone out during a transient Redis blip — matching
+      // the app's existing Redis-optional posture.
+      try {
+        const revoked = await redis.get(revokedTokenKey(hashToken(token)));
+        if (revoked) return null;
+      } catch (err) {
+        logger.warn("[getAuthenticatedUser] revocation check failed (fail-open)", err);
+      }
 
       return {
         id: sessionUser.id,
