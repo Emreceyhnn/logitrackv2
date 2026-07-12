@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import "@/app/style/globals.css";
 import Providers from "@/app/lib/theme/themeProviders";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getDictionary } from "@/app/lib/language/language";
 import { DictionaryProvider } from "@/app/lib/language/DictionaryContext";
 
-const poppins = {
-  variable: "font-poppins",
-};
+// Self-hosted, preloaded, and exposed as the `--font-poppins` CSS variable
+// consumed by globals.css. `display: "swap"` keeps text visible during load;
+// the weight subset covers the actual usage (regular → black) instead of the
+// full 100–900 range the old Google Fonts @import pulled.
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-poppins",
+});
 
 export async function generateStaticParams() {
   return [{ lang: "tr" }, { lang: "en" }];

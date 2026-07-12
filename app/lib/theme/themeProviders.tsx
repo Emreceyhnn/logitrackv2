@@ -50,7 +50,7 @@ function resolveMode(stored: StoredMode): ThemeMode {
   return stored;
 }
 
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import { logger } from "@/app/lib/logger";
 
 
@@ -62,6 +62,11 @@ export default function Providers({
   initialMode?: StoredMode;
 }) {
   const { user } = useOptionalUserContext();
+  // `storedMode` is the user's *preference* ("light" | "dark" | "system");
+  // `mode` is the resolved value actually applied to the theme. Keeping the
+  // preference in state lets a single effect own the OS-preference listener,
+  // so switching to/from "system" adds and removes exactly one listener.
+  const [storedMode, setStoredMode] = useState<StoredMode>(initialMode || "dark");
   const [mode, setModeState] = useState<ThemeMode>(() => resolveMode(initialMode || "dark"));
   const theme = useMemo(() => getTheme(mode), [mode]);
   const params = useParams();
@@ -75,40 +80,44 @@ export default function Providers({
     }
   }, [user?.timezone]);
 
-  // Hydrate from localStorage after mount (avoids SSR mismatch)
+  // Hydrate the stored preference from localStorage/cookie after mount. Done
+  // here (not during SSR) so marketing pages stay static and there is no
+  // hydration mismatch — SSR always renders the "dark" default.
   useEffect(() => {
-    const stored = getSavedStoredMode();
-    const modeToUse = initialMode || stored;
-    const resolved = resolveMode(modeToUse);
-    
-    // Defer state update to avoid cascading render warning
-    queueMicrotask(() => {
-      setModeState((prev) => (prev !== resolved ? resolved : prev));
-    });
-
-    // If system mode, listen for OS preference changes
-    if (stored === "system") {
-      const mq = window.matchMedia("(prefers-color-scheme: dark)");
-      const handler = (e: MediaQueryListEvent) =>
-        setModeState(e.matches ? "dark" : "light");
-      mq.addEventListener("change", handler);
-      return () => mq.removeEventListener("change", handler);
-    }
-    return undefined;
+    const stored = initialMode || getSavedStoredMode();
+    setStoredMode(stored);
   }, [initialMode]);
+
+  // Single owner of the resolved mode + the OS-preference listener. Re-runs
+  // whenever the preference changes: for "system" it attaches a matchMedia
+  // listener and its cleanup removes it before the next run/unmount, so no
+  // stale listener survives a switch away from system.
+  useEffect(() => {
+    setModeState(resolveMode(storedMode));
+
+    if (storedMode !== "system" || typeof window === "undefined") return undefined;
+
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) =>
+      setModeState(e.matches ? "dark" : "light");
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [storedMode]);
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setMode = useCallback((newMode: ThemeMode | "system") => {
-    // Skip if the value in localStorage is already the same (prevents duplicate calls)
-    const currentStored = typeof window !== "undefined"
-      ? localStorage.getItem(THEME_STORAGE_KEY)
-      : null;
-    if (currentStored === newMode) {
-      // Still update visual state in case SSR/client mismatch
-      setModeState(resolveMode(newMode as StoredMode));
-      return;
-    }
+    const nextStored = newMode as StoredMode;
+
+    // Drive the resolved mode + listener through the single effect above.
+    setStoredMode(nextStored);
+
+    // Skip the persistence round-trip if the preference is unchanged.
+    const currentStored =
+      typeof window !== "undefined"
+        ? localStorage.getItem(THEME_STORAGE_KEY)
+        : null;
+    if (currentStored === newMode) return;
 
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newMode);
@@ -123,17 +132,13 @@ export default function Providers({
         logger.error("Redis theme sync error", err)
       );
     }, 600);
+  }, []);
 
-    const resolved = resolveMode(newMode as StoredMode);
-    setModeState(resolved);
-
-    // If switching to system, start listening
-    if (newMode === "system" && typeof window !== "undefined") {
-      const mq = window.matchMedia("(prefers-color-scheme: dark)");
-      const handler = (e: MediaQueryListEvent) =>
-        setModeState(e.matches ? "dark" : "light");
-      mq.addEventListener("change", handler);
-    }
+  // Clear any pending debounced save on unmount.
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
   }, []);
 
   return (

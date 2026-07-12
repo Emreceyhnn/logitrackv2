@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
-
-:root {
-  --font-poppins: 'Poppins', sans-serif;
-}
+/*
+ * Poppins is loaded via `next/font/google` in app/[lang]/layout.tsx, which
+ * self-hosts the files, preloads them, and exposes them through the
+ * `--font-poppins` CSS variable. The old `@import url(fonts.googleapis.com)`
+ * was render-blocking, created a request waterfall, and pulled all 9 weights;
+ * next/font eliminates the external request and the font-swap layout shift.
+ */
 
 *,
 *::before,
