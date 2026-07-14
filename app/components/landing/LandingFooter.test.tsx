@@ -1,4 +1,3 @@
- 
 import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -26,31 +25,41 @@ const useDictionaryMock = mock.fn(() => ({
         devDocs: "Dev Docs",
         helpCenter: "Help Center",
         privacy: "Privacy",
-        sla: "SLA"
+        sla: "SLA",
       },
       description: "Footer Desc",
       rights: "Rights Reserved",
-      status: "System Status"
-    }
-  }
+      status: "System Status",
+    },
+  },
 }));
 
-mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", {
+  namedExports: { useDictionary: useDictionaryMock },
+});
 
 mock.module("@mui/material", {
   namedExports: {
     Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
-    Container: (props: Record<string, unknown>) => ({ type: "Container", props }),
+    Container: (props: Record<string, unknown>) => ({
+      type: "Container",
+      props,
+    }),
     Divider: (props: Record<string, unknown>) => ({ type: "Divider", props }),
     Grid: (props: Record<string, unknown>) => ({ type: "Grid", props }),
     Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
-    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
-    Link: (props: Record<string, unknown>) => ({ type: "MuiLink", props })
-  }
+    Typography: (props: Record<string, unknown>) => ({
+      type: "Typography",
+      props,
+    }),
+    Link: (props: Record<string, unknown>) => ({ type: "MuiLink", props }),
+  },
 });
 
-mock.module("@mui/icons-material/LinkedIn", { defaultExport: () => ({ type: "LinkedInIcon" }) });
-mock.module("@mui/icons-material/Twitter", { defaultExport: () => ({ type: "TwitterIcon" }) });
+mock.module("@mui/icons-material/LinkedIn", {
+  defaultExport: () => ({ type: "LinkedInIcon" }),
+});
+
 mock.module("next/image", { defaultExport: () => ({ type: "Image" }) });
 
 describe("LandingFooter Component", () => {

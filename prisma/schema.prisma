@@ -84,6 +84,7 @@ model User {
   driver                 Driver?
   inventoryMovements     InventoryMovement[]
   sessions               Session[]
+  subscription           Subscription?
   shipmentHistoryEntries ShipmentHistory[]   @relation("ShipmentHistoryCreatedBy")
   company                Company?            @relation(fields: [companyId], references: [id], onDelete: Restrict)
   role                   Role?               @relation(fields: [roleId], references: [id], onDelete: Restrict)
@@ -719,6 +720,66 @@ model TrailerAssignment {
   @@index([vehicleId, assignedAt])
   @@index([companyId])
   @@map("trailer_assignments")
+}
+
+// Public, tenant-agnostic lead capture from the landing "Request a Demo" form.
+// Intentionally has NO companyId: submissions arrive from anonymous visitors
+// before any tenant/company exists, so this model sits OUTSIDE the tenant-guard
+// Prisma extension and must never be queried through a company-scoped context.
+model DemoRequest {
+  id        String            @id @default(cuid())
+  fullName  String
+  email     String
+  company   String?
+  message   String?
+  // Distinguishes a demo request (from a "Request a Demo" CTA) from a plain
+  // contact-form message, so the two don't get mixed up in the same table.
+  type      DemoRequestType   @default(CONTACT)
+  status    DemoRequestStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  // Serves the "does this email have an approved demo?" CTA-gating lookup.
+  @@index([email, status])
+  @@index([type, status])
+  @@map("demo_requests")
+}
+
+enum DemoRequestType {
+  DEMO
+  CONTACT
+}
+
+enum DemoRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Per-user access entitlement. Gates company creation and dashboard access.
+// NOT a tenant model (no companyId): it exists before a company does and is
+// keyed on the user. Managed manually for now (no payment integration) — an
+// approved demo request opens a 7-day TRIAL; ACTIVE is set by hand.
+model Subscription {
+  id               String             @id @default(cuid())
+  userId           String             @unique
+  status           SubscriptionStatus @default(NONE)
+  plan             String?
+  trialEndsAt      DateTime?
+  currentPeriodEnd DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  NONE
+  TRIAL
+  ACTIVE
+  EXPIRED
 }
 
 enum UserStatus {

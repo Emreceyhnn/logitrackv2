@@ -11,13 +11,13 @@ export default function SocialProof() {
   const dict = useDictionary();
 
   const partners = [
-    { name: "TRANS-GLOBAL", icon: <ApartmentIcon sx={{ fontSize: 32 }} /> },
-    { name: "ORBIT-X", icon: <RocketLaunchIcon sx={{ fontSize: 32 }} /> },
+    { name: "LUMEN-FLOW", icon: <ApartmentIcon sx={{ fontSize: 32 }} /> },
+    { name: "NEXUS-GRID", icon: <RocketLaunchIcon sx={{ fontSize: 32 }} /> },
     {
-      name: "CORE-TECH",
+      name: "VELO-SYNC",
       icon: <PrecisionManufacturingIcon sx={{ fontSize: 32 }} />,
     },
-    { name: "EURO-FREIGHT", icon: <PublicIcon sx={{ fontSize: 32 }} /> },
+    { name: "AERO-SHIFT", icon: <PublicIcon sx={{ fontSize: 32 }} /> },
   ];
 
   return (

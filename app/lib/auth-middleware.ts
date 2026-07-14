@@ -14,6 +14,7 @@ import { rateLimit } from "./rate-limiter";
 import { redis } from "./redis";
 import { logger } from "@/app/lib/logger";
 import { RateLimitError } from "./errors";
+import type { AccessStatus } from "./entitlement";
 
 export type AuthenticatedUser = {
   id: string;
@@ -34,6 +35,8 @@ export type AuthenticatedUser = {
   notifEmailWeekly: boolean;
   notifPushAssignment: boolean;
   notifPushDelay: boolean;
+  accessStatus: AccessStatus;
+  trialEndsAt: number | null;
 };
 
 export const getAuthenticatedUser = cache(
@@ -82,6 +85,11 @@ export const getAuthenticatedUser = cache(
         notifEmailWeekly: sessionUser.notifEmailWeekly ?? false,
         notifPushAssignment: sessionUser.notifPushAssignment ?? true,
         notifPushDelay: sessionUser.notifPushDelay ?? true,
+        accessStatus: (sessionUser.accessStatus as AccessStatus) ?? "NONE",
+        trialEndsAt:
+          typeof sessionUser.trialEndsAt === "number"
+            ? sessionUser.trialEndsAt
+            : null,
       };
     } catch (error) {
       if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {

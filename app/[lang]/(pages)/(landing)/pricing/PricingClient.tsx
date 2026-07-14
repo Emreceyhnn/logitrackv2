@@ -14,9 +14,11 @@ import {
   useTheme,
 } from "@mui/material";
 import { keyframes } from "@mui/system";
+import Link from "next/link";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
-import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -29,10 +31,17 @@ const glow = keyframes`
   100% { box-shadow: 0 0 20px #38bdf833; }
 `;
 
-export default function PricingClient() {
+export default function PricingClient({
+  lang = "tr",
+  showAccessNotice = false,
+}: {
+  lang?: string;
+  showAccessNotice?: boolean;
+}) {
   const theme = useTheme();
   const [isYearly, setIsYearly] = useState(false);
   const dict = useDictionary();
+  const contactHref = `/${lang}${getLocalizedPath("/contact", lang)}?type=demo`;
 
   const pricingTiers = [
     {
@@ -98,6 +107,27 @@ export default function PricingClient() {
           pb: { xs: 12, md: 20 },
         }}
       >
+        {showAccessNotice && (
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+            sx={{
+              mb: 5,
+              p: 2,
+              borderRadius: 3,
+              bgcolor: "rgba(251, 191, 36, 0.08)",
+              border: "1px solid rgba(251, 191, 36, 0.35)",
+              animation: `${fadeIn} 0.5s ease-out`,
+            }}
+          >
+            <InfoOutlinedIcon sx={{ color: "#fbbf24" }} />
+            <Typography variant="body2" sx={{ color: "#fde68a", fontWeight: 600 }}>
+              {dict.landing.pricing.accessNotice}
+            </Typography>
+          </Stack>
+        )}
+
         <Stack spacing={4} alignItems="center" textAlign="center" mb={10} sx={{ animation: `${fadeIn} 0.8s ease-out` }}>
           <Chip
             label={dict.landing.pricing.badge}
@@ -227,6 +257,8 @@ export default function PricingClient() {
 
                 <Button
                   fullWidth
+                  component={Link}
+                  href={contactHref}
                   variant={tier.highlight ? "contained" : "outlined"}
                   sx={{
                     py: 1.5,
@@ -248,36 +280,7 @@ export default function PricingClient() {
           ))}
         </Grid>
 
-        <Box
-          sx={{
-            mt: 15,
-            p: { xs: 5, md: 8 },
-            borderRadius: 8,
-            border: `1px solid ${theme.palette.kpi.cyan_alpha.main_20}`,
-            background: "linear-gradient(135deg, #1e293b66 0%, #1e293b1a 100%)",
-            textAlign: "center",
-          }}
-        >
-          <Stack spacing={3} alignItems="center">
-            <BoltRoundedIcon sx={{ fontSize: 48, color: "#38bdf8" }} />
-            <Typography variant="h4" component="h2" fontWeight={900}>
-              {dict.landing.pricing.infrastructure.title}
-            </Typography>
-            <Typography variant="body1" sx={{ color: theme.palette.kpi.slateLight_alpha.main_70, maxWidth: 800, mx: "auto", lineHeight: 1.8 }}>
-              {dict.landing.pricing.infrastructure.description}
-            </Typography>
-            <Button
-              variant="text"
-              sx={{
-                color: "#38bdf8",
-                fontWeight: 700,
-                "&:hover": { background: theme.palette.kpi.cyan_alpha.main_10 }
-              }}
-            >
-              {dict.landing.pricing.infrastructure.cta}
-            </Button>
-          </Stack>
-        </Box>
+
       </Container>
 
 

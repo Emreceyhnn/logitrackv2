@@ -1,13 +1,47 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
+import { hasDashboardAccess } from "@/app/lib/actions/demoRequest";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import LoginIcon from "@mui/icons-material/Login";
 import { motion } from "framer-motion";
 
 export default function HeroSection() {
   const dict = useDictionary();
+  const params = useParams();
+  const lang = (params?.lang as string) || "tr";
+
+  // CTA gating: only a signed-in user with dashboard access (active plan or a
+  // live trial) sees the "Start" CTA into onboarding. Everyone else sees
+  // "Sign In" + "Request a Demo". Resolved client-side so the hero itself stays
+  // server-rendered for LCP/SEO.
+  const [access, setAccess] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    hasDashboardAccess()
+      .then((ok) => {
+        if (active) setAccess(ok);
+      })
+      .catch(() => {
+        if (active) setAccess(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Hero's outlined button is an explicit "Request a Demo" CTA, so it tags the
+  // resulting DB row as a demo request via ?type=demo.
+  const contactHref = `/${lang}${getLocalizedPath("/contact", lang)}?type=demo`;
+  const signInHref = `/${lang}${getLocalizedPath("/auth/sign-in", lang)}`;
+  const onboardingHref = `/${lang}${getLocalizedPath("/onboarding", lang)}`;
 
   return (
     <Box
@@ -211,25 +245,52 @@ export default function HeroSection() {
               spacing={3}
               sx={{ mt: 2 }}
             >
-              <Button
-                variant="contained"
-                sx={{
-                  bgcolor: "#00f2ff",
-                  color: "#00363a",
-                  px: 5,
-                  py: 1.5,
-                  fontWeight: 900,
-                  fontSize: "0.875rem",
-                  "&:hover": {
-                    bgcolor: "white",
-                    boxShadow: "0 0 40px rgba(0, 242, 255, 0.3)",
-                  },
-                }}
-              >
-                {dict.landing.hero.startTrial}
-              </Button>
+              {access ? (
+                <Button
+                  variant="contained"
+                  component={Link}
+                  href={onboardingHref}
+                  sx={{
+                    bgcolor: "#00f2ff",
+                    color: "#00363a",
+                    px: 5,
+                    py: 1.5,
+                    fontWeight: 900,
+                    fontSize: "0.875rem",
+                    "&:hover": {
+                      bgcolor: "white",
+                      boxShadow: "0 0 40px rgba(0, 242, 255, 0.3)",
+                    },
+                  }}
+                >
+                  {dict.landing.hero.startTrial}
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  component={Link}
+                  href={signInHref}
+                  startIcon={<LoginIcon />}
+                  sx={{
+                    bgcolor: "#00f2ff",
+                    color: "#00363a",
+                    px: 5,
+                    py: 1.5,
+                    fontWeight: 900,
+                    fontSize: "0.875rem",
+                    "&:hover": {
+                      bgcolor: "white",
+                      boxShadow: "0 0 40px rgba(0, 242, 255, 0.3)",
+                    },
+                  }}
+                >
+                  {dict.landing.hero.signIn}
+                </Button>
+              )}
               <Button
                 variant="outlined"
+                component={Link}
+                href={contactHref}
                 startIcon={<PlayCircleOutlineIcon />}
                 sx={{
                   color: "white",

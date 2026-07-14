@@ -454,6 +454,10 @@
         "title": "Nasıl Çalışır",
         "description": "LogiTrack'in uçtan uca lojistik operasyonlarını nasıl yönettiğini görün."
       },
+      "contact": {
+        "title": "İletişim & Demo Talebi",
+        "description": "Ekibimizle iletişime geçin, canlı bir demo talep edin. Uzmanlarımız kısa sürede size dönüş yapar."
+      },
       "enterprise": {
         "title": "Kurumsal Çözümler",
         "description": "Küresel operasyon ölçeği için özel altyapı ve uçtan uca destekli devreye alma ile tasarlandı."
@@ -522,12 +526,13 @@
     "hero": {
       "badge": "Yapay zeka lojistik kontrol kulesi",
       "trusted": "Dünya çapında güveniliyor",
-      "titleMain": "Her sevkiyatı canlı zeka ile yönetin.",
-      "titleHighlight": "Mutlak Şeffaflık.",
+      "titleMain": "Her sevkiyatı canlı zeka ile yönetin",
+      "titleHighlight": "Mutlak Şeffaflık",
       "description": "Sevkiyatı, filoları ve müşteri sözlerini tek bir etkileyici panelde senkronize edin. Sorunları gerçekleşmeden önce tahmin edin ve rotaları yapay zeka ile optimize edin.",
       "discover": "Keşfet",
       "startTrial": "Denemeyi Başlat",
       "demo": "Demo İste",
+      "signIn": "Giriş Yap",
       "metrics": {
         "activeRoutes": "Aktif Rotalar",
         "vehicles": "Araçlar",
@@ -535,6 +540,27 @@
         "slaTrend": "Son 30 günde +%14",
         "predictiveEtaReady": "Tahmin Edici ETA Hazır",
         "lastUpdate": "Son güncelleme 45 saniye önce"
+      }
+    },
+    "contactPage": {
+      "badge": "İletişim",
+      "title": "Bize Ulaşın",
+      "subtitle": "Canlı bir demo talep edin veya sorularınızı iletin. Ekibimiz en kısa sürede size dönüş yapacaktır",
+      "form": {
+        "fullName": "Ad Soyad",
+        "email": "E-posta",
+        "company": "Şirket",
+        "message": "Mesajınız",
+        "messagePlaceholder": "Nasıl yardımcı olabiliriz? Kısaca ihtiyacınızı yazın.",
+        "submit": "Talebi Gönder",
+        "submitting": "Gönderiliyor..."
+      },
+      "success": "Talebiniz alındı. En kısa sürede sizinle iletişime geçeceğiz.",
+      "error": "Talep gönderilemedi. Lütfen tekrar deneyin.",
+      "validation": {
+        "fullNameRequired": "Ad soyad gereklidir",
+        "emailRequired": "E-posta gereklidir",
+        "emailInvalid": "Geçerli bir e-posta adresi girin"
       }
     },
     "operations": {
@@ -588,7 +614,7 @@
     },
     "features": {
       "overline": "Temel Özellikler",
-      "title": "Uçtan uca görünürlük için ihtiyacınız olan her şey.",
+      "title": "Uçtan uca görünürlük için ihtiyacınız olan her şey",
       "description": "Karmaşık lojistik operasyonları için tasarlanmış akıllı iş akışlarıyla sevkiyatı, sürücüleri ve müşteri güncellemelerini koordine edin.",
       "smartRoute": {
         "title": "Akıllı Rota Planlama",
@@ -609,10 +635,10 @@
     },
     "workflow": {
       "step": "Adım",
-      "title1": "Filonuzu Bağlayın",
-      "desc1": "Telematik, TMS ve WMS veri kaynaklarını dakikalar içinde hazır konektörlerle entegre edin.",
+      "title1": "Filonuzu Ekleyin",
+      "desc1": "Araçlarınızı platforma ekleyin, teknik takip entegrasyonu ve veri bağlantıları uzman ekibimiz tarafından sizin adınıza yapılandırılsın.",
       "title2": "Operasyonları Görselleştirin",
-      "desc2": "Uyarlanabilir paneller ve ısı haritalarıyla her sevkiyatı ve varlığı gerçek zamanlı izleyin.",
+      "desc2": "Uyarlanabilir paneller ve raporlamalar ile her sevkiyatı ve varlığı gerçek zamanlı izleyin.",
       "title3": "Kararları Otomatikleştirin",
       "desc3": "Sorunlar büyümeden önce proaktif iş akışlarını, uyarıları ve müşteri güncellemelerini tetikleyin.",
       "title4": "Rotaları Optimize Edin",
@@ -628,7 +654,7 @@
       "trial": "Ücretsiz Denemeye Başla",
       "sales": "Satışla Konuş"
     },
-    "trusted": "Sektör liderleri tarafından güveniliyor",
+    "trusted": "Modern operasyonlara güç veriyor",
     "trustedLogos": [
       "Global Kargo",
       "Okyanus Lojistik",
@@ -638,7 +664,8 @@
     ],
     "pricing": {
       "badge": "Fiyatlandırma Planları",
-      "title": "Öngörülemeyen Lojistik İçin <br /> Öngörülebilir Fiyatlandırma.",
+      "accessNotice": "Deneme sürenin süresi doldu veya aktif bir erişimin yok. Devam etmek için bir demo talep et ya da bizimle iletişime geç.",
+      "title": "Öngörülemeyen Lojistik İçin <br /> Öngörülebilir Fiyatlandırma",
       "monthly": "Aylık",
       "yearly": "Yıllık",
       "save": "20% Tasarruf Edin",
@@ -687,7 +714,7 @@
       },
       "infrastructure": {
         "title": "Kurumsal Düzeyde Güvenlik ve Performans",
-        "description": "Ayda 10.000'den fazla rotaya mı ihtiyacınız var? Küresel altyapımız saniyede milyonlarca telemetri olayını %99,99 çalışma süresiyle işler. Özel entegrasyon çözümleri ve hacme dayalı fiyatlandırma için mühendislik ekibimizle iletişime geçin.",
+        "description": "Aylık 10.000 rotadan fazlasına mı ihtiyacınız var? Özel entegrasyon çözümleri ve hacme dayalı fiyatlandırma için geliştirici ekibimizle iletişime geçin.",
         "cta": "Altyapımız Hakkında Bilgi Edinin →"
       },
       "footer": {
@@ -697,8 +724,8 @@
     },
     "featuresPage": {
       "badge": "Ürün Yetenekleri",
-      "heroTitle": "Modern Tedarik Zincirini <br /> İnşa Ediyoruz.",
-      "heroSubtitle": "Tahmin edici telemetriden otonom depo yönetimine kadar, küresel bir lojistik lideri olmanın ne demek olduğunu yeniden tanımlayan araçları keşfedin.",
+      "heroTitle": "Modern Tedarik Zincirini <br /> İnşa Ediyoruz",
+      "heroSubtitle": "Tahmin edici telemetriden otonom depo yönetimine kadar, küresel bir lojistik lideri olmanın ne demek olduğunu yeniden tanımlayan araçları keşfedin",
       "items": {
         "routeOptimization": {
           "title": "Yapay Zeka Rota Optimizasyonu",
@@ -752,7 +779,7 @@
         },
         "api": {
           "title": "Önce-API Mimarisi",
-          "description": "SAP, Oracle veya özel eski sistemlerle saatler içinde entegre olun; güçlü SDK ve webhook altyapımızla haftalar sürmez.",
+          "description": "Mevcut sistemlerinizle sorunsuz entegrasyon için modern REST API ve webhook mimarisini kullanın.",
           "tag": "Modüler",
           "details": [
             "REST & GraphQL API'leri",
@@ -763,7 +790,7 @@
       },
       "infrastructure": {
         "overline": "Birleşik Altyapı",
-        "title": "Tek Panel. Sonsuz Kontrol.",
+        "title": "Tek Panel Sonsuz Kontrol",
         "description": "Özelliklerimiz bağımsız araçlar değildir; derinlemesine entegre edilmiş bir ekosistemin parçasıdırlar. Deponuz güncellendiğinde filonuz tepki verir. Trafik arttığında müşteriniz bilir. İşte Logi-Track avantajı.",
         "stats": [
           "Bulut Yerli",
@@ -787,12 +814,12 @@
     "aboutPage": {
       "mission": {
         "badge": "Misyonumuz",
-        "title": "Küresel Ticaretin Geleceğini Yönetiyoruz.",
-        "subtitle": "LogiTrack'te sadece sevkiyatları izlemiyoruz; tüm tedarik zincirlerini senkronize ediyoruz. Misyonumuz, parçalanmış lojistik verilerini canlı takibe dönüştürmektir."
+        "title": "Küresel Ticaretin Geleceğini Yönetiyoruz",
+        "subtitle": "LogiTrack'te sadece sevkiyatları izlemiyoruz; tüm tedarik zincirlerini senkronize ediyoruz. Misyonumuz, parçalanmış lojistik verilerini canlı takibe dönüştürmektir"
       },
       "vision": {
         "overline": "LogiTrack Vizyonu",
-        "title": "Modern lojistikteki kör noktaları ortadan kaldırmak.",
+        "title": "Modern lojistikteki kör noktaları ortadan kaldırmak",
         "description": "Yapay zeka inovasyonu ile operasyonel uzmanlığın kesişim noktasından doğan LogiTrack, navlun ve depo yönetimindeki en karmaşık zorlukları çözmek için kuruldu. Her aracın, deponun ve sevkiyatın birleşik, kendi kendini optimize eden bir ekosistemin parçası olduğu bir dünya hayal ediyoruz."
       },
       "pillars": {
@@ -814,7 +841,7 @@
       },
       "why": {
         "title": "Neden Yapıyoruz?",
-        "subtitle": "Anlık beklentilerin olduğu bir çağda lojistik artık bir arka ofis işlevi değil; rekabet avantajıdır. LogiTrack, bu avantajı pazar lideri bir gerçekliğe dönüştürecek araçları sağlar."
+        "subtitle": "Anlık beklentilerin olduğu bir çağda lojistik artık bir arka ofis işlevi değil; rekabet avantajıdır. LogiTrack, bu avantajı pazar lideri bir gerçekliğe dönüştürecek araçları sağlar"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -824,13 +851,14 @@
       "hero": {
         "overline": "SÜRECİMİZ",
         "title": "LogiTrack Nasıl Çalışır?",
-        "subtitle": "İş ihtiyaçlarınızla birlikte ölçeklenmek üzere tasarlanmış kapsamlı, uçtan uca lojistik yönetim platformu."
+        "subtitle": "İş ihtiyaçlarınızla birlikte ölçeklenmek üzere tasarlanmış kapsamlı, uçtan uca lojistik yönetim platformu"
       },
       "cta": {
         "title": "Optimize Etmeye Hazır mısınız?",
-        "subtitle": "Lojistiğini LogiTrack ile modernize eden yüzlerce şirkete katılın.",
+        "subtitle": "Lojistiğini LogiTrack ile modernize eden yüzlerce şirkete katılın",
         "getStarted": "Ücretsiz Başlayın",
-        "bookDemo": "Demo Randevusu Al"
+        "bookDemo": "Demo Randevusu Al",
+        "freeDemo": "Ücretsiz Demo İste"
       },
       "footer": {
         "rights": "© {year} Logi-Track. Tüm hakları saklıdır.",
@@ -842,8 +870,8 @@
     "globalTrackingPage": {
       "hero": {
         "badge": "Küresel Takip",
-        "title": "Her Kıtada Gerçek Zamanlı Görünürlük.",
-        "subtitle": "190'dan fazla ülke ve bölgede saniye altı hassasiyetle tüm filonuzu ve sevkiyatlarınızı gerçek zamanlı izleyin."
+        "title": "Her Kıtada Gerçek Zamanlı Görünürlük",
+        "subtitle": "Bulut tabanlı altyapımız ile filo ve sevkiyatlarınızı dünyanın her yerinden kesintisiz takip edin"
       },
       "sections": {
         "liveMap": {
@@ -860,18 +888,18 @@
         }
       },
       "stats": {
-        "countries": "190+",
+        "countries": "Küresel",
         "countriesLabel": "Kapsanan Ülke",
         "updates": "< 1sn",
         "updatesLabel": "Güncelleme Gecikmesi",
-        "uptime": "%99,99",
+        "uptime": "Yüksek",
         "uptimeLabel": "Platform Çalışma Süresi",
         "events": "10M+",
         "eventsLabel": "Günlük Olay"
       },
       "cta": {
         "title": "Küresel Takibe Başlayın",
-        "subtitle": "48 saat içinde tüm lojistik ağınızda gerçek zamanlı takibi devreye alın."
+        "subtitle": "48 saat içinde tüm lojistik ağınızda gerçek zamanlı takibi devreye alın"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -880,8 +908,8 @@
     "routeIntelligencePage": {
       "hero": {
         "badge": "Rota Zekası",
-        "title": "Ölçekli Yapay Zeka Destekli Rota Optimizasyonu.",
-        "subtitle": "Özel makine öğrenimi rota motorumuzla yakıt maliyetlerini %23'e, teslimat sürelerini %18'e kadar azaltın."
+        "title": "Ölçekli Yapay Zeka Destekli Rota Optimizasyonu",
+        "subtitle": "Özel makine öğrenimi rota motorumuzla yakıt maliyetlerini %23'e, teslimat sürelerini %18'e kadar azaltın"
       },
       "sections": {
         "predictive": {
@@ -899,12 +927,12 @@
       },
       "detail": {
         "overline": "Algoritma",
-        "title": "Milyonlarca veri noktası üzerine inşa edildi.",
-        "description": "Rota zekası motorumuz günde 50 milyondan fazla rota hesaplaması işler ve doğruluğu artırmak için gerçek dünya teslimat sonuçlarından sürekli öğrenir."
+        "title": "Milyonlarca veri noktası üzerine inşa edildi",
+        "description": "Rota zekası motorumuz, anlık yol ve konum verilerini modern bulut altyapısıyla işleyerek teslimat doğruluğunu artırmak üzere tasarlandı."
       },
       "cta": {
         "title": "Rotalarınızı Optimize Edin",
-        "subtitle": "Yapay zeka destekli yönlendirmenin teslimat operasyonlarınızı nasıl dönüştürebileceğini görün."
+        "subtitle": "Yapay zeka destekli yönlendirmenin teslimat operasyonlarınızı nasıl dönüştürebileceğini görün"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -913,8 +941,8 @@
     "telemetryHubPage": {
       "hero": {
         "badge": "Telemetri Merkezi",
-        "title": "Her Sensör. Her Sinyal. Tek Panel.",
-        "subtitle": "Binlerce IoT cihazından, araçtan ve depo sensöründen gelen telemetri verilerini gerçek zamanlı toplayın ve analiz edin."
+        "title": "Her Sensör Her Sinyal Tek Panel",
+        "subtitle": "Binlerce IoT cihazından, araçtan ve depo sensöründen gelen telemetri verilerini gerçek zamanlı toplayın ve analiz edin"
       },
       "sections": {
         "vehicleHealth": {
@@ -932,12 +960,12 @@
       },
       "detail": {
         "overline": "Veri Hattı",
-        "title": "Sensörden içgörüye milisaniyeler içinde.",
+        "title": "Sensörden içgörüye milisaniyeler içinde",
         "description": "Kenardan buluta telemetri hattımız, ham sensör verilerini gürültü filtreleme, anomali algılama ve bağlamsal zenginleştirme yoluyla işleyerek uygulanabilir takip sunar."
       },
       "cta": {
-        "title": "Filonuzu Bağlayın",
-        "subtitle": "200'den fazla telematik cihaz ve IoT platformuyla donanım bağımsız entegrasyon."
+        "title": "Filonuzu Ekleyin",
+        "subtitle": "Araçlarınızı sisteme tanımlayın, karmaşık IoT veri entegrasyonlarını uzman ekibimize bırakın"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -946,8 +974,8 @@
     "securityCenterPage": {
       "hero": {
         "badge": "Güvenlik Merkezi",
-        "title": "Kritik Lojistik İçin Sıfır Güven Güvenliği.",
-        "subtitle": "256-bit AES şifreleme, SOC 2 Tip II uyumluluğu ve sürekli tehdit izleme ile kurumsal düzeyde koruma."
+        "title": "Kritik Lojistik İçin Sıfır Güven Güvenliği",
+        "subtitle": "Modern kimlik doğrulama, rol tabanlı erişim kontrolü ve sektör standartlarında veri güvenliği ile sağlam koruma"
       },
       "sections": {
         "encryption": {
@@ -956,21 +984,21 @@
         },
         "accessControl": {
           "title": "Ayrıntılı Erişim Kontrolü",
-          "description": "Çok faktörlü kimlik doğrulama, IP beyaz listeleme ve oturum yönetimi ile rol tabanlı erişim. Her işlem için tam denetim izi."
+          "description": "Rol tabanlı erişim yönetimi ile kullanıcı yetkilerini güvenli bir şekilde kontrol edin."
         },
         "compliance": {
           "title": "Küresel Uyumluluk",
-          "description": "SOC 2 Tip II, ISO 27001, GDPR ve PCI-DSS sertifikalı. Otomatik uyumluluk raporlama ve sürekli güvenlik değerlendirmeleri."
+          "description": "Firebase Auth, Prisma ve modern bulut güvenlik standartları ile korunan, şeffaf ve denetlenebilir altyapı."
         }
       },
       "detail": {
         "overline": "Tehdit Algılama",
-        "title": "7/24 güvenlik operasyon merkezi.",
-        "description": "Özel güvenlik ekibimiz, tüm altyapı katmanlarında otomatik olay müdahalesi ve gerçek zamanlı güvenlik açığı taramasıyla tehditleri günün her saati izler."
+        "title": "Sürekli bulut güvenliği izleme",
+        "description": "Altyapımız, sunucusuz mimarinin sunduğu otomatik tehdit algılama ve standart güvenlik önlemleriyle korunmaktadır."
       },
       "cta": {
         "title": "Güvenliğimizi İnceleyin",
-        "subtitle": "SOC 2 raporumuzu ve güvenlik teknik dokümanımızı indirin."
+        "subtitle": "Güvenlik standartlarımız hakkında detaylı bilgi alın"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -979,31 +1007,31 @@
     "enterprisePage": {
       "hero": {
         "badge": "Kurumsal Çözümler",
-        "title": "Küresel Operasyonların Ölçeği İçin İnşa Edildi.",
-        "subtitle": "Aylık 10.000'den fazla sevkiyat yöneten kuruluşlar için özel dağıtım seçenekleri, adanmış altyapı ve birinci sınıf onboarding."
+        "title": "Küresel Operasyonların Ölçeği İçin İnşa Edildi",
+        "subtitle": "Kurumsal lojistik süreçlerini modern teknolojilerle dijitalleştirmek isteyen ekipler için ölçeklenebilir altyapı."
       },
       "sections": {
         "dedicated": {
           "title": "Adanmış Altyapı",
-          "description": "12 küresel bölgede garantili kaynak tahsisi, özel SLA'lar ve veri yerleşim seçenekleriyle özel bulut örnekleri."
+          "description": "Modern bulut altyapısı sayesinde yüksek performanslı, ölçeklenebilir ve güvenli barındırma çözümleri."
         },
         "integration": {
           "title": "Derin ERP Entegrasyonu",
-          "description": "SAP, Oracle, Microsoft Dynamics ve özel eski sistemler için yerel bağlayıcılar. Gerçek zamanlı tam çift yönlü veri senkronizasyonu."
+          "description": "İş sistemleriniz için özel Webhook ve REST API bağlayıcıları ile güvenli ve esnek veri senkronizasyonu."
         },
         "support": {
           "title": "7/24 Öncelikli Destek",
-          "description": "İsimli hesap yöneticileri, özel Slack kanalları ve kritik olaylar için garantili 15 dakika yanıt süreleri."
+          "description": "Kapsamlı dokümantasyon ve e-posta üzerinden destek ekibimize doğrudan erişim sağlayarak sorularınıza yanıt bulun."
         }
       },
       "detail": {
         "overline": "Kurumsal Ölçek",
-        "title": "Fortune 500 lojistik liderleri tarafından güveniliyor.",
-        "description": "Kurumsal platformumuz, dünyanın en büyük tedarik zinciri operasyonlarından bazılarına hizmet vererek %99,99 çalışma süresiyle günde 2 milyondan fazla işlem gerçekleştirir."
+        "title": "Modern lojistik ekipleri için tasarlandı",
+        "description": "Ölçeklenebilir platformumuz, artan tedarik zinciri operasyonlarınıza uyum sağlayacak esnek ve güvenilir bulut teknolojileri üzerine inşa edilmiştir."
       },
       "cta": {
         "title": "Kurumsal Satışla İletişime Geçin",
-        "subtitle": "Kuruluşunuzun özel gereksinimlerine göre özelleştirilmiş bir teklif alın."
+        "subtitle": "Kuruluşunuzun özel gereksinimlerine göre özelleştirilmiş bir teklif alın"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1012,31 +1040,31 @@
     "customApiPage": {
       "hero": {
         "badge": "Özel API",
-        "title": "LogiTrack'i Sistemlerinize Entegre Edin.",
-        "subtitle": "Özel lojistik entegrasyonları ve gelişmiş otomasyon için sağlam, yüksek performanslı API'ler."
+        "title": "LogiTrack'i Sistemlerinize Entegre Edin",
+        "subtitle": "LogiTrack verilerinize kendi uygulamalarınızdan erişmek için basit ve standart REST uç noktaları"
       },
       "sections": {
         "dedicated": {
-          "title": "RESTful ve GraphQL Desteği",
-          "description": "Mühendislik ekibinizin tercihlerine ve gereksinimlerine uygun esnek API mimarileri."
+          "title": "Temel REST Uç Noktaları",
+          "description": "Kendi sistemlerinizden gönderi, araç ve sürücü verilerine ulaşabileceğiniz standart entegrasyon altyapısı."
         },
         "integration": {
-          "title": "Yüksek Verim",
-          "description": "Saniyede binlerce isteği milisaniyenin altında gecikmeyle yönetecek şekilde tasarlanmıştır."
+          "title": "Kolay Veri Aktarımı",
+          "description": "JSON tabanlı veri alışverişi ile sistemler arası hızlı ve güvenilir veri senkronizasyonu."
         },
         "support": {
-          "title": "Önce Geliştirici",
-          "description": "Kapsamlı belgeler, birden çok dilde SDK'lar ve özel geliştirici desteği."
+          "title": "Basit Dokümantasyon",
+          "description": "Geliştiricileriniz için temel API örnekleri ve rehberler."
         }
       },
       "detail": {
         "overline": "Geliştirici Deneyimi",
-        "title": "Geliştiriciler tarafından, geliştiriciler için oluşturuldu.",
+        "title": "Geliştiriciler tarafından, geliştiriciler için oluşturuldu",
         "description": "API'lerimiz öngörülebilirlik, tutarlılık ve net hata ayıklama göz önünde bulundurularak tasarlanmıştır."
       },
       "cta": {
         "title": "API Belgelerini Görüntüle",
-        "subtitle": "Entegrasyonunuzu oluşturmaya bugün başlayın."
+        "subtitle": "Entegrasyonunuzu oluşturmaya bugün başlayın"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1045,8 +1073,8 @@
     "smbLogisticsPage": {
       "hero": {
         "badge": "KOBİ Lojistik",
-        "title": "Kurumsal Güç. Startup Sadeliği.",
-        "subtitle": "Sektör liderlerinin kullandığı aynı yapay zeka destekli lojistik araçlarını, şeffaf fiyatlandırmayla küçük ve orta ölçekli işletmeler için paketlenmiş olarak edinin."
+        "title": "Kurumsal Güç Startup Sadeliği",
+        "subtitle": "Sektörün en iyi pratiklerini kullanan yapay zeka destekli lojistik araçlarına, şeffaf fiyatlandırmayla sahip olun"
       },
       "sections": {
         "quickStart": {
@@ -1064,12 +1092,12 @@
       },
       "detail": {
         "overline": "Büyüme İçin İnşa Edildi",
-        "title": "Karmaşıklık olmadan ölçeklendirin.",
+        "title": "Karmaşıklık olmadan ölçeklendirin",
         "description": "İster ayda 50 ister 5.000 sevkiyat yönetin, platformumuz sizinle birlikte büyür. Göç sancısı yok, özellik kısıtlaması yok."
       },
       "cta": {
         "title": "Bugün Ücretsiz Başlayın",
-        "subtitle": "Kredi kartı gerekmez. 14 gün tam erişim."
+        "subtitle": "Kredi kartı gerekmez. 7 gün tam erişim"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1078,8 +1106,8 @@
     "supplyChainPage": {
       "hero": {
         "badge": "Tedarik Zinciri",
-        "title": "Uçtan Uca Tedarik Zinciri Orkestrasyonu.",
-        "subtitle": "Hammadde tedarikinden son mil teslimatına kadar birleşik görünürlük. Tedarikçileri, taşıyıcıları ve depoları tek platformda koordine edin."
+        "title": "Uçtan Uca Tedarik Zinciri Orkestrasyonu",
+        "subtitle": "Kara taşımacılığında hammadde tedarikinden son mil teslimatına kadar birleşik görünürlük. Filoları, sürücüleri ve depoları tek platformda koordine edin"
       },
       "sections": {
         "visibility": {
@@ -1091,18 +1119,18 @@
           "description": "Otomatik KPI takibi, uyumluluk doğrulama ve risk değerlendirme panolarıyla tedarikçi performansını puanlayın ve izleyin."
         },
         "multiModal": {
-          "title": "Çok Modlu Koordinasyon",
-          "description": "Akıllı mod değiştirme önerileriyle deniz taşımacılığı, hava kargo, demiryolu ve kara taşımacılığını sorunsuzca yönetin."
+          "title": "Filonuzu Tek Ekrandan Yönetin",
+          "description": "Tüm kamyon, tır ve dağıtım araçlarınızı akıllı rota önerileriyle kara taşımacılığında sorunsuzca yönetin."
         }
       },
       "detail": {
         "overline": "Tedarik Zinciri Zekası",
-        "title": "Aksaklıkları olmadan önce tahmin edin.",
-        "description": "Yapay zekamız hava kalıplarını, jeopolitik olayları, liman tıkanıklığını ve tedarikçi güvenilirlik verilerini analiz ederek potansiyel tedarik zinciri aksaklıklarını haftalarca önceden tahmin eder."
+        "title": "Aksaklıkları olmadan önce tahmin edin",
+        "description": "Sistemimiz trafik yoğunluğu, yol durumu ve araç kapasitesi verilerini analiz ederek potansiyel teslimat aksaklıklarını önceden tahmin eder."
       },
       "cta": {
         "title": "Tedarik Zincirinizi Birleştirin",
-        "subtitle": "Uçtan uca görünürlüğün tedarik zinciri performansını nasıl dönüştürdüğünü görün."
+        "subtitle": "Uçtan uca görünürlüğün tedarik zinciri performansını nasıl dönüştürdüğünü görün"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1111,8 +1139,8 @@
     "ourMissionPage": {
       "hero": {
         "badge": "Misyonumuz",
-        "title": "Dünyayı Zekayla Hareket Ettirmek.",
-        "subtitle": "Lojistiğin küresel ticaretin omurgası olduğuna inanıyoruz. Misyonumuz onu daha akıllı, daha hızlı ve daha sürdürülebilir kılmaktır."
+        "title": "Dünyayı Zekayla Hareket Ettirmek",
+        "subtitle": "Lojistiğin küresel ticaretin omurgası olduğuna inanıyoruz. Misyonumuz onu daha akıllı, daha hızlı ve daha sürdürülebilir kılmaktır"
       },
       "sections": {
         "innovation": {
@@ -1130,12 +1158,12 @@
       },
       "detail": {
         "overline": "Hikayemiz",
-        "title": "Operatörler tarafından kuruldu, operatörler için inşa edildi.",
+        "title": "Operatörler tarafından kuruldu, operatörler için inşa edildi",
         "description": "LogiTrack, karmaşık tedarik zincirlerini parçalanmış araçlarla yönetme hayal kırıklığından doğdu. Kurucularımız, her zaman var olmasını diledikleri platformu inşa etmeden önce lojistik operasyonlarında onlarca yıl geçirdi."
       },
       "cta": {
         "title": "Misyonumuza Katılın",
-        "subtitle": "Akıllı lojistiğin geleceğini inşa etmede bizimle ortak olun."
+        "subtitle": "Akıllı lojistiğin geleceğini inşa etmede bizimle ortak olun"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1144,8 +1172,8 @@
     "engineeringPage": {
       "hero": {
         "badge": "Mühendislik",
-        "title": "Zekanın Arkasındaki Teknoloji.",
-        "subtitle": "Bulut-yerli mimari üzerine inşa edilen mühendislik ekibimiz, küresel ölçekte gerçek zamanlı veri işlemenin sınırlarını zorlar."
+        "title": "Zekanın Arkasındaki Teknoloji",
+        "subtitle": "Bulut-yerli mimari üzerine inşa edilen mühendislik ekibimiz, küresel ölçekte gerçek zamanlı veri işlemenin sınırlarını zorlar"
       },
       "sections": {
         "architecture": {
@@ -1163,12 +1191,12 @@
       },
       "detail": {
         "overline": "Açık Kaynak",
-        "title": "Topluluğa geri veriyoruz.",
+        "title": "Topluluğa geri veriyoruz",
         "description": "Ekibimiz açık kaynak projelerine aktif olarak katkıda bulunur ve lojistik veri işleme, mekansal indeksleme ve gerçek zamanlı olay akışı için birçok kütüphane yayımlamıştır."
       },
       "cta": {
         "title": "Teknoloji Yığınımızı Keşfedin",
-        "subtitle": "Mühendislik blogumuzu okuyun ve ölçekli nasıl inşa ettiğimizi görün."
+        "subtitle": "Mühendislik blogumuzu okuyun ve ölçekli nasıl inşa ettiğimizi görün"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1177,8 +1205,8 @@
     "pressKitPage": {
       "hero": {
         "badge": "Basın Kiti",
-        "title": "Medyada LogiTrack.",
-        "subtitle": "Lojistik teknolojisini takip eden gazeteciler ve ortaklar için marka varlıkları, basın bültenleri ve medya kaynakları."
+        "title": "Medyada LogiTrack",
+        "subtitle": "Lojistik teknolojisini takip eden gazeteciler ve ortaklar için marka varlıkları, basın bültenleri ve medya kaynakları"
       },
       "sections": {
         "brand": {
@@ -1196,12 +1224,12 @@
       },
       "detail": {
         "overline": "Haberlerde",
-        "title": "Sektör liderleri tarafından tanındı.",
+        "title": "Sektör liderleri tarafından tanındı",
         "description": "LogiTrack, TechCrunch, Forbes, Supply Chain Dive'da yer almış ve Gartner Sihirli Kadran'da Taşımacılık Yönetim Sistemleri alanında lider olarak tanınmıştır."
       },
       "cta": {
         "title": "İletişime Geçin",
-        "subtitle": "Halkla ilişkiler ekibimiz röportajlar ve medya soruları için hazırdır."
+        "subtitle": "Halkla ilişkiler ekibimiz röportajlar ve medya soruları için hazırdır"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1210,8 +1238,8 @@
     "careersPage": {
       "hero": {
         "badge": "Kariyer",
-        "title": "Lojistiğin Geleceğini İnşa Edin.",
-        "subtitle": "Dünyanın en karmaşık tedarik zinciri zorluklarını çözen mühendisler, tasarımcılar ve lojistik uzmanlarından oluşan bir ekibe katılın."
+        "title": "Lojistiğin Geleceğini İnşa Edin",
+        "subtitle": "Dünyanın en karmaşık tedarik zinciri zorluklarını çözen mühendisler, tasarımcılar ve lojistik uzmanlarından oluşan bir ekibe katılın"
       },
       "sections": {
         "culture": {
@@ -1229,12 +1257,12 @@
       },
       "detail": {
         "overline": "Açık Pozisyonlar",
-        "title": "Tüm ekiplerde işe alıyoruz.",
+        "title": "Tüm ekiplerde işe alıyoruz",
         "description": "Kıdemli backend mühendislerinden ürün tasarımcılarına kadar, lojistik sektörünü dönüştürmek isteyen tutkulu insanlar arıyoruz. Küresel olarak uzaktan pozisyonlar mevcuttur."
       },
       "cta": {
         "title": "Açık Pozisyonları Görüntüle",
-        "subtitle": "Bir sonraki rolünüzü bulun ve bugün başvurun."
+        "subtitle": "Bir sonraki rolünüzü bulun ve bugün başvurun"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1243,8 +1271,8 @@
     "developerDocsPage": {
       "hero": {
         "badge": "Geliştirici Dokümanları",
-        "title": "LogiTrack Platformu Üzerine İnşa Edin.",
-        "subtitle": "Lojistik operasyonlarınızı genişletmek ve özelleştirmek için kapsamlı API belgeleri, SDK'lar ve entegrasyon kılavuzları."
+        "title": "LogiTrack Platformu Üzerine İnşa Edin",
+        "subtitle": "Lojistik operasyonlarınızı genişletmek ve özelleştirmek için kapsamlı API belgeleri, SDK'lar ve entegrasyon kılavuzları"
       },
       "sections": {
         "restApi": {
@@ -1262,12 +1290,12 @@
       },
       "detail": {
         "overline": "Geliştirici Deneyimi",
-        "title": "Sıfırdan entegrasyona saatler içinde.",
+        "title": "Sıfırdan entegrasyona saatler içinde",
         "description": "API öncelikli mimarimiz ve kapsamlı SDK'larımız, LogiTrack'i mevcut sistemlerinizle haftalar değil, saatler içinde entegre etmenizi mümkün kılar. Sandbox ortamları dahildir."
       },
       "cta": {
         "title": "İnşa Etmeye Başlayın",
-        "subtitle": "API anahtarlarınızı alın ve belgeleri keşfedin."
+        "subtitle": "API anahtarlarınızı alın ve belgeleri keşfedin"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1276,8 +1304,8 @@
     "helpCenterPage": {
       "hero": {
         "badge": "Yardım Merkezi",
-        "title": "Yardım İçin Buradayız.",
-        "subtitle": "LogiTrack platformunuzdan en iyi şekilde yararlanmak için yanıtlar bulun, destek alın ve kaynaklara erişin."
+        "title": "Yardım İçin Buradayız",
+        "subtitle": "LogiTrack platformunuzdan en iyi şekilde yararlanmak için yanıtlar bulun, destek alın ve kaynaklara erişin"
       },
       "sections": {
         "knowledgeBase": {
@@ -1295,12 +1323,12 @@
       },
       "detail": {
         "overline": "Destek Katmanları",
-        "title": "Her ekip için doğru destek seviyesi.",
+        "title": "Her ekip için doğru destek seviyesi",
         "description": "Self-servis bilgi bankası erişiminden garantili SLA'lara sahip özel 7/24 kurumsal desteğe kadar, ihtiyaçlarınızla ölçeklenen destek katmanları sunuyoruz."
       },
       "cta": {
         "title": "Destekle İletişime Geçin",
-        "subtitle": "Ekibimiz genellikle mesai saatleri içinde 2 saat içinde yanıt verir."
+        "subtitle": "Ekibimiz genellikle mesai saatleri içinde 2 saat içinde yanıt verir"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1309,8 +1337,8 @@
     "privacyPage": {
       "hero": {
         "badge": "Gizlilik Politikası",
-        "title": "Verileriniz, Haklarınız.",
-        "subtitle": "Gizliliğinizi korumaya ve verilerinizi tam şeffaflıkla ve küresel düzenlemelere uygun şekilde işlemeye kararlıyız."
+        "title": "Verileriniz, Haklarınız",
+        "subtitle": "Gizliliğinizi korumaya ve verilerinizi tam şeffaflıkla ve küresel düzenlemelere uygun şekilde işlemeye kararlıyız"
       },
       "sections": {
         "collection": {
@@ -1323,17 +1351,17 @@
         },
         "security": {
           "title": "Verilerinizi Nasıl Koruyoruz",
-          "description": "Tüm veriler AES-256 ve TLS 1.3 kullanılarak durağan halde ve aktarım sırasında şifrelenir. SOC 2 Tip II sertifikasını sürdürüyor ve düzenli üçüncü taraf güvenlik denetimleri yapıyoruz."
+          "description": "Platformumuz, tüm verileri sektör standartlarında şifreleme algoritmaları kullanarak durağan ve hareket halindeyken korur."
         }
       },
       "detail": {
         "overline": "Uyumluluk",
-        "title": "Küresel gizlilik standartları için inşa edildi.",
+        "title": "Küresel gizlilik standartları için inşa edildi",
         "description": "Platformumuz, GDPR, CCPA, PIPEDA ve diğer uluslararası gizlilik düzenlemelerine uymak üzere sıfırdan tasarlanmıştır. Tüm kurumsal hesaplar için veri yerleşim seçenekleri mevcuttur."
       },
       "cta": {
         "title": "Gizlilik Hakkında Sorularınız mı Var?",
-        "subtitle": "Veri Koruma Görevlimize privacy@logitrack.io adresinden ulaşın."
+        "subtitle": "Veri Koruma Görevlimize privacy@logitrack.io adresinden ulaşın"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1342,13 +1370,13 @@
     "slaPage": {
       "hero": {
         "badge": "Hizmet Seviye Anlaşması",
-        "title": "Güvenilirliğe Olan Taahhüdümüz.",
-        "subtitle": "Sektör lideri çalışma süresi garantileri, şeffaf olay raporlama ve her hizmet katmanı için net yükseltme yolları."
+        "title": "Güvenilirliğe Olan Taahhüdümüz",
+        "subtitle": "Güvenilir performans, şeffaf raporlama ve yüksek erişilebilirlik için bulut tabanlı altyapı"
       },
       "sections": {
         "uptime": {
-          "title": "%99,99 Çalışma Süresi Garantisi",
-          "description": "Platformumuz, çok bölgeli yedeklilik, otomatik yük devretme ve gerçek zamanlı sağlık izleme ile tüm bölgelerde %99,99 kullanılabilirlik sağlar."
+          "title": "Yüksek Erişilebilirlik Hedefi",
+          "description": "Platformumuz, modern sunucusuz barındırma sistemleri aracılığıyla yüksek erişilebilirlik hedefiyle çalışır."
         },
         "response": {
           "title": "Olay Müdahale Süreleri",
@@ -1361,12 +1389,12 @@
       },
       "detail": {
         "overline": "Hizmet Kredileri",
-        "title": "Hedeflerimizi kaçırırsak, ödeme yapmazsınız.",
-        "description": "Çalışma süremiz garantili eşiğin altına düşerse, etkilenen müşteriler otomatik olarak hizmet kredisi alır. Bilet gerekmez — krediler proaktif olarak uygulanır."
+        "title": "Şeffaf Hizmet Politikası",
+        "description": "Hizmet kalitemizi sürekli artırmayı ve kullanıcılarımıza kesintisiz bir deneyim sunmayı hedefliyoruz."
       },
       "cta": {
         "title": "Tam SLA Koşullarını İnceleyin",
-        "subtitle": "Kayıtlarınız için eksiksiz SLA belgelerimizi indirin."
+        "subtitle": "Kayıtlarınız için eksiksiz SLA belgelerimizi indirin"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1405,6 +1433,7 @@
     "pricing": "Fiyatlandırma",
     "about": "Hakkımızda",
     "howItWorks": "Nasıl Çalışır",
+    "contact": "İletişim",
     "dashboard": "Panel",
     "setupOrg": "Organizasyonu Kur",
     "signIn": "Giriş Yap",
@@ -1432,7 +1461,7 @@
   },
   "vehicles": {
     "title": "Araç Filosu Yönetimi",
-    "subtitle": "Lojistik filonuzu gerçek zamanlı olarak izleyin, yönetin ve optimize edin.",
+    "subtitle": "Lojistik filonuzu gerçek zamanlı olarak izleyin, yönetin ve optimize edin",
     "addVehicle": "Araç Ekle",
     "vehicleTable": "Araç Tablosu",
     "maxLoadCapacityChart": "Araç Maks. Yük Kapasitesi Grafiği",
@@ -1764,7 +1793,7 @@
   },
   "drivers": {
     "title": "Sürücü Yönetimi",
-    "subtitle": "Sürücülerinizi yönetin, performans ve ehliyet durumlarını izleyin.",
+    "subtitle": "Sürücülerinizi yönetin, performans ve ehliyet durumlarını izleyin",
     "addDriver": "Sürücü Ekle",
     "totalDrivers": "Toplam Filo Sürücüsü",
     "onDuty": "Görevde",
@@ -2144,7 +2173,7 @@
   },
   "company": {
     "title": "Şirket Yapılandırması",
-    "subtitle": "Organizasyonunuzu, üyelerinizi ve bölgesel ayarlarınızı yönetin.",
+    "subtitle": "Organizasyonunuzu, üyelerinizi ve bölgesel ayarlarınızı yönetin",
     "overview": "Organizasyonunuzu, üyelerinizi ve ayarlarınızı yönetin.",
     "addMember": "Üye Ekle",
     "kpi": {
@@ -2173,7 +2202,7 @@
     },
     "branding": {
       "title": "Şirket Kimliği",
-      "subtitle": "Organizasyonunuzun yasal adını ve dijital markalamasını tanımlayın.",
+      "subtitle": "Organizasyonunuzun yasal adını ve dijital markalamasını tanımlayın",
       "legalName": "Yasal Şirket Adı",
       "legalNamePlaceholder": "Örn. Acme Lojistik A.Ş.",
       "legalNameDesc": "Bu ad, tüm resmi belgeler ve raporlarda görünecektir.",
@@ -2193,14 +2222,14 @@
     "dialogs": {
       "identityTitle": "Şirket Kimliği",
       "regionalTitle": "Bölgesel Yapılandırma",
-      "identitySubtitle": "Organizasyonunuzun temel kimliğini ve markalamasını ayarlayın.",
+      "identitySubtitle": "Organizasyonunuzun temel kimliğini ve markalamasını ayarlayın",
       "localizationDesc": "Organizasyonunuz için bölgesel tercihleri yapılandırın.",
       "interfaceLanguage": "Arayüz Dili",
       "defaultCurrency": "Varsayılan Para Birimi",
       "activeTimezone": "Aktif Saat Dilimi",
       "dateTimeFormat": "Tarih ve Saat Formatı",
       "addMemberTitle": "Ekip Üyesi Ekle",
-      "addMemberSubtitle": "Bir kullanıcı arayın ve organizasyonunuzda rol atayın.",
+      "addMemberSubtitle": "Bir kullanıcı arayın ve organizasyonunuzda rol atayın",
       "searchPlaceholder": "Ad veya e-posta ile ara...",
       "searchResults": "Arama Sonuçları",
       "assignRole": "Rol Ata",
@@ -2280,7 +2309,7 @@
   },
   "shipments": {
     "title": "Sevkiyat Yönetimi",
-    "subtitle": "Sevkiyatlarınızı yönetin, performansı ve durumu izleyin.",
+    "subtitle": "Sevkiyatlarınızı yönetin, performansı ve durumu izleyin",
     "addShipment": "Sevkiyat Ekle",
     "active": "Aktif Sevkiyatlar",
     "completed": "Tamamlandı",
@@ -2470,7 +2499,7 @@
   },
   "routes": {
     "title": "Rota Planlama",
-    "subtitle": "Filonuzun aktif teslimat yollarını optimize edin ve yönetin.",
+    "subtitle": "Filonuzun aktif teslimat yollarını optimize edin ve yönetin",
     "active": "Aktif Rotalar",
     "total": "Toplam Rotalar",
     "completed": "Tamamlandı",
@@ -2614,7 +2643,7 @@
   },
   "warehouses": {
     "title": "Depo Yönetimi",
-    "subtitle": "Depolarınızı yönetin, performansı ve lisans durumunu izleyin.",
+    "subtitle": "Depolarınızı yönetin, performansı ve lisans durumunu izleyin",
     "addWarehouse": "Depo Ekle",
     "deleteTitle": "Depoyu Sil?",
     "deleteDesc": "{name} deposunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
@@ -2759,7 +2788,7 @@
     "clickToMark": "Bir yer işaretlemek için haritada herhangi bir yere tıklayın.",
     "demo": {
       "title": "Google Haritalar Entegrasyon Bileşenleri",
-      "subtitle": "Modüler ve üretime hazır Google Haritalar React bileşenleri.",
+      "subtitle": "Modüler ve üretime hazır Google Haritalar React bileşenleri",
       "addressTitle": "1. Adres Girişi ve İşaretleyici",
       "addressDesc": "Bir adres arayın ve harita üzerinde görün.",
       "pickerTitle": "2. Harita Seçici",
@@ -3145,7 +3174,7 @@
       "success": "Yakıt kaydı başarıyla eklendi",
       "error": "Yakıt kaydı eklenemedi"
     },
-    "pageSubtitle": "Yakıt kayıtlarını yönetin, tüketimi izleyin ve araç verimliliğini takip edin.",
+    "pageSubtitle": "Yakıt kayıtlarını yönetin, tüketimi izleyin ve araç verimliliğini takip edin",
     "comingSoonDescription": "Gelişmiş yakıt yönetimi modülünü şu anda geliştiriyoruz. Bu özellik araç başına yakıt tüketimini takip etmenizi, yakıt kartlarıyla entegrasyonu ve verimlilik raporları oluşturmanızı sağlayacak."
   },
   "warehouseWorker": {
@@ -3205,10 +3234,10 @@
       "requestRestockZone": "Besleme talebi — Bölge",
       "reportIssue": "Sorun bildir",
       "scanLogMovements": "Tara ve hareketleri kaydet",
-      "scanSubtitle": "Ürünü okutun, adedi onaylayın ve toplama/paketleme olarak kaydedin.",
+      "scanSubtitle": "Ürünü okutun, adedi onaylayın ve toplama/paketleme olarak kaydedin",
       "scanAnItem": "Ürün okut",
       "liveActivity": "Canlı aktivite",
-      "liveActivitySubtitle": "Tesis genelindeki tüm stok hareketleri, yeniden eskiye.",
+      "liveActivitySubtitle": "Tesis genelindeki tüm stok hareketleri, yeniden eskiye",
       "RESTOCK": "BESLE",
       "RESTOCK_REQUEST": "BESLEME",
       "PUTAWAY": "YERLEŞTİR",
@@ -3274,7 +3303,7 @@
   },
   "onboarding": {
     "welcomeTitle": "{name} uygulamasına hoş geldiniz",
-    "welcomeSubtitle": "Hesabınızı başarıyla oluşturdunuz. Panele geçmek için bir şirketle ilişkilendirilmeniz gerekir.",
+    "welcomeSubtitle": "Hesabınızı başarıyla oluşturdunuz. Panele geçmek için bir şirketle ilişkilendirilmeniz gerekir",
     "createTitle": "Yeni Şirket Oluştur",
     "createDescription": "Yeni bir lojistik veya taşımacılık şirketi kaydedin. Tam yetkiyle ilk Yönetici olarak atanacaksınız.",
     "createButton": "Şirket Oluştur",
@@ -3284,7 +3313,7 @@
   },
   "users": {
     "title": "Kullanıcı Yönetimi",
-    "subtitle": "Şirket kullanıcılarını, rollerini ve erişim izinlerini yönetin.",
+    "subtitle": "Şirket kullanıcılarını, rollerini ve erişim izinlerini yönetin",
     "comingSoonDescription": "Kullanıcı Yönetimi modülü şu anda geliştirilme aşamasında. Yakında ekip üyelerini davet edebilecek, belirli roller (ör. Sevkiyatçı, Yönetici, Yönetici) atayabilecek ve kullanıcı etkinlik günlüklerini takip edebileceksiniz."
   }
 }

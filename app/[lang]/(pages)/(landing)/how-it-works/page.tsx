@@ -33,7 +33,7 @@ export default async function HowItWorksPage(props: {
   return (
     <>
       <JsonLd data={breadcrumbSchema} />
-      <HowItWorksClient dict={dict} />
+      <HowItWorksClient dict={dict} lang={lang} />
     </>
   );
 }

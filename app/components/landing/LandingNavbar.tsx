@@ -83,11 +83,22 @@ export default function LandingNavbar() {
               >
                 <Image
                   src="/logo-white.svg"
-                  alt="LogiTrack"
+                  alt="LogiTrack Logo"
                   width={trigger ? 18 : 20}
                   height={trigger ? 18 : 20}
                 />
               </Box>
+              <Typography
+                sx={{
+                  color: "white",
+                  fontWeight: 900,
+                  fontSize: trigger ? "1.125rem" : "1.25rem",
+                  letterSpacing: "-0.02em",
+                  transition: "all 0.4s ease",
+                }}
+              >
+                LogiTrack
+              </Typography>
             </Stack>
           </Link>
 
@@ -114,6 +125,10 @@ export default function LandingNavbar() {
               {
                 label: dict.navbar.howItWorks,
                 href: `/${lang}${getLocalizedPath("/how-it-works", lang)}`,
+              },
+              {
+                label: dict.navbar.contact,
+                href: `/${lang}${getLocalizedPath("/contact", lang)}`,
               },
             ].map((item) => (
               <Typography

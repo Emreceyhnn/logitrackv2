@@ -15,6 +15,7 @@ import {
   getCanonicalPath,
 } from "@/app/lib/language/navigation";
 import { rateLimit } from "@/app/lib/rate-limiter";
+import { hasAccess, type AccessStatus } from "@/app/lib/entitlement";
 
 /* -------------------------------------------------------------------------- */
 /*  Startup Validations                                                         */
@@ -207,18 +208,26 @@ export default async function middleware(request: NextRequest) {
   // Validate JWT
   let companyId: string | null = null;
   let isTokenValid = false;
+  let accessStatus: AccessStatus | null = null;
+  let trialEndsAt: number | null = null;
 
   if (token) {
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
       const { payload } = await jwtVerify(token, secret);
       companyId = (payload.companyId as string) || null;
+      accessStatus = (payload.accessStatus as AccessStatus) ?? null;
+      trialEndsAt =
+        typeof payload.trialEndsAt === "number" ? payload.trialEndsAt : null;
       isTokenValid = true;
     } catch {
       // jwtVerify throws errors.JWTExpired if expired, or other errors if invalid
       isTokenValid = false;
     }
   }
+
+  // Effective dashboard entitlement, decided purely from the JWT summary.
+  const userHasAccess = hasAccess(accessStatus, trialEndsAt);
 
   // ── 4. Token Refresh Flow ───────────────────────────────────────────────────
   // If access token is invalid/expired, but a refresh token exists, redirect
@@ -233,28 +242,61 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Already authenticated on auth routes → redirect to dashboard,
-  // or to onboarding when the user has no company yet.
+  // Where an authenticated user belongs, given their entitlement:
+  //   - no access  → pricing (with an "expired/no access" notice)
+  //   - has company → dashboard
+  //   - otherwise   → onboarding (create a company)
+  const authedHome: { pathname: string; search: string } = !userHasAccess
+    ? { pathname: buildLocalizedHref("/pricing", locale), search: "?reason=expired" }
+    : {
+        pathname: buildLocalizedHref(
+          companyId ? DEFAULT_REDIRECT_AFTER_LOGIN : "/onboarding",
+          locale
+        ),
+        search: "",
+      };
+
+  // `/onboarding` requires access too: without it, company creation is blocked,
+  // so route the user to pricing instead of the create-company screen.
+  const isOnboarding =
+    currentPath === "/onboarding" || currentPath.startsWith("/onboarding/");
+
+  // Already authenticated on auth routes → send them to their home.
   if (isAuthRoute && isTokenValid) {
     const url = request.nextUrl.clone();
-    url.pathname = buildLocalizedHref(
-      companyId ? DEFAULT_REDIRECT_AFTER_LOGIN : "/onboarding",
-      locale
-    );
+    url.pathname = authedHome.pathname;
+    url.search = authedHome.search;
+    return NextResponse.redirect(url);
+  }
+
+  // Authenticated but without access, trying to reach onboarding → pricing.
+  if (isOnboarding && isTokenValid && !userHasAccess) {
+    const url = request.nextUrl.clone();
+    url.pathname = buildLocalizedHref("/pricing", locale);
+    url.search = "?reason=expired";
     return NextResponse.redirect(url);
   }
 
   // Company-required routes enforcement
   if (isCompanyRequired) {
-    if (isTokenValid && !companyId) {
-      const url = request.nextUrl.clone();
-      url.pathname = buildLocalizedHref("/onboarding", locale);
-      return NextResponse.redirect(url);
-    }
-
     if (!isTokenValid && !refreshToken) {
       const url = request.nextUrl.clone();
       url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);
+      return NextResponse.redirect(url);
+    }
+
+    // Signed in but no dashboard access → pricing (expired trial / no plan).
+    if (isTokenValid && !userHasAccess) {
+      const url = request.nextUrl.clone();
+      url.pathname = buildLocalizedHref("/pricing", locale);
+      url.search = "?reason=expired";
+      return NextResponse.redirect(url);
+    }
+
+    // Has access but no company yet → onboarding to create one.
+    if (isTokenValid && !companyId) {
+      const url = request.nextUrl.clone();
+      url.pathname = buildLocalizedHref("/onboarding", locale);
       return NextResponse.redirect(url);
     }
   }
@@ -264,10 +306,8 @@ export default async function middleware(request: NextRequest) {
   // crawlers) must reach the landing page, so no redirect for them.
   if (currentPath === "/" && isTokenValid) {
     const url = request.nextUrl.clone();
-    url.pathname = buildLocalizedHref(
-      companyId ? DEFAULT_REDIRECT_AFTER_LOGIN : "/onboarding",
-      locale
-    );
+    url.pathname = authedHome.pathname;
+    url.search = authedHome.search;
     return NextResponse.redirect(url);
   }
 

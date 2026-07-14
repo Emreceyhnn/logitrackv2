@@ -4,6 +4,7 @@
 
 import crypto from "crypto";
 import { SignJWT, JWTPayload } from "jose";
+import type { AccessStatus } from "@/app/lib/entitlement";
 
 export const getJwtSecret = (): string => {
   const secret = process.env.JWT_SECRET;
@@ -51,6 +52,8 @@ export type SessionUser = {
   notifEmailWeekly: boolean;
   notifPushAssignment: boolean;
   notifPushDelay: boolean;
+  accessStatus: AccessStatus;
+  trialEndsAt: number | null;
 };
 
 export interface SessionJWTPayload extends JWTPayload {
@@ -72,6 +75,8 @@ export interface SessionJWTPayload extends JWTPayload {
   notifEmailWeekly?: boolean;
   notifPushAssignment?: boolean;
   notifPushDelay?: boolean;
+  accessStatus?: AccessStatus;
+  trialEndsAt?: number | null;
 }
 
 // ─── Token Generation ───────────────────────────────────────────────────────
@@ -94,6 +99,8 @@ export async function generateAccessToken(user: {
   notifEmailWeekly?: boolean;
   notifPushAssignment?: boolean;
   notifPushDelay?: boolean;
+  accessStatus?: AccessStatus;
+  trialEndsAt?: number | null;
 }): Promise<string> {
   const secret = new TextEncoder().encode(getJwtSecret());
   return new SignJWT({
@@ -114,6 +121,8 @@ export async function generateAccessToken(user: {
     notifEmailWeekly: user.notifEmailWeekly ?? false,
     notifPushAssignment: user.notifPushAssignment ?? true,
     notifPushDelay: user.notifPushDelay ?? true,
+    accessStatus: user.accessStatus ?? "NONE",
+    trialEndsAt: user.trialEndsAt ?? null,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setJti(crypto.randomUUID())

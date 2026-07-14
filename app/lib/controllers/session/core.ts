@@ -19,6 +19,7 @@ import {
 } from "./internal";
 import { clearAuthCookies } from "./manage";
 import { logAuditEvent } from "./audit";
+import { resolveEntitlement } from "@/app/lib/entitlement.server";
 import { logger } from "@/app/lib/logger";
 
 
@@ -79,7 +80,15 @@ export async function createSession(
     finalRoleName = role?.name ?? null;
   }
   
-  const tokenUser = { ...user, roleName: finalRoleName };
+  // Bake the current access entitlement into the token so the edge middleware
+  // can gate the dashboard without a DB round-trip.
+  const access = await resolveEntitlement(user.id);
+  const tokenUser = {
+    ...user,
+    roleName: finalRoleName,
+    accessStatus: access.accessStatus,
+    trialEndsAt: access.trialEndsAt,
+  };
   const accessToken = await generateAccessToken(tokenUser);
   const refreshToken = generateRefreshToken();
 
@@ -263,6 +272,8 @@ export async function validateSession(): Promise<SessionUser | null> {
       return null;
     }
 
+    const access = await resolveEntitlement(session.user.id);
+
     // Throttled update of lastActivityAt
     const timeSinceLastActivity = Date.now() - new Date(session.lastActivityAt).getTime();
     if (timeSinceLastActivity > ACTIVITY_THROTTLE_MS) {
@@ -302,6 +313,8 @@ export async function validateSession(): Promise<SessionUser | null> {
       notifEmailWeekly: session.user.notifEmailWeekly,
       notifPushAssignment: session.user.notifPushAssignment,
       notifPushDelay: session.user.notifPushDelay,
+      accessStatus: access.accessStatus,
+      trialEndsAt: access.trialEndsAt,
     };
   } catch (error) {
     if ((error as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') {
@@ -373,10 +386,14 @@ export async function refreshSession(): Promise<boolean> {
       return false;
     }
 
-    // Generate new tokens
+    // Generate new tokens — re-resolve entitlement so a trial granted after the
+    // last login (e.g. an approved demo) takes effect on the next refresh.
+    const access = await resolveEntitlement(session.user.id);
     const newAccessToken = await generateAccessToken({
       ...session.user,
       roleName: session.user.role?.name ?? null,
+      accessStatus: access.accessStatus,
+      trialEndsAt: access.trialEndsAt,
     });
     const newRefreshToken = generateRefreshToken();
     const newTokenHash = hashToken(newAccessToken);

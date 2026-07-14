@@ -135,7 +135,7 @@ export default function LandingHeaderAuth() {
       <Button
         variant="contained"
         component={Link}
-        href={`/${lang}${getLocalizedPath("/auth/sign-up", lang)}`}
+        href={`/${lang}${getLocalizedPath("/contact", lang)}`}
         sx={{
           textTransform: "none",
           fontWeight: 700,
@@ -151,7 +151,7 @@ export default function LandingHeaderAuth() {
           transition: "all 0.2s",
         }}
       >
-        {dict.navbar.startPro}
+        {dict.navbar.contact}
       </Button>
     </Stack>
   );

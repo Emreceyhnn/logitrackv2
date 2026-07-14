@@ -6,6 +6,8 @@ import { authenticatedAction } from "../../auth-middleware";
 import { createSession, revokeSession } from "../session";
 import { invalidateCompanyCache, ensureStandardRoles } from "./shared";
 import { controllerGuard } from "../utils/controllerGuard";
+import { hasAccess } from "../../entitlement";
+import { ForbiddenError } from "../../errors";
 
 export const createCompany = authenticatedAction(
   async (
@@ -14,6 +16,13 @@ export const createCompany = authenticatedAction(
     avatarUrl?: string,
     regional?: { timezone: string; currency: string; language: string }
   ) => {
+    // Server-side entitlement guard (the middleware gate is the first line of
+    // defense; this closes the direct-action path). Only a live trial or an
+    // active plan may create a company.
+    if (!hasAccess(user.accessStatus, user.trialEndsAt)) {
+      throw new ForbiddenError("An active plan or trial is required to create a company");
+    }
+
     const existingCompany = await db.company.findUnique({ where: { name } });
     if (existingCompany) throw new Error("Company name already exists");
 

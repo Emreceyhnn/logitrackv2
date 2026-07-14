@@ -10,7 +10,6 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import TwitterIcon from "@mui/icons-material/Twitter";
 import Image from "next/image";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -21,26 +20,50 @@ export default function LandingFooter() {
     {
       title: dict.landing.footer.sections.platform,
       links: [
-        { label: dict.landing.footer.sections.globalTracking, href: "/global-tracking" },
-        { label: dict.landing.footer.sections.routeIntelligence, href: "/route-intelligence" },
-        { label: dict.landing.footer.sections.telemetryHub, href: "/telemetry-hub" },
-        { label: dict.landing.footer.sections.securityCenter, href: "/security-center" },
+        {
+          label: dict.landing.footer.sections.globalTracking,
+          href: "/global-tracking",
+        },
+        {
+          label: dict.landing.footer.sections.routeIntelligence,
+          href: "/route-intelligence",
+        },
+        {
+          label: dict.landing.footer.sections.telemetryHub,
+          href: "/telemetry-hub",
+        },
+        {
+          label: dict.landing.footer.sections.securityCenter,
+          href: "/security-center",
+        },
       ],
     },
     {
       title: dict.landing.footer.sections.solutions,
       links: [
         { label: dict.landing.footer.sections.enterprise, href: "/enterprise" },
-        { label: dict.landing.footer.sections.smbLogistics, href: "/smb-logistics" },
-        { label: dict.landing.footer.sections.supplyChain, href: "/supply-chain" },
+        {
+          label: dict.landing.footer.sections.smbLogistics,
+          href: "/smb-logistics",
+        },
+        {
+          label: dict.landing.footer.sections.supplyChain,
+          href: "/supply-chain",
+        },
         { label: dict.landing.footer.sections.customApi, href: "/custom-api" },
       ],
     },
     {
       title: dict.landing.footer.sections.company,
       links: [
-        { label: dict.landing.footer.sections.ourMission, href: "/our-mission" },
-        { label: dict.landing.footer.sections.engineering, href: "/engineering" },
+        {
+          label: dict.landing.footer.sections.ourMission,
+          href: "/our-mission",
+        },
+        {
+          label: dict.landing.footer.sections.engineering,
+          href: "/engineering",
+        },
         { label: dict.landing.footer.sections.pressKit, href: "/press-kit" },
         { label: dict.landing.footer.sections.careers, href: "/careers" },
       ],
@@ -48,8 +71,14 @@ export default function LandingFooter() {
     {
       title: dict.landing.footer.sections.support,
       links: [
-        { label: dict.landing.footer.sections.devDocs, href: "/developer-docs" },
-        { label: dict.landing.footer.sections.helpCenter, href: "/help-center" },
+        {
+          label: dict.landing.footer.sections.devDocs,
+          href: "/developer-docs",
+        },
+        {
+          label: dict.landing.footer.sections.helpCenter,
+          href: "/help-center",
+        },
         { label: dict.landing.footer.sections.privacy, href: "/privacy" },
         { label: dict.landing.footer.sections.sla, href: "/sla" },
       ],
@@ -112,7 +141,7 @@ export default function LandingFooter() {
               </Typography>
               <Stack direction="row" spacing={3}>
                 <MuiLink
-                  href="#"
+                  href="https://www.linkedin.com/in/emreceyhn/"
                   aria-label="LinkedIn"
                   sx={{
                     color: "rgba(255, 255, 255, 0.4)",
@@ -120,16 +149,6 @@ export default function LandingFooter() {
                   }}
                 >
                   <LinkedInIcon />
-                </MuiLink>
-                <MuiLink
-                  href="#"
-                  aria-label="Twitter"
-                  sx={{
-                    color: "rgba(255, 255, 255, 0.4)",
-                    "&:hover": { color: "#00f2ff" },
-                  }}
-                >
-                  <TwitterIcon />
                 </MuiLink>
               </Stack>
             </Stack>

@@ -20,7 +20,8 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     "features": "ozellikler",
     "pricing": "fiyatlandirma",
     "about": "hakkimizda",
-    "how-it-works": "nasil-calisir"
+    "how-it-works": "nasil-calisir",
+    "contact": "iletisim"
   },
   en: {
     "overview": "overview",
@@ -42,7 +43,8 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     "features": "features",
     "pricing": "pricing",
     "about": "about",
-    "how-it-works": "how-it-works"
+    "how-it-works": "how-it-works",
+    "contact": "contact"
   }
 };
 

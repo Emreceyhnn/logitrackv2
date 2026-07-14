@@ -454,6 +454,10 @@
         "title": "How It Works",
         "description": "See how LogiTrack orchestrates end-to-end logistics operations."
       },
+      "contact": {
+        "title": "Contact & Demo Request",
+        "description": "Get in touch with our team or request a live demo. Our experts will get back to you shortly."
+      },
       "enterprise": {
         "title": "Enterprise Solutions",
         "description": "Built for the scale of global operations with dedicated infrastructure and white-glove onboarding."
@@ -523,11 +527,12 @@
       "badge": "AI logistics control tower",
       "trusted": "Trusted worldwide",
       "titleMain": "Orchestrate every shipment with live intelligence",
-      "titleHighlight": "Absolute Clarity.",
+      "titleHighlight": "Absolute Clarity",
       "description": "Synchronize dispatch, fleets, and customer promises in one immersive dashboard. Forecast issues before they happen and keep routes optimized with predictive AI.",
       "discover": "Discover Now",
       "startTrial": "Start Trial",
       "demo": "Request a Demo",
+      "signIn": "Sign In",
       "metrics": {
         "activeRoutes": "Active Routes",
         "vehicles": "Vehicles",
@@ -535,6 +540,27 @@
         "slaTrend": "+14% in the last 30 days",
         "predictiveEtaReady": "Predictive ETA ready",
         "lastUpdate": "Last update 45 seconds ago"
+      }
+    },
+    "contactPage": {
+      "badge": "Contact",
+      "title": "Get in Touch",
+      "subtitle": "Request a live demo or send us your questions. Our team will get back to you as soon as possible",
+      "form": {
+        "fullName": "Full Name",
+        "email": "Email",
+        "company": "Company",
+        "message": "Your Message",
+        "messagePlaceholder": "How can we help? Briefly describe what you need.",
+        "submit": "Send Request",
+        "submitting": "Sending..."
+      },
+      "success": "Your request has been received. We'll be in touch shortly.",
+      "error": "Could not send your request. Please try again.",
+      "validation": {
+        "fullNameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address"
       }
     },
     "operations": {
@@ -588,7 +614,7 @@
     },
     "features": {
       "overline": "Core features",
-      "title": "Everything you need for end-to-end visibility.",
+      "title": "Everything you need for end-to-end visibility",
       "description": "Coordinate dispatch, drivers, and customer updates with intelligent workflows designed for complex logistics operations.",
       "smartRoute": {
         "title": "Smart Route Planning",
@@ -609,10 +635,10 @@
     },
     "workflow": {
       "step": "Step",
-      "title1": "Connect Your Fleet",
-      "desc1": "Integrate telematics, TMS, and WMS data sources in minutes with prebuilt connectors.",
+      "title1": "Register Your Fleet",
+      "desc1": "Add your vehicles to the platform, and our expert team will handle the technical tracking integration for you.",
       "title2": "Visualize Operations",
-      "desc2": "Monitor every shipment and asset in real time with adaptive dashboards and heatmaps.",
+      "desc2": "Monitor every shipment and asset in real time with adaptive dashboards and reports.",
       "title3": "Automate Decisions",
       "desc3": "Trigger proactive workflows, alerts, and customer updates before issues escalate.",
       "title4": "Optimize Routes",
@@ -628,7 +654,7 @@
       "trial": "Start Free Trial",
       "sales": "Talk to Sales"
     },
-    "trusted": "Trusted by industry leaders",
+    "trusted": "Powering modern operations",
     "trustedLogos": [
       "Global Cargo",
       "Oceanic",
@@ -638,7 +664,8 @@
     ],
     "pricing": {
       "badge": "Pricing Plans",
-      "title": "Predictable Pricing for <br /> Unpredictable Logistics.",
+      "accessNotice": "Your trial has ended or you don't have active access. Request a demo or get in touch to continue.",
+      "title": "Predictable Pricing for <br /> Unpredictable Logistics",
       "monthly": "Monthly",
       "yearly": "Yearly",
       "save": "Save 20%",
@@ -687,7 +714,7 @@
       },
       "infrastructure": {
         "title": "Enterprise-Grade Security & Performance",
-        "description": "Need more than 10,000 routes per month? Our Global infrastructure handles millions of telemetry events per second with 99.99% uptime. Contact our engineering team for custom integration solutions and volume-based pricing.",
+        "description": "Need more than 10,000 routes per month? Contact our engineering team for custom integration solutions and volume-based pricing.",
         "cta": "Learn about our Infrastructure →"
       },
       "footer": {
@@ -697,8 +724,8 @@
     },
     "featuresPage": {
       "badge": "Product Capabilities",
-      "heroTitle": "Engineering the <br /> Modern Supply Chain.",
-      "heroSubtitle": "From predictive telemetry to autonomous warehouse orchestration, explore the tools redefining what it means to be a global logistics leader.",
+      "heroTitle": "Engineering the <br /> Modern Supply Chain",
+      "heroSubtitle": "From predictive telemetry to autonomous warehouse orchestration, explore the tools redefining what it means to be a global logistics leader",
       "items": {
         "routeOptimization": {
           "title": "AI Route Optimization",
@@ -752,7 +779,7 @@
         },
         "api": {
           "title": "API-First Architecture",
-          "description": "Integrate with SAP, Oracle, or custom legacy systems in hours, not weeks, using our robust SDK and webhook infrastructure.",
+          "description": "Utilize modern REST API and webhook architecture for seamless integration with your existing systems.",
           "tag": "Modular",
           "details": [
             "REST & GraphQL APIs",
@@ -763,7 +790,7 @@
       },
       "infrastructure": {
         "overline": "Unified Infrastructure",
-        "title": "One Dashboard. Infinite Control.",
+        "title": "One Dashboard Infinite Control",
         "description": "Our features aren't standalone tools—they are part of a deeply integrated ecosystem. When your warehouse updates, your fleet reacts. When traffic spikes, your customer knows. That is the Logi-Track advantage.",
         "stats": [
           "Cloud Native",
@@ -787,12 +814,12 @@
     "aboutPage": {
       "mission": {
         "badge": "Our Mission",
-        "title": "Orchestrating the Future of Global Trade.",
-        "subtitle": "At LogiTrack, we don’t just track shipments—we synchronize entire supply chains. Our mission is to transform fragmented logistics data into live intelligence."
+        "title": "Orchestrating the Future of Global Trade",
+        "subtitle": "At LogiTrack, we don’t just track shipments—we synchronize entire supply chains. Our mission is to transform fragmented logistics data into live intelligence"
       },
       "vision": {
         "overline": "The LogiTrack Vision",
-        "title": "Eliminating the blind spots in modern logistics.",
+        "title": "Eliminating the blind spots in modern logistics",
         "description": "Born from the intersection of AI innovation and operational expertise, LogiTrack was built to solve the most complex challenges in freight and warehouse management. We envision a world where every vehicle, warehouse, and shipment is part of a unified, self-optimizing ecosystem."
       },
       "pillars": {
@@ -814,7 +841,7 @@
       },
       "why": {
         "title": "Why We Do It",
-        "subtitle": "In an era of instant expectations, logistics is no longer a back-office function—it is a competitive advantage. LogiTrack provides the tools to turn that advantage into a market-leading reality."
+        "subtitle": "In an era of instant expectations, logistics is no longer a back-office function—it is a competitive advantage. LogiTrack provides the tools to turn that advantage into a market-leading reality"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -824,13 +851,14 @@
       "hero": {
         "overline": "OUR PROCESS",
         "title": "How LogiTrack Works",
-        "subtitle": "A comprehensive, end-to-end logistics orchestration platform designed to scale with your business needs."
+        "subtitle": "A comprehensive, end-to-end logistics orchestration platform designed to scale with your business needs"
       },
       "cta": {
         "title": "Ready to Optimize?",
-        "subtitle": "Join hundreds of companies that have modernized their logistics with LogiTrack.",
+        "subtitle": "Join hundreds of companies that have modernized their logistics with LogiTrack",
         "getStarted": "Get Started Free",
-        "bookDemo": "Book a Demo"
+        "bookDemo": "Book a Demo",
+        "freeDemo": "Request a Free Demo"
       },
       "footer": {
         "rights": "© {year} Logi-Track. All rights reserved.",
@@ -842,8 +870,8 @@
     "globalTrackingPage": {
       "hero": {
         "badge": "Global Tracking",
-        "title": "Real-Time Visibility Across Every Continent.",
-        "subtitle": "Monitor your entire fleet and shipments in real-time with sub-second precision across 190+ countries and territories."
+        "title": "Real-Time Visibility Across Every Continent",
+        "subtitle": "Track your fleet and shipments seamlessly from anywhere in the world with our cloud-based infrastructure"
       },
       "sections": {
         "liveMap": {
@@ -860,18 +888,18 @@
         }
       },
       "stats": {
-        "countries": "190+",
+        "countries": "Global",
         "countriesLabel": "Countries Covered",
         "updates": "< 1s",
         "updatesLabel": "Update Latency",
-        "uptime": "99.99%",
+        "uptime": "High",
         "uptimeLabel": "Platform Uptime",
         "events": "10M+",
         "eventsLabel": "Daily Events"
       },
       "cta": {
         "title": "Start Tracking Globally",
-        "subtitle": "Deploy real-time tracking across your entire logistics network in under 48 hours."
+        "subtitle": "Deploy real-time tracking across your entire logistics network in under 48 hours"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -880,8 +908,8 @@
     "routeIntelligencePage": {
       "hero": {
         "badge": "Route Intelligence",
-        "title": "AI-Powered Route Optimization at Scale.",
-        "subtitle": "Reduce fuel costs by up to 23% and delivery times by 18% with our proprietary machine learning route engine."
+        "title": "AI-Powered Route Optimization at Scale",
+        "subtitle": "Reduce fuel costs by up to 23% and delivery times by 18% with our proprietary machine learning route engine"
       },
       "sections": {
         "predictive": {
@@ -899,12 +927,12 @@
       },
       "detail": {
         "overline": "The Algorithm",
-        "title": "Built on millions of data points.",
-        "description": "Our route intelligence engine processes over 50 million route calculations daily, continuously learning from real-world delivery outcomes to improve accuracy."
+        "title": "Built on millions of data points",
+        "description": "Our route intelligence engine processes real-time road and location data using modern cloud infrastructure designed to improve delivery accuracy."
       },
       "cta": {
         "title": "Optimize Your Routes",
-        "subtitle": "See how AI-driven routing can transform your delivery operations."
+        "subtitle": "See how AI-driven routing can transform your delivery operations"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -913,8 +941,8 @@
     "telemetryHubPage": {
       "hero": {
         "badge": "Telemetry Hub",
-        "title": "Every Sensor. Every Signal. One Dashboard.",
-        "subtitle": "Aggregate and analyze telemetry data from thousands of IoT devices, vehicles, and warehouse sensors in real-time."
+        "title": "Every Sensor Every Signal One Dashboard",
+        "subtitle": "Aggregate and analyze telemetry data from thousands of IoT devices, vehicles, and warehouse sensors in real-time"
       },
       "sections": {
         "vehicleHealth": {
@@ -932,12 +960,12 @@
       },
       "detail": {
         "overline": "Data Pipeline",
-        "title": "From sensor to insight in milliseconds.",
+        "title": "From sensor to insight in milliseconds",
         "description": "Our edge-to-cloud telemetry pipeline processes raw sensor data through noise filtering, anomaly detection, and contextual enrichment before surfacing actionable intelligence."
       },
       "cta": {
-        "title": "Connect Your Fleet",
-        "subtitle": "Hardware-agnostic integration with 200+ telematics devices and IoT platforms."
+        "title": "Register Your Fleet",
+        "subtitle": "Add your vehicles while our team handles the complex IoT data integrations"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -946,8 +974,8 @@
     "securityCenterPage": {
       "hero": {
         "badge": "Security Center",
-        "title": "Zero-Trust Security for Mission-Critical Logistics.",
-        "subtitle": "Enterprise-grade protection with 256-bit AES encryption, SOC 2 Type II compliance, and continuous threat monitoring."
+        "title": "Zero-Trust Security for Mission-Critical Logistics",
+        "subtitle": "Solid protection with modern authentication, role-based access control, and industry-standard data security"
       },
       "sections": {
         "encryption": {
@@ -956,21 +984,21 @@
         },
         "accessControl": {
           "title": "Granular Access Control",
-          "description": "Role-based access with multi-factor authentication, IP whitelisting, and session management. Full audit trail for every action."
+          "description": "Securely manage user permissions with role-based access control."
         },
         "compliance": {
           "title": "Global Compliance",
-          "description": "SOC 2 Type II, ISO 27001, GDPR, and PCI-DSS certified. Automated compliance reporting and continuous security assessments."
+          "description": "Transparent and auditable infrastructure protected by Firebase Auth, Prisma, and modern cloud security standards."
         }
       },
       "detail": {
         "overline": "Threat Detection",
-        "title": "24/7 security operations center.",
-        "description": "Our dedicated security team monitors for threats around the clock, with automated incident response and real-time vulnerability scanning across all infrastructure layers."
+        "title": "Continuous cloud security monitoring",
+        "description": "Our infrastructure is protected by automated threat detection and standard security measures provided by serverless architecture."
       },
       "cta": {
         "title": "Review Our Security",
-        "subtitle": "Download our SOC 2 report and security whitepaper."
+        "subtitle": "Learn more about our security standards"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -979,31 +1007,31 @@
     "enterprisePage": {
       "hero": {
         "badge": "Enterprise Solutions",
-        "title": "Built for the Scale of Global Operations.",
-        "subtitle": "Custom deployment options, dedicated infrastructure, and white-glove onboarding for organizations managing 10,000+ shipments monthly."
+        "title": "Built for the Scale of Global Operations",
+        "subtitle": "Scalable infrastructure for teams looking to digitize their enterprise logistics processes with modern technologies."
       },
       "sections": {
         "dedicated": {
           "title": "Dedicated Infrastructure",
-          "description": "Private cloud instances with guaranteed resource allocation, custom SLAs, and data residency options across 12 global regions."
+          "description": "High-performance, scalable, and secure hosting solutions powered by modern cloud infrastructure."
         },
         "integration": {
           "title": "Deep ERP Integration",
-          "description": "Native connectors for SAP, Oracle, Microsoft Dynamics, and custom legacy systems. Full bidirectional data sync in real-time."
+          "description": "Secure and flexible data synchronization with custom Webhook and REST API connectors for your business systems."
         },
         "support": {
           "title": "24/7 Priority Support",
-          "description": "Named account managers, dedicated Slack channels, and guaranteed 15-minute response times for critical incidents."
+          "description": "Find answers to your questions through comprehensive documentation and direct access to our support team via email."
         }
       },
       "detail": {
         "overline": "Enterprise Scale",
-        "title": "Trusted by Fortune 500 logistics leaders.",
-        "description": "Our enterprise platform handles over 2 million daily transactions with 99.99% uptime, serving some of the world's largest supply chain operations."
+        "title": "Designed for modern logistics teams",
+        "description": "Our scalable platform is built on flexible and reliable cloud technologies to adapt to your growing supply chain operations."
       },
       "cta": {
         "title": "Talk to Enterprise Sales",
-        "subtitle": "Get a custom proposal tailored to your organization's specific requirements."
+        "subtitle": "Get a custom proposal tailored to your organization's specific requirements"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1012,31 +1040,31 @@
     "customApiPage": {
       "hero": {
         "badge": "Custom API",
-        "title": "Integrate LogiTrack into Your Systems.",
-        "subtitle": "Robust, high-performance APIs for custom logistics integrations and advanced automation."
+        "title": "Integrate LogiTrack into Your Systems",
+        "subtitle": "Simple and standard REST endpoints to access your LogiTrack data from your own applications"
       },
       "sections": {
         "dedicated": {
-          "title": "RESTful & GraphQL Support",
-          "description": "Flexible API architectures to suit your engineering team's preferences and requirements."
+          "title": "Basic REST Endpoints",
+          "description": "Standard integration infrastructure where you can access shipment, vehicle, and driver data from your own systems."
         },
         "integration": {
-          "title": "High Throughput",
-          "description": "Engineered to handle thousands of requests per second with sub-millisecond latency."
+          "title": "Easy Data Transfer",
+          "description": "Fast and reliable data synchronization between systems with JSON-based data exchange."
         },
         "support": {
-          "title": "Developer First",
-          "description": "Comprehensive documentation, SDKs in multiple languages, and dedicated developer support."
+          "title": "Simple Documentation",
+          "description": "Basic API examples and guides for your developers."
         }
       },
       "detail": {
         "overline": "Developer Experience",
-        "title": "Built by developers, for developers.",
+        "title": "Built by developers, for developers",
         "description": "Our APIs are designed with predictability, consistency, and clear error handling in mind."
       },
       "cta": {
         "title": "View API Documentation",
-        "subtitle": "Start building your integration today."
+        "subtitle": "Start building your integration today"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1045,8 +1073,8 @@
     "smbLogisticsPage": {
       "hero": {
         "badge": "SMB Logistics",
-        "title": "Enterprise Power. Startup Simplicity.",
-        "subtitle": "Get the same AI-powered logistics tools used by industry leaders, packaged for small and medium businesses with transparent pricing."
+        "title": "Enterprise Power Startup Simplicity",
+        "subtitle": "Get AI-powered logistics tools utilizing industry best practices, packaged with transparent pricing"
       },
       "sections": {
         "quickStart": {
@@ -1064,12 +1092,12 @@
       },
       "detail": {
         "overline": "Built for Growth",
-        "title": "Scale without complexity.",
+        "title": "Scale without complexity",
         "description": "Whether you are managing 50 or 5,000 shipments per month, our platform grows with you. No migration headaches, no feature gates."
       },
       "cta": {
         "title": "Start Free Today",
-        "subtitle": "No credit card required. Full access for 14 days."
+        "subtitle": "No credit card required. 7 days full access"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1078,8 +1106,8 @@
     "supplyChainPage": {
       "hero": {
         "badge": "Supply Chain",
-        "title": "End-to-End Supply Chain Orchestration.",
-        "subtitle": "Unified visibility from raw material sourcing to last-mile delivery. Coordinate suppliers, carriers, and warehouses on a single platform."
+        "title": "End-to-End Supply Chain Orchestration",
+        "subtitle": "Unified visibility for land logistics from raw material procurement to last-mile delivery. Coordinate fleets, drivers, and warehouses on a single platform"
       },
       "sections": {
         "visibility": {
@@ -1091,18 +1119,18 @@
           "description": "Score and monitor supplier performance with automated KPI tracking, compliance verification, and risk assessment dashboards."
         },
         "multiModal": {
-          "title": "Multi-Modal Coordination",
-          "description": "Seamlessly manage ocean freight, air cargo, rail, and ground transport with intelligent mode-shifting recommendations."
+          "title": "Manage Your Fleet From One Screen",
+          "description": "Seamlessly manage all your trucks, vans, and distribution vehicles in land logistics with smart route suggestions."
         }
       },
       "detail": {
         "overline": "Supply Chain Intelligence",
-        "title": "Predict disruptions before they happen.",
-        "description": "Our AI analyzes weather patterns, geopolitical events, port congestion, and supplier reliability data to forecast potential supply chain disruptions weeks in advance."
+        "title": "Predict disruptions before they happen",
+        "description": "Our system analyzes traffic density, road conditions, and vehicle capacity data to predict potential delivery delays in advance."
       },
       "cta": {
         "title": "Unify Your Supply Chain",
-        "subtitle": "See how end-to-end visibility transforms supply chain performance."
+        "subtitle": "See how end-to-end visibility transforms supply chain performance"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1111,8 +1139,8 @@
     "ourMissionPage": {
       "hero": {
         "badge": "Our Mission",
-        "title": "Moving the World with Intelligence.",
-        "subtitle": "We believe logistics is the backbone of global commerce. Our mission is to make it smarter, faster, and more sustainable."
+        "title": "Moving the World with Intelligence",
+        "subtitle": "We believe logistics is the backbone of global commerce. Our mission is to make it smarter, faster, and more sustainable"
       },
       "sections": {
         "innovation": {
@@ -1130,12 +1158,12 @@
       },
       "detail": {
         "overline": "Our Story",
-        "title": "Founded by operators, built for operators.",
+        "title": "Founded by operators, built for operators",
         "description": "LogiTrack was born from the frustration of managing complex supply chains with fragmented tools. Our founders spent decades in logistics operations before building the platform they always wished existed."
       },
       "cta": {
         "title": "Join Our Mission",
-        "subtitle": "Partner with us in building the future of intelligent logistics."
+        "subtitle": "Partner with us in building the future of intelligent logistics"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1144,8 +1172,8 @@
     "engineeringPage": {
       "hero": {
         "badge": "Engineering",
-        "title": "The Technology Behind the Intelligence.",
-        "subtitle": "Built on cutting-edge cloud-native architecture, our engineering team pushes the limits of real-time data processing at global scale."
+        "title": "The Technology Behind the Intelligence",
+        "subtitle": "Built on cutting-edge cloud-native architecture, our engineering team pushes the limits of real-time data processing at global scale"
       },
       "sections": {
         "architecture": {
@@ -1163,12 +1191,12 @@
       },
       "detail": {
         "overline": "Open Source",
-        "title": "We give back to the community.",
+        "title": "We give back to the community",
         "description": "Our team actively contributes to open-source projects and has published several libraries for logistics data processing, geospatial indexing, and real-time event streaming."
       },
       "cta": {
         "title": "Explore Our Tech Stack",
-        "subtitle": "Read our engineering blog and see how we build at scale."
+        "subtitle": "Read our engineering blog and see how we build at scale"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1177,8 +1205,8 @@
     "pressKitPage": {
       "hero": {
         "badge": "Press Kit",
-        "title": "LogiTrack in the Media.",
-        "subtitle": "Brand assets, press releases, and media resources for journalists and partners covering logistics technology."
+        "title": "LogiTrack in the Media",
+        "subtitle": "Brand assets, press releases, and media resources for journalists and partners covering logistics technology"
       },
       "sections": {
         "brand": {
@@ -1196,12 +1224,12 @@
       },
       "detail": {
         "overline": "In The News",
-        "title": "Recognized by industry leaders.",
+        "title": "Recognized by industry leaders",
         "description": "LogiTrack has been featured in TechCrunch, Forbes, Supply Chain Dive, and recognized as a leader in the Gartner Magic Quadrant for Transportation Management Systems."
       },
       "cta": {
         "title": "Get in Touch",
-        "subtitle": "Our PR team is available for interviews and media inquiries."
+        "subtitle": "Our PR team is available for interviews and media inquiries"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1210,8 +1238,8 @@
     "careersPage": {
       "hero": {
         "badge": "Careers",
-        "title": "Build the Future of Logistics.",
-        "subtitle": "Join a team of engineers, designers, and logistics experts solving some of the world's most complex supply chain challenges."
+        "title": "Build the Future of Logistics",
+        "subtitle": "Join a team of engineers, designers, and logistics experts solving some of the world's most complex supply chain challenges"
       },
       "sections": {
         "culture": {
@@ -1229,12 +1257,12 @@
       },
       "detail": {
         "overline": "Open Positions",
-        "title": "We are hiring across all teams.",
+        "title": "We are hiring across all teams",
         "description": "From senior backend engineers to product designers, we are looking for passionate people who want to transform the logistics industry. Remote positions available globally."
       },
       "cta": {
         "title": "View Open Positions",
-        "subtitle": "Find your next role and apply today."
+        "subtitle": "Find your next role and apply today"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1243,8 +1271,8 @@
     "developerDocsPage": {
       "hero": {
         "badge": "Developer Docs",
-        "title": "Build on the LogiTrack Platform.",
-        "subtitle": "Comprehensive API documentation, SDKs, and integration guides to extend and customize your logistics operations."
+        "title": "Build on the LogiTrack Platform",
+        "subtitle": "Comprehensive API documentation, SDKs, and integration guides to extend and customize your logistics operations"
       },
       "sections": {
         "restApi": {
@@ -1262,12 +1290,12 @@
       },
       "detail": {
         "overline": "Developer Experience",
-        "title": "From zero to integration in hours.",
+        "title": "From zero to integration in hours",
         "description": "Our API-first architecture and comprehensive SDKs make it possible to integrate LogiTrack with your existing systems in hours, not weeks. Sandbox environments included."
       },
       "cta": {
         "title": "Start Building",
-        "subtitle": "Get your API keys and explore the documentation."
+        "subtitle": "Get your API keys and explore the documentation"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1276,8 +1304,8 @@
     "helpCenterPage": {
       "hero": {
         "badge": "Help Center",
-        "title": "We Are Here to Help.",
-        "subtitle": "Find answers, get support, and access resources to make the most of your LogiTrack platform."
+        "title": "We Are Here to Help",
+        "subtitle": "Find answers, get support, and access resources to make the most of your LogiTrack platform"
       },
       "sections": {
         "knowledgeBase": {
@@ -1295,12 +1323,12 @@
       },
       "detail": {
         "overline": "Support Tiers",
-        "title": "The right level of support for every team.",
+        "title": "The right level of support for every team",
         "description": "From self-service knowledge base access to dedicated 24/7 enterprise support with guaranteed SLAs, we offer support tiers that scale with your needs."
       },
       "cta": {
         "title": "Contact Support",
-        "subtitle": "Our team typically responds within 2 hours during business hours."
+        "subtitle": "Our team typically responds within 2 hours during business hours"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1309,8 +1337,8 @@
     "privacyPage": {
       "hero": {
         "badge": "Privacy Policy",
-        "title": "Your Data, Your Rights.",
-        "subtitle": "We are committed to protecting your privacy and handling your data with full transparency and in compliance with global regulations."
+        "title": "Your Data, Your Rights",
+        "subtitle": "We are committed to protecting your privacy and handling your data with full transparency and in compliance with global regulations"
       },
       "sections": {
         "collection": {
@@ -1323,17 +1351,17 @@
         },
         "security": {
           "title": "How We Protect Your Data",
-          "description": "All data is encrypted at rest and in transit using AES-256 and TLS 1.3. We maintain SOC 2 Type II certification and conduct regular third-party security audits."
+          "description": "Our platform protects all data at rest and in transit using industry-standard encryption algorithms."
         }
       },
       "detail": {
         "overline": "Compliance",
-        "title": "Built for global privacy standards.",
+        "title": "Built for global privacy standards",
         "description": "Our platform is designed from the ground up to comply with GDPR, CCPA, PIPEDA, and other international privacy regulations. Data residency options available for all enterprise accounts."
       },
       "cta": {
         "title": "Questions About Privacy?",
-        "subtitle": "Contact our Data Protection Officer at privacy@logitrack.io."
+        "subtitle": "Contact our Data Protection Officer at privacy@logitrack.io"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1342,13 +1370,13 @@
     "slaPage": {
       "hero": {
         "badge": "Service Level Agreement",
-        "title": "Our Commitment to Reliability.",
-        "subtitle": "Industry-leading uptime guarantees, transparent incident reporting, and clear escalation paths for every service tier."
+        "title": "Our Commitment to Reliability",
+        "subtitle": "Cloud-based infrastructure for reliable performance, transparent reporting, and high availability"
       },
       "sections": {
         "uptime": {
-          "title": "99.99% Uptime Guarantee",
-          "description": "Our platform maintains 99.99% availability across all regions, backed by multi-region redundancy, automatic failover, and real-time health monitoring."
+          "title": "High Availability Goal",
+          "description": "Our platform operates with a goal of high availability through modern serverless hosting systems."
         },
         "response": {
           "title": "Incident Response Times",
@@ -1361,12 +1389,12 @@
       },
       "detail": {
         "overline": "Service Credits",
-        "title": "If we miss our targets, you do not pay.",
-        "description": "Should our uptime fall below the guaranteed threshold, affected customers automatically receive service credits. No tickets required — credits are applied proactively."
+        "title": "Transparent Service Policy",
+        "description": "We aim to continuously improve our service quality and provide an uninterrupted experience to our users."
       },
       "cta": {
         "title": "Review Full SLA Terms",
-        "subtitle": "Download our complete SLA documentation for your records."
+        "subtitle": "Download our complete SLA documentation for your records"
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1405,6 +1433,7 @@
     "pricing": "Pricing",
     "about": "About",
     "howItWorks": "How It Works",
+    "contact": "Contact",
     "dashboard": "Dashboard",
     "setupOrg": "Setup Org",
     "signIn": "Sign In",
@@ -1451,7 +1480,7 @@
   },
   "vehicles": {
     "title": "Vehicle Fleet Management",
-    "subtitle": "Track, manage and optimize your logistics fleet in real-time.",
+    "subtitle": "Track, manage and optimize your logistics fleet in real-time",
     "addVehicle": "Add Vehicle",
     "vehicleTable": "Vehicle Table",
     "maxLoadCapacityChart": "Vehicle Max Load Capacity Chart",
@@ -1763,7 +1792,7 @@
   },
   "drivers": {
     "title": "Driver Management",
-    "subtitle": "Manage your fleet drivers, monitor performance and license status.",
+    "subtitle": "Manage your fleet drivers, monitor performance and license status",
     "addDriver": "Add Driver",
     "totalDrivers": "Total Fleet Drivers",
     "onDuty": "On Duty",
@@ -2143,7 +2172,7 @@
   },
   "company": {
     "title": "Company Configuration",
-    "subtitle": "Manage your organization, team members, and regional settings.",
+    "subtitle": "Manage your organization, team members, and regional settings",
     "overview": "Manage your organization, members and settings.",
     "addMember": "Add Member",
     "kpi": {
@@ -2172,7 +2201,7 @@
     },
     "branding": {
       "title": "Company Identity",
-      "subtitle": "Define your organization's legal name and digital branding.",
+      "subtitle": "Define your organization's legal name and digital branding",
       "legalName": "Legal Company Name",
       "legalNamePlaceholder": "e.g. Acme Logistics Ltd.",
       "legalNameDesc": "This name will appear on all official documents and reports.",
@@ -2192,14 +2221,14 @@
     "dialogs": {
       "identityTitle": "Company Identity",
       "regionalTitle": "Regional Configuration",
-      "identitySubtitle": "Set up your organization's core identity and branding.",
+      "identitySubtitle": "Set up your organization's core identity and branding",
       "localizationDesc": "Configure regional preferences for your organization.",
       "interfaceLanguage": "Interface Language",
       "defaultCurrency": "Default Currency",
       "activeTimezone": "Active Timezone",
       "dateTimeFormat": "Date & Time Format",
       "addMemberTitle": "Add Team Member",
-      "addMemberSubtitle": "Search for a user and assign them a role in your organization.",
+      "addMemberSubtitle": "Search for a user and assign them a role in your organization",
       "searchPlaceholder": "Search by name or email...",
       "searchResults": "Search Results",
       "assignRole": "Assign Role",
@@ -2279,7 +2308,7 @@
   },
   "shipments": {
     "title": "Shipment Management",
-    "subtitle": "Manage your shipments, monitor performance and status.",
+    "subtitle": "Manage your shipments, monitor performance and status",
     "addShipment": "Add Shipment",
     "active": "Active Shipments",
     "completed": "Completed",
@@ -2469,7 +2498,7 @@
   },
   "routes": {
     "title": "Route Planning",
-    "subtitle": "Optimize and manage your fleet's active delivery paths.",
+    "subtitle": "Optimize and manage your fleet's active delivery paths",
     "active": "Active Routes",
     "total": "Total Routes",
     "completed": "Completed",
@@ -2613,7 +2642,7 @@
   },
   "warehouses": {
     "title": "Warehouse Management",
-    "subtitle": "Manage your warehouses, monitor performance and license status.",
+    "subtitle": "Manage your warehouses, monitor performance and license status",
     "addWarehouse": "Add Warehouse",
     "deleteTitle": "Delete Warehouse?",
     "deleteDesc": "Are you sure you want to delete {name}? This action cannot be undone.",
@@ -2758,7 +2787,7 @@
     "clickToMark": "Click anywhere on the map to mark a location.",
     "demo": {
       "title": "Google Maps Integration Components",
-      "subtitle": "Modular and production-ready Google Maps React components.",
+      "subtitle": "Modular and production-ready Google Maps React components",
       "addressTitle": "1. Address Input & Marker",
       "addressDesc": "Search for an address and see it on the map.",
       "pickerTitle": "2. Map Picker",
@@ -3144,7 +3173,7 @@
       "success": "Fuel log added successfully",
       "error": "Failed to add fuel log"
     },
-    "pageSubtitle": "Manage fuel logs, track consumption, and monitor vehicle efficiency.",
+    "pageSubtitle": "Manage fuel logs, track consumption, and monitor vehicle efficiency",
     "comingSoonDescription": "We are currently building the advanced fuel management module. This feature will allow you to track fuel consumption per vehicle, integrate with fuel cards, and generate efficiency reports."
   },
   "warehouseWorker": {
@@ -3204,10 +3233,10 @@
       "requestRestockZone": "Request restock — Zone",
       "reportIssue": "Report an issue",
       "scanLogMovements": "Scan & log movements",
-      "scanSubtitle": "Scan an item, confirm the quantity, and log it as a pick or pack.",
+      "scanSubtitle": "Scan an item, confirm the quantity, and log it as a pick or pack",
       "scanAnItem": "Scan an item",
       "liveActivity": "Live activity",
-      "liveActivitySubtitle": "Every stock movement across the site, newest first.",
+      "liveActivitySubtitle": "Every stock movement across the site, newest first",
       "RESTOCK": "RESTOCK",
       "RESTOCK_REQUEST": "RESTOCK REQ",
       "PUTAWAY": "PUTAWAY",
@@ -3273,7 +3302,7 @@
   },
   "onboarding": {
     "welcomeTitle": "Welcome to {name}",
-    "welcomeSubtitle": "You have successfully registered your account. To proceed to the dashboard, you need to be associated with a company.",
+    "welcomeSubtitle": "You have successfully registered your account. To proceed to the dashboard, you need to be associated with a company",
     "createTitle": "Create a New Company",
     "createDescription": "Register a new logistics or transport company. You will be set as the initial Administrator with full control.",
     "createButton": "Create Company",
@@ -3283,7 +3312,7 @@
   },
   "users": {
     "title": "User Management",
-    "subtitle": "Manage company users, roles, and access permissions.",
+    "subtitle": "Manage company users, roles, and access permissions",
     "comingSoonDescription": "The User Management module is currently under development. Soon you will be able to invite team members, assign specific roles (e.g. Dispatcher, Manager, Admin), and track user activity logs."
   }
 }

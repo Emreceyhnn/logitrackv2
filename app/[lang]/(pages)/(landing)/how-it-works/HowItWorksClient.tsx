@@ -1,9 +1,17 @@
 import { Box, Container, Typography, Stack, Button } from "@mui/material";
 import TimelineSection from "@/app/components/how-it-works/TimelineSection";
 import type { Dictionary } from "@/app/lib/language/language";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 
-export default function HowItWorksClient({ dict }: { dict: Dictionary }) {
+export default function HowItWorksClient({
+  dict,
+  lang,
+}: {
+  dict: Dictionary;
+  lang: string;
+}) {
   const hDict = dict?.landing?.howItWorksPage;
+  const contactHref = `/${lang}${getLocalizedPath("/contact", lang)}?type=demo`;
 
 
   if (!hDict) {
@@ -113,11 +121,10 @@ export default function HowItWorksClient({ dict }: { dict: Dictionary }) {
               {hDict.cta.subtitle}
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
-              {/* Server component: `component={Link}` would pass a function
-                  across the client boundary (not serializable). MUI Button
-                  renders an <a> natively when only `href` is given. */}
+              {/* MUI Button renders a native <a> when only `href` is given,
+                  which stays serializable across the server/client boundary. */}
               <Button
-                href="/auth/sign-up"
+                href={contactHref}
                 variant="contained"
                 sx={{
                   bgcolor: "#38bdf8",
@@ -129,20 +136,7 @@ export default function HowItWorksClient({ dict }: { dict: Dictionary }) {
                   "&:hover": { bgcolor: "#0ea5e9" },
                 }}
               >
-                {hDict.cta.getStarted}
-              </Button>
-              <Button
-                variant="outlined"
-                sx={{
-                  color: "#fff",
-                  borderColor: "rgba(255, 255, 255, 0.2)",
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: "12px",
-                  "&:hover": { borderColor: "#38bdf8" },
-                }}
-              >
-                {hDict.cta.bookDemo}
+                {hDict.cta.freeDemo}
               </Button>
             </Stack>
           </Container>

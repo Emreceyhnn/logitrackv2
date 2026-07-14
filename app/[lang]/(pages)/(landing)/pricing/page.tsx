@@ -21,10 +21,13 @@ export async function generateMetadata({
 
 export default async function PricingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: string }>;
+  searchParams: Promise<{ reason?: string }>;
 }) {
   const { lang } = await params;
+  const { reason } = await searchParams;
   const dict = await getDictionary(lang);
   const breadcrumbSchema = buildBreadcrumbSchema(
     '/pricing',
@@ -36,7 +39,7 @@ export default async function PricingPage({
   return (
     <>
       <JsonLd data={breadcrumbSchema} />
-      <PricingClient />
+      <PricingClient lang={lang} showAccessNotice={reason === 'expired'} />
     </>
   );
 }

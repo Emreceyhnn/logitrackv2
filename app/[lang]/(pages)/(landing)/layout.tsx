@@ -28,8 +28,7 @@ export default async function LandingLayout({
     url: baseUrl,
     logo: `${baseUrl}/logo.svg`,
     sameAs: [
-      "https://twitter.com/logitrack",
-      "https://linkedin.com/company/logitrack",
+      "https://www.linkedin.com/in/emreceyhn/",
     ],
     description: dict.landing.metaDescription,
   };
