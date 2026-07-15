@@ -67,7 +67,7 @@ export default function RouteDialog({ open, onClose, onSuccess, route }: RouteDi
           
           <Box sx={{ flex: 1, position: "relative", display: "flex", flexDirection: "column", minHeight: 0 }}>
             <Box sx={{ height: { xs: 300, md: "auto" }, flex: { md: 1 }, minHeight: { md: 0 }, width: "100%" }}>
-              <MapRoutesDialogCard origin={mapOrigin} destination={mapDestination} stops={intermediateStops} onRouteInfoUpdate={setLiveMetrics} vehicleLocation={route.vehicle && route.vehicle.currentLat && route.vehicle.currentLng ? { lat: route.vehicle.currentLat, lng: route.vehicle.currentLng, name: route.vehicle.plate, id: route.vehicle.id } : null} />
+              <MapRoutesDialogCard origin={mapOrigin} destination={mapDestination} stops={intermediateStops} onRouteInfoUpdate={setLiveMetrics} shape={route.shape} bufferMeters={route.bufferMeters} vehicleLocation={route.vehicle && route.vehicle.currentLat && route.vehicle.currentLng ? { lat: route.vehicle.currentLat, lng: route.vehicle.currentLng, name: route.vehicle.plate, id: route.vehicle.id } : null} />
             </Box>
             <Box sx={{ p: 2, background: `linear-gradient(to top, #0B1019 0%, ${paletteTheme.background?.midnight?._alpha?.main_80} 100%)`, backdropFilter: "blur(8px)", borderTop: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
               <RoutesTelemetryCards routeId={route.id} route={route} liveDistanceKm={liveMetrics?.distanceKm} traveledKm={vehicleTraveledMetrics?.distanceKm} remainingKm={vehicleToDestMetrics?.distanceKm} durationMin={vehicleToDestMetrics?.durationMin} />

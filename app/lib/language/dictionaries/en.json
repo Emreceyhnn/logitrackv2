@@ -2569,7 +2569,8 @@
       "vehicleToDestination": "JOURNEY STATUS",
       "traveledLabel": "TRAVELED",
       "toDestination": "REMAINING",
-      "etaLabel": "ETA"
+      "etaLabel": "ETA",
+      "deviationCorridor": "Deviation corridor: ±{buffer} m"
     },
     "dialogs": {
       "localizationDesc": "Global regional settings synchronize time matrices, currency symbols, and date formatting across all telemetry and management layers.",
@@ -2627,7 +2628,14 @@
         "schedule": "Schedule",
         "locations": "Locations",
         "assignments": "Assignments"
-      }
+      },
+      "deviationTitle": "Route Deviation Tracking",
+      "deviationDesc": "A notification is sent if the vehicle leaves this corridor.",
+      "bufferLabel": "Deviation Tolerance (m)",
+      "bufferHelper": "Maximum allowed distance from the planned path. Defaults to {default} m if left empty.",
+      "bufferHint": "Low values may cause false alarms where urban GPS drift is common.",
+      "bufferInvalid": "Tolerance must be between {min} and {max} m.",
+      "deviationNoShape": "Deviation tracking needs a drawn route; pick the start and end points first."
     },
     "fields": {
       "name": "Name",

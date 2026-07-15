@@ -19,4 +19,10 @@ export interface RouteUpdateData {
   driverId?: string | null;
   vehicleId?: string | null;
   stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[];
+  /**
+   * Re-sent whenever stops change: an edited route has a new corridor, and a
+   * stale shape would raise deviation alerts against the old geometry.
+   */
+  shape?: string | null;
+  bufferMeters?: number | null;
 }

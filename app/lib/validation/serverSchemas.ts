@@ -173,6 +173,8 @@ export const createRouteSchema = z.object({
     lat: z.number().optional(),
     lng: z.number().optional(),
   })).optional(),
+  shape: z.string().optional(),
+  bufferMeters: z.number().int().positive().optional(),
 });
 
 export const updateRouteSchema = createRouteSchema.partial();

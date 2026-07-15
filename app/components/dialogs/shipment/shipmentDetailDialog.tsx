@@ -20,6 +20,9 @@ import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { ShipmentItem } from "@/app/lib/type/enums";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { decodeShape } from "@/app/lib/valhalla";
+import { DEFAULT_ROUTE_BUFFER_METERS } from "@/app/lib/type/routeDeviation";
+import { logger } from "@/app/lib/logger";
 import ShipmentOverviewTab from "./sections/ShipmentOverviewTab";
 import ShipmentItemsTab from "./sections/ShipmentItemsTab";
 import { motion, AnimatePresence } from "framer-motion";
@@ -144,28 +147,53 @@ export default function ShipmentDetailDialog({
   const [data, setData] = useState<PolylineHelperResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!open || !shipment || waypoints.length < 2) {
-        return; // Skip the request until data has arrived and there are at least 2 points.
-      }
+  // A shipment has no corridor of its own — it inherits the one from the route
+  // it is assigned to. Unassigned shipments therefore show no band.
+  const corridor = useMemo(() => {
+    const shape = shipment?.route?.shape;
+    if (!shape) return null;
+    try {
+      const points = decodeShape(shape);
+      return points.length > 0 ? points : null;
+    } catch (error) {
+      logger.error("Failed to decode stored route shape:", error);
+      return null;
+    }
+  }, [shipment?.route?.shape]);
 
-      setIsLoading(true);
+  useEffect(() => {
+    // Skip the request until data has arrived and there are at least 2 points.
+    if (!open || !shipment || waypoints.length < 2) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Set in the same commit that starts the request: the map must not show
+    // bare while a fetch is already in flight.
+    setIsLoading(true);
+
+    // Guards against an earlier, slower response overwriting a later one when
+    // the dialog reopens on a different shipment.
+    let cancelled = false;
+
+    (async () => {
       try {
         const response = await polylineHelper({
           locations: waypoints,
           costing: "truck",
         });
-
+        if (cancelled) return;
         setData(response ?? null);
       } catch (error) {
-        console.error("Valhalla API Error:", error);
+        if (!cancelled) logger.error("Valhalla API Error:", error);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
-    };
+    })();
 
-    fetchData();
+    return () => {
+      cancelled = true;
+    };
   }, [waypoints, open, shipment]);
 
   /* -------------------------------------------------------------------------- */
@@ -368,19 +396,43 @@ export default function ShipmentDetailDialog({
                 zIndex: 0, // Isolate Leaflet's internal panes so the overlay sits on top
               }}
             >
-              {isLoading && (
-                <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", bgcolor: "rgba(11, 15, 25, 0.7)", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
-                  <Stack alignItems="center" spacing={2}>
-                    <CircularProgress size={40} color="primary" />
-                    <Typography variant="body2" color="white" fontWeight={500}>
-                      {dict.common?.loading || "Rota Yükleniyor..."}
-                    </Typography>
-                  </Stack>
-                </Box>
-              )}
+              {/* Faded rather than unmounted so the map is handed over
+                  smoothly once the route lands; `visibility`/`pointer-events`
+                  keep the hidden overlay from intercepting map gestures. */}
+              <Box
+                aria-hidden={!isLoading}
+                aria-busy={isLoading}
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 900,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: "rgba(11, 15, 25, 0.7)",
+                  backdropFilter: "blur(2px)",
+                  opacity: isLoading ? 1 : 0,
+                  visibility: isLoading ? "visible" : "hidden",
+                  pointerEvents: isLoading ? "auto" : "none",
+                  transition: "opacity 220ms ease, visibility 220ms ease",
+                }}
+              >
+                <Stack alignItems="center" spacing={2}>
+                  <CircularProgress size={40} color="primary" />
+                  <Typography variant="body2" color="white" fontWeight={500}>
+                    {dict.common?.loading || "Rota Yükleniyor..."}
+                  </Typography>
+                </Stack>
+              </Box>
               <MapWithPolyline
                 Polylines={data?.mapPoints || []}
                 routePolyline={data?.polyline ?? null}
+                bufferPolyline={corridor}
+                bufferMeters={
+                  corridor
+                    ? (shipment?.route?.bufferMeters || DEFAULT_ROUTE_BUFFER_METERS)
+                    : undefined
+                }
               />
             </Box>
 

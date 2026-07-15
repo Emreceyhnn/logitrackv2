@@ -517,6 +517,14 @@ model Route {
   companyId   String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  // Valhalla-encoded polyline of the planned corridor centre line, stored at
+  // precision 6 to match `decodeShape`. Nullable: routes created before this
+  // column existed (and any route the routing engine failed to shape) have no
+  // geometry, and deviation checks skip them rather than guessing.
+  shape          String?
+  // Corridor half-width. A ping further than this from the centre line counts
+  // as off-route. Null falls back to DEFAULT_ROUTE_BUFFER_METERS.
+  bufferMeters   Int?
   company     Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
   driver      Driver?     @relation(fields: [driverId], references: [id], onDelete: Restrict)
   vehicle     Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
@@ -529,6 +537,9 @@ model Route {
   // Serves the check-expirations cron's cross-tenant delayed/upcoming sweep
   // (`status IN ('PLANNED','ACTIVE')` with no companyId filter).
   @@index([status])
+  // Serves the per-GPS-ping active-route lookup in the location endpoint,
+  // which resolves a vehicle's in-progress route on every push.
+  @@index([vehicleId, status])
   @@map("routes")
 }
 

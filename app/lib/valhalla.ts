@@ -105,3 +105,12 @@ export async function fetchRoute(
 export function decodeShape(shapeString: string): [number, number][] {
   return polyline.decode(shapeString, 6);
 }
+
+/**
+ * Inverse of `decodeShape`. Used to persist a multi-leg route as one shape:
+ * each leg carries its own encoded string, and encoded polylines cannot be
+ * concatenated, so the merged points are re-encoded at the same precision.
+ */
+export function encodeShape(points: [number, number][]): string {
+  return polyline.encode(points, 6);
+}

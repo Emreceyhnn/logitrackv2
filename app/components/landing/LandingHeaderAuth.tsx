@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
+import { UserProvider } from "@/app/lib/context/UserContext";
 
 export default function LandingHeaderAuth() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -57,7 +58,7 @@ export default function LandingHeaderAuth() {
 
   if (user) {
     return (
-      <>
+      <UserProvider initialUser={user}>
         <Stack direction="row" spacing={2} alignItems="center">
           <UserAccountNav user={user} />
 
@@ -112,7 +113,7 @@ export default function LandingHeaderAuth() {
           onClose={() => setOpenCompanyModal(false)}
           onSuccess={handleSuccess}
         />
-      </>
+      </UserProvider>
     );
   }
 
