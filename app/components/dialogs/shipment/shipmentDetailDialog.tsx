@@ -11,6 +11,7 @@ import {
   Typography,
   useTheme,
   Theme,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -141,6 +142,7 @@ export default function ShipmentDetailDialog({
   }, [shipment]);
 
   const [data, setData] = useState<PolylineHelperResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -148,12 +150,19 @@ export default function ShipmentDetailDialog({
         return; // Skip the request until data has arrived and there are at least 2 points.
       }
 
-      const response = await polylineHelper({
-        locations: waypoints,
-        costing: "truck",
-      });
+      setIsLoading(true);
+      try {
+        const response = await polylineHelper({
+          locations: waypoints,
+          costing: "truck",
+        });
 
-      setData(response ?? null);
+        setData(response ?? null);
+      } catch (error) {
+        console.error("Valhalla API Error:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
@@ -359,6 +368,16 @@ export default function ShipmentDetailDialog({
                 zIndex: 0, // Isolate Leaflet's internal panes so the overlay sits on top
               }}
             >
+              {isLoading && (
+                <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", bgcolor: "rgba(11, 15, 25, 0.7)", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
+                  <Stack alignItems="center" spacing={2}>
+                    <CircularProgress size={40} color="primary" />
+                    <Typography variant="body2" color="white" fontWeight={500}>
+                      {dict.common?.loading || "Rota Yükleniyor..."}
+                    </Typography>
+                  </Stack>
+                </Box>
+              )}
               <MapWithPolyline
                 Polylines={data?.mapPoints || []}
                 routePolyline={data?.polyline ?? null}
@@ -424,16 +443,16 @@ export default function ShipmentDetailDialog({
               />
               <Stack alignItems="center">
                 <Typography variant="caption" color="text.secondary">
-                  {dict.shipments.details.fleetId}
+                  CO₂
                 </Typography>
                 <Typography
                   variant="subtitle1"
                   fontWeight={800}
-                  color="text.primary"
+                  color="error.main"
                 >
-                  {shipment.route?.id
-                    ? `RT-${shipment.route.id.substring(0, 4).toLocaleUpperCase('en-US')}`
-                    : dict.shipments.details.noUnit}
+                  {shipment.route?.distanceKm
+                    ? `${(shipment.route.distanceKm * 0.9).toFixed(1)} kg`
+                    : dict.shipments.details.tbd}
                 </Typography>
               </Stack>
             </Box>

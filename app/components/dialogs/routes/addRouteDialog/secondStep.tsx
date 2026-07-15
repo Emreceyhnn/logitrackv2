@@ -26,6 +26,7 @@ const SecondRouteDialogStep = () => {
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
 
   const [data, setData] = useState<PolylineHelperResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const waypointsStr = useMemo(() => {
     const stops = values?.stops || [];
@@ -37,6 +38,8 @@ const SecondRouteDialogStep = () => {
     const fetchData = async () => {
       const waypoints = JSON.parse(waypointsStr);
       if (waypoints.length < 2) { setData(null); return; }
+      
+      setIsLoading(true);
       try {
         const response = await polylineHelper({ locations: waypoints, costing: "truck" });
         setData(response ?? null);
@@ -44,7 +47,11 @@ const SecondRouteDialogStep = () => {
           setFieldValue("distanceKm", response.summary.length || 0);
           setFieldValue("durationMin", Math.round((response.summary.time || 0) / 60));
         }
-      } catch (error) { logger.error("Valhalla API Error:", error); }
+      } catch (error) { 
+        logger.error("Valhalla API Error:", error); 
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchData();
   }, [waypointsStr, setFieldValue]);
@@ -69,7 +76,7 @@ const SecondRouteDialogStep = () => {
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
-            <RouteMapPanel values={values} data={data} dict={dict} />
+            <RouteMapPanel values={values} data={data} dict={dict} isLoading={isLoading} />
           </Grid>
         </Grid>
       </Stack>

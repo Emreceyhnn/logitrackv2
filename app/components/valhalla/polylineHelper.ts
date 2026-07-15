@@ -33,17 +33,25 @@ export const polylineHelper = async (params: PolylineHelperParams): Promise<Poly
 
   try {
     const data = await fetchRoute(input);
-    const legs = data.trip?.legs;
+    const tripData = data.trip || data.route;
+    const legs = tripData?.legs;
 
     if (!legs || legs.length === 0) {
       throw new Error("Rotaya ait bacaklar (legs) bulunamadı.");
     }
 
     const decodedPoints: [number, number][] = [];
+    let totalLength = 0;
+    let totalTime = 0;
+
     for (const leg of legs) {
       if (leg.shape) {
         const decoded = decodeShape(leg.shape);
         decodedPoints.push(...decoded);
+      }
+      if (leg.summary) {
+        totalLength += leg.summary.length;
+        totalTime += leg.summary.time;
       }
     }
 
@@ -55,8 +63,8 @@ export const polylineHelper = async (params: PolylineHelperParams): Promise<Poly
       polyline: decodedPoints,
       mapPoints: params.locations,
       summary: {
-        length: data.trip.summary.length,
-        time: data.trip.summary.time,
+        length: tripData?.summary?.length ?? totalLength,
+        time: tripData?.summary?.time ?? totalTime,
       },
     };
   } catch (err: unknown) {

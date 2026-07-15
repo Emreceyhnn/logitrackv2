@@ -1,4 +1,3 @@
- 
 import { describe, it, before, beforeEach, after, mock } from "node:test";
 import { expect } from "expect";
 
@@ -8,7 +7,10 @@ class MockNextResponse {
   _status: number;
   _headers: Record<string, string>;
 
-  constructor(body: unknown, init?: { status?: number; headers?: Record<string, string> }) {
+  constructor(
+    body: unknown,
+    init?: { status?: number; headers?: Record<string, string> }
+  ) {
     this._body = body;
     this._status = init?.status ?? 200;
     this._headers = init?.headers ?? {};
@@ -43,7 +45,7 @@ const validBody = JSON.stringify({
   costing: "truck",
 });
 
-describe("POST /api/valhalla", () => {
+describe("POST /route", () => {
   let POST: unknown;
 
   before(async () => {
@@ -54,7 +56,9 @@ describe("POST /api/valhalla", () => {
   beforeEach(() => {
     fetchMock.mock.resetCalls();
     getAuthenticatedUserMock.mock.resetCalls();
-    getAuthenticatedUserMock.mock.mockImplementation(async () => ({ id: "user-1" }));
+    getAuthenticatedUserMock.mock.mockImplementation(async () => ({
+      id: "user-1",
+    }));
     MockNextResponse.json.mock.resetCalls();
     fetchMock.mock.mockImplementation(async () => ({
       status: 200,
@@ -103,7 +107,9 @@ describe("POST /api/valhalla", () => {
   it("should_Return400_WhenFewerThanTwoLocations", async () => {
     // Act
     const res: unknown = await POST(
-      makeRequest(JSON.stringify({ locations: [{ lat: 1, lon: 2 }], costing: "truck" }))
+      makeRequest(
+        JSON.stringify({ locations: [{ lat: 1, lon: 2 }], costing: "truck" })
+      )
     );
 
     // Assert

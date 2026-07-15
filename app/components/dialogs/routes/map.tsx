@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Stack, CircularProgress } from "@mui/material";
 import dynamic from "next/dynamic";
 import {
   polylineHelper,
@@ -49,6 +49,7 @@ const MapRoutesDialogCard = ({
   const isRoute = !!((origin || addrA) && (destination || addrB));
 
   const [data, setData] = useState<PolylineHelperResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const waypoints = useMemo(() => {
     const points = [];
@@ -90,6 +91,7 @@ const MapRoutesDialogCard = ({
         setData(null);
         return;
       }
+      setIsLoading(true);
       try {
         const response = await polylineHelper({
           locations: waypoints,
@@ -105,6 +107,8 @@ const MapRoutesDialogCard = ({
         }
       } catch (error) {
         logger.error("Valhalla API Error:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -113,6 +117,16 @@ const MapRoutesDialogCard = ({
 
   return (
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      {isLoading && (
+        <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", bgcolor: "rgba(11, 15, 25, 0.7)", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
+          <Stack alignItems="center" spacing={2}>
+            <CircularProgress size={40} color="primary" />
+            <Typography variant="body2" color="white" fontWeight={500}>
+              {dict.common?.loading || "Yükleniyor..."}
+            </Typography>
+          </Stack>
+        </Box>
+      )}
       <MapWithPolyline
         Polylines={data?.mapPoints || []}
         routePolyline={data?.polyline ?? null}
@@ -151,6 +165,11 @@ const MapRoutesDialogCard = ({
           {isRoute
             ? dict.routes.details.missionRoute
             : dict.routes.details.liveTelemetryMap}
+          {data?.summary && (
+            <Typography component="span" variant="caption" color="error.main" sx={{ ml: 1 }}>
+              • CO₂: {(data.summary.length * 0.9).toFixed(1)} kg
+            </Typography>
+          )}
         </Typography>
       </Box>
     </Box>

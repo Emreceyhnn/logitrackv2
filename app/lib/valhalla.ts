@@ -3,22 +3,35 @@ import polyline from "@mapbox/polyline";
 export interface Location {
   lat: number;
   lon: number;
+  type?: string;
+}
+
+export interface CostingOptionsProfile {
+  height?: number;
+  width?: number;
+  length?: number;
+  weight?: number;
+  axle_load?: number;
+  hazmat?: boolean;
+  exclude_unpaved?: boolean;
+  use_highways?: number | boolean;
+  use_tolls?: number | boolean;
 }
 
 export interface costing_options {
-  height: number;
-  width: number;
-  length: number;
-  weight: number;
-  exclude_unpaved: boolean;
-  use_highways: boolean;
-  use_tolls: boolean;
+  truck?: CostingOptionsProfile;
+  auto?: CostingOptionsProfile;
+  [key: string]: CostingOptionsProfile | undefined;
 }
 
 export interface RoutingParams {
   locations: Location[];
   costing?: string;
   costing_options?: costing_options;
+  directions_options?: {
+    units?: string;
+    language?: string;
+  };
   exclude_locations?: Location[];
   date_time?: {
     type: number;
@@ -27,20 +40,37 @@ export interface RoutingParams {
 }
 
 export interface RouteResponse {
-  trip: {
+  trip?: {
     legs: {
       shape: string;
       summary: {
         length: number;
         time: number;
+        cost?: number;
       };
     }[];
     summary: {
       length: number;
       time: number;
+      cost?: number;
     };
-    status: number;
-    status_message: string;
+    status?: number;
+    status_message?: string;
+  };
+  route?: {
+    legs: {
+      shape: string;
+      summary: {
+        length: number;
+        time: number;
+        cost?: number;
+      };
+    }[];
+    summary?: {
+      length: number;
+      time: number;
+      cost?: number;
+    };
   };
 }
 
@@ -61,7 +91,7 @@ export async function fetchRoute(
           ? params.exclude_locations
           : undefined,
     }),
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(30_000),
   });
 
   if (!response.ok) {
