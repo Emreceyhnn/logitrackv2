@@ -35,25 +35,42 @@ const SecondRouteDialogStep = () => {
   }, [values.stops]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const waypoints = JSON.parse(waypointsStr);
-      if (waypoints.length < 2) { setData(null); return; }
-      
-      setIsLoading(true);
+    const waypoints = JSON.parse(waypointsStr);
+    if (waypoints.length < 2) {
+      setData(null);
+      setIsLoading(false);
+      return;
+    }
+
+    // Shown from the same commit that starts the request, so editing a stop
+    // never leaves the map bare while a fetch is in flight.
+    setIsLoading(true);
+
+    // Stops change fast while the user edits them; without this an earlier,
+    // slower response could overwrite the distance/shape of a later one.
+    let cancelled = false;
+
+    (async () => {
       try {
         const response = await polylineHelper({ locations: waypoints, costing: "truck" });
+        if (cancelled) return;
+
         setData(response ?? null);
         if (response?.summary) {
           setFieldValue("distanceKm", response.summary.length || 0);
           setFieldValue("durationMin", Math.round((response.summary.time || 0) / 60));
+          setFieldValue("shape", response.shape || "");
         }
-      } catch (error) { 
-        logger.error("Valhalla API Error:", error); 
+      } catch (error) {
+        if (!cancelled) logger.error("Valhalla API Error:", error);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
+    })();
+
+    return () => {
+      cancelled = true;
     };
-    fetchData();
   }, [waypointsStr, setFieldValue]);
 
   return (
@@ -76,7 +93,14 @@ const SecondRouteDialogStep = () => {
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
-            <RouteMapPanel values={values} data={data} dict={dict} isLoading={isLoading} />
+            <RouteMapPanel
+              values={values}
+              data={data}
+              dict={dict}
+              isLoading={isLoading}
+              setFieldValue={setFieldValue}
+              bufferError={touched.bufferMeters ? (errors.bufferMeters as string | undefined) : undefined}
+            />
           </Grid>
         </Grid>
       </Stack>

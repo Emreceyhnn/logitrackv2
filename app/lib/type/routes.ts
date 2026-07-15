@@ -163,4 +163,15 @@ export interface RouteFormValues {
   driverId: string;
   vehicleId: string;
   stops: { address: string; lat?: number | undefined; lng?: number | undefined }[];
+  /**
+   * Encoded polyline from the routing engine, captured alongside the distance
+   * and duration it already derives. Persisted so deviation checks have a
+   * corridor; empty until the map panel resolves a route.
+   */
+  shape: string;
+  /**
+   * Per-route deviation tolerance. `undefined` means "use the default" rather
+   * than "no corridor" — the field is an optional override, not a toggle.
+   */
+  bufferMeters?: number | undefined;
 }

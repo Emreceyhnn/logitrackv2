@@ -1,6 +1,7 @@
 import {
   costing_options,
   decodeShape,
+  encodeShape,
   fetchRoute,
   RoutingParams,
 } from "@/app/lib/valhalla";
@@ -16,6 +17,12 @@ export interface PolylineHelperResult {
   polyline: [number, number][];
   mapPoints: LocationPoint[];
   summary: { length: number; time: number };
+  /**
+   * The route legs' encoded shapes (precision 6), re-encoded as a single
+   * polyline. Persisted on the Route so server-side deviation checks have a
+   * corridor to measure against without re-querying the routing engine.
+   */
+  shape: string;
 }
 
 interface PolylineHelperParams {
@@ -66,6 +73,7 @@ export const polylineHelper = async (params: PolylineHelperParams): Promise<Poly
         length: tripData?.summary?.length ?? totalLength,
         time: tripData?.summary?.time ?? totalTime,
       },
+      shape: encodeShape(decodedPoints),
     };
   } catch (err: unknown) {
     logger.error("Valhalla Routing Error:", err);

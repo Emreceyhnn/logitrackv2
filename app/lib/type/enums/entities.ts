@@ -212,6 +212,10 @@ export interface Route {
   driverId?: string | null;
   vehicleId?: string | null;
   companyId?: string | null;
+  /** Valhalla-encoded polyline (precision 6) of the planned corridor. */
+  shape?: string | null;
+  /** Corridor half-width in metres for deviation alerts. */
+  bufferMeters?: number | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

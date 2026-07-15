@@ -73,6 +73,8 @@ const EditRouteDialog = ({
         driverId: "",
         vehicleId: "",
         stops: [],
+        shape: "",
+        bufferMeters: undefined,
       };
     }
 
@@ -117,6 +119,8 @@ const EditRouteDialog = ({
       driverId: route.driverId || "",
       vehicleId: route.vehicleId || "",
       stops: filteredStops as { address: string; lat?: number; lng?: number }[],
+      shape: route.shape || "",
+      bufferMeters: route.bufferMeters ?? undefined,
     };
   };
 
@@ -140,6 +144,9 @@ const EditRouteDialog = ({
           stops: values.stops,
           driverId: values.driverId || null,
           vehicleId: values.vehicleId || null,
+          shape: values.shape || null,
+          // null clears the override, restoring the default corridor.
+          bufferMeters: values.bufferMeters ?? null,
         }),
         {
           loading: dict.toasts.loading,

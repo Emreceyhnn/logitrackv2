@@ -16,6 +16,7 @@ import { invalidateRouteCache } from "./cache";
 import type { RouteUpdateData } from "./types";
 import { controllerGuard } from "../utils/controllerGuard";
 import { NotFoundError } from "../../errors";
+import { isValidBufferMeters } from "../../type/routeDeviation";
 
 export const createRoute = authenticatedAction(
   async (
@@ -29,7 +30,9 @@ export const createRoute = authenticatedAction(
     driverId: string,
     vehicleId: string,
     shipmentId?: string,
-    stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[]
+    stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[],
+    shape?: string,
+    bufferMeters?: number
   ) => {
     return controllerGuard("createRoute", async () => {
       const companyId = user?.companyId || "";
@@ -43,6 +46,13 @@ export const createRoute = authenticatedAction(
         name && name.trim() !== ""
           ? name
           : `ROUTE-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
+
+      // The client's Yup schema also checks this, but a server action is a
+      // public entry point: an out-of-range corridor would silently disable or
+      // spam deviation alerts, so re-validate rather than trust the caller.
+      if (bufferMeters !== undefined && !isValidBufferMeters(bufferMeters)) {
+        throw new Error("Invalid route buffer");
+      }
 
       const existingRoute = await db.route.findFirst({
         where: { name: finalName, companyId },
@@ -110,6 +120,8 @@ export const createRoute = authenticatedAction(
             driverId: driverId || null,
             vehicleId: vehicleId || null,
             companyId,
+            shape: shape || null,
+            bufferMeters: bufferMeters ?? null,
             stops: {
               create: (stops ?? []).map((stop, index) => ({
                 companyId,
@@ -187,6 +199,16 @@ export const updateRoute = authenticatedAction(
 
       if (!existingRoute) {
         throw new NotFoundError("Route");
+      }
+
+      // Same reasoning as createRoute: null clears the override back to the
+      // default, but a supplied number must be in range.
+      if (
+        data.bufferMeters !== undefined &&
+        data.bufferMeters !== null &&
+        !isValidBufferMeters(data.bufferMeters)
+      ) {
+        throw new Error("Invalid route buffer");
       }
 
       const { stops, ...scalarData } = data;

@@ -25,6 +25,7 @@ import { runWithTenant } from "@/app/lib/tenant-context";
 import { parseJsonBody } from "@/app/lib/api/queryParams";
 import { z } from "zod";
 import { logger } from "@/app/lib/logger";
+import { checkRouteDeviation } from "@/app/lib/services/routeDeviationAlert";
 
 
 const locationBodySchema = z.object({
@@ -112,6 +113,19 @@ export async function POST(
       logger.warn("⚠️ Firebase Admin SDK not initialized. Skipping location push.");
     }
 
+    // 5. Compare the ping against the vehicle's active route corridor and alert
+    // on a confirmed excursion. Runs after the location write and swallows its
+    // own errors, so anomaly detection can never reject a GPS push.
+    const deviation = await checkRouteDeviation({
+      companyId,
+      vehicleId,
+      // authorizeVehicleAccess takes an untyped `select`, so the returned
+      // vehicle's fields aren't narrowed; `plate` is selected above.
+      plate: String(vehicle.plate ?? ""),
+      lat,
+      lng,
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -119,6 +133,14 @@ export async function POST(
         plate: vehicle.plate,
         location: locationPayload,
         message: "Location pushed to Firebase via Admin SDK.",
+        deviation: {
+          status: deviation.outcome.status,
+          routeId: deviation.routeId,
+          notified: deviation.notified,
+          ...("distanceMeters" in deviation.outcome
+            ? { distanceMeters: Math.round(deviation.outcome.distanceMeters) }
+            : {}),
+        },
       },
       { status: 200 }
     );
