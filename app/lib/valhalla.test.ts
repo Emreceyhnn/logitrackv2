@@ -51,7 +51,7 @@ describe("valhalla.ts", () => {
       expect(result).toEqual(trip);
       expect(fetchMock.mock.calls.length).toBe(1);
       const [url, init] = fetchMock.mock.calls[0].arguments;
-      expect(url).toBe("/route");
+      expect(url).toBe("/api/valhalla");
       expect(init.method).toBe("POST");
       const sentBody = JSON.parse(init.body);
       expect(sentBody.locations).toEqual(baseParams.locations);

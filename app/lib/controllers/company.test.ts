@@ -97,7 +97,14 @@ describe("Company Controller", () => {
   });
 
   describe("createCompany() metodu", () => {
-    const mockUser = { id: "user-1", sessionId: "sess-1" };
+    // createCompany() gates on hasAccess(accessStatus, trialEndsAt) — an
+    // ACTIVE subscription always passes regardless of trialEndsAt.
+    const mockUser = {
+      id: "user-1",
+      sessionId: "sess-1",
+      accessStatus: "ACTIVE" as const,
+      trialEndsAt: null,
+    };
 
     it("should_CreateCompanyAndUpdateUserRole_WhenNameIsUnique", async () => {
       // Arrange

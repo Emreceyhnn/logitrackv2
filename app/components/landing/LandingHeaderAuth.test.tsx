@@ -17,8 +17,11 @@ const useThemeMock = mock.fn(() => ({
   palette: { primary: { main: "blue" }, text: { primary: "black" } }
 }));
 
+// Only useState/useEffect need mocking; spread the real module for the rest
+// (createContext etc. — LandingHeaderAuth renders UserContext's UserProvider).
+const originalReact = await import("react");
 mock.module("react", {
-  namedExports: { useState: useStateMock, useEffect: useEffectMock }
+  namedExports: { ...originalReact, useState: useStateMock, useEffect: useEffectMock }
 });
 
 mock.module("next/navigation", { namedExports: { useParams: useParamsMock } });

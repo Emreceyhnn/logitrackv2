@@ -17,7 +17,7 @@
     "db:status": "prisma migrate status",
     "test": "node scripts/run-tests.mjs",
     "test:live": "node scripts/run-tests.mjs --live",
-    "test:single": "dotenv -c -- tsx --import global-jsdom/register --experimental-test-module-mocks --test-force-exit --test",
+    "test:single": "dotenv -c -- tsx --import ./scripts/test-loader-hooks.mjs --import global-jsdom/register --experimental-test-module-mocks --test-force-exit --test",
     "prepare": "husky"
   },
   "dependencies": {
@@ -88,6 +88,7 @@
     "playwright": "^1.60.0",
     "prettier": "^3.8.1",
     "prisma": "^7.8.0",
+    "server-only": "^0.0.1",
     "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

@@ -12,6 +12,12 @@
  *     of lingering handles. This is what makes the suite CI-safe.
  *   - `--import global-jsdom/register` — the component tests (`*.test.tsx`)
  *     render via @testing-library/react and need a DOM (`document`, `window`).
+ *   - `--import ./test-loader-hooks.mjs` — registers an ESM resolve hook
+ *     that aliases the `server-only` marker package to a no-op, the same
+ *     substitution Next's bundler makes for server bundles. Without it, any
+ *     module reachable from a test that does `import "server-only"` (e.g.
+ *     entitlement resolution reached from the session controller) throws
+ *     outside of Next's build.
  *
  * Files are sharded across a bounded pool of worker processes. Sharding keeps
  * `mock.module` state from leaking between unrelated files (each shard is a
@@ -26,9 +32,9 @@
  */
 
 import { spawn } from "node:child_process";
-import { readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, relative } from "node:path";
 import os from "node:os";
 import dotenv from "dotenv";
@@ -64,11 +70,28 @@ for (const file of [".env", ".env.local"]) {
 const BATCH_SIZE = 5;
 const CONCURRENCY = Math.max(2, Math.min(os.cpus().length - 1, 3));
 /**
- * Hard timeout per batch (ms). A ~5-file batch completes well under this; a
- * batch that exceeds it is genuinely hung and is killed so it fails that batch
- * instead of stalling the whole run.
+ * Hard timeout per batch (ms). A ~5-file batch normally completes in well
+ * under a minute in isolation, but under full-suite CONCURRENCY on Windows
+ * (documented above: ~5x per-file inflation from CPU contention when 3
+ * tsx processes run at once) a batch of MUI-heavy dialog/table component
+ * tests can legitimately take 2+ minutes even though every test in it
+ * passes — measured up to ~140s for otherwise-healthy batches. 210s gives
+ * that headroom; a batch that exceeds it is genuinely hung, not just slow.
  */
-const BATCH_TIMEOUT_MS = 120_000;
+const BATCH_TIMEOUT_MS = 210_000;
+
+/**
+ * `@mui/x-charts` vendors the full d3 ecosystem (d3-array, d3-scale,
+ * d3-shape, ... — see @mui/x-charts-vendor) as ~250 small ESM files. Under
+ * Node's loader + tsx's on-the-fly transform, importing it cold costs
+ * ~120-165s by itself (measured), independent of anything the test does —
+ * grouping even one such file into a normal 5-file batch reliably blows the
+ * 120s BATCH_TIMEOUT_MS. These files are pulled into their own single-file
+ * batches with a longer timeout instead of being penalized by (or
+ * penalizing) unrelated files sharing their batch.
+ */
+const HEAVY_IMPORT_MARKERS = ["@mui/x-charts"];
+const HEAVY_BATCH_TIMEOUT_MS = 240_000;
 
 /**
  * Live-integration tests (`*.live.test.ts[x]`) talk to real services
@@ -82,6 +105,10 @@ const liveMode = args.includes("--live");
 const filterArg = args.find((a) => a !== "--live");
 
 const TSX_ARGS = [
+  // Node's --import requires a bare specifier or a file:// URL — a raw
+  // Windows path (C:\...) is parsed as a URL with scheme "c:" and rejected.
+  "--import",
+  pathToFileURL(join(__dirname, "test-loader-hooks.mjs")).href,
   ...(liveMode ? [] : ["--import", "global-jsdom/register"]),
   "--experimental-test-module-mocks",
   "--test-force-exit",
@@ -119,8 +146,37 @@ function batchFiles(files, size) {
   return batches;
 }
 
+/**
+ * Partition files into normal batches plus one single-file batch per file
+ * matching HEAVY_IMPORT_MARKERS, so a slow-to-import file never shares a
+ * process (and its timeout) with unrelated files. Each batch is tagged with
+ * the timeout it should run under.
+ */
+async function planBatches(files, size) {
+  const heavy = [];
+  const normal = [];
+  await Promise.all(
+    files.map(async (f) => {
+      const source = await readFile(f, "utf8");
+      (HEAVY_IMPORT_MARKERS.some((m) => source.includes(m))
+        ? heavy
+        : normal
+      ).push(f);
+    })
+  );
+
+  const batches = batchFiles(normal, size).map((batch) => ({
+    files: batch,
+    timeoutMs: BATCH_TIMEOUT_MS,
+  }));
+  for (const f of heavy) {
+    batches.push({ files: [f], timeoutMs: HEAVY_BATCH_TIMEOUT_MS });
+  }
+  return batches;
+}
+
 /** Run one batch (a handful of files) in a single tsx process. */
-function runBatch(files, index) {
+function runBatch(files, index, timeoutMs) {
   return new Promise((resolve) => {
     // Spawn `node <tsx-cli> <flags> <files>` directly. No shell, no npx, so no
     // Windows .cmd quirks; env (loaded above) is inherited by the child.
@@ -157,8 +213,8 @@ function runBatch(files, index) {
 
     const timer = setTimeout(() => {
       killTree();
-      stderr += `\n[run-tests] batch ${index} exceeded ${BATCH_TIMEOUT_MS}ms and was killed.\n`;
-    }, BATCH_TIMEOUT_MS);
+      stderr += `\n[run-tests] batch ${index} exceeded ${timeoutMs}ms and was killed.\n`;
+    }, timeoutMs);
 
     // Normally resolve on `close` (all output flushed). But `close` waits for
     // the stdio pipes, which a surviving grandchild can hold open indefinitely
@@ -214,7 +270,7 @@ async function main() {
     process.exit(1);
   }
 
-  const batches = batchFiles(files, BATCH_SIZE);
+  const batches = await planBatches(files, BATCH_SIZE);
   console.log(
     `Running ${files.length} test file(s) in ${batches.length} batch(es), ` +
       `${CONCURRENCY} at a time...\n`
@@ -230,7 +286,8 @@ async function main() {
   async function worker() {
     while (cursor < batches.length) {
       const i = cursor++;
-      const r = await runBatch(batches[i], i);
+      const { files: batchFilesList, timeoutMs } = batches[i];
+      const r = await runBatch(batchFilesList, i, timeoutMs);
       results.push(r);
       done++;
       const counts = parseCounts(r.stdout + r.stderr);

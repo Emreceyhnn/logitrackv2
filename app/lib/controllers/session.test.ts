@@ -23,6 +23,12 @@ const dbMock = {
   role: {
     findUnique: mock.fn(async () => ({ name: "Admin" })),
   },
+  // createSession/refreshSession bake the caller's entitlement into the
+  // token via resolveEntitlement() (entitlement.server.ts) — default to no
+  // subscription row (NONE access), matching a session test's default user.
+  subscription: {
+    findUnique: mock.fn(async () => null),
+  },
 };
 
 // Redis Mock
@@ -98,6 +104,8 @@ describe("Session Controller", () => {
     dbMock.session.findMany.mock.resetCalls();
     dbMock.session.updateMany.mock.resetCalls();
     dbMock.auditLog.create.mock.resetCalls();
+    dbMock.subscription.findUnique.mock.resetCalls();
+    dbMock.subscription.findUnique.mock.mockImplementation(async () => null);
     
     redisMock.get.mock.resetCalls();
     redisMock.set.mock.resetCalls();

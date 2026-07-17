@@ -15,6 +15,24 @@ mock.module("next/headers", {
   },
 });
 
+// uploadImageAction rate-limits anonymous callers via ../rate-limiter, which
+// falls back to a real Redis connection when unmocked. Without this, these
+// tests silently depend on real Redis reachability/timing and on a
+// module-level in-memory counter that persists across repeated runs within
+// the same rate-limit window — causing "Should reject oversized images" to
+// intermittently fail with "Too many uploads" once the shared counter for
+// 127.0.0.1 (the test's fallback IP) climbs past the limit.
+mock.module("./rate-limiter.ts", {
+  namedExports: {
+    rateLimit: mock.fn(async () => ({
+      success: true,
+      limit: 10,
+      remaining: 9,
+      reset: 0,
+    })),
+  },
+});
+
 describe("Testing Supabase Connection & Upload Actions", async () => {
   const { supabase } = await import("./supabase");
   const { uploadImageAction, getSignedUrlAction } =
