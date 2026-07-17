@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { getTenantCompanyId } from "./tenant-context";
+import { getTenantCompanyId, isSystemContext } from "./tenant-context";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
@@ -63,6 +63,68 @@ const WHERE_OPS = new Set<string>([
   "upsert",
 ]);
 
+/** Operations that carry a data payload we can inspect for an explicit companyId. */
+const CREATE_OPS = new Set<string>([
+  "create",
+  "createMany",
+  "createManyAndReturn",
+  "upsert",
+]);
+
+/**
+ * Throws unless a tenant-model operation running *without* an ambient companyId
+ * has been explicitly scoped by the caller. Reads/updates/deletes must carry
+ * `where.companyId`; creates must carry `companyId` in every row of the payload.
+ * This is the fail-closed backstop that stops a missing tenant context from
+ * silently exposing or mutating data across every company.
+ */
+function assertExplicitlyScoped(
+  model: string,
+  operation: string,
+  args: unknown
+): void {
+  const a = (args ?? {}) as {
+    where?: { companyId?: unknown };
+    data?: unknown;
+    create?: { companyId?: unknown };
+  };
+
+  const hasScopedId = (value: unknown): boolean => typeof value === "string";
+
+  if (WHERE_OPS.has(operation)) {
+    if (!hasScopedId(a.where?.companyId)) {
+      throw new Error(
+        `Tenant guard: ${operation} on ${model} without tenant context and without an explicit where.companyId`
+      );
+    }
+  }
+
+  if (CREATE_OPS.has(operation)) {
+    const rows =
+      operation === "upsert"
+        ? [a.create]
+        : Array.isArray(a.data)
+          ? (a.data as { companyId?: unknown }[])
+          : a.data !== undefined
+            ? [a.data as { companyId?: unknown }]
+            : [];
+
+    if (rows.length === 0 && operation !== "upsert") {
+      throw new Error(
+        `Tenant guard: ${operation} on ${model} without tenant context and without payload data`
+      );
+    }
+
+    for (const row of rows) {
+      if (!hasScopedId(row?.companyId)) {
+        throw new Error(
+          `Tenant guard: ${operation} on ${model} without tenant context and without an explicit companyId`
+        );
+      }
+    }
+  }
+}
+
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString && process.env.NEXT_PHASE !== "phase-production-build") {
@@ -78,6 +140,17 @@ function createPrismaClient() {
           const companyId = getTenantCompanyId();
           const isTenantModel = TENANT_MODELS.has(model);
           const isSoftDelete = SOFT_DELETE_MODELS.has(model);
+
+          // Fail closed: a tenant model touched without an ambient companyId is
+          // only allowed when the caller has explicitly scoped it themselves —
+          // an explicit `where: { companyId }` for reads/updates/deletes, or an
+          // explicit `companyId` in the payload for creates. Otherwise the query
+          // would run unscoped across every tenant, so we block it. This keeps
+          // legitimate pre-tenant auth/bootstrap flows working (they always name
+          // their companyId) while closing the unscoped-access hole.
+          if (isTenantModel && !companyId && !isSystemContext()) {
+            assertExplicitlyScoped(model, operation, args);
+          }
 
           if ((isTenantModel || isSoftDelete) && WHERE_OPS.has(operation)) {
             const current = (args ?? {}) as {

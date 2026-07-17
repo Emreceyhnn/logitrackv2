@@ -27,11 +27,12 @@ type GuardHandler = (params: {
 describe("db.ts tenant-guard extension", () => {
   let handler: GuardHandler;
   let runWithTenant: <T>(companyId: string | null, fn: () => T) => T;
+  let runAsSystem: <T>(fn: () => T) => T;
   let queryMock: unknown;
 
   before(async () => {
     await import("./db");
-    ({ runWithTenant } = await import("./tenant-context"));
+    ({ runWithTenant, runAsSystem } = await import("./tenant-context"));
     handler = extendsCapture.config?.query?.$allModels?.$allOperations;
     expect(typeof handler).toBe("function");
     expect(extendsCapture.config.name).toBe("tenant-guard");
@@ -78,12 +79,49 @@ describe("db.ts tenant-guard extension", () => {
       expect(passedArgs().where.companyId).toBe("comp-B");
     });
 
-    it("should_LeaveArgsUntouched_WhenNoTenantContextIsActive", async () => {
-      const args = { where: { id: "s1" } };
-      await runWithTenant(null, () =>
-        handler({ model: "Shipment", operation: "findMany", args, query: queryMock })
+    it("should_FailClosed_WhenTenantModelReadHasNoContextAndNoExplicitCompanyId", () => {
+      // Fail-open regression guard: an unscoped read of a tenant model without a
+      // tenant context must be blocked, not run across every company.
+      expect(() =>
+        runWithTenant(null, () =>
+          handler({
+            model: "Shipment",
+            operation: "findMany",
+            args: { where: { id: "s1" } },
+            query: queryMock,
+          })
+        )
+      ).toThrow(/Tenant guard: findMany on Shipment without tenant context/);
+      expect(queryMock.mock.calls.length).toBe(0);
+    });
+
+    it("should_AllowUnscopedCrossTenantRead_InSystemContext", async () => {
+      // Trusted system jobs (cron) legitimately scan every tenant, so the
+      // fail-closed check is bypassed and args are left untouched.
+      await runAsSystem(() =>
+        handler({
+          model: "Shipment",
+          operation: "findMany",
+          args: { where: { status: "PENDING" } },
+          query: queryMock,
+        })
       );
-      expect(passedArgs()).toEqual({ where: { id: "s1" } });
+      expect(passedArgs().where).toEqual({ status: "PENDING" });
+      expect(passedArgs().where.companyId).toBeUndefined();
+    });
+
+    it("should_AllowRead_WhenNoContextButCallerExplicitlyScopesCompanyId", async () => {
+      // The second line of defense (manual where: { companyId }) stays valid even
+      // when the ambient context is missing.
+      await runWithTenant(null, () =>
+        handler({
+          model: "Shipment",
+          operation: "findMany",
+          args: { where: { companyId: "comp-A", id: "s1" } },
+          query: queryMock,
+        })
+      );
+      expect(passedArgs().where).toEqual({ companyId: "comp-A", id: "s1" });
     });
 
     it("should_LeaveNonTenantModelsUntouched", async () => {
@@ -133,11 +171,38 @@ describe("db.ts tenant-guard extension", () => {
     });
 
     it("should_AllowCreate_WhenNoTenantContextIsActive", async () => {
-      // Auth flows (e.g. company bootstrap) run before a tenant is assigned.
+      // Auth flows (e.g. company bootstrap) run before a tenant is assigned but
+      // still name their companyId explicitly, which the fail-closed guard allows.
       await invoke(null, "Driver", "create", {
         data: { companyId: "comp-X" },
       });
       expect(queryMock.mock.calls.length).toBe(1);
+    });
+
+    it("should_FailClosed_WhenCreateHasNoContextAndNoExplicitCompanyId", () => {
+      expect(() =>
+        invoke(null, "Driver", "create", { data: { name: "Ali" } })
+      ).toThrow(/Tenant guard: create on Driver without tenant context/);
+      expect(queryMock.mock.calls.length).toBe(0);
+    });
+
+    it("should_FailClosed_WhenUpdateHasNoContextAndNoExplicitCompanyId", () => {
+      expect(() =>
+        invoke(null, "Shipment", "update", {
+          where: { id: "s1" },
+          data: { status: "DELIVERED" },
+        })
+      ).toThrow(/Tenant guard: update on Shipment without tenant context/);
+      expect(queryMock.mock.calls.length).toBe(0);
+    });
+
+    it("should_FailClosed_WhenCreateManyHasRowMissingCompanyIdAndNoContext", () => {
+      expect(() =>
+        invoke(null, "ShipmentItem", "createMany", {
+          data: [{ sku: "A-1", companyId: "comp-X" }, { sku: "A-2" }],
+        })
+      ).toThrow(/Tenant guard: createMany on ShipmentItem without tenant context/);
+      expect(queryMock.mock.calls.length).toBe(0);
     });
 
     it("should_InjectCompanyIdIntoEveryRow_OnCreateMany", async () => {

@@ -3,6 +3,7 @@ import { db } from "@/app/lib/db";
 import { sendNotificationAction } from "@/app/lib/actions/notifications";
 import { logger } from "@/app/lib/logger";
 import { timingSafeEqual } from "@/app/lib/utils/timingSafeEqual";
+import { runAsSystem } from "@/app/lib/tenant-context";
 
 
 export async function GET(req: NextRequest) {
@@ -17,6 +18,10 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // This job legitimately scans every tenant's expiring records to fan out
+    // notifications, so it runs in a trusted system context that bypasses the
+    // tenant-guard fail-closed check (see runAsSystem / db.ts).
+    return await runAsSystem(async () => {
     const now = new Date();
     const fifteenDaysFromNow = new Date();
     fifteenDaysFromNow.setDate(now.getDate() + 15);
@@ -302,6 +307,7 @@ export async function GET(req: NextRequest) {
         routesToCheck.length +
         overdueShipments.length +
         warehouses.length,
+    });
     });
   } catch (error) {
     logger.error("Cron check-expirations failed:", error);
