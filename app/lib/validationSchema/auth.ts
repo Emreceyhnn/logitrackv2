@@ -57,18 +57,9 @@ export const getSignUpValidationSchema = (dict: Dictionary) => [
           min: 8,
         })
       )
-      .matches(
-        /[a-z]/,
-        formatMessage(dict.validation.matches, { field: dict.auth.password })
-      )
-      .matches(
-        /[A-Z]/,
-        formatMessage(dict.validation.matches, { field: dict.auth.password })
-      )
-      .matches(
-        /[0-9]/,
-        formatMessage(dict.validation.matches, { field: dict.auth.password })
-      )
+      .matches(/[a-z]/, dict.validation.passwordLowercase)
+      .matches(/[A-Z]/, dict.validation.passwordUppercase)
+      .matches(/[0-9]/, dict.validation.passwordNumber)
       .required(
         formatMessage(dict.validation.required, { field: dict.auth.password })
       ),

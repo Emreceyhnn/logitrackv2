@@ -22,5 +22,5 @@ export default async function GlobalTrackingPage(props: {
 }) {
   const { lang } = await props.params;
   const dict = await getDictionary(lang);
-  return <GlobalTrackingClient dict={dict} />;
+  return <GlobalTrackingClient dict={dict} lang={lang} />;
 }

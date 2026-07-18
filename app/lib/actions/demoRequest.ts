@@ -5,9 +5,8 @@ import { db } from "../db";
 import { rateLimit } from "../rate-limiter";
 import { getUserSession } from "./auth";
 import { hasAccess } from "../entitlement";
+import { grantTrial, resolveEntitlement } from "../entitlement.server";
 import { logger } from "@/app/lib/logger";
-
-const TRIAL_DAYS = 7;
 
 export type DemoRequestKind = "DEMO" | "CONTACT";
 
@@ -101,6 +100,28 @@ export async function hasDashboardAccess(): Promise<boolean> {
 }
 
 /**
+ * Fresh, DB-backed access check for the pending-access screen's poll.
+ *
+ * Unlike {@link hasDashboardAccess}, which reads the (possibly stale) JWT
+ * summary, this re-resolves entitlement straight from the Subscription row. So
+ * the instant a trial is granted (approval, or a retry of a failed signup
+ * grant), the poll sees it — without waiting up to an hour for the token to
+ * refresh. When it returns true the client does a full-page navigation, letting
+ * the proxy's refresh flow mint a token that carries the new entitlement.
+ */
+export async function pollDashboardAccess(): Promise<boolean> {
+  try {
+    const session = await getUserSession();
+    if (!session?.id) return false;
+    const access = await resolveEntitlement(session.id);
+    return hasAccess(access.accessStatus, access.trialEndsAt);
+  } catch (error) {
+    logger.error("pollDashboardAccess failed:", error);
+    return false;
+  }
+}
+
+/**
  * Approve a demo request and grant the requester a 7-day trial. Managed by hand
  * for now (no admin UI): call it from a script / server context with the
  * DemoRequest id. Matches the demo request's email to a User and upserts their
@@ -129,12 +150,7 @@ export async function approveDemoRequest(
       return { success: true };
     }
 
-    const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
-    await db.subscription.upsert({
-      where: { userId: account.id },
-      create: { userId: account.id, status: "TRIAL", trialEndsAt },
-      update: { status: "TRIAL", trialEndsAt },
-    });
+    await grantTrial(account.id);
 
     return { success: true };
   } catch (error) {

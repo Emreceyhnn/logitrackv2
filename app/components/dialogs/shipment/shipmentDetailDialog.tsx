@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Box,
+  Button,
   Dialog,
   DialogContent,
   Divider,
@@ -14,6 +15,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
@@ -42,6 +44,8 @@ interface ShipmentDetailDialogProps {
   open: boolean;
   onClose: () => void;
   shipment: ShipmentWithRelations | null;
+  /** Opens the status-update flow for this shipment (optional). */
+  onUpdateStatus?: (shipment: ShipmentWithRelations) => void;
 }
 
 /* ── Pill tab button ── */
@@ -120,6 +124,7 @@ export default function ShipmentDetailDialog({
   open,
   onClose,
   shipment,
+  onUpdateStatus,
 }: ShipmentDetailDialogProps) {
   /* -------------------------------------------------------------------------- */
   const waypoints = useMemo(() => {
@@ -258,6 +263,22 @@ export default function ShipmentDetailDialog({
                 {shipment.trackingId}
               </Typography>
               <StatusChip status={shipment.status} />
+              {onUpdateStatus && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<SwapHorizIcon sx={{ fontSize: "16px !important" }} />}
+                  onClick={() => onUpdateStatus(shipment)}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    py: 0.25,
+                  }}
+                >
+                  {dict.shipments.dialogs.updateStatusTitle || "Update status"}
+                </Button>
+              )}
             </Stack>
             <Typography
               variant="caption"

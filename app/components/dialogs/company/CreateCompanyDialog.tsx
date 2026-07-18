@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useParams } from "next/navigation";
 import {
   Box,
   Button,
@@ -32,16 +33,7 @@ import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { createCompany } from "@/app/lib/controllers/company";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-
-const initialFormData: CompanyFormData = {
-  name: "",
-  logo: null,
-  industry: "",
-  timezone: "UTC",
-  currency: "USD",
-  language: "en",
-  regionalVisibility: true,
-};
+import { getRegionalDefaults } from "@/app/lib/constants";
 
 export default function CreateCompanyDialog({
   open,
@@ -50,6 +42,24 @@ export default function CreateCompanyDialog({
 }: CreateCompanyDialogProps) {
   const theme = useTheme();
   const dict = useDictionary();
+  const params = useParams();
+  const locale = (params?.lang as string) || "en";
+
+  // Seed timezone/currency/language from the user's UI locale so the form opens
+  // with region-appropriate defaults (e.g. Europe/Istanbul + TRY for tr) rather
+  // than the neutral UTC + USD. All still editable in step 2.
+  const initialFormData: CompanyFormData = useMemo(() => {
+    const { timezone, currency } = getRegionalDefaults(locale);
+    return {
+      name: "",
+      logo: null,
+      industry: "",
+      timezone,
+      currency,
+      language: locale === "tr" ? "tr" : "en",
+      regionalVisibility: true,
+    };
+  }, [locale]);
 
   const [activeStep, setActiveStep] = useState(0);
   const [direction, setDirection] = useState(0); // For framer-motion slide direction
@@ -146,7 +156,7 @@ export default function CreateCompanyDialog({
         onSubmit={handleSubmit}
         validateOnMount
       >
-        {({ values, errors, setFieldValue, submitForm }) => (
+        {({ values, errors, setFieldValue, setTouched, submitForm }) => (
           <>
             <Box sx={{ p: 4, pb: 0 }}>
               <Stack
@@ -311,11 +321,14 @@ export default function CreateCompanyDialog({
                 variant="contained"
                 onClick={() => {
                   if (activeStep === 0) {
-                    // Check if name and industry are valid for first step
+                    // Advance only when step-1 fields are valid. On failure, mark
+                    // them touched so the *specific* field errors render inline
+                    // (name / industry) instead of a generic which-field-is-it
+                    // toast.
                     if (!errors.name && !errors.industry && values.name) {
                       handleNext();
                     } else {
-                      toast.error(dict.validation.genericFormError);
+                      setTouched({ name: true, industry: true }, true);
                     }
                   } else {
                     submitForm();

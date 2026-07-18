@@ -11,6 +11,17 @@ export {
 } from "./shipments/assign";
 export { updateShipment, deleteShipment } from "./shipments/update";
 export {
+  getShipmentsByTrailer,
+  getVehicleLinkedShipments,
+  getEligibleTargetTrailers,
+  bulkReassignTrailer,
+} from "./shipments/transfer";
+export type {
+  TrailerLinkedShipment,
+  VehicleLinkedShipments,
+  EligibleTargetTrailer,
+} from "./shipments/transfer";
+export {
   getShipments,
   getShipmentById,
   getShipmentByTrackingId,

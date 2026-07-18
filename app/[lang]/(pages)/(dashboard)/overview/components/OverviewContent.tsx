@@ -31,8 +31,9 @@ const ShipmentVolumeCard = dynamic(
   { ssr: false, loading: () => <ChartSkeleton /> }
 );
 import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
-import { useState, useMemo, useEffect } from "react";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import { buildLocalizedHref } from "@/app/lib/language/navigation";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useOverviewData } from "@/app/hooks/useOverview";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
@@ -47,15 +48,25 @@ import Warehouse from "@mui/icons-material/Warehouse";
 import Inventory from "@mui/icons-material/Inventory";
 import KpiCards from "@/app/components/cards/KpiCards";
 import { formatDisplayTime } from "@/app/lib/utils/date";
+import GettingStartedCard from "@/app/components/dashboard/overview/GettingStartedCard";
+import { useGuidedTour } from "@/app/lib/context/GuidedTourContext";
+import { getOverviewTourSteps } from "@/app/components/guidedTour/tourSteps";
+
+// localStorage key marking the overview first-run tour as already shown, so it
+// auto-starts at most once per browser. Manually re-runnable via the sidebar
+// Help button / the checklist's "Take a tour" regardless of this flag.
+const OVERVIEW_TOUR_SEEN_KEY = "logitrack-tour-seen:overview";
 
 export default function OverviewContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
+  const { lang } = useLanguage();
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const { data, isLoading, isError, refetch } = useOverviewData();
   const dateSettings = useDateSettings();
+  const { startTour } = useGuidedTour();
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -71,14 +82,19 @@ export default function OverviewContent() {
   };
 
   /* ----------------------------------- KPI ---------------------------------- */
-  const kpiItems = useMemo(
-    () => [
+  // Drill-down targets: each tile links to the filtered list that answers
+  // "which ones?" — e.g. Delayed → the shipments list pre-filtered to DELAYED.
+  const kpiItems = useMemo(() => {
+    const shipmentsBase = buildLocalizedHref("/shipments", lang);
+    const to = (path: string) => buildLocalizedHref(path, lang);
+    return [
       {
         label: dict.overview.activeShipments,
         value: data.stats?.activeShipments || 0,
         icon: <LocalShipping />,
         color: theme.palette.primary.main,
         trend: data.statsTrends?.activeShipments,
+        href: `${shipmentsBase}?status=IN_TRANSIT`,
       },
       {
         label: dict.overview.delayedShipments,
@@ -89,6 +105,7 @@ export default function OverviewContent() {
             ? theme.palette.error.main
             : theme.palette.success.main,
         trend: data.statsTrends?.delayedShipments,
+        href: `${shipmentsBase}?status=DELAYED`,
       },
       {
         label: dict.overview.vehiclesOnTrip,
@@ -96,6 +113,7 @@ export default function OverviewContent() {
         icon: <DirectionsCar />,
         color: theme.palette.info.main,
         trend: data.statsTrends?.vehiclesOnTrip,
+        href: to("/vehicle"),
       },
       {
         label: dict.overview.vehiclesInService,
@@ -103,6 +121,7 @@ export default function OverviewContent() {
         color: theme.palette.warning.main,
         icon: <Build />,
         trend: data.statsTrends?.vehiclesInService,
+        href: to("/vehicle"),
       },
       {
         label: dict.overview.availableVehicles,
@@ -110,6 +129,7 @@ export default function OverviewContent() {
         icon: <CheckCircle />,
         color: theme.palette.success.main,
         trend: data.statsTrends?.availableVehicles,
+        href: to("/vehicle"),
       },
       {
         label: dict.overview.activeDrivers,
@@ -117,6 +137,7 @@ export default function OverviewContent() {
         icon: <Person />,
         color: theme.palette.kpi.violet,
         trend: data.statsTrends?.activeDrivers,
+        href: to("/drivers"),
       },
       {
         label: dict.overview.warehouses,
@@ -124,6 +145,7 @@ export default function OverviewContent() {
         icon: <Warehouse />,
         color: theme.palette.kpi.indigo,
         trend: data.statsTrends?.warehouses,
+        href: to("/warehouses"),
       },
       {
         label: dict.overview.inventorySkus,
@@ -131,10 +153,10 @@ export default function OverviewContent() {
         icon: <Inventory />,
         color: theme.palette.kpi.sky,
         trend: data.statsTrends?.inventorySkus,
+        href: to("/inventory"),
       },
-    ],
-    [data.stats, data.statsTrends, theme, dict]
-  );
+    ];
+  }, [data.stats, data.statsTrends, theme, dict, lang]);
 
   const mapData: MapData[] = useMemo(
     () =>
@@ -147,6 +169,59 @@ export default function OverviewContent() {
       })),
     [data.mapData]
   );
+
+  /* ----------------------------- EMPTY / ONBOARDING ------------------------- */
+  // Per-entity presence, derived from the KPI stats. Total vehicles spans all
+  // three vehicle states; drivers uses the active count (the only one exposed).
+  const stats = data.stats;
+  const hasVehicles =
+    !!stats &&
+    (stats.vehiclesOnTrip || 0) +
+      (stats.vehiclesInService || 0) +
+      (stats.availableVehicles || 0) >
+      0;
+  const hasDrivers = !!stats && (stats.activeDrivers || 0) > 0;
+  const hasShipments =
+    !!stats &&
+    (stats.activeShipments || 0) + (stats.delayedShipments || 0) > 0;
+
+  // "Brand-new company" = no fleet, no drivers, no shipments yet. Only then do
+  // we replace the all-zero dashboard with the getting-started checklist.
+  const isEmptyCompany =
+    !isLoading && !isError && !hasVehicles && !hasDrivers && !hasShipments;
+
+  const runTour = useCallback(() => {
+    const steps = getOverviewTourSteps(dict as Record<string, unknown>, {
+      isEmpty: isEmptyCompany,
+    });
+    if (steps.length > 0) {
+      // Let any freshly rendered content settle so the [data-tour] targets
+      // exist before the overlay measures them.
+      setTimeout(() => startTour("overview", steps), 200);
+    }
+  }, [dict, startTour, isEmptyCompany]);
+
+  // First-visit auto-tour: fire once per browser, after data has loaded so the
+  // highlighted elements are mounted. Subsequent visits stay quiet; the tour is
+  // still re-runnable from the checklist or the sidebar Help button.
+  useEffect(() => {
+    if (isLoading || isError) return;
+    let seen = false;
+    try {
+      seen = localStorage.getItem(OVERVIEW_TOUR_SEEN_KEY) === "1";
+    } catch {
+      // localStorage unavailable (private mode) — skip the auto-tour rather
+      // than risk showing it on every load.
+      seen = true;
+    }
+    if (seen) return;
+    try {
+      localStorage.setItem(OVERVIEW_TOUR_SEEN_KEY, "1");
+    } catch {
+      /* best-effort persistence */
+    }
+    runTour();
+  }, [isLoading, isError, runTour]);
 
   return (
     <Box p={4} width={"100%"}>
@@ -201,9 +276,21 @@ export default function OverviewContent() {
 
       {isError && <QueryErrorState onRetry={handleRefresh} />}
 
+      {/* First-run checklist replaces the all-zero charts for a new company. */}
+      {isEmptyCompany && (
+        <Box sx={{ mt: 3 }} data-tour="getting-started">
+          <GettingStartedCard
+            hasVehicles={hasVehicles}
+            hasDrivers={hasDrivers}
+            hasShipments={hasShipments}
+            onStartTour={runTour}
+          />
+        </Box>
+      )}
+
       <Box
         sx={{
-          display: isError ? "none" : "grid",
+          display: isError || isEmptyCompany ? "none" : "grid",
           gridTemplateColumns: {
             xs: "1fr",
             md: "repeat(3, 1fr)",

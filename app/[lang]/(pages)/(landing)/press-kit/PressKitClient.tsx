@@ -1,3 +1,4 @@
+"use client";
 import BrushRoundedIcon from "@mui/icons-material/BrushRounded";
 import NewspaperRoundedIcon from "@mui/icons-material/NewspaperRounded";
 import ContactMailRoundedIcon from "@mui/icons-material/ContactMailRounded";

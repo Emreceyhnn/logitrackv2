@@ -1,3 +1,4 @@
+"use client";
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import EnergySavingsLeafRoundedIcon from "@mui/icons-material/EnergySavingsLeafRounded";
 import Groups3RoundedIcon from "@mui/icons-material/Groups3Rounded";

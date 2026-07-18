@@ -1,3 +1,4 @@
+"use client";
 import ApiRoundedIcon from "@mui/icons-material/ApiRounded";
 import DataObjectRoundedIcon from "@mui/icons-material/DataObjectRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";

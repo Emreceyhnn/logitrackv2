@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Stack, Snackbar, Alert, useTheme } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WWSidebar from "@/app/components/warehouse-worker/WWSidebar";
 import WWHeader from "@/app/components/warehouse-worker/WWHeader";
 import GuidedTourOverlay from "@/app/components/guidedTour/GuidedTourOverlay";
@@ -20,6 +20,10 @@ interface ExtendedPalette {
     cyan?: string;
   };
 }
+
+// Marks the warehouse-worker first-run tour as shown, so it auto-starts at most
+// once per browser. Still re-runnable any time from the sidebar Help button.
+const WW_TOUR_SEEN_KEY = "logitrack-tour-seen:warehouse-worker";
 
 export default function WarehouseWorkerClient({
   locked = false,
@@ -47,6 +51,29 @@ export default function WarehouseWorkerClient({
     toast,
     setToast,
   } = state;
+
+  // First-visit auto-tour: fire once per browser, and only after the warehouse
+  // data has resolved so the [data-tour] targets are mounted when the overlay
+  // measures them. `handleHelpClick` runs the current view's tour (dashboard on
+  // entry). Quiet on every later visit; still re-runnable from the Help button.
+  useEffect(() => {
+    if (!warehouseId) return;
+    let seen = false;
+    try {
+      seen = localStorage.getItem(WW_TOUR_SEEN_KEY) === "1";
+    } catch {
+      // localStorage unavailable (private mode) — skip rather than risk
+      // re-showing the tour on every load.
+      seen = true;
+    }
+    if (seen) return;
+    try {
+      localStorage.setItem(WW_TOUR_SEEN_KEY, "1");
+    } catch {
+      /* best-effort persistence */
+    }
+    handleHelpClick();
+  }, [warehouseId, handleHelpClick]);
 
   return (
     <Stack

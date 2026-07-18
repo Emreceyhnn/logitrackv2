@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import {
   Stack,
   Box,
   Typography,
   Button,
+  IconButton,
   LinearProgress,
   useTheme,
 } from "@mui/material";
@@ -13,9 +17,12 @@ import type {
 
 interface WWTaskRowProps {
   t: Task;
-  advanceTask: (id: string) => void;
+  advanceTask: (id: string, delta?: number) => void;
   ww: WarehouseWorkerDict;
 }
+
+// Glove-friendly touch target for the in-row unit stepper.
+const STEP_SIZE = 48;
 
 export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
   const theme = useTheme();
@@ -40,8 +47,28 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
             bg: "rgba(255,255,255,0.06)",
             label: ww.low,
           };
-  const pct = Math.round((t.done / t.total) * 100);
+
   const complete = t.done >= t.total;
+  const started = t.done > 0 && !complete;
+
+  // Local counter for the in-progress state: seeded at the server's committed
+  // `done` and only ever moves forward (you can't un-pick committed units). We
+  // commit the difference on Complete, so the whole "start → count → done"
+  // loop lives on this one row.
+  const [count, setCount] = useState(t.done);
+  // Keep the local counter in step with server refreshes without resetting a
+  // higher local count the worker is mid-way through entering.
+  const [seenDone, setSeenDone] = useState(t.done);
+  if (seenDone !== t.done) {
+    setSeenDone(t.done);
+    if (t.done > count) setCount(t.done);
+  }
+
+  const displayed = started ? count : t.done;
+  const pct = Math.round((displayed / t.total) * 100);
+
+  const dec = () => setCount((c) => Math.max(t.done, c - 1));
+  const inc = () => setCount((c) => Math.min(t.total, c + 1));
 
   return (
     <Stack
@@ -105,7 +132,7 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
           }}
         >
           <Box>
-            {t.done}/{t.total}
+            {displayed}/{t.total}
           </Box>
           <Box sx={{ color: km.color }}>{pct}%</Box>
         </Stack>
@@ -124,7 +151,7 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
         direction="row"
         spacing={1}
         alignItems="center"
-        sx={{ width: 150, justifyContent: "flex-end" }}
+        sx={{ justifyContent: "flex-end" }}
       >
         <Box
           sx={{
@@ -139,18 +166,108 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
         >
           {pm.label}
         </Box>
-        <Button
-          disabled={complete}
-          onClick={() => advanceTask(t.id)}
-          sx={{
-            textTransform: "none",
-            borderRadius: 2,
-            color: complete ? theme.palette.kpi.emerald : km.color,
-            bgcolor: complete ? "rgba(52,211,153,0.12)" : km.bg,
-          }}
-        >
-          {complete ? ww.ui.doneBtn : ww.ui.advanceBtn}
-        </Button>
+
+        {complete ? (
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+              fontSize: 13,
+              fontWeight: 700,
+              color: theme.palette.kpi.emerald,
+              bgcolor: "rgba(52,211,153,0.12)",
+            }}
+          >
+            {ww.ui.doneBtn}
+          </Box>
+        ) : started ? (
+          <>
+            {/* Count the units right here, big enough for gloved thumbs. */}
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={0.5}
+              sx={{ bgcolor: "rgba(0,0,0,0.25)", p: 0.5, borderRadius: 3 }}
+            >
+              <IconButton
+                aria-label={ww.ui.decreaseQty}
+                onClick={dec}
+                disabled={count <= t.done}
+                sx={{
+                  width: STEP_SIZE,
+                  height: STEP_SIZE,
+                  fontSize: 24,
+                  color: "#fff",
+                }}
+              >
+                −
+              </IconButton>
+              <Typography
+                sx={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  minWidth: 32,
+                  textAlign: "center",
+                  color: "#fff",
+                }}
+              >
+                {count}
+              </Typography>
+              <IconButton
+                aria-label={ww.ui.increaseQty}
+                onClick={inc}
+                disabled={count >= t.total}
+                sx={{
+                  width: STEP_SIZE,
+                  height: STEP_SIZE,
+                  fontSize: 24,
+                  color: "#fff",
+                }}
+              >
+                +
+              </IconButton>
+            </Stack>
+            <Button
+              onClick={() => advanceTask(t.id, count - t.done)}
+              disabled={count <= t.done}
+              sx={{
+                textTransform: "none",
+                fontWeight: 700,
+                borderRadius: 2,
+                minHeight: STEP_SIZE,
+                px: 2,
+                color: "#0b1019",
+                bgcolor: km.color,
+                "&:hover": { bgcolor: km.color, filter: "brightness(1.08)" },
+                "&.Mui-disabled": {
+                  bgcolor: "rgba(255,255,255,0.08)",
+                  color: theme.palette.text.secondary,
+                },
+              }}
+            >
+              {/* Commits the counted units; reads "Complete" when the count
+                  will finish the task, "Advance" for a partial commit. */}
+              {count >= t.total ? ww.ui.completeBtn : ww.ui.advanceBtn}
+            </Button>
+          </>
+        ) : (
+          // OPEN: one tap moves the task into progress and seeds the counter.
+          <Button
+            onClick={() => advanceTask(t.id, 1)}
+            sx={{
+              textTransform: "none",
+              fontWeight: 700,
+              borderRadius: 2,
+              minHeight: STEP_SIZE,
+              px: 3,
+              color: km.color,
+              bgcolor: km.bg,
+            }}
+          >
+            {ww.ui.startBtn}
+          </Button>
+        )}
       </Stack>
     </Stack>
   );

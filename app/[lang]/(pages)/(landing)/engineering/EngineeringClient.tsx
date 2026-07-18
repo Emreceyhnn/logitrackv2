@@ -1,3 +1,4 @@
+"use client";
 import CloudRoundedIcon from "@mui/icons-material/CloudRounded";
 import StorageRoundedIcon from "@mui/icons-material/StorageRounded";
 import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";

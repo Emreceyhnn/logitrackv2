@@ -1,3 +1,4 @@
+"use client";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 import TimerRoundedIcon from "@mui/icons-material/TimerRounded";
 import AssessmentRoundedIcon from "@mui/icons-material/AssessmentRounded";

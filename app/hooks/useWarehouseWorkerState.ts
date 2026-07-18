@@ -4,6 +4,7 @@ import { useWarehouseWorker } from "@/app/hooks/useWarehouseWorker";
 import { warehouseWorkerKeys } from "@/app/lib/query-keys/warehouseWorker.keys";
 import {
   logWarehouseMovement,
+  adjustWarehouseStock,
   advanceWarehouseTask,
   requestRestock,
   reportWarehouseIssue,
@@ -12,8 +13,8 @@ import type { WWCatalogItem } from "@/app/lib/type/warehouseWorker";
 import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { useGuidedTour } from "@/app/lib/context/GuidedTourContext";
 import { getTourStepsForPage } from "@/app/components/guidedTour/tourSteps";
-import { View, Task, Zone, Movement, SkuInfo } from "@/app/lib/type/warehouseWorkerClient";
-import { PICKS_TARGET, PACKS_TARGET, relativeTime, prioFromServer, I } from "@/app/lib/utils/warehouseWorkerUi";
+import { View, Task, Zone, Movement, SkuInfo, LowStockItem } from "@/app/lib/type/warehouseWorkerClient";
+import { PICKS_TARGET, PACKS_TARGET, relativeTime, prioFromServer, sortTasksByPriority, pickNextTask, I } from "@/app/lib/utils/warehouseWorkerUi";
 
 export function useWarehouseWorkerState(selectedWarehouseId: string | undefined) {
   const { dict } = useLanguage();
@@ -50,16 +51,23 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   const picksTarget = data?.kpis.picksTarget ?? PICKS_TARGET;
   const packsTarget = data?.kpis.packsTarget ?? PACKS_TARGET;
 
-  const tasks: Task[] = (data?.tasks ?? []).map((t) => ({
-    id: t.id,
-    kind: t.kind,
-    name: t.name,
-    order: t.orderRef,
-    zone: t.zone,
-    done: t.done,
-    total: t.total,
-    priority: prioFromServer(t.priority),
-  }));
+  // Order the queue so the worker never has to hunt for what's next: open tasks
+  // before completed ones, then high → med → low (see sortTasksByPriority).
+  const tasks: Task[] = sortTasksByPriority(
+    (data?.tasks ?? []).map((t) => ({
+      id: t.id,
+      kind: t.kind,
+      name: t.name,
+      order: t.orderRef,
+      zone: t.zone,
+      done: t.done,
+      total: t.total,
+      priority: prioFromServer(t.priority),
+    }))
+  );
+
+  // The "do this next" recommendation surfaced in the dashboard's Next-task card.
+  const nextTask: Task | null = pickNextTask(tasks);
 
   const zones: Zone[] = (data?.zones ?? []).map((z) => ({
     name: z.code,
@@ -77,6 +85,9 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     self: m.self,
     t: relativeTime(m.at, ww),
   }));
+
+  // Proactive shortage signal: SKUs already at/below reorder point, worst first.
+  const lowStock: LowStockItem[] = data?.lowStock ?? [];
 
   const [view, setView] = useState<View>("dashboard");
   const [currentZone, setCurrentZone] = useState("A");
@@ -117,11 +128,21 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     if (!raw.trim()) return;
     const q = raw.trim().toLocaleUpperCase("en-US");
     const hit = catalog.find((s) => s.sku.toLocaleUpperCase("en-US") === q || s.name.toLocaleUpperCase("en-US").includes(q));
-    const info = hit ?? {
-      sku: q.startsWith("SKU") ? q : `SKU-${q || "00000"}`,
-      name: ww.unrecognizedItem,
-      zone: currentZone,
-    };
+    const info: SkuInfo = hit
+      ? {
+          sku: hit.sku,
+          name: hit.name,
+          zone: hit.zone,
+          onHand: hit.quantity,
+          available: hit.available,
+          minStock: hit.minStock,
+          lowStock: hit.lowStock,
+        }
+      : {
+          sku: q.startsWith("SKU") ? q : `SKU-${q || "00000"}`,
+          name: ww.unrecognizedItem,
+          zone: currentZone,
+        };
     setScanResult(info);
     setScanQty(1);
     setScanInput("");
@@ -134,7 +155,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     if (item) doScan(item.sku);
   };
 
-  const log = async (kind: "PICK" | "PACK") => {
+  const log = async (kind: "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY") => {
     if (!scanResult || !warehouseId) return;
     const qty = scanQty;
     const result = scanResult;
@@ -142,16 +163,43 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanQty(1);
     try {
       await logWarehouseMovement(warehouseId, result.sku, qty, kind);
-      showToast(`${ww.logged} ${kind.toLocaleLowerCase("en-US")} · ${qty} × ${result.sku}`, kind === "PICK" ? "warning" : "success");
+      const label = (ww.ui[kind] || kind).toLocaleLowerCase("en-US");
+      // PICK removes stock (warning tone); everything else adds/settles (success).
+      showToast(`${ww.logged} ${label} · ${qty} × ${result.sku}`, kind === "PICK" ? "warning" : "success");
       await refresh();
     } catch {
       showToast(ww.couldNotLog, "error");
     }
   };
 
-  const advanceTask = async (id: string) => {
+  // Reconcile a physical count for the scanned SKU (eksik/fazla). `counted` is
+  // the shelf count; the server computes the signed delta against live on-hand.
+  const adjust = async (counted: number, reason: string) => {
+    if (!scanResult || !warehouseId) return;
+    const result = scanResult;
+    const expected = result.onHand;
+    setScanResult(null);
+    setScanQty(1);
     try {
-      const res = await advanceWarehouseTask(id);
+      const res = await adjustWarehouseStock(warehouseId, result.sku, counted, reason, expected);
+      if (res.delta === 0) {
+        showToast(`${ww.adjustNoChange} · ${result.sku}`, "info");
+      } else {
+        const sign = res.delta > 0 ? "+" : "";
+        showToast(`${ww.adjusted} ${sign}${res.delta} · ${result.sku}`, res.delta < 0 ? "warning" : "success");
+      }
+      await refresh();
+    } catch {
+      showToast(ww.couldNotAdjust, "error");
+    }
+  };
+
+  // delta lets the task row commit a counted unit total in one step (Start →
+  // count → Complete); omitted, the backend falls back to its default step so
+  // the Next-task card's single-tap "Start" still works.
+  const advanceTask = async (id: string, delta?: number) => {
+    try {
+      const res = await advanceWarehouseTask(id, delta);
       if (res.complete) showToast(ww.taskComplete, "success");
       await refresh();
     } catch {
@@ -159,11 +207,23 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     }
   };
 
-  const onRestock = async () => {
+  // With an item, files a SKU-specific request (this product ran low, N units);
+  // without one, the legacy zone-wide request for the active zone.
+  const onRestock = async (item?: {
+    sku: string;
+    zone: string;
+    suggestedQty?: number;
+  }) => {
     if (!warehouseId) return;
     try {
-      await requestRestock(warehouseId, currentZone);
-      showToast(`${ww.restockRequested} · Zone ${currentZone}`, "info");
+      if (item) {
+        await requestRestock(warehouseId, item.zone, item.sku, item.suggestedQty);
+        const qtyPart = item.suggestedQty ? ` × ${item.suggestedQty}` : "";
+        showToast(`${ww.restockRequested} · ${item.sku}${qtyPart}`, "info");
+      } else {
+        await requestRestock(warehouseId, currentZone);
+        showToast(`${ww.restockRequested} · Zone ${currentZone}`, "info");
+      }
       await refresh();
     } catch {
       showToast(ww.couldNotRequestRestock, "error");
@@ -204,8 +264,10 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     picksPct,
     packsPct,
     tasks,
+    nextTask,
     zones,
     feed,
+    lowStock,
     view,
     setView,
     currentZone,
@@ -227,6 +289,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     doScan,
     simScan,
     log,
+    adjust,
     advanceTask,
     onRestock,
     onReport,

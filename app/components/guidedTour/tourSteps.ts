@@ -26,20 +26,42 @@ function d(obj: unknown, path: string): string {
 /* -------------------------------------------------------------------------- */
 /*                               OVERVIEW                                     */
 /* -------------------------------------------------------------------------- */
-export function getOverviewTourSteps(dict: Dict): TourStep[] {
+export function getOverviewTourSteps(
+  dict: Dict,
+  opts?: { isEmpty?: boolean }
+): TourStep[] {
+  const titleStep: TourStep = {
+    targetSelector: '[data-tour="overview-title"]',
+    title: d(dict, "guidedTour.overview.titleStep.title"),
+    description: d(dict, "guidedTour.overview.titleStep.description"),
+    placement: "bottom",
+  };
+  const kpiStep: TourStep = {
+    targetSelector: '[data-tour="kpi-cards"]',
+    title: d(dict, "guidedTour.overview.kpiStep.title"),
+    description: d(dict, "guidedTour.overview.kpiStep.description"),
+    placement: "bottom",
+  };
+
+  // Empty new company: the charts/map aren't rendered yet, so those steps would
+  // point at nothing. Instead walk the user through the getting-started
+  // checklist that IS on screen.
+  if (opts?.isEmpty) {
+    return [
+      titleStep,
+      kpiStep,
+      {
+        targetSelector: '[data-tour="getting-started"]',
+        title: d(dict, "guidedTour.overview.gettingStartedStep.title"),
+        description: d(dict, "guidedTour.overview.gettingStartedStep.description"),
+        placement: "top",
+      },
+    ];
+  }
+
   return [
-    {
-      targetSelector: '[data-tour="overview-title"]',
-      title: d(dict, "guidedTour.overview.titleStep.title"),
-      description: d(dict, "guidedTour.overview.titleStep.description"),
-      placement: "bottom",
-    },
-    {
-      targetSelector: '[data-tour="kpi-cards"]',
-      title: d(dict, "guidedTour.overview.kpiStep.title"),
-      description: d(dict, "guidedTour.overview.kpiStep.description"),
-      placement: "bottom",
-    },
+    titleStep,
+    kpiStep,
     {
       targetSelector: '[data-tour="daily-operations"]',
       title: d(dict, "guidedTour.overview.dailyOpsStep.title"),

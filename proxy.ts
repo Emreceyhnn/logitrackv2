@@ -242,12 +242,21 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // "No access" splits by *why*: a brand-new user still awaiting a trial
+  // (accessStatus NONE) sees the pending-access screen, which polls until the
+  // trial resolves; a user whose trial/plan lapsed (EXPIRED) sees pricing with
+  // an upgrade notice. Keeps "you're almost in" distinct from "time to pay".
+  const noAccessHome: { pathname: string; search: string } =
+    accessStatus === "NONE"
+      ? { pathname: buildLocalizedHref("/pending-access", locale), search: "" }
+      : { pathname: buildLocalizedHref("/pricing", locale), search: "?reason=expired" };
+
   // Where an authenticated user belongs, given their entitlement:
-  //   - no access  → pricing (with an "expired/no access" notice)
+  //   - no access  → pending-access (NONE) or pricing (EXPIRED), per above
   //   - has company → dashboard
   //   - otherwise   → onboarding (create a company)
   const authedHome: { pathname: string; search: string } = !userHasAccess
-    ? { pathname: buildLocalizedHref("/pricing", locale), search: "?reason=expired" }
+    ? noAccessHome
     : {
         pathname: buildLocalizedHref(
           companyId ? DEFAULT_REDIRECT_AFTER_LOGIN : "/onboarding",
@@ -269,11 +278,12 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Authenticated but without access, trying to reach onboarding → pricing.
+  // Authenticated but without access, trying to reach onboarding → their
+  // no-access home (pending-access for NONE, pricing for EXPIRED).
   if (isOnboarding && isTokenValid && !userHasAccess) {
     const url = request.nextUrl.clone();
-    url.pathname = buildLocalizedHref("/pricing", locale);
-    url.search = "?reason=expired";
+    url.pathname = noAccessHome.pathname;
+    url.search = noAccessHome.search;
     return NextResponse.redirect(url);
   }
 
@@ -285,11 +295,12 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Signed in but no dashboard access → pricing (expired trial / no plan).
+    // Signed in but no dashboard access → pending-access (NONE) or pricing
+    // (EXPIRED trial / no plan).
     if (isTokenValid && !userHasAccess) {
       const url = request.nextUrl.clone();
-      url.pathname = buildLocalizedHref("/pricing", locale);
-      url.search = "?reason=expired";
+      url.pathname = noAccessHome.pathname;
+      url.search = noAccessHome.search;
       return NextResponse.redirect(url);
     }
 

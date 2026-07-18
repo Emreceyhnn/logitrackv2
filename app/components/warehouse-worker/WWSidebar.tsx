@@ -92,24 +92,37 @@ export default function WWSidebar({
       )}
       {onHelpClick && dict && (
         <Tooltip title={dict.common?.needHelp || "Need Help"} arrow placement="right">
-          <IconButton
+          <Stack
+            component="button"
+            type="button"
             data-tour="ww-help-btn"
             onClick={onHelpClick}
+            alignItems="center"
+            spacing={0.25}
             sx={{
               mt: locked ? "auto" : 1,
-              width: 48,
-              height: 48,
+              width: 60,
+              py: 1,
+              cursor: "pointer",
+              font: "inherit",
               borderRadius: 3,
-              bgcolor: "transparent",
-              color: "rgba(255,255,255,0.5)",
+              // Tinted + bordered so it reads as an action, not decoration, in
+              // the narrow rail — the discoverability fix.
+              bgcolor: "rgba(56,189,248,0.12)",
+              border: `1px solid rgba(56,189,248,0.35)`,
+              color: theme.palette.primary.main,
+              transition: "background-color .15s, color .15s",
               ":hover": {
-                bgcolor: "rgba(255,255,255,0.08)",
+                bgcolor: "rgba(56,189,248,0.22)",
                 color: "#fff",
               },
             }}
           >
-            <HelpOutlineIcon sx={{ fontSize: 22 }} />
-          </IconButton>
+            <HelpOutlineIcon sx={{ fontSize: 20 }} />
+            <Box sx={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.3, lineHeight: 1 }}>
+              {dict.common?.help || "Help"}
+            </Box>
+          </Stack>
         </Tooltip>
       )}
       <Box

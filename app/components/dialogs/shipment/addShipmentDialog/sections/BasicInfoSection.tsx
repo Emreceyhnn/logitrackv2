@@ -130,7 +130,7 @@ const BasicInfoSection = () => {
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }} data-field="priority">
             <Stack spacing={1}>
               <Typography
                 variant="caption"
@@ -187,7 +187,7 @@ const BasicInfoSection = () => {
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid size={{ xs: 12, md: 3 }} data-field="type">
             <Stack spacing={1}>
               <Typography
                 variant="caption"
@@ -218,7 +218,7 @@ const BasicInfoSection = () => {
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid size={{ xs: 12, md: 3 }} data-field="slaDeadline">
             <Stack spacing={1}>
               <Typography
                 variant="caption"

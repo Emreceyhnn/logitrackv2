@@ -44,6 +44,13 @@ interface FooterPageLayoutProps {
   ctaTitle: string;
   ctaSubtitle: string;
   ctaIcon: ReactNode;
+  /**
+   * Optional page-specific content rendered after the detail section and before
+   * the CTA. Lets a page (e.g. Security Center) inject concrete sections —
+   * compliance badges, downloads, live status — without forking this shared
+   * marketing template.
+   */
+  children?: ReactNode;
 }
 
 export default function FooterPageLayout({
@@ -56,6 +63,7 @@ export default function FooterPageLayout({
   ctaTitle,
   ctaSubtitle,
   ctaIcon,
+  children,
 }: FooterPageLayoutProps) {
   const theme = useTheme();
 
@@ -326,6 +334,9 @@ export default function FooterPageLayout({
             </Box>
           </Stack>
         )}
+
+        {/* Page-specific content slot (e.g. compliance/downloads/status) */}
+        {children && <Box mb={16}>{children}</Box>}
 
         {/* CTA Section */}
         <Box

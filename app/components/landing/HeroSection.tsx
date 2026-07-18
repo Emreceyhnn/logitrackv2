@@ -10,6 +10,9 @@ import { getLocalizedPath } from "@/app/lib/language/navigation";
 import { hasDashboardAccess } from "@/app/lib/actions/demoRequest";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import LoginIcon from "@mui/icons-material/Login";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import RouteOutlinedIcon from "@mui/icons-material/RouteOutlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { motion } from "framer-motion";
 
 export default function HeroSection() {
@@ -95,43 +98,6 @@ export default function HeroSection() {
       <Box className="pointer-events-none fixed inset-0 z-[100] overflow-hidden opacity-[0.02] mix-blend-overlay">
         <Box className="h-[200vh] w-full animate-scanline bg-gradient-to-b from-transparent via-white to-transparent" />
       </Box>
-
-      {/* Technical Overlays */}
-      <Typography
-        className="font-label-md"
-        sx={{
-          position: "absolute",
-          top: "40%",
-          left: 48,
-          color: "primary.main",
-          opacity: 0.3,
-          fontSize: "0.75rem",
-          letterSpacing: "0.4em",
-          transform: "rotate(90deg) origin-left",
-          display: { xs: "none", xl: "block" },
-          textTransform: "uppercase",
-        }}
-      >
-        NAV.PROC.01 // SYNC_ACTIVE // LAT 52.3676 N 4.9041 E
-      </Typography>
-
-      <Typography
-        className="font-label-md"
-        sx={{
-          position: "absolute",
-          bottom: "40%",
-          right: 48,
-          color: "primary.main",
-          opacity: 0.3,
-          fontSize: "0.75rem",
-          letterSpacing: "0.4em",
-          transform: "rotate(-90deg) origin-right",
-          display: { xs: "none", xl: "block" },
-          textTransform: "uppercase",
-        }}
-      >
-        SECURE.ENDPOINT.942 // ENCR_AES_256 // VERIFIED
-      </Typography>
 
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
         <Stack spacing={4} alignItems="center" textAlign="center">
@@ -231,6 +197,77 @@ export default function HeroSection() {
               }}
             >
               {dict.landing.hero.description}
+            </Typography>
+          </motion.div>
+
+          {/* Concrete benefits — grounds the abstract value prop in the three
+              things the product actually does (fleet / shipment / warehouse). */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1.5, sm: 3 }}
+              alignItems="center"
+              justifyContent="center"
+            >
+              {[
+                {
+                  icon: <LocalShippingOutlinedIcon sx={{ fontSize: 18 }} />,
+                  label: dict.landing.hero.benefits.fleet,
+                },
+                {
+                  icon: <RouteOutlinedIcon sx={{ fontSize: 18 }} />,
+                  label: dict.landing.hero.benefits.shipment,
+                },
+                {
+                  icon: <WarehouseOutlinedIcon sx={{ fontSize: 18 }} />,
+                  label: dict.landing.hero.benefits.warehouse,
+                },
+              ].map((b) => (
+                <Box
+                  key={b.label}
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: "rgba(255, 255, 255, 0.85)",
+                  }}
+                >
+                  <Box sx={{ display: "inline-flex", color: "#00f2ff" }}>
+                    {b.icon}
+                  </Box>
+                  <Typography
+                    sx={{
+                      fontSize: { xs: "0.875rem", md: "0.9375rem" },
+                      fontWeight: 600,
+                    }}
+                  >
+                    {b.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          </motion.div>
+
+          {/* Persona — makes "who this is for" explicit within 30s. */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
+          >
+            <Typography
+              className="font-label-md"
+              sx={{
+                fontSize: "0.8125rem",
+                color: "rgba(255, 255, 255, 0.55)",
+                letterSpacing: "0.05em",
+                textAlign: "center",
+              }}
+            >
+              {dict.landing.hero.persona}
             </Typography>
           </motion.div>
 

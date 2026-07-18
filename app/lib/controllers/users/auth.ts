@@ -25,6 +25,7 @@ import {
   loginUserSchema,
 } from "../../validation/serverSchemas";
 import { logger } from "@/app/lib/logger";
+import { grantTrial } from "@/app/lib/entitlement.server";
 
 
 const getJwtSecret = () => {
@@ -140,8 +141,22 @@ export const RegisterUser = maybeAuthenticatedAction(
       });
 
       // Only a guest self-registration signs this browser in as the new user.
-      // An admin registering someone else keeps their own session cookies.
+      // An admin registering someone else keeps their own session cookies, and
+      // that user inherits the company's plan rather than a self-serve trial.
       if (!user) {
+        // Self-serve trial: grant it BEFORE minting the session so the access
+        // token already carries accessStatus=TRIAL — instant dashboard access
+        // with no token-refresh wait. A failure here is non-fatal: registration
+        // still succeeds and the user lands on the pending-access screen, which
+        // polls until entitlement resolves.
+        try {
+          await grantTrial(newUser.id);
+        } catch (trialErr) {
+          logger.error(
+            "Trial grant failed at signup; user will see pending-access:",
+            trialErr
+          );
+        }
         await createSession(newUser, userAgent, ip);
       }
 

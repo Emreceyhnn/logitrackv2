@@ -3,6 +3,28 @@ import "server-only";
 import { db } from "./db";
 import type { AccessStatus, AccessSummary } from "./entitlement";
 
+/** Length of a self-serve / demo-approved trial, in days. */
+export const TRIAL_DAYS = 7;
+
+/**
+ * Grants (or renews) a user's self-serve trial by upserting their Subscription
+ * to TRIAL with a fresh {@link TRIAL_DAYS}-day expiry. Idempotent: calling it
+ * again just pushes the expiry out.
+ *
+ * Callers that mint a token immediately afterwards (e.g. signup) get a token
+ * whose entitlement already reflects the trial, so access is instant with no
+ * refresh wait. Returns the trial expiry so callers can surface it if needed.
+ */
+export async function grantTrial(userId: string): Promise<{ trialEndsAt: Date }> {
+  const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+  await db.subscription.upsert({
+    where: { userId },
+    create: { userId, status: "TRIAL", trialEndsAt },
+    update: { status: "TRIAL", trialEndsAt },
+  });
+  return { trialEndsAt };
+}
+
 /**
  * Reads a user's Subscription and produces the compact {@link AccessSummary}
  * that gets baked into the access token. A TRIAL whose `trialEndsAt` has passed

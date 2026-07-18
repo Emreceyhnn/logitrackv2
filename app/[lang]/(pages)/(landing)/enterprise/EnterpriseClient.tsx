@@ -1,3 +1,4 @@
+"use client";
 import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
 import IntegrationInstructionsRoundedIcon from "@mui/icons-material/IntegrationInstructionsRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";

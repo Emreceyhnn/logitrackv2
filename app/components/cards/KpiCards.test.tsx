@@ -14,6 +14,11 @@ mock.module("framer-motion", {
 
 mock.module("../cards/StatCard.tsx", { defaultExport: () => <div data-testid="StatCard" /> });
 
+// KpiCards now uses useRouter to navigate on tile drill-down.
+mock.module("next/navigation", {
+  namedExports: { useRouter: () => ({ push: () => {} }) },
+});
+
 mock.module("@/app/lib/language/DictionaryContext", {
   namedExports: {
     useLanguage: () => ({ lang: "en", dict: {}, changeLanguage: () => {} }),

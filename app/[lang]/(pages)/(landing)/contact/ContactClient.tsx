@@ -12,9 +12,15 @@ import {
 } from "@mui/material";
 import { keyframes } from "@mui/system";
 import SendIcon from "@mui/icons-material/Send";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import RocketLaunchRoundedIcon from "@mui/icons-material/RocketLaunchRounded";
+import MarkEmailReadRoundedIcon from "@mui/icons-material/MarkEmailReadRounded";
+import Link from "next/link";
 import { Formik } from "formik";
 import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 import {
   submitDemoRequest,
   type DemoRequestKind,
@@ -43,12 +49,17 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ContactClient({
   kind = "CONTACT",
+  lang = "tr",
 }: {
   kind?: DemoRequestKind;
+  lang?: string;
 }) {
   const dict = useDictionary();
   const cDict = dict?.landing?.contactPage;
   const [submitted, setSubmitted] = useState(false);
+  // Demo requesters can skip the manual-approval wait entirely: signup grants a
+  // 7-day trial instantly, so we offer it as a self-serve shortcut.
+  const signUpHref = `/${lang}${getLocalizedPath("/auth/sign-up", lang)}`;
 
   if (!cDict) {
     return (
@@ -164,15 +175,160 @@ export default function ContactClient({
             sx={{
               p: { xs: 4, md: 6 },
               borderRadius: 4,
-              textAlign: "center",
               background: "linear-gradient(135deg, #38bdf81a 0%, #6366f10d 100%)",
               border: "1px solid rgba(56,189,248,0.2)",
               animation: `${fadeIn} 0.5s ease-out`,
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "#38bdf8" }}>
-              {cDict.success}
-            </Typography>
+            <Stack spacing={4}>
+              {/* Header + expected timeframe */}
+              <Stack spacing={1.5} alignItems="center" textAlign="center">
+                <CheckCircleRoundedIcon
+                  sx={{ fontSize: 48, color: "#38bdf8" }}
+                />
+                <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                  {cDict.successCard.title}
+                </Typography>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ color: "rgba(241,245,249,0.75)" }}
+                >
+                  <ScheduleRoundedIcon sx={{ fontSize: 18 }} />
+                  <Typography variant="body2">
+                    {cDict.successCard.timeframe}
+                  </Typography>
+                </Stack>
+              </Stack>
+
+              {/* Numbered next steps */}
+              <Box
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  background: "rgba(15,23,42,0.4)",
+                  border: "1px solid rgba(56,189,248,0.1)",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 800,
+                    mb: 2,
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    color: "rgba(241,245,249,0.6)",
+                    fontSize: "0.7rem",
+                  }}
+                >
+                  {cDict.successCard.stepsTitle}
+                </Typography>
+                <Stack spacing={2}>
+                  {[
+                    cDict.successCard.step1,
+                    cDict.successCard.step2,
+                    cDict.successCard.step3,
+                  ].map((step, i) => (
+                    <Stack
+                      key={i}
+                      direction="row"
+                      spacing={1.5}
+                      alignItems="flex-start"
+                    >
+                      <Box
+                        sx={{
+                          flexShrink: 0,
+                          width: 24,
+                          height: 24,
+                          borderRadius: "50%",
+                          bgcolor: "rgba(56,189,248,0.15)",
+                          color: "#38bdf8",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.8rem",
+                          fontWeight: 800,
+                        }}
+                      >
+                        {i + 1}
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "rgba(241,245,249,0.85)", lineHeight: 1.6 }}
+                      >
+                        {step}
+                      </Typography>
+                    </Stack>
+                  ))}
+                </Stack>
+              </Box>
+
+              {/* Email note */}
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                justifyContent="center"
+                sx={{ color: "rgba(241,245,249,0.6)" }}
+              >
+                <MarkEmailReadRoundedIcon sx={{ fontSize: 18 }} />
+                <Typography variant="caption">
+                  {cDict.successCard.emailNote}
+                </Typography>
+              </Stack>
+
+              {/* Self-serve trial shortcut — only for demo requesters, who want
+                  to try the product; a plain contact message doesn't get this. */}
+              {kind === "DEMO" && (
+                <Box
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    background:
+                      "linear-gradient(135deg, #22d3ee1a, #2563eb14)",
+                    border: "1px solid rgba(34,211,238,0.3)",
+                    textAlign: "center",
+                  }}
+                >
+                  <RocketLaunchRoundedIcon
+                    sx={{ fontSize: 28, color: "#22d3ee", mb: 1 }}
+                  />
+                  <Typography sx={{ fontWeight: 800, mb: 0.5 }}>
+                    {cDict.successCard.selfServeTitle}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "rgba(241,245,249,0.75)",
+                      mb: 2,
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {cDict.successCard.selfServeBody}
+                  </Typography>
+                  <Button
+                    component={Link}
+                    href={signUpHref}
+                    variant="contained"
+                    endIcon={<RocketLaunchRoundedIcon />}
+                    sx={{
+                      py: 1.25,
+                      px: 3,
+                      fontWeight: 800,
+                      textTransform: "none",
+                      borderRadius: "12px",
+                      background: "linear-gradient(135deg, #22d3ee, #2563eb)",
+                      "&:hover": {
+                        background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                      },
+                    }}
+                  >
+                    {cDict.successCard.selfServeCta}
+                  </Button>
+                </Box>
+              )}
+            </Stack>
           </Box>
         ) : (
           <Formik

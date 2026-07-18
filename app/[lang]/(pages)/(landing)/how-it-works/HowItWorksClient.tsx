@@ -1,3 +1,4 @@
+"use client";
 import { Box, Container, Typography, Stack, Button } from "@mui/material";
 import TimelineSection from "@/app/components/how-it-works/TimelineSection";
 import type { Dictionary } from "@/app/lib/language/language";

@@ -25,6 +25,7 @@ const useDictionaryMock = mock.fn(() => ({
       title: "Shipments",
     },
     statuses: { DELIVERED: "Delivered", IN_TRANSIT: "In Transit" },
+    dialogs: { updateStatusTitle: "Update status" },
   }
 }));
 
@@ -65,9 +66,25 @@ mock.module("../../../chips/statusChips.tsx", {
 mock.module("../../../dialogs/shipment/shipmentDetailDialog.tsx", {
   defaultExport: ({ open, onClose  }: Record<string, unknown>) => open ? (
     <div data-testid="detail-dialog">
-      <button onClick={onClose}>Close</button>
+      <button onClick={onClose as () => void}>Close</button>
     </div>
   ) : null,
+});
+
+mock.module("../../../dialogs/shipment/statusUpdateDialog.tsx", {
+  defaultExport: ({ open }: Record<string, unknown>) =>
+    open ? <div data-testid="status-dialog" /> : null,
+});
+
+mock.module("../../../../hooks/useShipments.ts", {
+  namedExports: {
+    useShipmentMutations: () => ({
+      updateShipmentStatus: {
+        mutateAsync: async () => {},
+        isPending: false,
+      },
+    }),
+  },
 });
 
 mock.module("../../../ui/DataTable/index.tsx", {

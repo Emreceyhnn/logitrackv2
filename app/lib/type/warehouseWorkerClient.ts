@@ -43,4 +43,22 @@ export interface SkuInfo {
   sku: string;
   name: string;
   zone: string;
+  /** System on-hand for this SKU, used as the expected value in adjustments.
+   *  Undefined for unrecognized SKUs (no inventory record). */
+  onHand?: number;
+  /** Pickable stock (on-hand minus allocated). Undefined for unknown SKUs. */
+  available?: number;
+  /** Reorder threshold; drives the low-stock badge. */
+  minStock?: number;
+  lowStock?: boolean;
+}
+
+/** Client view of a SKU below its reorder point (mirror of WWLowStockItem). */
+export interface LowStockItem {
+  sku: string;
+  name: string;
+  zone: string;
+  available: number;
+  minStock: number;
+  suggestedQty: number;
 }

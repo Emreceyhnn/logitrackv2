@@ -156,6 +156,124 @@ describe("WarehouseWorker Controller", () => {
     });
   });
 
+  describe("adjustWarehouseStock()", () => {
+    it("negatif sayımı reddeder", async () => {
+      await rejects(
+        controller.adjustWarehouseStock(user, "wh-1", "SKU-1", -1, "sebep"),
+        /Counted quantity must be zero or positive/
+      );
+    });
+
+    it("sebep zorunludur", async () => {
+      await rejects(
+        controller.adjustWarehouseStock(user, "wh-1", "SKU-1", 5, "   "),
+        /Adjustment reason is required/
+      );
+    });
+
+    it("envanter kaydı yoksa reddeder", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => null);
+      await rejects(
+        controller.adjustWarehouseStock(user, "wh-1", "SKU-1", 5, "sebep"),
+        /No inventory record for this SKU to adjust/
+      );
+    });
+
+    it("eksik sayımda negatif delta yazar ve on-hand'i sayılana çeker", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => ({
+        id: "inv-1",
+        quantity: 10,
+      }));
+      txMock.inventoryMovement.create.mock.mockImplementationOnce(async () => ({
+        id: "mv-adj",
+      }));
+
+      const res = await controller.adjustWarehouseStock(
+        user,
+        "wh-1",
+        "SKU-1",
+        8,
+        "raf sayımı"
+      );
+
+      expect(res).toEqual({
+        success: true,
+        movementId: "mv-adj",
+        delta: -2,
+        counted: 8,
+      });
+      const createArg =
+        txMock.inventoryMovement.create.mock.calls[0].arguments[0];
+      expect(createArg.data.quantity).toBe(-2);
+      expect(createArg.data.type).toBe("ADJUSTMENT");
+      const updateArg = txMock.inventory.update.mock.calls[0].arguments[0];
+      expect(updateArg.data.quantity).toBe(8);
+    });
+
+    it("fazla sayımda pozitif delta yazar", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => ({
+        id: "inv-1",
+        quantity: 4,
+      }));
+      txMock.inventoryMovement.create.mock.mockImplementationOnce(async () => ({
+        id: "mv-adj2",
+      }));
+
+      const res = await controller.adjustWarehouseStock(
+        user,
+        "wh-1",
+        "SKU-1",
+        7,
+        "fazla bulundu"
+      );
+
+      expect(res.delta).toBe(3);
+      const createArg =
+        txMock.inventoryMovement.create.mock.calls[0].arguments[0];
+      expect(createArg.data.quantity).toBe(3);
+    });
+
+    it("fark yoksa hareket yazmaz (no-op)", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => ({
+        id: "inv-1",
+        quantity: 6,
+      }));
+
+      const res = await controller.adjustWarehouseStock(
+        user,
+        "wh-1",
+        "SKU-1",
+        6,
+        "kontrol"
+      );
+
+      expect(res).toEqual({
+        success: true,
+        movementId: null,
+        delta: 0,
+        counted: 6,
+      });
+      expect(txMock.inventoryMovement.create.mock.calls.length).toBe(0);
+      expect(txMock.inventory.update.mock.calls.length).toBe(0);
+    });
+  });
+
   describe("advanceWarehouseTask()", () => {
     it("başka şirketin görevini reddeder", async () => {
       dbMock.warehouseTask.findUnique.mock.mockImplementationOnce(
@@ -223,6 +341,34 @@ describe("WarehouseWorker Controller", () => {
         dbMock.inventoryMovement.create.mock.calls[0].arguments[0];
       expect(createArg.data.type).toBe("RESTOCK_REQUEST");
       expect(createArg.data.sku).toBe("ZONE-A1");
+    });
+
+    it("SKU + miktar verilince ürün bazlı talep yazar", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+
+      const res = await controller.requestRestock(user, "wh-1", "A1", "SKU-9", 12);
+      expect(res).toEqual({ success: true });
+      const createArg =
+        dbMock.inventoryMovement.create.mock.calls[0].arguments[0];
+      expect(createArg.data.sku).toBe("SKU-9");
+      expect(createArg.data.quantity).toBe(12);
+      expect(createArg.data.notes).toMatch(/SKU-9 × 12/);
+    });
+
+    it("SKU verilse de geçersiz miktarı 0'a indirir", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+
+      await controller.requestRestock(user, "wh-1", "A1", "SKU-9", 0);
+      const createArg =
+        dbMock.inventoryMovement.create.mock.calls[0].arguments[0];
+      expect(createArg.data.sku).toBe("SKU-9");
+      expect(createArg.data.quantity).toBe(0);
     });
   });
 

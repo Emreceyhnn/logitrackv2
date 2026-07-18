@@ -60,6 +60,22 @@ export interface WWCatalogItem {
   name: string;
   zone: string;
   quantity: number;
+  /** On-hand minus allocated — what's actually pickable right now. */
+  available: number;
+  /** Reorder threshold (0 = untracked). Low when available <= minStock. */
+  minStock: number;
+  lowStock: boolean;
+}
+
+/** A SKU whose available stock has fallen to/below its reorder point. */
+export interface WWLowStockItem {
+  sku: string;
+  name: string;
+  zone: string;
+  available: number;
+  minStock: number;
+  /** Units to bring available back up to the threshold (>= 1). */
+  suggestedQty: number;
 }
 
 export interface WWWarehouseOption {
@@ -77,5 +93,8 @@ export interface WarehouseWorkerDashboard {
   zones: WWZone[];
   feed: WWMovement[];
   catalog: WWCatalogItem[];
+  /** SKUs at/below their reorder point, worst first — the proactive shortage
+   *  signal the worker sees without having to scan each item. */
+  lowStock: WWLowStockItem[];
   capacity: { used: number; total: number; pct: number; free: number };
 }

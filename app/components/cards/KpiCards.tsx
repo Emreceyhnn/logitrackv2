@@ -3,6 +3,7 @@
 import { Box, Card, Skeleton, Stack, useTheme } from "@mui/material";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import StatCard from "../cards/StatCard";
 import { useLanguage } from "@/app/lib/language/DictionaryContext";
 
@@ -12,6 +13,8 @@ interface KpiItem {
   icon: React.ReactNode;
   color: string;
   trend?: { value: number; isUp: boolean } | undefined;
+  /** Drill-down target — makes the tile a link to a filtered list/detail. */
+  href?: string;
 }
 
 interface KpiCardsProps {
@@ -21,6 +24,7 @@ interface KpiCardsProps {
 
 export default function KpiCards({ kpis, loading }: KpiCardsProps) {
   const theme = useTheme();
+  const router = useRouter();
   const { lang } = useLanguage();
   const container = {
     hidden: { opacity: 0 },
@@ -77,6 +81,7 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
               icon={kpi.icon}
               color={kpi.color}
               trend={kpi.trend}
+              onClick={kpi.href ? () => router.push(kpi.href as string) : undefined}
               sx={{ height: "100%" }}
             />
           ) : (

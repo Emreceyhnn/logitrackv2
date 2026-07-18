@@ -45,6 +45,7 @@ export const createShipment = authenticatedAction(
       billingAccount?: string | undefined;
       originWarehouseId?: string | undefined;
       trailerId?: string | null | undefined;
+      driverId?: string | null | undefined;
       inventoryItems?: InventoryShipmentItem[] | undefined;
       stops?: ShipmentStopInput[] | undefined;
     }
@@ -80,6 +81,7 @@ export const createShipment = authenticatedAction(
       billingAccount,
       originWarehouseId,
       trailerId,
+      driverId,
       inventoryItems = [],
       stops = [],
     } = data;
@@ -191,6 +193,19 @@ export const createShipment = authenticatedAction(
         }
       }
 
+      // ── Driver Validation ────────────────────────────────────────────────────
+      // Guard against cross-company assignment; the UI already filters to
+      // available drivers, but the server is the authority.
+      if (driverId) {
+        const driver = await db.driver.findUnique({
+          where: { id: driverId },
+          select: { id: true, companyId: true },
+        });
+        if (!driver || driver.companyId !== companyId) {
+          throw new NotFoundError("Driver");
+        }
+      }
+
       const newShipment = await db.$transaction(
         async (tx) => {
           const shipment = await tx.shipment.create({
@@ -221,6 +236,7 @@ export const createShipment = authenticatedAction(
               contactEmail,
               billingAccount,
               trailerId: trailerId || undefined,
+              driverId: driverId || undefined,
               history: {
                 create: {
                   status: status,

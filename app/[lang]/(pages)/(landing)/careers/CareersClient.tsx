@@ -1,3 +1,4 @@
+"use client";
 import WorkRoundedIcon from "@mui/icons-material/WorkRounded";
 import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";

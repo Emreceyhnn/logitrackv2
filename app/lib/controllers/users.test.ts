@@ -47,6 +47,12 @@ const checkPermissionMock = {
   checkPermission: mock.fn(),
 };
 
+// Entitlement mock — RegisterUser grants a self-serve trial before minting the
+// session. Spied here so the guest-signup test can assert it fired.
+const entitlementServerMock = {
+  grantTrial: mock.fn(async () => ({ trialEndsAt: new Date() })),
+};
+
 // Next.js Headers Mock
 const headersMock = {
   headers: mock.fn(async () => ({
@@ -96,6 +102,10 @@ mock.module("./utils/checkPermission.ts", {
   namedExports: checkPermissionMock,
 });
 
+mock.module("../entitlement.server.ts", {
+  namedExports: entitlementServerMock,
+});
+
 mock.module("next/headers", {
   namedExports: headersMock,
 });
@@ -137,6 +147,7 @@ describe("Users Controller", () => {
     rateLimiterMock.rateLimit.mock.resetCalls();
     checkPermissionMock.checkPermission.mock.resetCalls();
     bcryptMock.hash.mock.resetCalls();
+    entitlementServerMock.grantTrial.mock.resetCalls();
   });
 
   describe("RegisterUser() metodu", () => {
@@ -168,6 +179,13 @@ describe("Users Controller", () => {
       expect(sessionMock.createSession.mock.calls.length).toBe(1);
       expect(sessionMock.logAuditEvent.mock.calls.length).toBe(1);
       expect(rateLimiterMock.rateLimit.mock.calls.length).toBe(1);
+
+      // Self-serve trial granted for the new user before the session is minted,
+      // so the access token carries TRIAL entitlement from the first request.
+      expect(entitlementServerMock.grantTrial.mock.calls.length).toBe(1);
+      expect(entitlementServerMock.grantTrial.mock.calls[0]?.arguments[0]).toBe(
+        "user-1"
+      );
     });
 
     it("should_ReturnError_WhenEmailAlreadyExists", async () => {

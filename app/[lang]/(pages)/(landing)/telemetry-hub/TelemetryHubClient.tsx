@@ -1,3 +1,4 @@
+"use client";
 import SensorsRoundedIcon from "@mui/icons-material/SensorsRounded";
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import SpeedRoundedIcon from "@mui/icons-material/SpeedRounded";

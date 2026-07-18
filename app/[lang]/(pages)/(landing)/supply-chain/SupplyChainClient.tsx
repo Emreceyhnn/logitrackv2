@@ -1,3 +1,4 @@
+"use client";
 import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
 import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
 import HubRoundedIcon from "@mui/icons-material/HubRounded";

@@ -173,7 +173,7 @@ export function useWarehouseWorkerController() {
     if (pick) doScan(pick.sku);
   };
 
-  const log = async (kind: "PICK" | "PACK") => {
+  const log = async (kind: "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY") => {
     if (!scanResult || !warehouseId) return;
     const qty = scanQty;
     const result = scanResult;
@@ -181,8 +181,9 @@ export function useWarehouseWorkerController() {
     setScanQty(1);
     try {
       await logWarehouseMovement(warehouseId, result.sku, qty, kind);
+      const label = (ww.ui[kind] || kind).toLocaleLowerCase("en-US");
       showToast(
-        `${ww.logged} ${kind.toLocaleLowerCase("en-US")} · ${qty} × ${result.sku}`,
+        `${ww.logged} ${label} · ${qty} × ${result.sku}`,
         kind === "PICK" ? "warning" : "success"
       );
       await refresh();

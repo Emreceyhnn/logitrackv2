@@ -91,5 +91,25 @@ describe("PricingPage Component", () => {
       // Verify yearly price is shown
       expect(screen.getByText("$39")).toBeTruthy();
     });
+
+    it("should_RouteSelfServeTiersToSignUp_AndEnterpriseToContact", async () => {
+      render(
+        <ThemeProvider theme={customTheme}>
+          <PricingPage />
+        </ThemeProvider>
+      );
+
+      // Starter + Pro CTAs are self-serve → sign-up; Enterprise → contact/demo.
+      const starterBtn = screen.getByText("Start").closest("a");
+      const proBtn = screen.getByText("Pro Start").closest("a");
+      const enterpriseBtn = screen.getByText("Contact").closest("a");
+
+      expect(starterBtn?.getAttribute("href")).toContain("/auth/sign-up");
+      expect(starterBtn?.getAttribute("href")).toContain("plan=starter");
+      expect(proBtn?.getAttribute("href")).toContain("/auth/sign-up");
+      expect(proBtn?.getAttribute("href")).toContain("plan=pro");
+      expect(enterpriseBtn?.getAttribute("href")).toContain("type=demo");
+      expect(enterpriseBtn?.getAttribute("href")).not.toContain("/auth/sign-up");
+    });
   });
 });

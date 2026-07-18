@@ -3,6 +3,7 @@
 export { getWarehouseWorkerDashboard } from "./warehouseWorker/dashboard";
 export {
   logWarehouseMovement,
+  adjustWarehouseStock,
   advanceWarehouseTask,
   requestRestock,
   reportWarehouseIssue,

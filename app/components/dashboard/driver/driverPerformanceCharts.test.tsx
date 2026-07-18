@@ -13,6 +13,14 @@ const mockDict = {
       ratingsLabel: "Rating (0-5)",
       hours: "Hours",
       hoursThisWeek: "Hours This Week",
+      safetyEfficiency: "Safety & Efficiency",
+      scoreLabel: "Score",
+      safetyScore: "Safety",
+      efficiencyScore: "Efficiency",
+      weeklyOutcomes: "Deliveries",
+      shipmentsLabel: "Shipments",
+      delivered: "Delivered",
+      delayed: "Delayed",
     },
   },
   sidebar: {
@@ -96,6 +104,45 @@ describe("DriverPerformanceCharts RTL Component", () => {
       expect(seriesElements[0].textContent).toBe("4.5,4.8");
       // Hours chart
       expect(seriesElements[1].textContent).toBe("40,35");
+    });
+
+    it("should_RenderOnlyTwoCharts_WhenScoresAndWeeklyAbsent", async () => {
+      // Backward compatibility: legacy payload (no scores/weekly) → 2 charts.
+      render(<DriverPerformanceCharts data={mockData} loading={false} />);
+      expect(screen.getAllByTestId("bar-chart").length).toBe(2);
+    });
+
+    it("should_RenderFourCharts_WithScoreAndWeeklyData", async () => {
+      const enriched = [
+        {
+          name: "John Doe",
+          rating: 4.5,
+          workingHours: 40,
+          safetyScore: 90,
+          efficiencyScore: 82,
+          weeklyDelivered: 12,
+          weeklyDelayed: 2,
+        },
+        {
+          name: "Jane Smith",
+          rating: 4.8,
+          workingHours: 35,
+          safetyScore: 95,
+          efficiencyScore: 88,
+          weeklyDelivered: 15,
+          weeklyDelayed: 1,
+        },
+      ];
+      render(<DriverPerformanceCharts data={enriched} loading={false} />);
+
+      // rating, hours, scores, weekly = 4 charts
+      expect(screen.getAllByTestId("bar-chart").length).toBe(4);
+
+      const series = screen.getAllByTestId("series-data");
+      // 3rd chart's first series = safety scores
+      expect(series[2].textContent).toBe("90,95");
+      // 4th chart's first series = delivered counts
+      expect(series[3].textContent).toBe("12,15");
     });
   });
 });

@@ -1,3 +1,4 @@
+"use client";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import HeadsetMicRoundedIcon from "@mui/icons-material/HeadsetMicRounded";
 import ForumRoundedIcon from "@mui/icons-material/ForumRounded";

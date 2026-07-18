@@ -2,6 +2,7 @@
   "common": {
     "logitrack": "LogiTrack",
     "needHelp": "Yardım mı lazım?",
+    "help": "Yardım",
     "logout": "Çıkış Yap",
     "lastUpdated": "Son Güncelleme",
     "refresh": "Yenile",
@@ -131,6 +132,7 @@
     "no": "Hayır",
     "none": "Yok",
     "details": "Detaylar",
+    "viewDetails": "Detayları gör",
     "kg": "kg",
     "km": "km",
     "m3": "m³",
@@ -181,6 +183,10 @@
       "mapStep": {
         "title": "Canlı Operasyon Haritası",
         "description": "Tüm tedarik zincirinizi interaktif bir harita üzerinde görselleştirin. Filonuzun anlık konumlarını izleyebilir, aktif teslimat rotalarını gerçek zamanlı takip edebilir ve depolarınız ile müşterilerinizin tam olarak nerede bulunduğunu görebilirsiniz. Araçların net hareketlerini görmek için haritayı yakınlaştırabilirsiniz."
+      },
+      "gettingStartedStep": {
+        "title": "İlk adımlarınız",
+        "description": "Henüz veri eklemediğiniz için paneliniz boş. Bu kontrol listesini tamamlayın — bir araç, bir sürücü ve bir sevkiyat ekleyin — KPI'larınız, grafikleriniz ve canlı haritanız otomatik olarak dolmaya başlayacak."
       }
     },
     "vehicles": {
@@ -406,6 +412,13 @@
     "finalTouches": "Son Rötuşlar",
     "signUpDescription": "Başlamak için lütfen temel bilgilerinizi sağlayın.",
     "securityDescription": "Güçlü bir şifre seçin.",
+    "passwordRules": {
+      "title": "Şifreniz şunları içermelidir:",
+      "minLength": "En az 8 karakter",
+      "lowercase": "Bir küçük harf (a-z)",
+      "uppercase": "Bir büyük harf (A-Z)",
+      "number": "Bir rakam (0-9)"
+    },
     "profileDescription": "Neredeyse bitti! LogiTrack ekibine katılmak için profilinizi tamamlayın.",
     "firstName": "Ad",
     "lastName": "Soyad",
@@ -533,6 +546,12 @@
       "startTrial": "Denemeyi Başlat",
       "demo": "Demo İste",
       "signIn": "Giriş Yap",
+      "persona": "Filo operatörleri, nakliye şirketleri ve depo ekipleri için.",
+      "benefits": {
+        "fleet": "Filonuzu canlı takip edin",
+        "shipment": "Sevkiyatları uçtan uca yönetin",
+        "warehouse": "Depo operasyonlarını tek yerden kontrol edin"
+      },
       "metrics": {
         "activeRoutes": "Aktif Rotalar",
         "vehicles": "Araçlar",
@@ -557,6 +576,18 @@
       },
       "success": "Talebiniz alındı. En kısa sürede sizinle iletişime geçeceğiz.",
       "error": "Talep gönderilemedi. Lütfen tekrar deneyin.",
+      "successCard": {
+        "title": "Talebiniz alındı 🎉",
+        "timeframe": "Ekip arkadaşlarımız genellikle 1 iş günü içinde yanıt verir.",
+        "stepsTitle": "Bundan sonra ne olacak",
+        "step1": "Talebinizi inceleyip sizi doğru kişiyle eşleştiriyoruz.",
+        "step2": "Verdiğiniz e-posta adresine bir yanıt geleceği için spam klasörünüzü de kontrol etmeyi unutmayın.",
+        "step3": "İhtiyacınıza göre bir tanıtım planlayacağız veya erişim bilgilerini göndereceğiz.",
+        "selfServeTitle": "Beklemek istemiyor musunuz?",
+        "selfServeBody": "Hemen 7 günlük ücretsiz denemeyi başlatabilirsiniz — onay gerekmez. Dakikalar içinde panele tam erişim.",
+        "selfServeCta": "Ücretsiz denemeyi başlat",
+        "emailNote": "Yanıtımız e-posta ile gelecek — şimdilik sizden başka bir işlem beklenmiyor."
+      },
       "validation": {
         "fullNameRequired": "Ad soyad gereklidir",
         "emailRequired": "E-posta gereklidir",
@@ -901,8 +932,48 @@
         "title": "Küresel Takibe Başlayın",
         "subtitle": "48 saat içinde tüm lojistik ağınızda gerçek zamanlı takibi devreye alın"
       },
+      "trackCta": "Sevkiyat takip et",
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
+      }
+    },
+    "trackingPage": {
+      "badge": "Sevkiyat Takibi",
+      "title": "Sevkiyatınızı takip edin",
+      "subtitle": "En güncel teslimat durumunu görmek için takip numaranızı girin.",
+      "inputLabel": "Takip numarası",
+      "inputPlaceholder": "örn. TRK-A1B2C3D",
+      "trackButton": "Takip et",
+      "tracking": "Kontrol ediliyor…",
+      "resultTitle": "{id} takip ediliyor",
+      "destinationLabel": "Varış noktası",
+      "etaLabel": "Tahmini varış",
+      "etaComplete": "Teslimat tamamlandı",
+      "etaUnknown": "Henüz mevcut değil",
+      "timelineTitle": "İlerleme",
+      "noHistory": "Henüz durum güncellemesi kaydedilmedi.",
+      "searchAnother": "Başka bir sevkiyat takip et",
+      "mapTitle": "Konum",
+      "mapDestination": "Varış noktası",
+      "mapLastReported": "Son bildirilen yaklaşık konum",
+      "mapApproxNote": "Konum yaklaşıktır — kesin bir nokta değil, genel bir bölge olarak gösterilir.",
+      "mapUnavailable": "Harita yüklenemedi.",
+      "errors": {
+        "invalid": "Lütfen geçerli bir takip numarası girin.",
+        "notFound": "Bu takip numarasına sahip bir sevkiyat bulamadık. Kontrol edip tekrar deneyin.",
+        "rateLimited": "Çok fazla sorgu yapıldı. Lütfen bir dakika bekleyip tekrar deneyin.",
+        "internal": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      },
+      "status": {
+        "PENDING": "Beklemede",
+        "PROCESSING": "İşleniyor",
+        "ASSIGNED": "Sürücüye atandı",
+        "IN_TRANSIT": "Yolda",
+        "DELIVERED": "Teslim edildi",
+        "FAILED": "Teslimat başarısız",
+        "RETURNED": "İade edildi",
+        "DELAYED": "Gecikti",
+        "CANCELLED": "İptal edildi"
       }
     },
     "routeIntelligencePage": {
@@ -999,6 +1070,66 @@
       "cta": {
         "title": "Güvenliğimizi İnceleyin",
         "subtitle": "Güvenlik standartlarımız hakkında detaylı bilgi alın"
+      },
+      "trust": {
+        "compliance": {
+          "overline": "Uyumluluk",
+          "title": "Uyumluluğumuz bugün nerede",
+          "subtitle": "Gerçek durumumuzu paylaşıyoruz — şu anda aktif olan ve üzerinde çalıştıklarımız. Hak etmediğimiz hiçbir rozet yok.",
+          "statusLive": "Aktif",
+          "statusInProgress": "Devam ediyor",
+          "statusRoadmap": "Yol haritasında",
+          "items": {
+            "gdpr": {
+              "name": "GDPR ve KVKK",
+              "description": "Veri sahibi hakları, dışa aktarma ve silme ile AB ve Türkiye veri koruma mevzuatına uygun bölgesel veri işleme."
+            },
+            "encryption": {
+              "name": "Aktarımda ve beklemede şifreleme",
+              "description": "Tüm API uç noktaları ve istemci bağlantılarında beklemede AES-256 ve aktarımda TLS 1.3."
+            },
+            "accessControl": {
+              "name": "Erişim kontrolü ve denetim kaydı",
+              "description": "Kiracı bazlı verilerde rol tabanlı erişim kontrolü ve otomatik denetim kayıtları."
+            },
+            "soc2": {
+              "name": "SOC 2 Type II",
+              "description": "Resmi denetim henüz başlamadı. SOC 2 kontrollerine göre geliştiriyoruz ve denetim tamamlandığında raporu yayınlayacağız."
+            },
+            "iso27001": {
+              "name": "ISO 27001",
+              "description": "Yol haritamızda. Sertifikasyon planlanıyor ancak henüz başlamadı; gerçek olana kadar iddia etmeyeceğiz."
+            }
+          }
+        },
+        "documents": {
+          "overline": "Belgeler",
+          "title": "Güvenlik belgeleri",
+          "subtitle": "Self-servis bir güven portalını tamamlarken bu belgeler talep üzerine sunulmaktadır. Bize ulaşın, size iletelim.",
+          "requestCta": "Talep et",
+          "items": {
+            "whitepaper": {
+              "name": "Güvenlik Teknik Belgesi",
+              "description": "Şifreleme, erişim kontrolü ve kiracı izolasyonunu nasıl kurguladığımız."
+            },
+            "dpa": {
+              "name": "Veri İşleme Sözleşmesi (DPA)",
+              "description": "Veri işleme, alt işleyiciler ve haklarınızı kapsayan standart DPA'mız."
+            },
+            "subprocessors": {
+              "name": "Alt İşleyici Listesi",
+              "description": "Bizim adımıza veri işleyen üçüncü taraf hizmetler."
+            }
+          }
+        },
+        "status": {
+          "overline": "Sistem Durumu",
+          "title": "Platform durumu",
+          "operational": "Tüm sistemler çalışıyor",
+          "note": "Bu, otomatik canlı bir akış değil, son manuel incelememizi yansıtır. Gerçek zamanlı durum sayfası yakında.",
+          "lastReviewed": "Son inceleme",
+          "cta": "Sorun bildir"
+        }
       },
       "footer": {
         "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
@@ -1444,18 +1575,28 @@
     "en": "English",
     "tr": "Türkçe"
   },
+  "currencies": {
+    "USD": "ABD Doları",
+    "EUR": "Euro",
+    "TRY": "Türk Lirası",
+    "GBP": "İngiliz Sterlini"
+  },
   "validation": {
     "required": "{field} gereklidir",
     "email": "Geçersiz e-posta adresi",
     "min": "{field} en az {min} karakter olmalıdır",
     "max": "{field} en fazla {max} karakter olmalıdır",
     "matches": "{field} biçimi geçersiz",
+    "passwordLowercase": "Şifre en az bir küçük harf içermelidir",
+    "passwordUppercase": "Şifre en az bir büyük harf içermelidir",
+    "passwordNumber": "Şifre en az bir rakam içermelidir",
     "oneOf": "Lütfen geçerli bir {field} seçin",
     "number": "{field} bir sayı olmalıdır",
     "integer": "{field} tam sayı olmalıdır",
     "positive": "{field} pozitif bir sayı olmalıdır",
     "url": "Geçersiz URL",
     "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun",
+    "firstErrorField": "Şu alanı kontrol edin: {field}",
     "passwordsMatch": "Şifreler eşleşmelidir",
     "endTimeAfterStart": "Bitiş zamanı başlangıç zamanından sonra olmalıdır"
   },
@@ -1687,7 +1828,19 @@
         "maintenance": "Bakım",
         "fuel": "Yakıt Günlükleri",
         "map": "Canlı Harita",
-        "specs": "Teknik Özellikler"
+        "specs": "Teknik Özellikler",
+        "linkedShipments": "Sevkiyatlar"
+      },
+      "linkedShipments": {
+        "subtitle": "Bu aracın dorsesine bağlı {count} aktif sevkiyat",
+        "noneActive": "Bu araçta aktif sevkiyat yok.",
+        "noTrailer": "Bu araca bağlı dorse yok.",
+        "selectedCount": "{n} seçildi",
+        "targetTrailer": "Hedef dorse",
+        "noTargets": "Müsait dorse yok",
+        "reassignButton": "{n} sevkiyatı aktar",
+        "reassigned": "{count} sevkiyat yeniden atandı",
+        "reassignError": "Sevkiyatlar aktarılamadı"
       },
       "status": "Durum"
     },
@@ -1789,11 +1942,33 @@
     "warehouseCapacity": "Depo Kapasitesi",
     "picksAndPacks": "Günlük Toplama/Paketleme",
     "shipmentVolume": "Sevkiyat Hacmi",
-    "lowStock": "Düşük Stoklu Ürünler"
+    "lowStock": "Düşük Stoklu Ürünler",
+    "gettingStarted": {
+      "title": "Filonuzu harekete geçirelim",
+      "subtitle": "İlk kayıtlarınızı ekledikçe paneliniz canlı verilerle dolar. Buradan başlayın:",
+      "progress": "{total} adımdan {done} tamamlandı",
+      "addVehicleTitle": "İlk aracınızı ekleyin",
+      "addVehicleDesc": "Bir kamyon veya kamyonet ekleyin, haritada canlı takip edin.",
+      "addVehicleCta": "Araç ekle",
+      "addDriverTitle": "İlk sürücünüzü ekleyin",
+      "addDriverDesc": "Sürücüleri araçlara ve sevkiyatlara atayın.",
+      "addDriverCta": "Sürücü ekle",
+      "addShipmentTitle": "İlk sevkiyatınızı oluşturun",
+      "addShipmentDesc": "Bir teslimat planlayın ve durumunu gerçek zamanlı izleyin.",
+      "addShipmentCta": "Sevkiyat oluştur",
+      "done": "Tamamlandı",
+      "takeTour": "Hızlı turu başlat",
+      "dismiss": "Kapat"
+    }
   },
   "drivers": {
     "title": "Sürücü Yönetimi",
     "subtitle": "Sürücülerinizi yönetin, performans ve ehliyet durumlarını izleyin",
+    "statuses": {
+      "ON_JOB": "Görevde",
+      "OFF_DUTY": "İzinli/Mesai Dışı",
+      "ON_LEAVE": "İzinde"
+    },
     "addDriver": "Sürücü Ekle",
     "totalDrivers": "Toplam Filo Sürücüsü",
     "onDuty": "Görevde",
@@ -1806,7 +1981,15 @@
       "ratingsLabel": "Puan (0-5)",
       "weeklyHours": "Haftalık Çalışma Saatleri",
       "hours": "Saat",
-      "hoursThisWeek": "Bu haftaki saatler"
+      "hoursThisWeek": "Bu haftaki saatler",
+      "safetyEfficiency": "Güvenlik & Verimlilik",
+      "scoreLabel": "Skor (0-100)",
+      "safetyScore": "Güvenlik",
+      "efficiencyScore": "Verimlilik",
+      "weeklyOutcomes": "Bu Haftanın Teslimatları",
+      "shipmentsLabel": "Sevkiyat",
+      "delivered": "Teslim Edildi",
+      "delayed": "Gecikti"
     },
     "card": {
       "license": "Ehliyet: {type}",
@@ -2247,9 +2430,9 @@
         "timezone": "Saat Dilimi",
         "currency": "Para Birimi",
         "language": "Arayüz Dili",
-        "integrity": "Veri Bütünlüğü",
-        "standardize": "Tüm kullanıcılarda tarih/saat formatlarını standartlaştır",
-        "overrides": "Kullanıcı başına bölgesel geçersiz kılmalara izin ver"
+        "integrity": "Ekip bölgesel ayarları",
+        "standardize": "Bu saat dilimi, para birimi ve dil ayarları varsayılan olarak şirketinizdeki herkes için geçerlidir.",
+        "overrides": "Ekip üyeleri kendi saat dilimi, para birimi ve dilini seçebilsin"
       }
     },
     "members": {
@@ -2399,6 +2582,13 @@
     },
     "dialogs": {
       "addTitle": "Yeni Sevkiyat Oluştur",
+      "updateStatusTitle": "Durum Güncelle",
+      "currentStatus": "Mevcut",
+      "newStatus": "Yeni durum",
+      "statusNote": "Not",
+      "statusNotePlaceholder": "Bu değişiklik için isteğe bağlı açıklama",
+      "failureReasonRequired": "Başarısız olarak işaretlerken sebep zorunludur",
+      "noTransitions": "Bu sevkiyat son durumda ve değiştirilemez.",
       "editTitle": "Sevkiyat Detaylarını Düzenle",
       "editSubtitle": "Sevkiyat parametrelerini düzenleyin ve lojistik durumunu güncelleyin",
       "addSubtitle": "Yeni bir sevkiyat oluşturun ve parametreleri tanımlayın",
@@ -2418,7 +2608,10 @@
         "shipmentStops": "Sevkiyat Durakları",
         "noStopsDefined": "Henüz durak belirlenmedi. Eklemek için + butonuna tıklayın.",
         "stop": "Durak",
-        "addStop": "Durak Ekle"
+        "addStop": "Durak Ekle",
+        "optimizeRoute": "Sırayı optimize et",
+        "routeOptimized": "Duraklar en yakın rotaya göre sıralandı",
+        "routeAlreadyOptimal": "Rota zaten en uygun sırada"
       },
       "fields": {
         "shipmentIdRef": "SEVKİYAT KİMLİĞİ / REF (Opsiyonel)",
@@ -2444,6 +2637,12 @@
         "selectCustomerFirst": "Önce bir müşteri seçin",
         "contactEmail": "İLETİŞİM E-POSTASI",
         "billingAccount": "FATURA HESABI",
+        "assignDriver": "SÜRÜCÜ ATA",
+        "selectDriver": "Sürücü seç",
+        "capacityFree": "boş",
+        "overCapacity": "Kapasite aşımı",
+        "availableLabel": "Müsait",
+        "unavailableLabel": "Meşgul",
         "routeId": "ROTA KİMLİĞİ",
         "routePlaceholder": "Rota seçin...",
         "assignedDriver": "ATANAN SÜRÜCÜ",
@@ -3195,6 +3394,9 @@
     "noInventoryToScan": "Bu depoda taranacak ürün yok",
     "logged": "Kaydedildi",
     "couldNotLog": "Hareket kaydedilemedi",
+    "adjusted": "Stok düzeltildi",
+    "adjustNoChange": "Sayım sistemle uyuşuyor — değişiklik yok",
+    "couldNotAdjust": "Stok düzeltilemedi",
     "taskComplete": "Görev tamamlandı",
     "couldNotUpdateTask": "Görev güncellenemedi",
     "restockRequested": "Besleme talebi oluşturuldu",
@@ -3219,8 +3421,27 @@
       "simScan": "Okutma Simülasyonu",
       "logPick": "Toplama (Pick)",
       "logPack": "Paketleme (Pack)",
+      "logStockIn": "Stok Girişi",
+      "logPutaway": "Yerleştirme",
+      "logAdjust": "Sayım Düzelt",
+      "cancelScan": "İptal",
+      "adjustTitle": "Sayım düzeltmesi",
+      "adjustExpected": "Sistemdeki (beklenen)",
+      "adjustCounted": "Sayılan",
+      "adjustDiff": "Fark",
+      "adjustSurplus": "fazla",
+      "adjustShort": "eksik",
+      "adjustMatch": "uyuşuyor",
+      "adjustReason": "Sebep",
+      "adjustReasonPlaceholder": "örn. hasarlı, yanlış sayım, yerde bulundu…",
+      "adjustSubmit": "Düzeltmeyi gönder",
+      "adjustUnknownSku": "Bu SKU için sistem kaydı yok — düzeltme yapılamaz.",
       "doneBtn": "Bitti",
       "advanceBtn": "İlerle",
+      "startBtn": "Başlat",
+      "completeBtn": "Tamamla",
+      "decreaseQty": "Bir adet çıkar",
+      "increaseQty": "Bir adet ekle",
       "PICK": "TOPLA",
       "PACK": "PAKETLE",
       "PUT": "KOY",
@@ -3229,18 +3450,31 @@
       "myTaskQueue": "Görev sıram",
       "openTasksCount": "açık",
       "highPriority": "yüksek öncelikli",
+      "nextTask": "Sıradaki iş",
+      "nextTaskStart": "Başla",
+      "nextTaskAllClear": "Hepsi tamam",
+      "nextTaskAllClearSub": "Açık görev yok — eline sağlık.",
       "allAssignedTasks": "Tüm atanan görevler",
       "siteCapacity": "Tesis kapasitesi",
       "zoneNearFull": "Bölge dolmak üzere",
       "palletPositions": "Palet pozisyonları",
       "palletPositionsUsed": "dolu palet pozisyonu",
       "positionsFree": "boş pozisyon",
+      "capacityActionTitle": "Bölge dolmak üzere — aksiyon gerekli",
+      "capacityStopPutaway": "buraya yerleştirmeyi durdur",
+      "capacityDivertTo": "Şuraya yönlendir:",
+      "capacityNoAlternative": "%70'in altında bölge yok — yer için amirine bildir.",
       "activeLabel": "AKTİF",
       "controlPanel": "Kontrol paneli",
       "activePickZone": "Aktif toplama bölgesi",
       "quickActions": "Hızlı işlemler",
       "requestRestockZone": "Besleme talebi — Bölge",
       "reportIssue": "Sorun bildir",
+      "lowStockTitle": "Düşük stok",
+      "lowStockNone": "Tüm ürünler yeniden sipariş noktasının üzerinde.",
+      "lowStockUnitsLeft": "mevcut / min",
+      "lowStockBadge": "AZ",
+      "restockSku": "Besle",
       "scanLogMovements": "Tara ve hareketleri kaydet",
       "scanSubtitle": "Ürünü okutun, adedi onaylayın ve toplama/paketleme olarak kaydedin",
       "scanAnItem": "Ürün okut",
@@ -3318,6 +3552,17 @@
     "joinTitle": "Mevcut Bir Şirkete Katıl",
     "joinDescription": "Şirketiniz zaten LogiTrack kullanıyorsa, bir davet kodu veya şirket e-postanızla katılma isteği gönderebilirsiniz.",
     "joinButton": "Şirkete Katıl"
+  },
+  "pendingAccess": {
+    "title": "Erişiminiz hazırlanıyor",
+    "subtitle": "Hesabınız hazır. Çalışma alanı erişiminizi etkinleştiriyoruz — bu genellikle yalnızca birkaç saniye sürer.",
+    "checking": "Erişiminiz kontrol ediliyor…",
+    "grantedTitle": "Erişim verildi!",
+    "grantedSubtitle": "Çalışma alanınıza yönlendiriliyorsunuz…",
+    "hint": "Bu sayfa otomatik olarak güncellenir. Yenilemenize gerek yok.",
+    "checkNow": "Şimdi kontrol et",
+    "signOut": "Çıkış yap",
+    "help": "Beklenenden uzun mu sürüyor? Destek ekibiyle iletişime geçin, hallederiz."
   },
   "users": {
     "title": "Kullanıcı Yönetimi",

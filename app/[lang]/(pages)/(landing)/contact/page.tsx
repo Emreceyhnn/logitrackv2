@@ -46,7 +46,7 @@ export default async function ContactPage({
   return (
     <>
       <JsonLd data={breadcrumbSchema} />
-      <ContactClient kind={kind} />
+      <ContactClient kind={kind} lang={lang} />
     </>
   );
 }

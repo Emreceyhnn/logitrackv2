@@ -1,91 +1,28 @@
 import { ShipmentStatus } from "@prisma/client";
+// The transition map is defined in a client-safe module (plain-object enum, no
+// Prisma runtime) so server and UI share one source of truth. Prisma's enum is
+// structurally identical to the const-object enum, so the map types line up.
+import {
+  SHIPMENT_TRANSITIONS as SHARED_TRANSITIONS,
+  canTransitionShipment as sharedCanTransition,
+} from "../../type/shipmentTransitions";
 
-/**
- * Shipment lifecycle state machine.
- *
- * PENDING ─→ PROCESSING ─→ ASSIGNED ─→ IN_TRANSIT ─→ DELIVERED
- *    │            │            │            ├──→ FAILED ─→ PENDING (reschedule)
- *    │            │            │            │        └──→ RETURNED
- *    └────────────┴────────────┴────────────┴──→ CANCELLED
- *
- * DELAYED is an exception overlay on any active status (SLA breach); the
- * shipment continues its normal flow from there.
- * DELIVERED / RETURNED / CANCELLED are terminal.
- */
-export const SHIPMENT_TRANSITIONS: Record<ShipmentStatus, ShipmentStatus[]> = {
-  [ShipmentStatus.PENDING]: [
-    ShipmentStatus.PROCESSING,
-    ShipmentStatus.ASSIGNED,
-    ShipmentStatus.DELAYED,
-    ShipmentStatus.CANCELLED,
-  ],
-  [ShipmentStatus.PROCESSING]: [
-    ShipmentStatus.PENDING,
-    ShipmentStatus.ASSIGNED,
-    ShipmentStatus.DELAYED,
-    ShipmentStatus.CANCELLED,
-  ],
-  [ShipmentStatus.ASSIGNED]: [
-    // PENDING = unassigned / route canceled before departure
-    ShipmentStatus.PENDING,
-    ShipmentStatus.PROCESSING,
-    ShipmentStatus.IN_TRANSIT,
-    ShipmentStatus.DELAYED,
-    ShipmentStatus.CANCELLED,
-  ],
-  [ShipmentStatus.IN_TRANSIT]: [
-    // PENDING = route canceled mid-trip, load returns to dispatch pool
-    ShipmentStatus.PENDING,
-    ShipmentStatus.DELIVERED,
-    ShipmentStatus.FAILED,
-    ShipmentStatus.DELAYED,
-    ShipmentStatus.CANCELLED,
-  ],
-  [ShipmentStatus.DELAYED]: [
-    ShipmentStatus.PENDING,
-    ShipmentStatus.ASSIGNED,
-    ShipmentStatus.IN_TRANSIT,
-    ShipmentStatus.DELIVERED,
-    ShipmentStatus.FAILED,
-    ShipmentStatus.CANCELLED,
-  ],
-  [ShipmentStatus.FAILED]: [
-    // PENDING = reschedule for another attempt
-    ShipmentStatus.PENDING,
-    ShipmentStatus.RETURNED,
-  ],
-  [ShipmentStatus.DELIVERED]: [],
-  [ShipmentStatus.RETURNED]: [],
-  [ShipmentStatus.CANCELLED]: [],
-};
-
-export const TERMINAL_SHIPMENT_STATUSES: ShipmentStatus[] = [
-  ShipmentStatus.DELIVERED,
-  ShipmentStatus.RETURNED,
-  ShipmentStatus.CANCELLED,
-];
-
-export function isTerminalShipmentStatus(status: ShipmentStatus): boolean {
-  return TERMINAL_SHIPMENT_STATUSES.includes(status);
-}
-
-export function canTransitionShipment(
-  from: ShipmentStatus,
-  to: ShipmentStatus
-): boolean {
-  if (from === to) return true;
-  return SHIPMENT_TRANSITIONS[from]?.includes(to) ?? false;
-}
+export {
+  SHIPMENT_TRANSITIONS,
+  TERMINAL_SHIPMENT_STATUSES,
+  isTerminalShipmentStatus,
+  canTransitionShipment,
+} from "../../type/shipmentTransitions";
 
 /** Throws when the requested status change is not a legal lifecycle move. */
 export function assertShipmentTransition(
   from: ShipmentStatus,
   to: ShipmentStatus
 ): void {
-  if (!canTransitionShipment(from, to)) {
+  if (!sharedCanTransition(from, to)) {
     throw new Error(
       `Invalid shipment status transition: ${from} -> ${to}. Allowed from ${from}: ${
-        SHIPMENT_TRANSITIONS[from]?.join(", ") || "none (terminal status)"
+        SHARED_TRANSITIONS[from]?.join(", ") || "none (terminal status)"
       }`
     );
   }

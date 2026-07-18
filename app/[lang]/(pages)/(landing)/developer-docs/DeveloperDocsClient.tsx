@@ -1,3 +1,4 @@
+"use client";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import WebhookRoundedIcon from "@mui/icons-material/WebhookRounded";

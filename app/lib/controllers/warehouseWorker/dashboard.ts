@@ -10,6 +10,7 @@ import type {
   WWZone,
   WWMovement,
   WWCatalogItem,
+  WWLowStockItem,
 } from "../../type/warehouseWorker";
 import {
   PICKS_TARGET,
@@ -65,6 +66,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         zones: [],
         feed: [],
         catalog: [],
+        lowStock: [],
         capacity: { used: 0, total: 0, pct: 0, free: 0 },
       };
     }
@@ -106,6 +108,8 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
             name: true,
             zone: true,
             quantity: true,
+            allocatedQuantity: true,
+            minStock: true,
             palletCount: true,
           },
           orderBy: { updatedAt: "desc" },
@@ -187,12 +191,40 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       at: m.date.toISOString(),
     }));
 
-    const catalog: WWCatalogItem[] = inventoryRaw.slice(0, 100).map((it) => ({
-      sku: it.sku,
-      name: it.name,
-      zone: skuZone.get(it.sku) ?? fallbackZone(it.sku),
-      quantity: it.quantity,
-    }));
+    // A SKU is "low" when what's actually pickable (on-hand minus allocated)
+    // has fallen to or below its reorder point. minStock 0 = untracked, never low.
+    const catalog: WWCatalogItem[] = inventoryRaw.slice(0, 100).map((it) => {
+      const available = it.quantity - (it.allocatedQuantity ?? 0);
+      const minStock = it.minStock ?? 0;
+      return {
+        sku: it.sku,
+        name: it.name,
+        zone: skuZone.get(it.sku) ?? fallbackZone(it.sku),
+        quantity: it.quantity,
+        available,
+        minStock,
+        lowStock: minStock > 0 && available <= minStock,
+      };
+    });
+
+    // Scan the full inventory (not just the 100-item catalog slice) for the
+    // shortage list, worst deficit first; suggest enough to reach the threshold.
+    const lowStock: WWLowStockItem[] = inventoryRaw
+      .map((it) => {
+        const available = it.quantity - (it.allocatedQuantity ?? 0);
+        const minStock = it.minStock ?? 0;
+        return {
+          sku: it.sku,
+          name: it.name,
+          zone: skuZone.get(it.sku) ?? fallbackZone(it.sku),
+          available,
+          minStock,
+          suggestedQty: Math.max(1, minStock - available),
+        };
+      })
+      .filter((it) => it.minStock > 0 && it.available <= it.minStock)
+      .sort((a, b) => a.available - a.minStock - (b.available - b.minStock))
+      .slice(0, 20);
 
     return {
       warehouse: {
@@ -214,6 +246,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       zones,
       feed,
       catalog,
+      lowStock,
       capacity: {
         used,
         total,

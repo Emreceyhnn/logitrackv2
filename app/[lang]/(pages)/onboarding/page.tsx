@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import {
   Box,
   Typography,
@@ -8,28 +9,22 @@ import {
   Card,
   CardContent,
   Button,
+  Chip,
   Stack,
   useTheme,
 } from "@mui/material";
 import { Business, AddBusiness } from "@mui/icons-material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { formatMessage } from "@/app/lib/language/language";
-import { toast } from "sonner";
 import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
 
 export default function OnboardingPage() {
   const theme = useTheme();
   const dict = useDictionary();
+  const params = useParams();
+  const locale = (params?.lang as string) || "en";
 
   const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false);
-
-  const handleAction = (action: "create" | "join") => {
-    if (action === "create") {
-      setIsCreateCompanyOpen(true);
-    } else {
-      toast.info(dict.common?.underDevelopment || "This feature is currently under development.");
-    }
-  };
 
   return (
     <Box
@@ -120,7 +115,7 @@ export default function OnboardingPage() {
                 variant="contained"
                 size="large"
                 fullWidth
-                onClick={() => handleAction("create")}
+                onClick={() => setIsCreateCompanyOpen(true)}
                 sx={{ borderRadius: 2, py: 1.5 }}
               >
                 {dict.onboarding?.createButton || "Create Company"}
@@ -128,20 +123,32 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
 
-          {/* Join Company */}
+          {/* Join Company — not yet available. Shown dimmed with a "Coming
+              soon" badge and a disabled button so it reads as a preview rather
+              than an equal-weight option that then fails with a toast. */}
           <Card
+            aria-disabled
             sx={{
               flex: 1,
+              position: "relative",
               borderRadius: 4,
               border: `1px solid ${theme.palette.divider}`,
-              transition: "transform 0.2s, box-shadow 0.2s",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: theme.shadows[4],
-                borderColor: theme.palette.secondary.main,
-              },
+              opacity: 0.6,
             }}
           >
+            <Chip
+              label={dict.common?.comingSoon || "Coming Soon"}
+              size="small"
+              sx={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                fontWeight: 700,
+                bgcolor: theme.palette.text.secondary_alpha?.main_10 ||
+                  "rgba(0,0,0,0.08)",
+                color: "text.secondary",
+              }}
+            />
             <CardContent
               sx={{
                 p: 4,
@@ -185,12 +192,11 @@ export default function OnboardingPage() {
                 color="secondary"
                 size="large"
                 fullWidth
-                onClick={() => handleAction("join")}
+                disabled
                 sx={{
                   borderRadius: 2,
                   py: 1.5,
                   borderWidth: 2,
-                  "&:hover": { borderWidth: 2 },
                 }}
               >
                 {dict.onboarding?.joinButton || "Join Company"}
@@ -205,7 +211,11 @@ export default function OnboardingPage() {
         onClose={() => setIsCreateCompanyOpen(false)}
         onSuccess={() => {
           setIsCreateCompanyOpen(false);
-          window.location.href = "/";
+          // Land directly on the dashboard. A full navigation (not client
+          // router) is intentional: creating the company changes companyId, so
+          // the proxy must re-mint the token on the next request for the
+          // dashboard's tenant-scoped queries to resolve.
+          window.location.href = `/${locale}/overview`;
         }}
       />
     </Box>

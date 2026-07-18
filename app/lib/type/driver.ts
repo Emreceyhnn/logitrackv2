@@ -78,6 +78,14 @@ export interface DriverDashboardResponseType {
     name: string;
     rating: number;
     workingHours: number;
+    /** 0–100 safety score (null-coalesced to 0). */
+    safetyScore: number;
+    /** 0–100 efficiency score. */
+    efficiencyScore: number;
+    /** Shipments this driver delivered in the last 7 days. */
+    weeklyDelivered: number;
+    /** Shipments currently DELAYED for this driver (SLA breach). */
+    weeklyDelayed: number;
     days: (string | number)[]; // Accommodate both string (ISO/Labels) and number (timestamps/offsets)
     values: number[]; // Added for chart compatibility
   }[];

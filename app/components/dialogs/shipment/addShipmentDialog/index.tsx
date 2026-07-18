@@ -7,6 +7,7 @@ import { AddShipmentDialogProps } from "@/app/lib/type/add-shipment";
 import { toast } from "sonner";
 import { Formik, Form, useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
+import { formatMessage } from "@/app/lib/language/language";
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LogisticsSection from "./sections/LogisticsSection";
 import CargoSection from "./sections/CargoSection";
@@ -33,7 +34,7 @@ const AddShipmentDialog = ({ open, onClose, onSuccess }: AddShipmentDialogProps)
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
   const {
     dict, validationSchema, currentStep, setCurrentStep, isLoadingInventory, availableInventory,
-    warehouses, customers, trailers, handleFetchInventory, onSubmit, closeDialog, steps
+    warehouses, customers, trailers, drivers, handleFetchInventory, onSubmit, closeDialog, steps
   } = useAddShipment(open, onClose, onSuccess);
 
   return (
@@ -56,12 +57,43 @@ const AddShipmentDialog = ({ open, onClose, onSuccess }: AddShipmentDialogProps)
       enableReinitialize
     >
       {({ handleSubmit, validateForm, setFieldTouched }) => {
+        // Ordered top-to-bottom as the fields appear in step 1, each mapped to a
+        // [data-field] anchor and a human label — so we can name the first bad
+        // field and scroll straight to it instead of a blind "check the form".
+        const fieldLabels = dict.shipments?.fields;
+        const step1Fields: { field: keyof ShipmentFormValues; label: string }[] = [
+          { field: "priority", label: fieldLabels?.priority || "Priority" },
+          { field: "type", label: fieldLabels?.shipmentType || "Shipment Type" },
+          { field: "slaDeadline", label: fieldLabels?.slaDeadline || "SLA Deadline" },
+          { field: "destination", label: fieldLabels?.destination || "Destination" },
+          { field: "originWarehouseId", label: fieldLabels?.originWarehouse || "Origin Warehouse" },
+        ];
+
         const handleNextStep = async () => {
-          const step1Fields = ["referenceNumber", "priority", "type", "slaDeadline", "originWarehouseId", "destination", "customerId", "customerLocationId", "contactEmail"];
-          step1Fields.forEach((field) => setFieldTouched(field, true));
+          step1Fields.forEach(({ field }) => setFieldTouched(field, true));
           const result = await validateForm();
-          const hasErrors = step1Fields.some((field) => result[field as keyof typeof result]);
-          if (!hasErrors) { setCurrentStep(2); } else { toast.error(dict.validation.genericFormError); }
+          const firstBad = step1Fields.find(({ field }) => result[field]);
+          if (!firstBad) {
+            setCurrentStep(2);
+            return;
+          }
+          // Scroll the first offending field into view and focus it, then name
+          // it in the toast so the fix is unambiguous.
+          const anchor = document.querySelector(
+            `[data-field="${firstBad.field}"]`
+          );
+          if (anchor) {
+            anchor.scrollIntoView({ behavior: "smooth", block: "center" });
+            const focusable = anchor.querySelector<HTMLElement>(
+              "input, textarea, [tabindex], button"
+            );
+            focusable?.focus({ preventScroll: true });
+          }
+          toast.error(
+            formatMessage(dict.validation.firstErrorField, {
+              field: firstBad.label,
+            })
+          );
         };
 
         return (
@@ -90,7 +122,7 @@ const AddShipmentDialog = ({ open, onClose, onSuccess }: AddShipmentDialogProps)
                         <Divider sx={{ borderColor: paletteTheme.divider_alpha?.main_05, flexShrink: 0 }} />
                         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}><StopsSection customers={customers} /></Box>
                         <Divider sx={{ borderColor: paletteTheme.divider_alpha?.main_05, flexShrink: 0 }} />
-                        <Box sx={{ flexShrink: 0 }}><LogisticsSection warehouses={warehouses} trailers={trailers} /></Box>
+                        <Box sx={{ flexShrink: 0 }}><LogisticsSection warehouses={warehouses} trailers={trailers} drivers={drivers} /></Box>
                       </Stack>
                     ) : (
                       <Stack spacing={6} sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}>

@@ -42,6 +42,12 @@ export default function PricingClient({
   const [isYearly, setIsYearly] = useState(false);
   const dict = useDictionary();
   const contactHref = `/${lang}${getLocalizedPath("/contact", lang)}?type=demo`;
+  // Self-serve tiers send the user straight into sign-up (which grants a 7-day
+  // trial on registration); the chosen plan rides along as ?plan= for later
+  // pre-selection. Only Enterprise, which has no listed price, keeps the
+  // "contact sales" wall.
+  const signUpHref = (plan: string) =>
+    `/${lang}${getLocalizedPath("/auth/sign-up", lang)}?plan=${plan}`;
 
   const pricingTiers = [
     {
@@ -51,6 +57,7 @@ export default function PricingClient({
       description: dict.landing.pricing.tiers.starter.description,
       features: dict.landing.pricing.tiers.starter.features,
       buttonText: dict.landing.pricing.tiers.starter.cta,
+      href: signUpHref("starter"),
       highlight: false,
     },
     {
@@ -60,6 +67,7 @@ export default function PricingClient({
       description: dict.landing.pricing.tiers.pro.description,
       features: dict.landing.pricing.tiers.pro.features,
       buttonText: dict.landing.pricing.tiers.pro.cta,
+      href: signUpHref("pro"),
       highlight: true,
     },
     {
@@ -69,6 +77,7 @@ export default function PricingClient({
       description: dict.landing.pricing.tiers.enterprise.description,
       features: dict.landing.pricing.tiers.enterprise.features,
       buttonText: dict.landing.pricing.tiers.enterprise.cta,
+      href: contactHref,
       highlight: false,
     }
   ];
@@ -258,7 +267,7 @@ export default function PricingClient({
                 <Button
                   fullWidth
                   component={Link}
-                  href={contactHref}
+                  href={tier.href}
                   variant={tier.highlight ? "contained" : "outlined"}
                   sx={{
                     py: 1.5,

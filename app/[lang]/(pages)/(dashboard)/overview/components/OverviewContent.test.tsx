@@ -25,7 +25,10 @@ const useDictionaryMock = mock.fn(() => ({
 }));
 
 mock.module("../../../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
+  namedExports: {
+    useDictionary: useDictionaryMock,
+    useLanguage: () => ({ lang: "en" }),
+  },
 });
 
 const mockRefetch = mock.fn(async () => {});
@@ -52,12 +55,25 @@ mock.module("../../../../../hooks/useOverview.ts", {
 });
 
 mock.module("../../../../../hooks/useDateSettings.ts", {
-  namedExports: { 
+  namedExports: {
     useDateSettings: mock.fn(() => ({
       timezone: "UTC",
       dateFormat: "DD/MM/YYYY"
     }))
   },
+});
+
+// Guided tour — the overview auto-starts a first-visit tour. Stub the hook so
+// the component renders without a real GuidedTourProvider.
+const startTourMock = mock.fn();
+mock.module("../../../../../lib/context/GuidedTourContext.tsx", {
+  namedExports: { useGuidedTour: () => ({ startTour: startTourMock }) },
+});
+mock.module("../../../../../components/guidedTour/tourSteps.ts", {
+  namedExports: { getOverviewTourSteps: mock.fn(() => []) },
+});
+mock.module("../../../../../components/dashboard/overview/GettingStartedCard.tsx", {
+  defaultExport: () => <div data-testid="getting-started">Getting Started</div>,
 });
 
 // Mock child components

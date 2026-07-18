@@ -22,7 +22,7 @@ interface StatCardProps {
     value: number;
     isUp: boolean;
   } | undefined;
-  onClick?: () => void;
+  onClick?: (() => void) | undefined;
   sx?: SxProps<Theme>;
 }
 

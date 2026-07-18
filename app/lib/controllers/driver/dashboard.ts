@@ -13,6 +13,63 @@ import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
 import { driverCache } from "./shared";
 
+interface WeeklyStat {
+  delivered: number;
+  delayed: number;
+}
+
+/**
+ * Per-driver weekly delivery/delay counts for the given driver ids. "Delivered"
+ * = shipments marked DELIVERED in the last 7 days (by updatedAt, the delivery
+ * timestamp proxy); "delayed" = shipments currently in DELAYED status. Returns a
+ * Map keyed by driverId so callers can look each driver up in O(1).
+ */
+async function getWeeklyShipmentStats(
+  companyId: string,
+  driverIds: string[]
+): Promise<Map<string, WeeklyStat>> {
+  const result = new Map<string, WeeklyStat>();
+  if (driverIds.length === 0) return result;
+
+  const weekAgo = daysAgo(7);
+  const [delivered, delayed] = await Promise.all([
+    db.shipment.groupBy({
+      by: ["driverId"],
+      where: {
+        companyId,
+        driverId: { in: driverIds },
+        status: "DELIVERED",
+        updatedAt: { gte: weekAgo },
+      },
+      _count: { _all: true },
+    }),
+    db.shipment.groupBy({
+      by: ["driverId"],
+      where: {
+        companyId,
+        driverId: { in: driverIds },
+        status: "DELAYED",
+      },
+      _count: { _all: true },
+    }),
+  ]);
+
+  for (const id of driverIds) result.set(id, { delivered: 0, delayed: 0 });
+  for (const row of delivered) {
+    if (row.driverId) {
+      const stat = result.get(row.driverId);
+      if (stat) stat.delivered = row._count._all;
+    }
+  }
+  for (const row of delayed) {
+    if (row.driverId) {
+      const stat = result.get(row.driverId);
+      if (stat) stat.delayed = row._count._all;
+    }
+  }
+  return result;
+}
+
 export const getDriverDashboardData = authenticatedAction(async (user) => {
   return controllerGuard("getDriverDashboardData", async () => {
     const companyId = user?.companyId || "";
@@ -48,12 +105,22 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
               id: true,
               user: { select: { name: true, surname: true } },
               rating: true,
+              safetyScore: true,
+              efficiencyScore: true,
               _count: { select: { shipments: true } },
             },
             orderBy: { rating: "desc" },
             take: 5,
           }),
         ]);
+
+      // Weekly delivery / delay counts for the drivers on the chart, keyed by
+      // driverId — the "this week's success & delays" context the rating alone
+      // doesn't give.
+      const weekly = await getWeeklyShipmentStats(
+        companyId,
+        topDrivers.map((d) => d.id)
+      );
 
       const complianceIssuesCount = await db.driver.count({
         where: {
@@ -86,6 +153,10 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
           name: d.user.name,
           rating: d.rating || 0,
           workingHours: d._count.shipments * 5 + 30,
+          safetyScore: d.safetyScore || 0,
+          efficiencyScore: d.efficiencyScore || 0,
+          weeklyDelivered: weekly.get(d.id)?.delivered || 0,
+          weeklyDelayed: weekly.get(d.id)?.delayed || 0,
           days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
           values: [
             d._count.shipments,
@@ -202,7 +273,7 @@ export const getDriverWithDashboardData = authenticatedAction(
             db.driver.aggregate({ where: { companyId }, _avg: { safetyScore: true, efficiencyScore: true } }),
             db.driver.findMany({
               where: { companyId },
-              select: { id: true, user: { select: { name: true, surname: true } }, rating: true, _count: { select: { shipments: true } } },
+              select: { id: true, user: { select: { name: true, surname: true } }, rating: true, safetyScore: true, efficiencyScore: true, _count: { select: { shipments: true } } },
               orderBy: { rating: "desc" },
               take: 5,
             }),
@@ -215,6 +286,11 @@ export const getDriverWithDashboardData = authenticatedAction(
           const kpiTrends = {
             totalDrivers: calcTrend(totalDrivers, prevTotalDrivers),
           };
+
+          const weekly = await getWeeklyShipmentStats(
+            companyId,
+            topDrivers.map((d) => d.id)
+          );
 
           return {
             drivers: drivers as DriverWithRelations[],
@@ -245,6 +321,10 @@ export const getDriverWithDashboardData = authenticatedAction(
               name: d.user.name,
               rating: d.rating || 0,
               workingHours: d._count.shipments * 5 + 30,
+              safetyScore: d.safetyScore || 0,
+              efficiencyScore: d.efficiencyScore || 0,
+              weeklyDelivered: weekly.get(d.id)?.delivered || 0,
+              weeklyDelayed: weekly.get(d.id)?.delayed || 0,
               days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
               values: [
                 d._count.shipments,

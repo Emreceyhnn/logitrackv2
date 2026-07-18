@@ -52,7 +52,8 @@ interface WWDashboardViewProps {
   setScanQty: React.Dispatch<React.SetStateAction<number>>;
   doScan: (raw: string) => void;
   simScan: () => void;
-  log: (kind: "PICK" | "PACK") => void;
+  log: (kind: "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY") => void;
+  adjust: (counted: number, reason: string) => void;
   setScanResult: (v: SkuInfo | null) => void;
   advanceTask: (id: string) => void;
   onRestock: () => void;
@@ -87,6 +88,7 @@ export default function WWDashboardView({
   doScan,
   simScan,
   log,
+  adjust,
   setScanResult,
   advanceTask,
   onRestock,
@@ -216,6 +218,7 @@ export default function WWDashboardView({
                 scanQty={scanQty}
                 setScanQty={setScanQty}
                 log={log}
+                adjust={adjust}
                 setScanResult={setScanResult}
                 ww={ww}
               />

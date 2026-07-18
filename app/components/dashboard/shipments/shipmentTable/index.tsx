@@ -10,8 +10,11 @@ import type {
 } from "@/app/lib/type/dataTable";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
+import StatusUpdateDialog from "@/app/components/dialogs/shipment/statusUpdateDialog";
+import { useShipmentMutations } from "@/app/hooks/useShipments";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   ShipmentTableProps,
@@ -70,6 +73,27 @@ const ShipmentTable = ({
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] =
     useState<ShipmentWithRelations | null>(null);
+
+  /* --------------------------------- status update --------------------------------- */
+  const { updateShipmentStatus } = useShipmentMutations();
+  const [statusTarget, setStatusTarget] =
+    useState<ShipmentWithRelations | null>(null);
+
+  const handleOpenStatus = useCallback((row: ShipmentWithRelations) => {
+    setStatusTarget(row);
+  }, []);
+
+  const handleStatusSubmit = useCallback(
+    async (args: {
+      id: string;
+      status: ShipmentStatus;
+      description?: string;
+    }) => {
+      await updateShipmentStatus.mutateAsync(args);
+      setStatusTarget(null);
+    },
+    [updateShipmentStatus]
+  );
 
   /* --------------------------------- pagination fallback --------------------------------- */
   const [localPage, setLocalPage] = useState(1);
@@ -224,6 +248,11 @@ const ShipmentTable = ({
       onClick: (row) => onEdit(row.id),
     },
     {
+      label: dict.shipments.dialogs.updateStatusTitle || "Update status",
+      icon: <SwapHorizIcon fontSize="small" />,
+      onClick: handleOpenStatus,
+    },
+    {
       label: dict.common.delete,
       icon: <DeleteIcon fontSize="small" />,
       onClick: (row) => onDelete(row.id),
@@ -259,6 +288,17 @@ const ShipmentTable = ({
         open={detailOpen}
         onClose={handleCloseDetails}
         shipment={selectedShipment}
+        onUpdateStatus={handleOpenStatus}
+      />
+
+      <StatusUpdateDialog
+        open={!!statusTarget}
+        onClose={() => setStatusTarget(null)}
+        shipmentId={statusTarget?.id ?? null}
+        trackingId={statusTarget?.trackingId}
+        currentStatus={statusTarget?.status ?? null}
+        onSubmit={handleStatusSubmit}
+        submitting={updateShipmentStatus.isPending}
       />
     </>
   );

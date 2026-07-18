@@ -22,6 +22,7 @@ import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
 import SpecsTab from "./specsTab";
+import LinkedShipmentsTab from "./linkedShipmentsTab";
 
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -272,7 +273,13 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 label={dict.vehicles.dialogs.tabs.specs || "Teknik Özellikler"}
                 {...a11yProps(3)}
               />
-              {/* <Tab label={dict.vehicles.dialogs.tabs.fuel} {...a11yProps(4)} /> */}
+              <Tab
+                label={
+                  dict.vehicles.dialogs.tabs.linkedShipments ||
+                  "Linked Shipments"
+                }
+                {...a11yProps(4)}
+              />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -286,6 +293,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <SpecsTab vehicle={vehicleData} />
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={4}>
+            <LinkedShipmentsTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
         </Stack>
 

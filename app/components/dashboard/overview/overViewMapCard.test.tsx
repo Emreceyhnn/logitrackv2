@@ -24,6 +24,19 @@ mock.module("../../cards/card.tsx", {
   ),
 });
 
+// The card now navigates on marker drill-down and localizes labels; stub the
+// router + language hooks so the mapping logic can still be asserted in isolation.
+mock.module("next/navigation", {
+  namedExports: { useRouter: () => ({ push: () => {} }) },
+});
+
+mock.module("../../../lib/language/DictionaryContext.tsx", {
+  namedExports: {
+    useLanguage: () => ({ lang: "en" }),
+    useDictionary: () => ({ common: { viewDetails: "View details" } }),
+  },
+});
+
 describe("OverviewMapCard RTL Component", () => {
   let OverviewMapCard: unknown;
 

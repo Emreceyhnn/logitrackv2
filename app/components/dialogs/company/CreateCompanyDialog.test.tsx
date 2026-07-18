@@ -48,6 +48,12 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
+// useParams drives locale-based regional defaults; default to Turkish here.
+const useParamsMock = mock.fn(() => ({ lang: "tr" }));
+mock.module("next/navigation", {
+  namedExports: { useParams: useParamsMock },
+});
+
 const createCompanyMock = mock.fn(async () => ({}));
 mock.module("../../../lib/controllers/company.ts", {
   namedExports: { 

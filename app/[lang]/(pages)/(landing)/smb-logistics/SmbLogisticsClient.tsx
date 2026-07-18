@@ -1,3 +1,4 @@
+"use client";
 import RocketLaunchRoundedIcon from "@mui/icons-material/RocketLaunchRounded";
 import SavingsRoundedIcon from "@mui/icons-material/SavingsRounded";
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";

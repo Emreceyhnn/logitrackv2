@@ -1,3 +1,4 @@
+"use client";
 import PrivacyTipRoundedIcon from "@mui/icons-material/PrivacyTipRounded";
 import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";

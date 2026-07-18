@@ -7,7 +7,7 @@ import type { WWState } from "@/app/hooks/useWarehouseWorkerState";
 
 export default function WWScanTab({ state }: { state: WWState }) {
   const theme = useTheme();
-  const { ww, dict, feed, scanResult, scanInput, setScanInput, doScan, simScan, scanQty, setScanQty, log, setScanResult } = state;
+  const { ww, dict, feed, scanResult, scanInput, setScanInput, doScan, simScan, scanQty, setScanQty, log, adjust, setScanResult } = state;
 
   return (
     <Stack spacing={2.5}>
@@ -24,7 +24,7 @@ export default function WWScanTab({ state }: { state: WWState }) {
             <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{ww.ui.scanAnItem}</Typography>
           </Stack>
           <Box sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
-            <WWScanSection scanResult={scanResult} scanInput={scanInput} setScanInput={setScanInput} doScan={doScan} simScan={simScan} scanQty={scanQty} setScanQty={setScanQty} log={log} setScanResult={setScanResult} ww={ww} />
+            <WWScanSection scanResult={scanResult} scanInput={scanInput} setScanInput={setScanInput} doScan={doScan} simScan={simScan} scanQty={scanQty} setScanQty={setScanQty} log={log} adjust={adjust} setScanResult={setScanResult} ww={ww} />
           </Box>
         </Card>
         <Box sx={{ flex: 1 }}>

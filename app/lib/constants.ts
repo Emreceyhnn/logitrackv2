@@ -26,6 +26,11 @@ export const PROTECTED_ROUTES = [
   // Requires a signed-in user, but must NOT be in COMPANY_REQUIRED_ROUTES —
   // it is the destination for users without a company (loop otherwise).
   "/onboarding",
+  // Requires a signed-in user but NOT dashboard access — it is the "awaiting
+  // access" screen shown to a user whose entitlement is still NONE (e.g. the
+  // self-serve trial grant failed at signup, or a manual approval is pending).
+  // Must NOT be company-required or access-gated, else the proxy loops.
+  "/pending-access",
 ];
 
 export const COMPANY_REQUIRED_ROUTES = [
@@ -72,3 +77,31 @@ export const COMMON_TIMEZONES = [
   { value: "Australia/Sydney", label: "Sydney (GMT+10:00 / GMT+11:00)" },
   { value: "Pacific/Auckland", label: "Auckland (GMT+12:00 / GMT+13:00)" },
 ];
+
+/**
+ * Sensible regional defaults suggested per UI locale, so a Turkish user isn't
+ * greeted with UTC + USD (the neutral fallback). Only a *default* — every field
+ * stays freely editable. `currency` is constrained to SupportedCurrency
+ * (USD/EUR/TRY/GBP), which is why locales outside that set fall back to USD.
+ */
+type RegionalDefaults = { timezone: string; currency: string };
+
+const NEUTRAL_REGIONAL_DEFAULTS: RegionalDefaults = {
+  timezone: "UTC",
+  currency: "USD",
+};
+
+export const LOCALE_REGIONAL_DEFAULTS: Record<string, RegionalDefaults> = {
+  tr: { timezone: "Europe/Istanbul", currency: "TRY" },
+  en: NEUTRAL_REGIONAL_DEFAULTS,
+};
+
+/** Regional defaults for a locale, falling back to the neutral defaults. */
+export function getRegionalDefaults(
+  locale: string | undefined
+): RegionalDefaults {
+  return (
+    (locale ? LOCALE_REGIONAL_DEFAULTS[locale] : undefined) ??
+    NEUTRAL_REGIONAL_DEFAULTS
+  );
+}

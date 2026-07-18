@@ -1,10 +1,13 @@
 import { Box, Stack, Typography, Card, CircularProgress, LinearProgress, useTheme } from "@mui/material";
-import { zoneColor } from "@/app/lib/utils/warehouseWorkerUi";
+import { Ico } from "@/app/components/warehouse-worker/Ico";
+import { zoneColor, zoneCapacityAdvice } from "@/app/lib/utils/warehouseWorkerUi";
 import type { WWState } from "@/app/hooks/useWarehouseWorkerState";
 
 export default function WWCapacityTab({ state }: { state: WWState }) {
   const theme = useTheme();
   const { ww, capUsed, capTotal, capacityPct, zones } = state;
+
+  const advice = zoneCapacityAdvice(zones);
 
   return (
     <Stack spacing={2.5}>
@@ -14,6 +17,42 @@ export default function WWCapacityTab({ state }: { state: WWState }) {
           {capUsed.toLocaleString()} / {capTotal.toLocaleString()} {ww.ui.palletPositionsUsed}
         </Typography>
       </Box>
+
+      {/* Critical zones: don't just show the number — say what to do. */}
+      {advice.length > 0 && (
+        <Card
+          data-tour="ww-capacity-advice"
+          sx={{
+            bgcolor: "rgba(244,67,54,0.06)",
+            border: `1px solid rgba(244,67,54,0.28)`,
+            borderRadius: 3,
+            p: 2.5,
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1.5 }}>
+            <Box sx={{ color: theme.palette.error.main, display: "inline-flex" }}>
+              <Ico d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" size={20} />
+            </Box>
+            <Typography sx={{ fontWeight: 800, fontSize: 15, color: theme.palette.error.main }}>
+              {ww.ui.capacityActionTitle}
+            </Typography>
+          </Stack>
+          <Stack spacing={1.25}>
+            {advice.map((a) => (
+              <Box key={a.zone}>
+                <Typography sx={{ fontSize: 14, fontWeight: 700 }}>
+                  {ww.ui.zone} {a.zone} · {a.pct}% — {ww.ui.capacityStopPutaway}
+                </Typography>
+                <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 0.25 }}>
+                  {a.alternative
+                    ? `${ww.ui.capacityDivertTo} ${ww.ui.zone} ${a.alternative.name} (${a.alternative.pct}%)`
+                    : ww.ui.capacityNoAlternative}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Card>
+      )}
       <Stack direction="row" spacing={2.5} alignItems="flex-start">
         <Card data-tour="ww-capacity-chart" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 3, flexShrink: 0, width: 320, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <Box sx={{ position: "relative", display: "inline-flex", mb: 3 }}>

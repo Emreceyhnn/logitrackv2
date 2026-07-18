@@ -1,3 +1,4 @@
+"use client";
 import RouteRoundedIcon from "@mui/icons-material/RouteRounded";
 import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
 import NatureRoundedIcon from "@mui/icons-material/NatureRounded";

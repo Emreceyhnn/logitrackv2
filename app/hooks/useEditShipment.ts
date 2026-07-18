@@ -73,7 +73,7 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
         destination: "", destinationLat: undefined, destinationLng: undefined, customerId: "",
         customerLocationId: "", contactEmail: "", billingAccount: "Standard Billing (Net 30)",
         weightKg: 0, volumeM3: 0, palletCount: 0, cargoType: "General Cargo", assignedRouteId: null,
-        trailerId: null, inventoryItems: [], stops: [],
+        trailerId: null, driverId: null, inventoryItems: [], stops: [],
       };
     }
     return {
@@ -88,6 +88,7 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
       contactEmail: shipment.contactEmail || "", billingAccount: shipment.billingAccount || "Standard Billing (Net 30)",
       weightKg: shipment.weightKg || 0, volumeM3: shipment.volumeM3 || 0, palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo", assignedRouteId: shipment.routeId || null, trailerId: shipment.trailerId || null,
+      driverId: shipment.driverId || null,
       inventoryItems: shipment.items?.map((item) => ({
         id: item.id, sku: item.sku, name: item.name, quantity: item.quantity,
         unit: (item.unit as InventoryShipmentItem["unit"]) || "Each", weightKg: item.weightKg || 0, volumeM3: item.volumeM3 || 0,

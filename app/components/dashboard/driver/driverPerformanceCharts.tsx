@@ -10,6 +10,10 @@ interface DriverPerformanceChartsProps {
         name: string;
         rating: number;
         workingHours: number;
+        safetyScore?: number;
+        efficiencyScore?: number;
+        weeklyDelivered?: number;
+        weeklyDelayed?: number;
       }[]
     | undefined;
   loading?: boolean;
@@ -39,9 +43,38 @@ const DriverPerformanceCharts = ({
   const driverNames = data?.map((d) => d.name) ?? [];
   const ratings = data?.map((d) => d.rating) ?? [];
   const workingHours = data?.map((d) => d.workingHours) ?? [];
+  const safetyScores = data?.map((d) => d.safetyScore ?? 0) ?? [];
+  const efficiencyScores = data?.map((d) => d.efficiencyScore ?? 0) ?? [];
+  const delivered = data?.map((d) => d.weeklyDelivered ?? 0) ?? [];
+  const delayed = data?.map((d) => d.weeklyDelayed ?? 0) ?? [];
+  // Only render the score/weekly charts when the backend actually supplied
+  // those fields — keeps older payloads (rating + hours only) rendering fine.
+  const hasScores = data?.some(
+    (d) => d.safetyScore !== undefined || d.efficiencyScore !== undefined
+  );
+  const hasWeekly = data?.some(
+    (d) => d.weeklyDelivered !== undefined || d.weeklyDelayed !== undefined
+  );
+
+  const sharedXAxis = [
+    {
+      scaleType: "band" as const,
+      data: driverNames,
+      label: dict.sidebar.drivers,
+      tickLabelStyle: { fill: "text.secondary" },
+    },
+  ];
 
   return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 2,
+        mt: 2,
+        "& > *": { flex: { xs: "1 1 100%", md: "1 1 calc(50% - 8px)" }, minWidth: 0 },
+      }}
+    >
       <Box flex={1}>
         <CustomCard sx={{ height: "100%", p: 2 }}>
           <Stack spacing={2}>
@@ -122,7 +155,89 @@ const DriverPerformanceCharts = ({
           </Stack>
         </CustomCard>
       </Box>
-    </Stack>
+
+      {hasScores && (
+        <Box>
+          <CustomCard sx={{ height: "100%", p: 2 }}>
+            <Stack spacing={2}>
+              <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
+                {dict.drivers.dashboard.safetyEfficiency || "Safety & Efficiency"}
+              </Typography>
+              <Divider />
+              <BarChart
+                xAxis={sharedXAxis}
+                yAxis={[
+                  {
+                    label: dict.drivers.dashboard.scoreLabel || "Score",
+                    labelStyle: { fill: "text.secondary" },
+                    min: 0,
+                    max: 100,
+                  },
+                ]}
+                series={[
+                  {
+                    data: safetyScores,
+                    color: "#3b82f6",
+                    label: dict.drivers.dashboard.safetyScore || "Safety",
+                    highlightScope: { highlight: "item", fade: "global" },
+                  },
+                  {
+                    data: efficiencyScores,
+                    color: "#f59e0b",
+                    label: dict.drivers.dashboard.efficiencyScore || "Efficiency",
+                    highlightScope: { highlight: "item", fade: "global" },
+                  },
+                ]}
+                height={300}
+                margin={{ top: 10, bottom: 40, left: 40, right: 10 }}
+                borderRadius={8}
+                slotProps={{ legend: {} }}
+              />
+            </Stack>
+          </CustomCard>
+        </Box>
+      )}
+
+      {hasWeekly && (
+        <Box>
+          <CustomCard sx={{ height: "100%", p: 2 }}>
+            <Stack spacing={2}>
+              <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
+                {dict.drivers.dashboard.weeklyOutcomes || "This Week's Deliveries"}
+              </Typography>
+              <Divider />
+              <BarChart
+                xAxis={sharedXAxis}
+                yAxis={[
+                  {
+                    label: dict.drivers.dashboard.shipmentsLabel || "Shipments",
+                    labelStyle: { fill: "text.secondary" },
+                  },
+                ]}
+                series={[
+                  {
+                    data: delivered,
+                    color: "#10b981",
+                    label: dict.drivers.dashboard.delivered || "Delivered",
+                    highlightScope: { highlight: "item", fade: "global" },
+                  },
+                  {
+                    data: delayed,
+                    color: "#ef4444",
+                    label: dict.drivers.dashboard.delayed || "Delayed",
+                    highlightScope: { highlight: "item", fade: "global" },
+                  },
+                ]}
+                height={300}
+                margin={{ top: 10, bottom: 40, left: 40, right: 10 }}
+                borderRadius={8}
+                slotProps={{ legend: {} }}
+              />
+            </Stack>
+          </CustomCard>
+        </Box>
+      )}
+    </Box>
   );
 };
 

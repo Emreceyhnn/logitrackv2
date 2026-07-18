@@ -31,7 +31,10 @@ interface MapWithMarkerProps {
   markers: Markers[];
   center?: [number, number];
   zoom?: number;
+  /** When set, each marker popup shows a "details" action that calls this. */
   onMarkerClick?: (marker: Markers) => void;
+  /** Label for the popup drill-down action (defaults to "View details"). */
+  detailsLabel?: string;
   /** Overlay message shown when map tiles fail to load (CDN blocked/offline). */
   tileErrorText?: string;
 }
@@ -114,6 +117,7 @@ function MapWithMarkers({
   center,
   zoom,
   onMarkerClick,
+  detailsLabel,
   tileErrorText,
 }: MapWithMarkerProps) {
   // Track tile-load failures so a blocked CDN / offline client shows an explicit
@@ -201,11 +205,29 @@ function MapWithMarkers({
                 iconSize: [40, 40],
                 iconAnchor: [20, 20],
               })}
-              eventHandlers={{ click: () => onMarkerClick?.(marker) }}
             >
               <Popup>
                 <div>
                   <Typography variant="h6">{marker.name}</Typography>
+                  {onMarkerClick && (
+                    <button
+                      type="button"
+                      onClick={() => onMarkerClick(marker)}
+                      style={{
+                        marginTop: 6,
+                        padding: "4px 10px",
+                        border: `1px solid ${iconColor}`,
+                        borderRadius: 8,
+                        background: "transparent",
+                        color: iconColor,
+                        fontWeight: 700,
+                        fontSize: 12,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {detailsLabel || "View details"} →
+                    </button>
+                  )}
                 </div>
               </Popup>
             </Marker>

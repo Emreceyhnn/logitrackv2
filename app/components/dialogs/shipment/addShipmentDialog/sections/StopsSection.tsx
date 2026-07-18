@@ -17,9 +17,16 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AddIcon from "@mui/icons-material/Add";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import { Reorder, AnimatePresence } from "framer-motion";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { toast } from "sonner";
+import {
+  optimizeStopOrder,
+  canOptimize,
+  sameOrder,
+} from "../routeOptimize";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { AddressData } from "@/app/components/googleMaps/AddressAutocomplete";
 import StopItem from "./StopItem";
@@ -71,6 +78,25 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
     syncTopLevelFields(updatedStops);
   };
 
+  // Optional suggestion: reorder stops nearest-first from the origin. It only
+  // reorders — the dispatcher can still drag afterwards — and toasts when the
+  // current order is already optimal so the click never feels like a no-op.
+  const origin =
+    typeof values.originLat === "number" && typeof values.originLng === "number"
+      ? { lat: values.originLat, lng: values.originLng }
+      : null;
+  const optimizable = canOptimize(values.stops, origin);
+
+  const handleOptimize = () => {
+    const optimized = optimizeStopOrder(values.stops, origin);
+    if (sameOrder(optimized, values.stops)) {
+      toast.info(dict.shipments?.dialogs?.sections?.routeAlreadyOptimal || "Route is already optimal");
+      return;
+    }
+    handleReorder(optimized);
+    toast.success(dict.shipments?.dialogs?.sections?.routeOptimized || "Stops reordered by nearest route");
+  };
+
   const addStop = (data: typeof entryData) => {
     if (!data.address) return;
 
@@ -102,6 +128,7 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
 
   return (
     <Box
+      data-field="destination"
       sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}
     >
       <FieldArray name="stops">
@@ -288,13 +315,16 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
                             })
                           }
                           onAddressSelect={(data: AddressData) => {
-                            const updated = {
+                            // Selecting an address only fills the entry fields;
+                            // the "Add" button is the single commit path (same
+                            // as picking a customer), so there's one clear way
+                            // to add a stop.
+                            setEntryData({
                               ...entryData,
                               address: data.formattedAddress,
                               lat: data.lat,
                               lng: data.lng,
-                            };
-                            addStop(updated);
+                            });
                           }}
                         />
                       </Stack>
@@ -364,14 +394,36 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
                   direction="row"
                   spacing={1}
                   alignItems="center"
+                  justifyContent="space-between"
                   sx={{ flexShrink: 0 }}
                 >
-                  <LocationOnIcon color="primary" fontSize="small" />
-                  <Typography variant="subtitle2" fontWeight={700}>
-                    {dict.shipments.dialogs.sections.shipmentStops ||
-                      "Planned Route"}{" "}
-                    ({values.stops.length})
-                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <LocationOnIcon color="primary" fontSize="small" />
+                    <Typography variant="subtitle2" fontWeight={700}>
+                      {dict.shipments.dialogs.sections.shipmentStops ||
+                        "Planned Route"}{" "}
+                      ({values.stops.length})
+                    </Typography>
+                  </Stack>
+                  {optimizable && (
+                    <Button
+                      size="small"
+                      onClick={handleOptimize}
+                      startIcon={<AutoFixHighIcon sx={{ fontSize: "16px !important" }} />}
+                      sx={{
+                        textTransform: "none",
+                        fontWeight: 700,
+                        borderRadius: 2,
+                        color: "primary.main",
+                        bgcolor: (theme) => theme.palette.primary._alpha.main_08,
+                        "&:hover": {
+                          bgcolor: (theme) => theme.palette.primary._alpha.main_12,
+                        },
+                      }}
+                    >
+                      {dict.shipments?.dialogs?.sections?.optimizeRoute || "Optimize order"}
+                    </Button>
+                  )}
                 </Stack>
 
                 <Box sx={{ flex: 1, pr: 1, minHeight: 0 }}>

@@ -1,11 +1,25 @@
+"use client";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
 import type { Dictionary } from "@/app/lib/language/language";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
+import SecurityTrustSection from "./SecurityTrustSection";
 
-export default function SecurityCenterClient({ dict }: { dict: Dictionary }) {
+export default function SecurityCenterClient({
+  dict,
+  lang,
+  lastReviewed,
+}: {
+  dict: Dictionary;
+  lang: string;
+  /** Stable "last manually reviewed" date, formatted on the server. */
+  lastReviewed: string;
+}) {
   const d = dict.landing.securityCenterPage;
+  // Security doc requests / issue reports funnel to the contact form.
+  const contactHref = `/${lang}${getLocalizedPath("/contact", lang)}`;
 
   return (
     <FooterPageLayout
@@ -37,7 +51,12 @@ export default function SecurityCenterClient({ dict }: { dict: Dictionary }) {
       ctaTitle={d.cta.title}
       ctaSubtitle={d.cta.subtitle}
       ctaIcon={<ShieldRoundedIcon sx={{ fontSize: 40, color: "#38bdf8" }} />}
-
-    />
+    >
+      <SecurityTrustSection
+        dict={dict}
+        contactHref={contactHref}
+        lastReviewed={lastReviewed}
+      />
+    </FooterPageLayout>
   );
 }

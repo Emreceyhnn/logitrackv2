@@ -18,6 +18,7 @@ import {
   ShipmentPageActions,
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
+import { ShipmentStatus } from "@prisma/client";
 import {
   useShipmentsWithDashboard,
   useShipmentMutations,
@@ -46,6 +47,14 @@ export default function ShipmentContent() {
   const dict = useDictionary();
   const searchParams = useSearchParams();
   const shipmentIdFromUrl = searchParams.get("id");
+  // Deep-link from an overview KPI tile (e.g. "Delayed 3" → ?status=DELAYED).
+  // Validated against the enum so a hand-typed junk value is ignored, not sent
+  // to the query.
+  const statusParam = searchParams.get("status");
+  const statusFromUrl =
+    statusParam && statusParam in ShipmentStatus
+      ? (statusParam as ShipmentStatus)
+      : undefined;
 
   /* ---------------------------------- STATES --------------------------------- */
   const [filters, setFilters] = useState<ShipmentPageState["filters"]>({});
@@ -119,6 +128,15 @@ export default function ShipmentContent() {
       actions.selectShipment(shipmentIdFromUrl);
     }
   }, [shipmentIdFromUrl, actions]);
+
+  // Seed the status filter from the URL once it resolves, so arriving at
+  // ?status=DELAYED lands on the pre-filtered list. Only fires when the param
+  // changes, so a user clearing the filter in-page isn't overridden.
+  useEffect(() => {
+    if (statusFromUrl) {
+      actions.updateFilters({ status: statusFromUrl });
+    }
+  }, [statusFromUrl, actions]);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleEdit = (id: string) => {

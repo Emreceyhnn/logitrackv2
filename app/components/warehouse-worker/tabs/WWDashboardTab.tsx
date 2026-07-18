@@ -2,6 +2,8 @@ import { Box, Stack, Typography, Card, LinearProgress, Avatar, CircularProgress,
 import { Ico } from "@/app/components/warehouse-worker/Ico";
 import WWScanSection from "@/app/components/warehouse-worker/WWScanSection";
 import WWTaskRow from "@/app/components/warehouse-worker/WWTaskRow";
+import WWNextTaskCard from "@/app/components/warehouse-worker/WWNextTaskCard";
+import WWLowStockCard from "@/app/components/warehouse-worker/WWLowStockCard";
 import WWLiveFeed from "@/app/components/warehouse-worker/WWLiveFeed";
 import { zoneColor, I } from "@/app/lib/utils/warehouseWorkerUi";
 import type { WWState } from "@/app/hooks/useWarehouseWorkerState";
@@ -10,8 +12,8 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
   const theme = useTheme();
   const {
     dict, ww, picks, picksTarget, picksPct, packs, packsTarget, packsPct, openTasks, highCount, rate,
-    currentZone, scanResult, scanInput, setScanInput, doScan, simScan, scanQty, setScanQty, log, setScanResult,
-    tasks, advanceTask, anyCritical, capacityPct, capUsed, capTotal, zones, setCurrentZone, onRestock, onReport, feed
+    currentZone, scanResult, scanInput, setScanInput, doScan, simScan, scanQty, setScanQty, log, adjust, setScanResult,
+    tasks, nextTask, advanceTask, anyCritical, capacityPct, capUsed, capTotal, zones, setCurrentZone, onRestock, onReport, feed, lowStock
   } = state;
 
   const renderKpi = (label: string, color: string, icon: string, val: React.ReactNode, sub: React.ReactNode, pct?: number) => (
@@ -33,6 +35,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
 
   return (
     <Stack spacing={2.5}>
+      <WWNextTaskCard nextTask={nextTask} advanceTask={advanceTask} ww={ww} />
       <Stack data-tour="ww-kpi-picks" direction="row" spacing={2.25} sx={{ "& > *": { flex: 1 } }}>
         {renderKpi(
           dict.warehouseWorker.dashboard.picksToday,
@@ -91,7 +94,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
               </Box>
             </Stack>
             <Box sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
-              <WWScanSection scanResult={scanResult} scanInput={scanInput} setScanInput={setScanInput} doScan={doScan} simScan={simScan} scanQty={scanQty} setScanQty={setScanQty} log={log} setScanResult={setScanResult} ww={ww} />
+              <WWScanSection scanResult={scanResult} scanInput={scanInput} setScanInput={setScanInput} doScan={doScan} simScan={simScan} scanQty={scanQty} setScanQty={setScanQty} log={log} adjust={adjust} setScanResult={setScanResult} ww={ww} />
             </Box>
           </Card>
           <Card sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3 }}>
@@ -114,6 +117,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
           </Card>
         </Stack>
         <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
+          <WWLowStockCard ww={ww} lowStock={lowStock} onRestock={onRestock} />
           <Card sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 2.5 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
               <Stack direction="row" alignItems="center" spacing={1.5}>
@@ -183,7 +187,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
             </Stack>
             <Typography variant="overline" sx={{ color: theme.palette.text.secondary, fontWeight: 700, mb: 1 }}>{ww.ui.quickActions}</Typography>
             <Stack data-tour="ww-quick-actions" spacing={1}>
-              <Button onClick={onRestock} startIcon={<Ico d="M12 3v11M8 10l4 4 4-4M4 21h16" size={17} />} sx={{ justifyContent: "flex-start", py: 1.5, borderRadius: 3, bgcolor: "rgba(34,211,238,0.08)", border: "1px solid rgba(34,211,238,0.22)", color: theme.palette.kpi.cyan, fontWeight: 700, textTransform: "none" }}>
+              <Button onClick={() => onRestock()} startIcon={<Ico d="M12 3v11M8 10l4 4 4-4M4 21h16" size={17} />} sx={{ justifyContent: "flex-start", py: 1.5, borderRadius: 3, bgcolor: "rgba(34,211,238,0.08)", border: "1px solid rgba(34,211,238,0.22)", color: theme.palette.kpi.cyan, fontWeight: 700, textTransform: "none" }}>
                 {ww.ui.requestRestockZone} {currentZone}
               </Button>
               <Button onClick={onReport} startIcon={<Ico d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" size={17} />} sx={{ justifyContent: "flex-start", py: 1.5, borderRadius: 3, bgcolor: "rgba(244,67,54,0.08)", border: "1px solid rgba(244,67,54,0.22)", color: theme.palette.error.main, fontWeight: 700, textTransform: "none" }}>

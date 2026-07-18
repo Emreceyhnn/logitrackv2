@@ -146,10 +146,10 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                   },
                 }}
               >
-                <MenuItem value="USD">USD - United States Dollar</MenuItem>
-                <MenuItem value="EUR">EUR - European Euro</MenuItem>
-                <MenuItem value="TRY">TRY - Turkish Lira</MenuItem>
-                <MenuItem value="GBP">GBP - British Pound</MenuItem>
+                <MenuItem value="TRY">₺ TRY — {dict.currencies.TRY}</MenuItem>
+                <MenuItem value="USD">$ USD — {dict.currencies.USD}</MenuItem>
+                <MenuItem value="EUR">€ EUR — {dict.currencies.EUR}</MenuItem>
+                <MenuItem value="GBP">£ GBP — {dict.currencies.GBP}</MenuItem>
               </Select>
               {touched.currency && errors.currency && (
                 <Typography

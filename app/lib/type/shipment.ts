@@ -165,6 +165,7 @@ export interface ShipmentFormValues {
   cargoType: string;
   assignedRouteId: string | null;
   trailerId: string | null;
+  driverId: string | null;
   inventoryItems: InventoryShipmentItem[];
   stops: ShipmentStopWithRelations[];
 }

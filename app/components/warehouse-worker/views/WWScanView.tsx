@@ -22,7 +22,8 @@ interface WWScanViewProps {
   setScanQty: React.Dispatch<React.SetStateAction<number>>;
   doScan: (raw: string) => void;
   simScan: () => void;
-  log: (kind: "PICK" | "PACK") => void;
+  log: (kind: "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY") => void;
+  adjust: (counted: number, reason: string) => void;
   setScanResult: (v: SkuInfo | null) => void;
 }
 
@@ -37,6 +38,7 @@ export default function WWScanView({
   doScan,
   simScan,
   log,
+  adjust,
   setScanResult,
 }: WWScanViewProps) {
   const theme = useTheme();
@@ -91,6 +93,7 @@ export default function WWScanView({
               scanQty={scanQty}
               setScanQty={setScanQty}
               log={log}
+              adjust={adjust}
               setScanResult={setScanResult}
               ww={ww}
             />

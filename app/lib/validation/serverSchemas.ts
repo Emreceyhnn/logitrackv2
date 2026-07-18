@@ -131,6 +131,7 @@ export const createShipmentSchema = z.object({
   billingAccount: z.string().optional(),
   originWarehouseId: z.string().optional(),
   trailerId: z.string().nullable().optional(),
+  driverId: z.string().nullable().optional(),
   inventoryItems: z.array(z.object({
     id: z.string().optional(),
     sku: z.string(),

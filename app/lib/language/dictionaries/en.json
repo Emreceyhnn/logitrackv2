@@ -2,6 +2,7 @@
   "common": {
     "logitrack": "LogiTrack",
     "needHelp": "Need Help?",
+    "help": "Help",
     "logout": "Log Out",
     "lastUpdated": "Last updated",
     "refresh": "Refresh",
@@ -131,6 +132,7 @@
     "no": "No",
     "none": "None",
     "details": "Details",
+    "viewDetails": "View details",
     "kg": "kg",
     "km": "km",
     "m3": "m³",
@@ -181,6 +183,10 @@
       "mapStep": {
         "title": "Live Operations Map",
         "description": "Visualize your entire supply chain on an interactive map. You can track live fleet positions, monitor active delivery routes in real-time, and see exactly where your warehouses and customers are located. Zoom in to see precise vehicle movements."
+      },
+      "gettingStartedStep": {
+        "title": "Your first steps",
+        "description": "Your dashboard is empty because you haven't added any data yet. Work through this checklist — add a vehicle, a driver, and a shipment — and your KPIs, charts, and live map will start filling in automatically."
       }
     },
     "vehicles": {
@@ -406,6 +412,13 @@
     "finalTouches": "Final Touches",
     "signUpDescription": "Please provide your basic details to get started.",
     "securityDescription": "Choose a strong password.",
+    "passwordRules": {
+      "title": "Your password must contain:",
+      "minLength": "At least 8 characters",
+      "lowercase": "One lowercase letter (a-z)",
+      "uppercase": "One uppercase letter (A-Z)",
+      "number": "One number (0-9)"
+    },
     "profileDescription": "Almost there! Complete your profile to join the LogiTrack team.",
     "firstName": "First Name",
     "lastName": "Last Name",
@@ -533,6 +546,12 @@
       "startTrial": "Start Trial",
       "demo": "Request a Demo",
       "signIn": "Sign In",
+      "persona": "For fleet operators, carriers, and warehouse teams.",
+      "benefits": {
+        "fleet": "Track your fleet in real time",
+        "shipment": "Manage shipments end to end",
+        "warehouse": "Control warehouse operations from one place"
+      },
       "metrics": {
         "activeRoutes": "Active Routes",
         "vehicles": "Vehicles",
@@ -557,6 +576,18 @@
       },
       "success": "Your request has been received. We'll be in touch shortly.",
       "error": "Could not send your request. Please try again.",
+      "successCard": {
+        "title": "Request received 🎉",
+        "timeframe": "A team member typically replies within 1 business day.",
+        "stepsTitle": "What happens next",
+        "step1": "We review your request and match you with the right person.",
+        "step2": "You'll get an email at the address you gave us — check your spam folder just in case.",
+        "step3": "We'll schedule a walkthrough or send access details, depending on what you need.",
+        "selfServeTitle": "Don't want to wait?",
+        "selfServeBody": "You can start a free 7-day trial right now — no approval needed. Full access to the dashboard in minutes.",
+        "selfServeCta": "Start free trial",
+        "emailNote": "Our reply will come by email — no further action needed from you for now."
+      },
       "validation": {
         "fullNameRequired": "Full name is required",
         "emailRequired": "Email is required",
@@ -901,8 +932,48 @@
         "title": "Start Tracking Globally",
         "subtitle": "Deploy real-time tracking across your entire logistics network in under 48 hours"
       },
+      "trackCta": "Track a shipment",
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "trackingPage": {
+      "badge": "Shipment Tracking",
+      "title": "Track your shipment",
+      "subtitle": "Enter your tracking number to see the latest delivery status.",
+      "inputLabel": "Tracking number",
+      "inputPlaceholder": "e.g. TRK-A1B2C3D",
+      "trackButton": "Track",
+      "tracking": "Checking…",
+      "resultTitle": "Tracking {id}",
+      "destinationLabel": "Destination",
+      "etaLabel": "Estimated arrival",
+      "etaComplete": "Delivery complete",
+      "etaUnknown": "Not available yet",
+      "timelineTitle": "Progress",
+      "noHistory": "No status updates have been recorded yet.",
+      "searchAnother": "Track another shipment",
+      "mapTitle": "Location",
+      "mapDestination": "Destination",
+      "mapLastReported": "Last reported near",
+      "mapApproxNote": "Location is approximate — shown as a general area, not an exact position.",
+      "mapUnavailable": "Map could not be loaded.",
+      "errors": {
+        "invalid": "Please enter a valid tracking number.",
+        "notFound": "We couldn't find a shipment with that tracking number. Double-check it and try again.",
+        "rateLimited": "Too many lookups. Please wait a minute and try again.",
+        "internal": "Something went wrong. Please try again."
+      },
+      "status": {
+        "PENDING": "Pending",
+        "PROCESSING": "Processing",
+        "ASSIGNED": "Assigned to a driver",
+        "IN_TRANSIT": "In transit",
+        "DELIVERED": "Delivered",
+        "FAILED": "Delivery failed",
+        "RETURNED": "Returned",
+        "DELAYED": "Delayed",
+        "CANCELLED": "Cancelled"
       }
     },
     "routeIntelligencePage": {
@@ -999,6 +1070,66 @@
       "cta": {
         "title": "Review Our Security",
         "subtitle": "Learn more about our security standards"
+      },
+      "trust": {
+        "compliance": {
+          "overline": "Compliance",
+          "title": "Where our compliance stands today",
+          "subtitle": "We publish our real posture — what's live now, and what we're actively working toward. No badges we haven't earned.",
+          "statusLive": "Live",
+          "statusInProgress": "In progress",
+          "statusRoadmap": "Roadmap",
+          "items": {
+            "gdpr": {
+              "name": "GDPR & KVKK",
+              "description": "Data subject rights, export and deletion, and regional data handling aligned with EU and Turkish data protection law."
+            },
+            "encryption": {
+              "name": "Encryption in transit & at rest",
+              "description": "AES-256 at rest and TLS 1.3 in transit across all API endpoints and client connections."
+            },
+            "accessControl": {
+              "name": "Access control & audit logging",
+              "description": "Role-based access control and automatic audit logs across tenant-scoped data."
+            },
+            "soc2": {
+              "name": "SOC 2 Type II",
+              "description": "Formal audit not yet started. We build to SOC 2 controls and will publish the report once the audit completes."
+            },
+            "iso27001": {
+              "name": "ISO 27001",
+              "description": "On our roadmap. Certification is planned but not yet in progress; we won't claim it until it's real."
+            }
+          }
+        },
+        "documents": {
+          "overline": "Documents",
+          "title": "Security documentation",
+          "subtitle": "These documents are available on request while we finalize a self-serve trust portal. Reach out and we'll send them over.",
+          "requestCta": "Request",
+          "items": {
+            "whitepaper": {
+              "name": "Security Whitepaper",
+              "description": "How we architect encryption, access control, and tenant isolation."
+            },
+            "dpa": {
+              "name": "Data Processing Agreement (DPA)",
+              "description": "Our standard DPA covering data handling, sub-processors, and your rights."
+            },
+            "subprocessors": {
+              "name": "Sub-processor List",
+              "description": "The third-party services that process data on our behalf."
+            }
+          }
+        },
+        "status": {
+          "overline": "System Status",
+          "title": "Platform status",
+          "operational": "All systems operational",
+          "note": "This reflects our last manual review, not an automated live feed yet. A real-time status page is coming.",
+          "lastReviewed": "Last reviewed",
+          "cta": "Report an issue"
+        }
       },
       "footer": {
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
@@ -1444,18 +1575,28 @@
     "en": "English",
     "tr": "Türkçe"
   },
+  "currencies": {
+    "USD": "US Dollar",
+    "EUR": "Euro",
+    "TRY": "Turkish Lira",
+    "GBP": "British Pound"
+  },
   "validation": {
     "required": "{field} is required",
     "email": "Invalid email address",
     "min": "{field} must be at least {min} characters",
     "max": "{field} must be at most {max} characters",
     "matches": "{field} format is invalid",
+    "passwordLowercase": "Password must contain at least one lowercase letter",
+    "passwordUppercase": "Password must contain at least one uppercase letter",
+    "passwordNumber": "Password must contain at least one number",
     "oneOf": "Please select a valid {field}",
     "number": "{field} must be a number",
     "integer": "{field} must be a whole number",
     "positive": "{field} must be a positive number",
     "url": "Invalid URL",
     "genericFormError": "Please fill in required fields correctly",
+    "firstErrorField": "Check this field: {field}",
     "passwordsMatch": "Passwords must match",
     "endTimeAfterStart": "End time must be after start time"
   },
@@ -1476,7 +1617,24 @@
     "warehouseCapacity": "Warehouse Capacity",
     "picksAndPacks": "Picks & Packs Daily",
     "shipmentVolume": "Shipment Volume",
-    "lowStock": "Low Stock Items"
+    "lowStock": "Low Stock Items",
+    "gettingStarted": {
+      "title": "Let's get your fleet moving",
+      "subtitle": "Your dashboard fills with live data as you add your first records. Start here:",
+      "progress": "{done} of {total} done",
+      "addVehicleTitle": "Add your first vehicle",
+      "addVehicleDesc": "Register a truck or van so you can track it live on the map.",
+      "addVehicleCta": "Add vehicle",
+      "addDriverTitle": "Add your first driver",
+      "addDriverDesc": "Assign drivers to vehicles and shipments.",
+      "addDriverCta": "Add driver",
+      "addShipmentTitle": "Create your first shipment",
+      "addShipmentDesc": "Plan a delivery and watch its status update in real time.",
+      "addShipmentCta": "Create shipment",
+      "done": "Done",
+      "takeTour": "Take a quick tour",
+      "dismiss": "Dismiss"
+    }
   },
   "vehicles": {
     "title": "Vehicle Fleet Management",
@@ -1706,7 +1864,19 @@
         "maintenance": "Maintenance",
         "fuel": "Fuel Logs",
         "map": "Live Map",
-        "specs": "Tech Specs"
+        "specs": "Tech Specs",
+        "linkedShipments": "Shipments"
+      },
+      "linkedShipments": {
+        "subtitle": "{count} active shipments on this vehicle's trailer",
+        "noneActive": "No active shipments on this vehicle.",
+        "noTrailer": "This vehicle has no trailer attached.",
+        "selectedCount": "{n} selected",
+        "targetTrailer": "Move to trailer",
+        "noTargets": "No available trailers",
+        "reassignButton": "Reassign {n}",
+        "reassigned": "{count} shipments reassigned",
+        "reassignError": "Could not reassign shipments"
       },
       "status": "Status"
     },
@@ -1793,6 +1963,11 @@
   "drivers": {
     "title": "Driver Management",
     "subtitle": "Manage your fleet drivers, monitor performance and license status",
+    "statuses": {
+      "ON_JOB": "On Job",
+      "OFF_DUTY": "Off Duty",
+      "ON_LEAVE": "On Leave"
+    },
     "addDriver": "Add Driver",
     "totalDrivers": "Total Fleet Drivers",
     "onDuty": "On Duty",
@@ -1805,7 +1980,15 @@
       "ratingsLabel": "Rating (0-5)",
       "weeklyHours": "Weekly Working Hours",
       "hours": "Hours",
-      "hoursThisWeek": "Hours this week"
+      "hoursThisWeek": "Hours this week",
+      "safetyEfficiency": "Safety & Efficiency",
+      "scoreLabel": "Score (0-100)",
+      "safetyScore": "Safety",
+      "efficiencyScore": "Efficiency",
+      "weeklyOutcomes": "This Week's Deliveries",
+      "shipmentsLabel": "Shipments",
+      "delivered": "Delivered",
+      "delayed": "Delayed"
     },
     "card": {
       "license": "License: {type}",
@@ -2246,9 +2429,9 @@
         "timezone": "Timezone",
         "currency": "Currency",
         "language": "Interface Language",
-        "integrity": "Data Integrity",
-        "standardize": "Standardize date/time formats for all users",
-        "overrides": "Allow user-level regional overrides"
+        "integrity": "Team regional settings",
+        "standardize": "These timezone, currency, and language settings apply to everyone in your company by default.",
+        "overrides": "Let team members pick their own timezone, currency, and language"
       }
     },
     "members": {
@@ -2398,6 +2581,13 @@
     },
     "dialogs": {
       "addTitle": "Create New Shipment",
+      "updateStatusTitle": "Update status",
+      "currentStatus": "Current",
+      "newStatus": "New status",
+      "statusNote": "Note",
+      "statusNotePlaceholder": "Optional context for this change",
+      "failureReasonRequired": "A reason is required when marking as failed",
+      "noTransitions": "This shipment is in a final state and can't change.",
       "editTitle": "Edit Shipment Details",
       "editSubtitle": "Modify shipment parameters and update logistics status",
       "addSubtitle": "Create a new logitrack shipment and define parameters",
@@ -2417,7 +2607,10 @@
         "shipmentStops": "Shipment Stops",
         "noStopsDefined": "No stops defined. Click + to add stops.",
         "stop": "Stop",
-        "addStop": "Add Stop"
+        "addStop": "Add Stop",
+        "optimizeRoute": "Optimize order",
+        "routeOptimized": "Stops reordered by nearest route",
+        "routeAlreadyOptimal": "Route is already optimal"
       },
       "fields": {
         "shipmentIdRef": "SHIPMENT ID / REF (Optional)",
@@ -2443,6 +2636,12 @@
         "selectCustomerFirst": "Select a customer first",
         "contactEmail": "CONTACT EMAIL",
         "billingAccount": "BILLING ACCOUNT",
+        "assignDriver": "ASSIGN DRIVER",
+        "selectDriver": "Select driver",
+        "capacityFree": "free",
+        "overCapacity": "Over capacity",
+        "availableLabel": "Available",
+        "unavailableLabel": "Busy",
         "routeId": "ROUTE ID",
         "routePlaceholder": "Select route...",
         "assignedDriver": "ASSIGNED DRIVER",
@@ -3194,6 +3393,9 @@
     "noInventoryToScan": "No inventory to scan in this warehouse",
     "logged": "Logged",
     "couldNotLog": "Could not log movement",
+    "adjusted": "Stock adjusted",
+    "adjustNoChange": "Count matches system — no change",
+    "couldNotAdjust": "Could not adjust stock",
     "taskComplete": "Task complete",
     "couldNotUpdateTask": "Could not update task",
     "restockRequested": "Restock requested",
@@ -3218,8 +3420,27 @@
       "simScan": "Simulate scan",
       "logPick": "Log Pick",
       "logPack": "Log Pack",
+      "logStockIn": "Log Stock In",
+      "logPutaway": "Log Putaway",
+      "logAdjust": "Adjust Count",
+      "cancelScan": "Cancel",
+      "adjustTitle": "Cycle count adjustment",
+      "adjustExpected": "System expected",
+      "adjustCounted": "Counted",
+      "adjustDiff": "Difference",
+      "adjustSurplus": "surplus",
+      "adjustShort": "short",
+      "adjustMatch": "matches",
+      "adjustReason": "Reason",
+      "adjustReasonPlaceholder": "e.g. damaged, miscount, found on floor…",
+      "adjustSubmit": "Submit adjustment",
+      "adjustUnknownSku": "No system record for this SKU — adjustment unavailable.",
       "doneBtn": "Done",
       "advanceBtn": "Advance",
+      "startBtn": "Start",
+      "completeBtn": "Complete",
+      "decreaseQty": "Remove one unit",
+      "increaseQty": "Add one unit",
       "PICK": "PICK",
       "PACK": "PACK",
       "PUT": "PUT",
@@ -3228,18 +3449,31 @@
       "myTaskQueue": "My task queue",
       "openTasksCount": "open",
       "highPriority": "high priority",
+      "nextTask": "Do this next",
+      "nextTaskStart": "Start",
+      "nextTaskAllClear": "All caught up",
+      "nextTaskAllClearSub": "No open tasks — nice work.",
       "allAssignedTasks": "All assigned tasks",
       "siteCapacity": "Site capacity",
       "zoneNearFull": "Zone near full",
       "palletPositions": "Pallet positions",
       "palletPositionsUsed": "pallet positions used",
       "positionsFree": "positions free",
+      "capacityActionTitle": "Zone near capacity — action needed",
+      "capacityStopPutaway": "stop putaway here",
+      "capacityDivertTo": "Divert to",
+      "capacityNoAlternative": "No zone below 70% — escalate to a supervisor for space.",
       "activeLabel": "ACTIVE",
       "controlPanel": "Control panel",
       "activePickZone": "Active pick zone",
       "quickActions": "Quick actions",
       "requestRestockZone": "Request restock — Zone",
       "reportIssue": "Report an issue",
+      "lowStockTitle": "Low stock",
+      "lowStockNone": "All items above reorder point.",
+      "lowStockUnitsLeft": "available / min",
+      "lowStockBadge": "LOW",
+      "restockSku": "Restock",
       "scanLogMovements": "Scan & log movements",
       "scanSubtitle": "Scan an item, confirm the quantity, and log it as a pick or pack",
       "scanAnItem": "Scan an item",
@@ -3317,6 +3551,17 @@
     "joinTitle": "Join an Existing Company",
     "joinDescription": "If your company already uses LogiTrack, you can request to join using an invite code or your company email.",
     "joinButton": "Join Company"
+  },
+  "pendingAccess": {
+    "title": "Setting up your access",
+    "subtitle": "Your account is ready. We're activating your workspace access — this usually takes just a moment.",
+    "checking": "Checking your access…",
+    "grantedTitle": "Access granted!",
+    "grantedSubtitle": "Redirecting you to your workspace…",
+    "hint": "This page updates automatically. You don't need to refresh.",
+    "checkNow": "Check now",
+    "signOut": "Sign out",
+    "help": "Waiting longer than expected? Contact support and we'll sort it out."
   },
   "users": {
     "title": "User Management",
