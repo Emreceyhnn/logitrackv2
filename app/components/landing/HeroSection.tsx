@@ -9,7 +9,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 import { hasDashboardAccess } from "@/app/lib/actions/demoRequest";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
-import LoginIcon from "@mui/icons-material/Login";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import RouteOutlinedIcon from "@mui/icons-material/RouteOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
@@ -43,7 +43,7 @@ export default function HeroSection() {
   // Hero's outlined button is an explicit "Request a Demo" CTA, so it tags the
   // resulting DB row as a demo request via ?type=demo.
   const contactHref = `/${lang}${getLocalizedPath("/contact", lang)}?type=demo`;
-  const signInHref = `/${lang}${getLocalizedPath("/auth/sign-in", lang)}`;
+  const demoHref = `/${lang}${getLocalizedPath("/demo", lang)}`;
   const onboardingHref = `/${lang}${getLocalizedPath("/onboarding", lang)}`;
 
   return (
@@ -306,8 +306,8 @@ export default function HeroSection() {
                 <Button
                   variant="contained"
                   component={Link}
-                  href={signInHref}
-                  startIcon={<LoginIcon />}
+                  href={demoHref}
+                  startIcon={<BoltRoundedIcon />}
                   sx={{
                     bgcolor: "#00f2ff",
                     color: "#00363a",
@@ -321,7 +321,7 @@ export default function HeroSection() {
                     },
                   }}
                 >
-                  {dict.landing.hero.signIn}
+                  {dict.landing.hero.liveDemo}
                 </Button>
               )}
               <Button

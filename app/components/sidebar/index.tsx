@@ -29,7 +29,16 @@ import { getTourStepsForPage } from "@/app/components/guidedTour/tourSteps";
 import { logger } from "@/app/lib/logger";
 
 
-const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
+const SideBar = ({
+  onMobileClose,
+  isDemo = false,
+}: {
+  onMobileClose?: () => void;
+  /** Renders the sidebar for the public Live Demo dashboard: non-built pages
+   * are shown but disabled, and logout exits the demo instead of clearing a
+   * real session. Defaults to false — real dashboard usage is unaffected. */
+  isDemo?: boolean;
+}) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const router = useRouter();
@@ -56,6 +65,12 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   }, [pathname, lang, dict, startTour]);
 
   const handleLogout = async () => {
+    // Demo visitors are anonymous — there is no real session to clear.
+    // "Logout" here just exits the demo back to the marketing site.
+    if (isDemo) {
+      router.push(buildLocalizedHref("/", lang));
+      return;
+    }
     try {
       await clearAuthCookies();
       // Build the localized sign-in URL (e.g. /tr/giris/oturum-ac or /en/auth/sign-in)
@@ -71,6 +86,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
       {
         title: dict.sidebar.overview,
         href: "/overview",
+        live: true,
         icon: (
           <SpaceDashboardOutlinedIcon
             sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
@@ -80,16 +96,17 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
       {
         title: dict.sidebar.operation,
         href: "/vehicle",
+        live: true,
         icon: (
           <LocalShippingOutlinedIcon
             sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
           />
         ),
         subTitles: [
-          { title: dict.sidebar.vehicles, href: "/vehicle" },
+          { title: dict.sidebar.vehicles, href: "/vehicle", live: true },
           { title: dict.sidebar.drivers, href: "/drivers" },
           { title: dict.sidebar.routes, href: "/routes" },
-          { title: dict.sidebar.shipments, href: "/shipments" },
+          { title: dict.sidebar.shipments, href: "/shipments", live: true },
         ],
       },
       {
@@ -117,7 +134,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
         ),
         subTitles: [
           { title: dict.sidebar.reports, href: "/reports" },
-          { title: dict.sidebar.analytics, href: "/analytics" },
+          { title: dict.sidebar.analytics, href: "/analytics", live: true },
         ],
       },
       {
@@ -216,6 +233,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
             items={sideBarItemsParents}
             lang={lang}
             onMobileClose={onMobileClose}
+            isDemo={isDemo}
           />
 
           <Stack
