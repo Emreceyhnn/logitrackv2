@@ -44,14 +44,24 @@ export const useDemoVehicleContent = () => {
     setState((prev) => ({ ...prev, selectedVehicleId: id }));
   }, []);
 
-  const updateFilters = useCallback((_newFilters: Partial<VehiclePageState["filters"]>) => {
-    // Filters are inert in the demo — the dataset is fixed.
-    notifyDisabled();
-  }, [notifyDisabled]);
+  // Filters are inert in the demo — the dataset is fixed. Params are kept for
+  // signature parity (callers pass { page }/{ limit }) but ignored; `void`
+  // marks them consumed so eslint's no-unused-vars stays quiet.
+  const updateFilters = useCallback(
+    (newFilters: Partial<VehiclePageState["filters"]>) => {
+      void newFilters;
+      notifyDisabled();
+    },
+    [notifyDisabled]
+  );
 
-  const updateTrailerFilters = useCallback((_newFilters: Partial<TrailerFilters>) => {
-    notifyDisabled();
-  }, [notifyDisabled]);
+  const updateTrailerFilters = useCallback(
+    (newFilters: Partial<TrailerFilters>) => {
+      void newFilters;
+      notifyDisabled();
+    },
+    [notifyDisabled]
+  );
 
   const actions: VehiclePageActions = useMemo(() => ({ fetchVehicles: async () => {}, fetchDashboardData: async () => {}, refreshAll, selectVehicle, updateFilters }), [refreshAll, selectVehicle, updateFilters]);
 

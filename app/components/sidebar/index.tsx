@@ -104,8 +104,8 @@ const SideBar = ({
         ),
         subTitles: [
           { title: dict.sidebar.vehicles, href: "/vehicle", live: true },
-          { title: dict.sidebar.drivers, href: "/drivers" },
-          { title: dict.sidebar.routes, href: "/routes" },
+          { title: dict.sidebar.drivers, href: "/drivers", live: true },
+          { title: dict.sidebar.routes, href: "/routes", live: true },
           { title: dict.sidebar.shipments, href: "/shipments", live: true },
         ],
       },
@@ -118,10 +118,10 @@ const SideBar = ({
           />
         ),
         subTitles: [
-          { title: dict.sidebar.warehouses, href: "/warehouses" },
-          { title: dict.sidebar.inventory, href: "/inventory" },
-          { title: dict.sidebar.customers, href: "/customers" },
-          { title: dict.sidebar.company, href: "/company" },
+          { title: dict.sidebar.warehouses, href: "/warehouses", live: true },
+          { title: dict.sidebar.inventory, href: "/inventory", live: true },
+          { title: dict.sidebar.customers, href: "/customers", live: true },
+          { title: dict.sidebar.company, href: "/company", live: true },
         ],
       },
       {
@@ -133,13 +133,14 @@ const SideBar = ({
           />
         ),
         subTitles: [
-          { title: dict.sidebar.reports, href: "/reports" },
+          { title: dict.sidebar.reports, href: "/reports", live: true },
           { title: dict.sidebar.analytics, href: "/analytics", live: true },
         ],
       },
       {
         title: dict.sidebar.warehousePanel,
         href: "/warehouse-worker",
+        live: true,
         icon: (
           <QrCodeScannerOutlinedIcon
             sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}

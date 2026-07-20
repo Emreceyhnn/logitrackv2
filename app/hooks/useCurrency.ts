@@ -16,6 +16,12 @@ export function useCurrency() {
   const { user } = useUserContext();
   const currency = (user?.currency as SupportedCurrency) || "USD";
 
+  // The public Live Demo runs anonymously (fabricated demo user). Its exchange-
+  // rate server action is authenticatedAction-wrapped and would redirect an
+  // unauthenticated visitor to sign-in, so skip the fetch entirely in demo mode
+  // and fall back to rate = 1 (the demo currency is USD anyway).
+  const isDemo = user?.id === "demo-user";
+
   const { data: ratesData, isLoading } = useQuery({
     queryKey: ["exchange-rates"],
     queryFn: async () => {
@@ -23,7 +29,7 @@ export function useCurrency() {
       if ("error" in result) throw new Error(result.error as string);
       return result;
     },
-
+    enabled: !isDemo,
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     retry: 2,

@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SideBar from "@/app/components/sidebar";
 import DemoDashboardHeader from "@/app/components/dashboard/DemoDashboardHeader";
@@ -28,7 +28,18 @@ export default function DemoDashboardLayoutClient({
   const { user } = useUserContext();
   const dict = useDictionary();
   const params = useParams();
+  const pathname = usePathname();
   const lang = (params?.lang as string) || "en";
+
+  // The warehouse-worker panel is a self-contained, full-screen operational UI
+  // with its own sidebar/header — it must NOT inherit the dashboard shell
+  // (sidebar + header + banner) or it would double up. Render it bare, keeping
+  // only the tour provider its Help button relies on.
+  const isFullScreenPanel = pathname?.includes("/demo/warehouse-worker");
+
+  if (isFullScreenPanel) {
+    return <GuidedTourProvider>{children}</GuidedTourProvider>;
+  }
 
   return (
     <GuidedTourProvider>
