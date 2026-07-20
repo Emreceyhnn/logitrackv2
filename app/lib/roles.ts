@@ -32,3 +32,22 @@ export function isWarehouseOnlyRole(roleName: string | null | undefined): boolea
   if (!roleName) return false;
   return WAREHOUSE_ONLY_ROLE_NAMES.has(roleName.trim().toLocaleLowerCase('en-US'));
 }
+
+/**
+ * Role names (lowercased) whose users are confined to the Driver Console
+ * and must never reach the main dashboard.
+ */
+const DRIVER_ONLY_ROLE_NAMES: ReadonlySet<string> = new Set(
+  rolesConfig.flatMap((r) =>
+    r.id === "role_driver" ? (r.names ?? [r.name]).map((n) => n.toLocaleLowerCase('en-US')) : []
+  )
+);
+
+/**
+ * True when the given role name belongs to driver staff who should be
+ * locked to the `/driver-console` panel.
+ */
+export function isDriverOnlyRole(roleName: string | null | undefined): boolean {
+  if (!roleName) return false;
+  return DRIVER_ONLY_ROLE_NAMES.has(roleName.trim().toLocaleLowerCase('en-US'));
+}

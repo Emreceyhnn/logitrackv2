@@ -2,7 +2,7 @@ import DashboardLayoutClient from "@/app/components/dashboard/DashboardLayoutCli
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
-import { isWarehouseOnlyRole } from "@/app/lib/roles";
+import { isWarehouseOnlyRole, isDriverOnlyRole } from "@/app/lib/roles";
 import { UserProvider } from "@/app/lib/context/UserContext";
 
 export const metadata: Metadata = {
@@ -26,6 +26,11 @@ export default async function DashboardLayout({
   const user = await getAuthenticatedUser();
   if (user && isWarehouseOnlyRole(user.roleName)) {
     redirect(`/${lang}/warehouse-worker`);
+  }
+  // Drivers are confined to their own console and must never reach the main
+  // dashboard.
+  if (user && isDriverOnlyRole(user.roleName)) {
+    redirect(`/${lang}/driver-console`);
   }
 
   // UserProvider lives here (not in the root [lang] layout) so the session

@@ -31,11 +31,13 @@ export default function DemoDashboardLayoutClient({
   const pathname = usePathname();
   const lang = (params?.lang as string) || "en";
 
-  // The warehouse-worker panel is a self-contained, full-screen operational UI
-  // with its own sidebar/header — it must NOT inherit the dashboard shell
-  // (sidebar + header + banner) or it would double up. Render it bare, keeping
-  // only the tour provider its Help button relies on.
-  const isFullScreenPanel = pathname?.includes("/demo/warehouse-worker");
+  // The warehouse-worker and driver-console panels are self-contained,
+  // full-screen operational UIs with their own sidebar/header — they must NOT
+  // inherit the dashboard shell (sidebar + header + banner) or it would double
+  // up. Render bare, keeping only the tour provider their Help button relies on.
+  const isFullScreenPanel =
+    pathname?.includes("/demo/warehouse-worker") ||
+    pathname?.includes("/demo/driver-console");
 
   if (isFullScreenPanel) {
     return <GuidedTourProvider>{children}</GuidedTourProvider>;

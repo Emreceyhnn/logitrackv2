@@ -15,6 +15,7 @@ import {
 } from "@/app/hooks/useCompany";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
+import PendingJoinRequestsTable from "@/app/components/dashboard/company/pendingJoinRequestsTable";
 import AddCompanyMemberDialog from "@/app/components/dialogs/company/AddCompanyMemberDialog";
 import {
   People,
@@ -184,6 +185,9 @@ export default function CompanyContent() {
         </Box>
         <Box data-tour="company-info">
           <CompanyInfoCard props={{ state, actions }} />
+        </Box>
+        <Box data-tour="company-join-requests">
+          <PendingJoinRequestsTable />
         </Box>
         <Box data-tour="company-members">
           <CompanyMembersTable props={{ state, actions }} />

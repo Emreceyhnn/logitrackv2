@@ -378,6 +378,7 @@
     "analytics": "Analytics",
     "reports": "Reports",
     "warehousePanel": "Warehouse Panel",
+    "driverConsolePanel": "Driver Console",
     "demoSoon": "Soon"
   },
   "liveDemo": {
@@ -2434,6 +2435,19 @@
       "created": "Created on {date}",
       "active": "Active"
     },
+    "joinRequests": {
+      "title": "Pending Join Requests",
+      "empty": "No pending join requests.",
+      "columns": {
+        "requester": "Name",
+        "email": "Email",
+        "requestedAt": "Requested"
+      },
+      "actions": {
+        "accept": "Accept",
+        "reject": "Reject"
+      }
+    },
     "roles": {
       "Admin": "Admin",
       "Manager": "Manager",
@@ -2484,6 +2498,15 @@
       "addToCompany": "Add to Company",
       "employeeIdHelper": "Company assigned unique identifier",
       "phoneHelper": "Required for driver contact",
+      "existingUser": "Add existing user",
+      "inviteByEmail": "Invite driver by email",
+      "inviteEmailPlaceholder": "driver@example.com",
+      "sendInvite": "Send Invite",
+      "domainLabel": "Company Email Domain",
+      "domainHelperText": "Optional. Teammates with a matching email domain (e.g. acme.com) can request to join automatically.",
+      "acceptJoinRequestTitle": "Accept Join Request",
+      "rejectJoinRequestTitle": "Reject Join Request",
+      "rejectJoinRequestDescription": "This person will need to submit a new request to join later.",
       "steps": {
         "branding": "Branding",
         "regional": "Regional",
@@ -3041,7 +3064,12 @@
     "errorNoConnection": "Document connection not found.",
     "errorNoPermission": "File access permission could not be obtained.",
     "errorUpload": "An error occurred while uploading the file.",
-    "demoActionDisabled": "This action is disabled in the live demo."
+    "demoActionDisabled": "This action is disabled in the live demo.",
+    "successInvite": "Invitation sent!",
+    "successJoinRequestSent": "Request sent! Waiting for approval.",
+    "successJoinRequestAccepted": "Join request accepted!",
+    "successJoinRequestRejected": "Join request rejected.",
+    "errorJoinRequestDuplicate": "A join request is already pending for this company."
   },
   "notifications": {
     "title": "Notifications",
@@ -3610,6 +3638,102 @@
       "pack": "Pack"
     }
   },
+  "driverConsole": {
+    "driverConsole": "Driver Console",
+    "backToPanel": "Back to panel",
+    "noDriverProfile": "No driver profile linked to this account",
+    "dutyChanged": "Duty status updated",
+    "couldNotChangeDuty": "Could not update duty status",
+    "stopMarkedArrived": "Stop marked as arrived",
+    "stopMarkedPending": "Stop marked as pending",
+    "couldNotUpdateStop": "Could not update stop",
+    "fuelLogged": "Fuel log added",
+    "couldNotLogFuel": "Could not add fuel log",
+    "issueReported": "Issue reported",
+    "couldNotReportIssue": "Could not report issue",
+    "shipmentStatusUpdated": "Shipment status updated",
+    "couldNotUpdateShipment": "Could not update shipment status",
+    "nav": {
+      "dashboard": "Dashboard",
+      "route": "Route",
+      "shipments": "Shipments",
+      "vehicle": "Vehicle",
+      "documents": "Documents"
+    },
+    "duty": {
+      "ON_JOB": "On Job",
+      "OFF_DUTY": "Off Duty",
+      "ON_LEAVE": "On Leave"
+    },
+    "dashboard": {
+      "dutyStatus": "Duty Status",
+      "confirmDutyChangeTitle": "Active route in progress",
+      "confirmDutyChangeBody": "You have an active route today. Are you sure you want to switch to \"{status}\"?",
+      "confirmYes": "Yes, switch",
+      "confirmCancel": "Cancel",
+      "todaysActiveRoute": "Today's Active Route",
+      "stopsRemaining": "stops remaining",
+      "departure": "Departure",
+      "viewRoute": "View Route →",
+      "safetyScore": "Safety Score",
+      "safetyScoreSub": "30-day average",
+      "efficiencyScore": "Efficiency",
+      "efficiencyScoreSub": "On-time delivery rate",
+      "rating": "Rating",
+      "ratingSub": "Customer feedback",
+      "nextStop": "Next Stop",
+      "eta": "ETA",
+      "arrived": "Arrived / Complete",
+      "noRouteToday": "No route assigned today",
+      "noRouteTodaySub": "A new route will appear here once assigned. You can update your status in the meantime.",
+      "goOffDuty": "Go Off Duty",
+      "licenseExpiringSoon": "License expires in {days} days"
+    },
+    "route": {
+      "optimizeRoute": "Optimize Route",
+      "comingSoon": "Coming soon",
+      "shapeUnavailable": "Route calculation failed — showing stop locations only. Deviation checks are disabled for this route.",
+      "deviationWarning": "Route deviation detected — tolerance of {buffer} m exceeded.",
+      "stop": "Stop",
+      "arrivedBtn": "Arrived",
+      "done": "DONE"
+    },
+    "shipmentsView": {
+      "all": "All",
+      "PENDING": "Pending",
+      "IN_TRANSIT": "In Transit",
+      "DELIVERED": "Delivered",
+      "DELAYED": "Delayed",
+      "slaRisk": "SLA RISK",
+      "stopsComplete": "stops complete"
+    },
+    "vehicleView": {
+      "assignedVehicle": "Assigned Vehicle",
+      "fuel": "Fuel",
+      "odometer": "Odometer",
+      "addFuelLog": "Add Fuel Log",
+      "volumeLiter": "Liters",
+      "cost": "Cost",
+      "odometerKm": "Odometer (km)",
+      "submitFuelLog": "Add Log",
+      "reportIssue": "Report an Issue",
+      "issueTitle": "Short title",
+      "priorityLow": "Low",
+      "priorityMedium": "Medium",
+      "priorityHigh": "High",
+      "submitIssue": "Report Issue"
+    },
+    "documentsView": {
+      "profile": "Profile",
+      "hazmatCertified": "Hazmat Certified",
+      "languages": "Languages",
+      "expiresOn": "Expires",
+      "ACTIVE": "ACTIVE",
+      "MISSING": "MISSING",
+      "EXPIRING_SOON": "EXPIRING SOON",
+      "EXPIRED": "EXPIRED"
+    }
+  },
   "onboarding": {
     "welcomeTitle": "Welcome to {name}",
     "welcomeSubtitle": "You have successfully registered your account. To proceed to the dashboard, you need to be associated with a company",
@@ -3618,7 +3742,16 @@
     "createButton": "Create Company",
     "joinTitle": "Join an Existing Company",
     "joinDescription": "If your company already uses LogiTrack, you can request to join using an invite code or your company email.",
-    "joinButton": "Join Company"
+    "joinButton": "Join Company",
+    "joinDialogTitle": "Join a Company",
+    "joinDialogSubtitle": "We matched your email domain against registered companies.",
+    "joinNoMatchTitle": "No company found",
+    "joinNoMatchDescription": "No company is registered with your email domain yet. Ask your admin to add it, or create a new company instead.",
+    "joinMatchesFound": "Select the company you'd like to join",
+    "joinSubmit": "Request to Join",
+    "joinPendingTitle": "Your request to join {company} is pending approval",
+    "joinPendingDescription": "An admin at {company} needs to approve your request before you can access the dashboard.",
+    "cancelRequest": "Cancel Request"
   },
   "pendingAccess": {
     "title": "Setting up your access",

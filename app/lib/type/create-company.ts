@@ -6,6 +6,7 @@ export interface CompanyFormData {
   name: string;
   logo: string | null;
   industry: string;
+  domain: string;
 
   // Step 2: Regional
   timezone: string;

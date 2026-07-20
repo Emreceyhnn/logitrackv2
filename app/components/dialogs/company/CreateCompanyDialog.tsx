@@ -54,6 +54,7 @@ export default function CreateCompanyDialog({
       name: "",
       logo: null,
       industry: "",
+      domain: "",
       timezone,
       currency,
       language: locale === "tr" ? "tr" : "en",
@@ -93,11 +94,16 @@ export default function CreateCompanyDialog({
           logoUrl = uploadResult.url;
         }
 
-        await createCompany(values.name, logoUrl || "", {
-          timezone: values.timezone,
-          currency: values.currency,
-          language: values.language,
-        });
+        await createCompany(
+          values.name,
+          logoUrl || "",
+          {
+            timezone: values.timezone,
+            currency: values.currency,
+            language: values.language,
+          },
+          values.domain || undefined
+        );
         onSuccess?.();
       })(),
       {

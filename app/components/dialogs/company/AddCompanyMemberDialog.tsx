@@ -10,6 +10,7 @@ import { AddMemberDialogProps, DriverStateData } from "@/app/lib/type/add-compan
 import { toast } from "sonner";
 import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { addCompanyUser } from "@/app/lib/controllers/company";
+import { createDriverInvitation } from "@/app/lib/controllers/invitations";
 import { addCompanyMemberDriverValidationSchema } from "@/app/lib/validationSchema";
 import { ValidationError } from "yup";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -55,10 +56,12 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
     { id: "role_driver", label: dict.company.roles.Driver || "Driver" },
   ], [dict]);
 
+  const [mode, setMode] = useState<"search" | "invite">("search");
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<SearchedUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState("role_default");
+  const [inviteEmail, setInviteEmail] = useState("");
   const [driverData, setDriverData] = useState<DriverStateData>(initialDriverData);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -66,11 +69,45 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
   const handleDriverDataChange = (field: keyof DriverStateData, value: string) => setDriverData((prev) => ({ ...prev, [field]: value }));
 
   const resetDialog = () => {
+    setMode("search");
     setSearchQuery(""); setResults([]); setSelectedUserId(null); setSelectedRole("role_default");
-    setDriverData(initialDriverData); setError(null); setValidationErrors({});
+    setInviteEmail(""); setDriverData(initialDriverData); setError(null); setValidationErrors({});
   };
 
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
   const handleSubmit = async () => {
+    if (mode === "invite") {
+      setError(null); setValidationErrors({});
+      try {
+        const schema = addCompanyMemberDriverValidationSchema(dict);
+        await schema.validate(driverData, { abortEarly: false });
+        if (!isValidEmail(inviteEmail)) {
+          setValidationErrors({ email: dict.validation.genericFormError });
+          return;
+        }
+        onClose();
+        resetDialog();
+        await toast.promise(
+          createDriverInvitation(inviteEmail, driverData),
+          { loading: dict.toasts?.loading || "Sending invitation...", success: dict.toasts.successInvite, error: (err: unknown) => err instanceof Error ? err.message : dict.toasts.errorGeneric }
+        );
+        onSuccess?.();
+      } catch (err: unknown) {
+        if (err instanceof ValidationError) {
+          const errors: Record<string, string> = {};
+          err.inner.forEach((e) => { if (e.path) errors[e.path] = e.message; });
+          setValidationErrors(errors);
+          toast.error(dict.validation.genericFormError);
+        } else {
+          setError(dict.toasts.errorGeneric);
+          const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
+          toast.error(message);
+        }
+      }
+      return;
+    }
+
     if (!selectedUserId) return;
     setError(null); setValidationErrors({});
 
@@ -128,28 +165,59 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
 
       <DialogContent sx={{ p: 3, pt: 1 }}>
         <Stack spacing={3}>
-          <TextField
-            fullWidth placeholder={dict.company.dialogs.searchPlaceholder} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon sx={{ color: "text.secondary", fontSize: 20 }} /></InputAdornment>), sx: { bgcolor: paletteTheme.background?.paper_alpha?.main_40, borderRadius: 2 } }}
-          />
+          <Stack direction="row" spacing={1} sx={{ p: 0.5, borderRadius: 2.5, bgcolor: paletteTheme.background?.paper_alpha?.main_40 }}>
+            <Button
+              fullWidth onClick={() => setMode("search")}
+              variant={mode === "search" ? "contained" : "text"}
+              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, fontSize: 12.5, boxShadow: "none" }}
+            >
+              {dict.company.dialogs.existingUser}
+            </Button>
+            <Button
+              fullWidth onClick={() => setMode("invite")}
+              variant={mode === "invite" ? "contained" : "text"}
+              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, fontSize: 12.5, boxShadow: "none" }}
+            >
+              {dict.company.dialogs.inviteByEmail}
+            </Button>
+          </Stack>
 
-          <UserSearchResults results={results} selectedUserId={selectedUserId} setSelectedUserId={setSelectedUserId} error={error} dict={dict} />
+          {mode === "search" ? (
+            <>
+              <TextField
+                fullWidth placeholder={dict.company.dialogs.searchPlaceholder} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon sx={{ color: "text.secondary", fontSize: 20 }} /></InputAdornment>), sx: { bgcolor: paletteTheme.background?.paper_alpha?.main_40, borderRadius: 2 } }}
+              />
 
-          <Box sx={{ p: 2, borderRadius: 3, bgcolor: paletteTheme.primary?._alpha?.main_02, border: `1px solid ${paletteTheme.divider_alpha?.main_05}` }}>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block" }}>{dict.company.dialogs.assignRole}</Typography>
-            <FormControl fullWidth>
-              <Select
-                value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} IconComponent={KeyboardArrowDownIcon}
-                sx={{ bgcolor: paletteTheme.background?.paper_alpha?.main_40, borderRadius: 2, "& .MuiSelect-select": { py: 1.5, px: 2, fontSize: 13, fontWeight: 600 } }}
-              >
-                {roles.map((role) => <MenuItem key={role.id} value={role.id} sx={{ fontSize: 13 }}>{role.label}</MenuItem>)}
-              </Select>
-            </FormControl>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", opacity: 0.7 }}>{dict.company.dialogs.invitationNote}</Typography>
-          </Box>
+              <UserSearchResults results={results} selectedUserId={selectedUserId} setSelectedUserId={setSelectedUserId} error={error} dict={dict} />
 
-          {selectedRole === "role_driver" && (
-            <DriverDetailsForm driverData={driverData} handleDriverDataChange={handleDriverDataChange} validationErrors={validationErrors} dict={dict} />
+              <Box sx={{ p: 2, borderRadius: 3, bgcolor: paletteTheme.primary?._alpha?.main_02, border: `1px solid ${paletteTheme.divider_alpha?.main_05}` }}>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block" }}>{dict.company.dialogs.assignRole}</Typography>
+                <FormControl fullWidth>
+                  <Select
+                    value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} IconComponent={KeyboardArrowDownIcon}
+                    sx={{ bgcolor: paletteTheme.background?.paper_alpha?.main_40, borderRadius: 2, "& .MuiSelect-select": { py: 1.5, px: 2, fontSize: 13, fontWeight: 600 } }}
+                  >
+                    {roles.map((role) => <MenuItem key={role.id} value={role.id} sx={{ fontSize: 13 }}>{role.label}</MenuItem>)}
+                  </Select>
+                </FormControl>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", opacity: 0.7 }}>{dict.company.dialogs.invitationNote}</Typography>
+              </Box>
+
+              {selectedRole === "role_driver" && (
+                <DriverDetailsForm driverData={driverData} handleDriverDataChange={handleDriverDataChange} validationErrors={validationErrors} dict={dict} />
+              )}
+            </>
+          ) : (
+            <>
+              <TextField
+                fullWidth type="email" label={dict.auth.email} placeholder={dict.company.dialogs.inviteEmailPlaceholder}
+                value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)}
+                error={!!validationErrors.email} helperText={validationErrors.email}
+                sx={{ "& .MuiOutlinedInput-root": { bgcolor: paletteTheme.background?.paper_alpha?.main_40, borderRadius: 2 } }}
+              />
+              <DriverDetailsForm driverData={driverData} handleDriverDataChange={handleDriverDataChange} validationErrors={validationErrors} dict={dict} />
+            </>
           )}
         </Stack>
       </DialogContent>
@@ -157,10 +225,15 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
       <DialogActions sx={{ p: 3, pt: 1, justifyContent: "flex-end", gap: 2 }}>
         <Button onClick={onClose} sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}>{dict.common.cancel}</Button>
         <Button
-          variant="contained" onClick={handleSubmit} disabled={!selectedUserId || (selectedRole === "role_driver" && (!driverData.employeeId || !driverData.phone))}
+          variant="contained" onClick={handleSubmit}
+          disabled={
+            mode === "invite"
+              ? !inviteEmail || !driverData.employeeId || !driverData.phone
+              : !selectedUserId || (selectedRole === "role_driver" && (!driverData.employeeId || !driverData.phone))
+          }
           startIcon={<GroupAddIcon />} sx={{ borderRadius: 2.5, textTransform: "none", px: 4, transition: "all 0.3s ease", boxShadow: `0 8px 16px ${paletteTheme.primary?._alpha?.main_20}` }}
         >
-          {dict.company.dialogs.addToCompany}
+          {mode === "invite" ? dict.company.dialogs.sendInvite : dict.company.dialogs.addToCompany}
         </Button>
       </DialogActions>
     </Dialog>
