@@ -65,12 +65,10 @@ export const addCompanyUser = authenticatedAction(
         updatedUser = await db.$transaction(async (tx) => {
           // Check if employeeId is already taken
           if (driverData.employeeId) {
-            const existingEmployee = await tx.driver.findUnique({
+            const existingEmployee = await tx.driver.findFirst({
               where: {
-                companyId_employeeId: {
-                  companyId,
-                  employeeId: driverData.employeeId,
-                },
+                companyId,
+                employeeId: driverData.employeeId,
               },
             });
             if (existingEmployee) {
@@ -79,8 +77,8 @@ export const addCompanyUser = authenticatedAction(
           }
 
           // Check if user already has a driver record
-          const existingDriver = await tx.driver.findUnique({
-            where: { userId: targetUserId },
+          const existingDriver = await tx.driver.findFirst({
+            where: { userId: targetUserId, companyId },
           });
           if (existingDriver) {
             throw new Error("This user is already registered as a driver");

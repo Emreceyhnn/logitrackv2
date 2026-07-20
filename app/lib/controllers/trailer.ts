@@ -179,8 +179,8 @@ export const getTrailerById = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundTrailer = await db.trailer.findUnique({
-        where: { id: trailerId },
+      const foundTrailer = await db.trailer.findFirst({
+        where: { id: trailerId, companyId },
         include: {
           currentVehicle: true,
           assignments: {
@@ -197,7 +197,7 @@ export const getTrailerById = authenticatedAction(
         },
       });
 
-      if (!foundTrailer || foundTrailer.companyId !== companyId) {
+      if (!foundTrailer) {
         throw new NotFoundError("Trailer");
       }
 
@@ -216,12 +216,12 @@ export const updateTrailer = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundTrailer = await db.trailer.findUnique({
-        where: { id: trailerId },
+      const foundTrailer = await db.trailer.findFirst({
+        where: { id: trailerId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundTrailer || foundTrailer.companyId !== companyId) {
+      if (!foundTrailer) {
         throw new NotFoundError("Trailer");
       }
 
@@ -242,12 +242,12 @@ export const deleteTrailer = authenticatedAction(
     return controllerGuard("deleteTrailer", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const foundTrailer = await db.trailer.findUnique({
-        where: { id: trailerId },
+      const foundTrailer = await db.trailer.findFirst({
+        where: { id: trailerId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundTrailer || foundTrailer.companyId !== companyId) {
+      if (!foundTrailer) {
         throw new NotFoundError("Trailer");
       }
 
@@ -277,12 +277,12 @@ export const assignTrailerToVehicle = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundTrailer = await db.trailer.findUnique({
-        where: { id: trailerId },
+      const foundTrailer = await db.trailer.findFirst({
+        where: { id: trailerId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundTrailer || foundTrailer.companyId !== companyId) {
+      if (!foundTrailer) {
         throw new NotFoundError("Trailer");
       }
 
@@ -295,8 +295,8 @@ export const assignTrailerToVehicle = authenticatedAction(
 
         if (vehicleId) {
           // Check if vehicle exists
-          const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
-          if (!vehicle || vehicle.companyId !== companyId || vehicle.deletedAt) {
+          const vehicle = await tx.vehicle.findFirst({ where: { id: vehicleId, companyId } });
+          if (!vehicle || vehicle.deletedAt) {
             throw new NotFoundError("Vehicle");
           }
 

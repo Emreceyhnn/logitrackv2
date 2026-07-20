@@ -33,12 +33,12 @@ export const createVehicleIssue = authenticatedAction(
         "role_driver",
       ]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true, plate: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 
@@ -141,12 +141,12 @@ export const updateIssue = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundIssue = await db.issue.findUnique({
-        where: { id: issueId },
+      const foundIssue = await db.issue.findFirst({
+        where: { id: issueId, companyId },
         select: { companyId: true, vehicleId: true },
       });
 
-      if (!foundIssue || foundIssue.companyId !== companyId) {
+      if (!foundIssue) {
         throw new Error("Issue not found or unauthorized");
       }
 

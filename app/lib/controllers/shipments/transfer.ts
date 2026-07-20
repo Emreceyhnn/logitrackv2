@@ -99,11 +99,11 @@ export const getVehicleLinkedShipments = authenticatedAction(
       ]);
       if (!companyId) throw new Error("User has no company");
 
-      const vehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const vehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true, currentTrailer: { select: { id: true } } },
       });
-      if (!vehicle || vehicle.companyId !== companyId) {
+      if (!vehicle) {
         throw new NotFoundError("Vehicle");
       }
 
@@ -254,11 +254,11 @@ export const bulkReassignTrailer = authenticatedAction(
       if (!shipmentIds.length) throw new Error("No shipments selected");
 
       // Target trailer must exist, be ours, and be operational.
-      const target = await db.trailer.findUnique({
-        where: { id: targetTrailerId },
+      const target = await db.trailer.findFirst({
+        where: { id: targetTrailerId, companyId },
         include: { currentVehicle: { select: { status: true } } },
       });
-      if (!target || target.companyId !== companyId) {
+      if (!target) {
         throw new NotFoundError("Trailer");
       }
       if (target.status !== "AVAILABLE") {

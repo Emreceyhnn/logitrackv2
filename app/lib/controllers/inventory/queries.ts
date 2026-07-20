@@ -52,12 +52,12 @@ export const getInventoryItemById = authenticatedAction(
       const cacheKey = inventoryCacheKeys.detail(inventoryId);
 
       return await withCache(cacheKey, INVENTORY_CACHE_TTL, async () => {
-        const item = await db.inventory.findUnique({
-          where: { id: inventoryId },
+        const item = await db.inventory.findFirst({
+          where: { id: inventoryId, companyId },
           include: { warehouse: true },
         });
 
-        if (!item || item.companyId !== companyId) {
+        if (!item) {
           throw new NotFoundError("Inventory item");
         }
 

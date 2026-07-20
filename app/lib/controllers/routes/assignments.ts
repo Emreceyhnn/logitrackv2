@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { type Prisma, RouteStatus } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
@@ -24,7 +24,7 @@ export const assignDriverToRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingRoute = await db.route.findUnique({
+      const existingRoute = await db.route.findFirst({
         where: { id: routeId, companyId },
       });
 
@@ -66,7 +66,7 @@ export const assignVehicleToRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingRoute = await db.route.findUnique({
+      const existingRoute = await db.route.findFirst({
         where: { id: routeId, companyId },
       });
 
@@ -121,7 +121,7 @@ export const assignVehicleToRoute = authenticatedAction(
           totalVolume > vehicle.currentTrailer.capacityVolumeM3 + 0.01
         ) {
           throw new Error(
-            `Trailer volume exceeded: route volume ${totalVolume.toFixed(2)}m³ > max ${vehicle.currentTrailer.capacityVolumeM3}m³`
+            `Trailer volume exceeded: route volume ${totalVolume.toFixed(2)}mÂ³ > max ${vehicle.currentTrailer.capacityVolumeM3}mÂ³`
           );
         }
       }
@@ -149,7 +149,7 @@ export const unassignDriverFromRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingRoute = await db.route.findUnique({
+      const existingRoute = await db.route.findFirst({
         where: { id: routeId, companyId },
       });
 
@@ -180,7 +180,7 @@ export const unassignVehicleFromRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingRoute = await db.route.findUnique({
+      const existingRoute = await db.route.findFirst({
         where: { id: routeId, companyId },
       });
 
@@ -212,7 +212,7 @@ export const updateRouteStatus = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const route = await db.route.findUnique({
+      const route = await db.route.findFirst({
         where: { id: routeId, companyId },
         include: { shipments: true, stops: { orderBy: { sequence: "asc" } } },
       });
@@ -291,8 +291,8 @@ export const updateRouteStatus = authenticatedAction(
             await createNotification(
               { companyId: companyId! },
               {
-                title: "Rota Başlatıldı 🚚",
-                message: `${route.name || route.id} numaralı rota şu an aktif durumda. Araç yola çıktı.`,
+                title: "Rota BaÅŸlatÄ±ldÄ± ğŸšš",
+                message: `${route.name || route.id} numaralÄ± rota ÅŸu an aktif durumda. AraÃ§ yola Ã§Ä±ktÄ±.`,
                 type: "SUCCESS",
                 link: `/dashboard/routes/${route.id}`,
               }
@@ -338,11 +338,11 @@ export const updateRouteStatus = authenticatedAction(
             await createNotification(
               { companyId: companyId! },
               {
-                title: "Rota Tamamlandı ✅",
+                title: "Rota TamamlandÄ± âœ…",
                 message:
                   failedCount > 0
-                    ? `${route.name || route.id} numaralı rota tamamlandı. ${activeShipmentIds.length} sevkiyat teslim edildi, ${failedCount} sevkiyat teslim edilemedi.`
-                    : `${route.name || route.id} numaralı rota başarıyla tamamlandı. Tüm sevkiyatlar teslim edildi.`,
+                    ? `${route.name || route.id} numaralÄ± rota tamamlandÄ±. ${activeShipmentIds.length} sevkiyat teslim edildi, ${failedCount} sevkiyat teslim edilemedi.`
+                    : `${route.name || route.id} numaralÄ± rota baÅŸarÄ±yla tamamlandÄ±. TÃ¼m sevkiyatlar teslim edildi.`,
                 type: failedCount > 0 ? "WARNING" : "SUCCESS",
                 link: `/dashboard/routes/${route.id}`,
               }
@@ -383,8 +383,8 @@ export const updateRouteStatus = authenticatedAction(
             await createNotification(
               { companyId: companyId! },
               {
-                title: "Rota İptal Edildi ⚠️",
-                message: `${route.name || route.id} numaralı rota iptal edildi. Araç müsait durumuna çekildi.`,
+                title: "Rota Ä°ptal Edildi âš ï¸",
+                message: `${route.name || route.id} numaralÄ± rota iptal edildi. AraÃ§ mÃ¼sait durumuna Ã§ekildi.`,
                 type: "WARNING",
                 link: `/dashboard/routes/${route.id}`,
               }

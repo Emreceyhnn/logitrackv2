@@ -8,7 +8,7 @@ import { rejects } from "node:assert";
 // Prisma DB Mock
 const dbMock = {
   inventory: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     create: mock.fn(),
     findMany: mock.fn(),
     update: mock.fn(),
@@ -16,7 +16,7 @@ const dbMock = {
     count: mock.fn(),
   },
   warehouse: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   inventoryMovement: {
     create: mock.fn(),
@@ -106,13 +106,13 @@ describe("Inventory Controller", () => {
 
   beforeEach(() => {
     // Her testten önce mockları sıfırla
-    dbMock.inventory.findUnique.mock.resetCalls();
+    dbMock.inventory.findFirst.mock.resetCalls();
     dbMock.inventory.create.mock.resetCalls();
     dbMock.inventory.findMany.mock.resetCalls();
     dbMock.inventory.update.mock.resetCalls();
     dbMock.inventory.delete.mock.resetCalls();
     dbMock.inventory.count.mock.resetCalls();
-    dbMock.warehouse.findUnique.mock.resetCalls();
+    dbMock.warehouse.findFirst.mock.resetCalls();
     dbMock.inventoryMovement.create.mock.resetCalls();
     dbMock.inventoryMovement.findMany.mock.resetCalls();
     dbMock.$transaction.mock.resetCalls();
@@ -127,11 +127,11 @@ describe("Inventory Controller", () => {
 
     it("should_CreateInventoryAndMovement_WhenValidDataProvided", async () => {
       // Arrange
-      dbMock.warehouse.findUnique.mock.mockImplementation(async () => ({
+      dbMock.warehouse.findFirst.mock.mockImplementation(async () => ({
         id: "w-1",
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementation(async () => null); // SKU doesn't exist
+      dbMock.inventory.findFirst.mock.mockImplementation(async () => null); // SKU doesn't exist
       
       const expectedItem = { id: "inv-1", sku: "TEST-SKU", name: "Laptop", quantity: 50 };
       dbMock.inventory.create.mock.mockImplementation(async () => expectedItem);
@@ -160,10 +160,10 @@ describe("Inventory Controller", () => {
 
     it("should_ThrowError_WhenSkuAlreadyExists", async () => {
       // Arrange
-      dbMock.warehouse.findUnique.mock.mockImplementation(async () => ({
+      dbMock.warehouse.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementation(async () => ({
         id: "existing-inv",
         sku: "TEST-SKU",
       })); // SKU already exists
@@ -188,7 +188,7 @@ describe("Inventory Controller", () => {
 
     it("should_AdjustStockAndLogMovement_WhenValidRequest", async () => {
       // Arrange
-      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementation(async () => ({
         sku: "SKU-1",
         warehouseId: "w-1",
         companyId: "company-1",
@@ -220,7 +220,7 @@ describe("Inventory Controller", () => {
 
     it("should_RecordNegativeDelta_WhenStockIsReduced", async () => {
       // Arrange
-      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementation(async () => ({
         sku: "SKU-1",
         warehouseId: "w-1",
         companyId: "company-1",
@@ -251,7 +251,7 @@ describe("Inventory Controller", () => {
 
     it("should_ThrowAndSkipMovement_WhenAdjustmentWouldGoNegative", async () => {
       // Arrange — 100 in stock, removing 150 would leave -50
-      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementation(async () => ({
         sku: "SKU-1",
         warehouseId: "w-1",
         companyId: "company-1",
@@ -278,7 +278,7 @@ describe("Inventory Controller", () => {
 
     it("should_ThrowWithoutUpdate_WhenItemBelongsToAnotherCompany", async () => {
       // Arrange
-      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementation(async () => ({
         sku: "SKU-1",
         warehouseId: "w-1",
         companyId: "company-2", // different tenant

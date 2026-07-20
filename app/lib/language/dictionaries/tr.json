@@ -377,7 +377,12 @@
     "company": "Şirket",
     "analytics": "Analitik",
     "reports": "Raporlar",
-    "warehousePanel": "Depo Paneli"
+    "warehousePanel": "Depo Paneli",
+    "demoSoon": "Yakında"
+  },
+  "liveDemo": {
+    "bannerText": "Örnek verilerle canlı bir demo hesabı görüntülüyorsunuz.",
+    "bannerCta": "Ücretsiz Kaydol"
   },
   "roles-header": {
     "Company Admin": "Şirket Admini",
@@ -546,6 +551,7 @@
       "startTrial": "Denemeyi Başlat",
       "demo": "Demo İste",
       "signIn": "Giriş Yap",
+      "liveDemo": "Canlı Demoyu Dene",
       "persona": "Filo operatörleri, nakliye şirketleri ve depo ekipleri için.",
       "benefits": {
         "fleet": "Filonuzu canlı takip edin",
@@ -974,6 +980,64 @@
         "RETURNED": "İade edildi",
         "DELAYED": "Gecikti",
         "CANCELLED": "İptal edildi"
+      }
+    },
+    "sandboxPage": {
+      "meta": {
+        "title": "Canlı Demo Sandbox — LogiTrack",
+        "description": "Simüle edilmiş canlı filo verileriyle çalışan, tamamen interaktif LogiTrack panelini kayıt olmadan keşfedin."
+      },
+      "banner": {
+        "text": "Şu anda simüle edilmiş canlı veri akışına sahip bir Demo Hesabı incelemektesiniz. Kendi araç takip cihazlarınızı bağlamak sadece 2 dakika sürer!",
+        "cta": "Mevcut GPS/API'yi Bağla"
+      },
+      "map": {
+        "title": "Canlı Filo Haritası",
+        "subtitle": "5 simüle edilmiş araç · gerçek zamanlı güncelleniyor",
+        "unavailable": "Harita yüklenemedi."
+      },
+      "vehicleStatus": {
+        "EN_ROUTE": "Yolda",
+        "CUSTOMS_DELAY": "Gümrükte Gecikmeli",
+        "TEMP_ALERT": "Sıcaklık Alarmı"
+      },
+      "copilot": {
+        "title": "AI Rota Co-Pilot",
+        "subtitle": "Canlı aksaklıklara karşı otonom yeniden rotalama",
+        "detecting": "Kapıkule Sınır Kapısı'nda gecikme algılanıyor…",
+        "detected": "Yoğunluk tespit edildi — ortalama 4s 10dk bekleme",
+        "rerouting": "Alternatif Orta Koridor rotası hesaplanıyor…",
+        "rerouted": "Orta Koridor üzerinden yeniden yönlendirildi",
+        "beforeLabel": "Önce",
+        "afterLabel": "Sonra",
+        "originalRoute": "Kapıkule üzerinden orijinal rota",
+        "optimizedRoute": "Orta Koridor üzerinden optimize edildi",
+        "timeSaved": "Kazanılan Zaman",
+        "fuelSaved": "Yakıt Tasarrufu",
+        "timeSavedValue": "4 saat",
+        "fuelSavedValue": "%15",
+        "replay": "Simülasyonu tekrar oynat"
+      },
+      "coldChain": {
+        "title": "Soğuk Zincir IoT İzleme Kontrolü",
+        "subtitle": "Canlı sıcaklık ve nem verisi",
+        "temperature": "Sıcaklık",
+        "humidity": "Nem",
+        "criticalAlarm": "KRİTİK ALARM — Sıcaklık +4°C eşiğini aştı",
+        "nominal": "Güvenli aralıkta",
+        "currentTemp": "Anlık",
+        "currentHumidity": "Nem"
+      },
+      "carbon": {
+        "title": "SKDM Karbon Emisyonu Raporlayıcı",
+        "subtitle": "AB 2026 Yeşil Mutabakat gümrük uyumu",
+        "currentEmission": "Anlık CO₂ Emisyonu",
+        "perKm": "kg CO₂ / km",
+        "totalFleet": "Bugünkü toplam filo emisyonu",
+        "compliant": "AB SKDM Uyumlu",
+        "downloadButton": "AB Uyumlu Gümrük Raporu İndir (PDF)",
+        "generating": "Rapor oluşturuluyor…",
+        "generated": "Rapor hazır — indirme başladı"
       }
     },
     "routeIntelligencePage": {
@@ -2977,7 +3041,8 @@
     "errorDocumentDelete": "Döküman silinirken bir hata oluştu.",
     "errorNoConnection": "Döküman bağlantısı bulunamadı.",
     "errorNoPermission": "Dosya erişim yetkisi alınamadı.",
-    "errorUpload": "Dosya yüklenirken bir hata oluştu."
+    "errorUpload": "Dosya yüklenirken bir hata oluştu.",
+    "demoActionDisabled": "Bu işlem canlı demoda devre dışıdır."
   },
   "notifications": {
     "title": "Bildirimler",
@@ -3449,6 +3514,9 @@
       "pickZone": "Toplama bölgesi",
       "myTaskQueue": "Görev sıram",
       "openTasksCount": "açık",
+      "taskQueueEmpty": "Şu anda sırandaki görev yok.",
+      "noMovements": "Henüz hareket yok",
+      "noMovementsDesc": "Canlı stok hareketleri burada listelenecektir.",
       "highPriority": "yüksek öncelikli",
       "nextTask": "Sıradaki iş",
       "nextTaskStart": "Başla",

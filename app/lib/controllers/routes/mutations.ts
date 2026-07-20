@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { type Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
@@ -170,8 +170,8 @@ export const createRoute = authenticatedAction(
       await createNotification(
         { companyId },
         {
-          title: "Yeni Rota Planlandı 📝",
-          message: `${finalName} numaralı yeni bir rota planlandı. Sürücü: ${driverId ? 'Atandı' : 'Bekleniyor'}.`,
+          title: "Yeni Rota PlanlandÄ± ğŸ“",
+          message: `${finalName} numaralÄ± yeni bir rota planlandÄ±. SÃ¼rÃ¼cÃ¼: ${driverId ? 'AtandÄ±' : 'Bekleniyor'}.`,
           type: "INFO",
           category: "NEW_ASSIGNMENT",
           link: `/dashboard/routes/${newRoute.id}`,
@@ -193,7 +193,7 @@ export const updateRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingRoute = await db.route.findUnique({
+      const existingRoute = await db.route.findFirst({
         where: { id: routeId, companyId },
       });
 
@@ -213,7 +213,7 @@ export const updateRoute = authenticatedAction(
 
       const { stops, ...scalarData } = data;
       const updateData: Prisma.RouteUncheckedUpdateInput = stripUndefined(scalarData);
-      // companyId must never come from client input — RouteUpdateData doesn't
+      // companyId must never come from client input â€” RouteUpdateData doesn't
       // declare it, but a caller bypassing the TS type at runtime could still
       // smuggle it in; strip defensively so a route can't be reassigned
       // to a company the caller doesn't belong to.
@@ -255,7 +255,7 @@ export const deleteRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingRoute = await db.route.findUnique({
+      const existingRoute = await db.route.findFirst({
         where: { id: routeId, companyId },
       });
 

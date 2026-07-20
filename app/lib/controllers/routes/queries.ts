@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { type Prisma, RouteStatus } from "@prisma/client";
 import { db } from "../../db";
@@ -100,7 +100,7 @@ export const getRouteById = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const route = await db.route.findUnique({
+      const route = await db.route.findFirst({
         where: { id: routeId, companyId },
         include: {
           driver: {

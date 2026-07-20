@@ -377,7 +377,12 @@
     "company": "Company",
     "analytics": "Analytics",
     "reports": "Reports",
-    "warehousePanel": "Warehouse Panel"
+    "warehousePanel": "Warehouse Panel",
+    "demoSoon": "Soon"
+  },
+  "liveDemo": {
+    "bannerText": "You're viewing a live demo account with sample data.",
+    "bannerCta": "Sign Up Free"
   },
   "roles-header": {
     "Company Admin": "Company Admin",
@@ -546,6 +551,7 @@
       "startTrial": "Start Trial",
       "demo": "Request a Demo",
       "signIn": "Sign In",
+      "liveDemo": "Try Live Demo",
       "persona": "For fleet operators, carriers, and warehouse teams.",
       "benefits": {
         "fleet": "Track your fleet in real time",
@@ -974,6 +980,64 @@
         "RETURNED": "Returned",
         "DELAYED": "Delayed",
         "CANCELLED": "Cancelled"
+      }
+    },
+    "sandboxPage": {
+      "meta": {
+        "title": "Live Demo Sandbox — LogiTrack",
+        "description": "Explore a fully interactive LogiTrack dashboard with simulated live fleet data — no signup required."
+      },
+      "banner": {
+        "text": "You're viewing a Demo Account with simulated live data streaming. Connecting your own vehicle tracking devices takes just 2 minutes!",
+        "cta": "Connect Your GPS/API"
+      },
+      "map": {
+        "title": "Live Fleet Map",
+        "subtitle": "5 simulated vehicles · updating in real time",
+        "unavailable": "Map could not be loaded."
+      },
+      "vehicleStatus": {
+        "EN_ROUTE": "En Route",
+        "CUSTOMS_DELAY": "Customs Delayed",
+        "TEMP_ALERT": "Temperature Alarm"
+      },
+      "copilot": {
+        "title": "AI Route Co-Pilot",
+        "subtitle": "Autonomous rerouting around live disruptions",
+        "detecting": "Detecting delay at Kapıkule Border Crossing…",
+        "detected": "Congestion detected — 4h 10m average wait",
+        "rerouting": "Calculating alternative Middle Corridor route…",
+        "rerouted": "Rerouted via Middle Corridor",
+        "beforeLabel": "Before",
+        "afterLabel": "After",
+        "originalRoute": "Original route via Kapıkule",
+        "optimizedRoute": "Optimized via Middle Corridor",
+        "timeSaved": "Time Saved",
+        "fuelSaved": "Fuel Saved",
+        "timeSavedValue": "4 hours",
+        "fuelSavedValue": "15%",
+        "replay": "Replay simulation"
+      },
+      "coldChain": {
+        "title": "Cold Chain IoT Monitoring",
+        "subtitle": "Live temperature & humidity feed",
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "criticalAlarm": "CRITICAL ALARM — Temperature exceeds +4°C threshold",
+        "nominal": "Within safe range",
+        "currentTemp": "Current",
+        "currentHumidity": "Humidity"
+      },
+      "carbon": {
+        "title": "CBAM Carbon Emissions Reporter",
+        "subtitle": "EU 2026 Green Deal customs compliance",
+        "currentEmission": "Live CO₂ Emission",
+        "perKm": "kg CO₂ / km",
+        "totalFleet": "Total fleet emissions today",
+        "compliant": "EU CBAM Compliant",
+        "downloadButton": "Download EU-Compliant Customs Report (PDF)",
+        "generating": "Generating report…",
+        "generated": "Report ready — download started"
       }
     },
     "routeIntelligencePage": {
@@ -2976,7 +3040,8 @@
     "errorDocumentDelete": "An error occurred while deleting the document.",
     "errorNoConnection": "Document connection not found.",
     "errorNoPermission": "File access permission could not be obtained.",
-    "errorUpload": "An error occurred while uploading the file."
+    "errorUpload": "An error occurred while uploading the file.",
+    "demoActionDisabled": "This action is disabled in the live demo."
   },
   "notifications": {
     "title": "Notifications",
@@ -3448,6 +3513,9 @@
       "pickZone": "Pick zone",
       "myTaskQueue": "My task queue",
       "openTasksCount": "open",
+      "taskQueueEmpty": "No tasks in your queue right now.",
+      "noMovements": "No movements yet",
+      "noMovementsDesc": "Live stock movements will be listed here.",
       "highPriority": "high priority",
       "nextTask": "Do this next",
       "nextTaskStart": "Start",

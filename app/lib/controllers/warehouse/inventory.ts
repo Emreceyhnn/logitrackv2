@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
@@ -31,15 +31,12 @@ export const addInventoryItem = authenticatedAction(
         "role_warehouse",
       ]);
 
-      const existingWarehouse = await db.warehouse.findUnique({
-        where: { id: warehouseId },
+      const existingWarehouse = await db.warehouse.findFirst({
+        where: { id: warehouseId, companyId: user.companyId! },
         select: { companyId: true },
       });
 
-      if (
-        !existingWarehouse ||
-        existingWarehouse.companyId !== user.companyId
-      ) {
+      if (!existingWarehouse) {
         throw new Error("Warehouse not found or unauthorized");
       }
 
@@ -48,12 +45,11 @@ export const addInventoryItem = authenticatedAction(
         sku ||
         `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
-      const existingItem = await db.inventory.findUnique({
+      const existingItem = await db.inventory.findFirst({
         where: {
-          warehouseId_sku: {
-            warehouseId,
-            sku: itemSku,
-          },
+          warehouseId,
+          sku: itemSku,
+          companyId: user.companyId!,
         },
       });
 
@@ -101,7 +97,7 @@ export const addInventoryItem = authenticatedAction(
         await createNotification(
           { companyId: user.companyId!, roleId: "role_manager" },
           {
-            title: "Düşük Stok Uyarısı! ⚠️",
+            title: "DÃ¼ÅŸÃ¼k Stok UyarÄ±sÄ±! âš ï¸",
             message: `${result.name} (SKU: ${result.sku}) kritik stok seviyesinde kaydedildi.`,
             type: "WARNING",
             link: `/dashboard/inventory?warehouseId=${result.warehouseId}`,
@@ -123,8 +119,8 @@ export const updateInventoryItem = authenticatedAction(
         "role_warehouse",
       ]);
 
-      const currentItem = await db.inventory.findUnique({
-        where: { id: inventoryId },
+      const currentItem = await db.inventory.findFirst({
+        where: { id: inventoryId, companyId: user.companyId! },
         select: {
           sku: true,
           warehouseId: true,
@@ -133,7 +129,7 @@ export const updateInventoryItem = authenticatedAction(
         },
       });
 
-      if (!currentItem || currentItem.companyId !== user.companyId) {
+      if (!currentItem) {
         throw new Error("Inventory item not found or unauthorized");
       }
 
@@ -177,8 +173,8 @@ export const updateInventoryItem = authenticatedAction(
         await createNotification(
           { companyId: user.companyId!, roleId: "role_manager" },
           {
-            title: "Kritik Stok Seviyesi! 🚨",
-            message: `${updatedItem.name} (SKU: ${updatedItem.sku}) stok seviyesi ${updatedItem.quantity}'e düştü. (Min: ${updatedItem.minStock})`,
+            title: "Kritik Stok Seviyesi! ğŸš¨",
+            message: `${updatedItem.name} (SKU: ${updatedItem.sku}) stok seviyesi ${updatedItem.quantity}'e dÃ¼ÅŸtÃ¼. (Min: ${updatedItem.minStock})`,
             type: "ERROR",
             link: `/dashboard/inventory?warehouseId=${updatedItem.warehouseId}`,
           }
@@ -199,12 +195,12 @@ export const deleteInventoryItem = authenticatedAction(
         "role_warehouse",
       ]);
 
-      const existingItem = await db.inventory.findUnique({
-        where: { id: inventoryId },
+      const existingItem = await db.inventory.findFirst({
+        where: { id: inventoryId, companyId: user.companyId! },
         select: { companyId: true },
       });
 
-      if (!existingItem || existingItem.companyId !== user.companyId) {
+      if (!existingItem) {
         throw new Error("Inventory item not found or unauthorized");
       }
 
@@ -226,15 +222,12 @@ export const getLowStockItems = authenticatedAction(
         "role_warehouse",
       ]);
 
-      const existingWarehouse = await db.warehouse.findUnique({
-        where: { id: warehouseId },
+      const existingWarehouse = await db.warehouse.findFirst({
+        where: { id: warehouseId, companyId: user.companyId! },
         select: { companyId: true },
       });
 
-      if (
-        !existingWarehouse ||
-        existingWarehouse.companyId !== user.companyId
-      ) {
+      if (!existingWarehouse) {
         throw new Error("Warehouse not found or unauthorized");
       }
 

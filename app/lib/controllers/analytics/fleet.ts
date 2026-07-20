@@ -156,7 +156,7 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
           select: { date: true, cost: true },
         }),
         db.maintenanceRecord.findMany({
-          where: { vehicle: { companyId: user.companyId }, date: { gte: sixMonthsAgo } },
+          where: { companyId: user.companyId, date: { gte: sixMonthsAgo } },
           select: { date: true, cost: true },
         }),
       ]);
@@ -202,12 +202,39 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
     const totalMaintenance = maintenanceCosts.reduce((a, b) => a + b, 0);
     const totalCost = totalFuel + totalMaintenance;
 
+    const thirteenWeeksAgo = new Date();
+    thirteenWeeksAgo.setDate(thirteenWeeksAgo.getDate() - 13 * 7);
+    const shipmentsForForecast = await db.shipment.findMany({
+      where: { companyId: user.companyId, createdAt: { gte: thirteenWeeksAgo } },
+      select: { createdAt: true },
+    });
+
+    const weeksLabels: string[] = [];
+    const actuals: number[] = Array(13).fill(0);
+    const predicted: (number | null)[] = Array(13).fill(null);
+    const now = dayjs();
+    
+    for (let i = 12; i >= 0; i--) {
+      weeksLabels.push(`W${13 - i}`);
+    }
+
+    shipmentsForForecast.forEach(s => {
+      const diffDays = now.diff(dayjs(s.createdAt), "day");
+      const weekIndex = 12 - Math.floor(diffDays / 7);
+      if (weekIndex >= 0 && weekIndex < 13) {
+        actuals[weekIndex] = (actuals[weekIndex] ?? 0) + 1;
+      }
+    });
+
+    // We can do a naive forecast for the next week or two if we want, but since they want NO mock data,
+    // predicted stays null unless we genuinely predict. Let's leave predicted as nulls for now.
+    
     return {
       performance: {
         onTimeRate,
         fleetUtilization,
-        satisfaction: 4.8,
-        satisfactionCount: 128,
+        satisfaction: 0,
+        satisfactionCount: 0,
       },
       costs: {
         months: months,
@@ -217,14 +244,12 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
         distribution: [
           { id: 0, value: totalCost > 0 ? Math.round((totalFuel / totalCost) * 100) : 0, label: "Fuel" },
           { id: 1, value: totalCost > 0 ? Math.round((totalMaintenance / totalCost) * 100) : 0, label: "Maintenance" },
-          { id: 2, value: 0, label: "Driver Salaries" },
-          { id: 3, value: 0, label: "Insurance/Ops" },
         ],
       },
       forecast: {
-        weeks: ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W10","W11","W12","W13"],
-        actuals: [0,0,0,0,0,0,0,0,0,0,0,0,0],
-        predicted: [null,null,null,null,null,null,null,null,10,12,15,18,20],
+        weeks: weeksLabels,
+        actuals: actuals,
+        predicted: predicted,
       },
     };
   }, { fallback: null });

@@ -50,8 +50,8 @@ export const getDriverHistory = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const driver = await db.driver.findUnique({
-        where: { id: driverId },
+      const driver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
         include: {
           user: {
             include: {
@@ -81,7 +81,7 @@ export const getDriverHistory = authenticatedAction(
         },
       });
 
-      if (!driver || driver.companyId !== companyId) {
+      if (!driver) {
         throw new NotFoundError("Driver");
       }
 

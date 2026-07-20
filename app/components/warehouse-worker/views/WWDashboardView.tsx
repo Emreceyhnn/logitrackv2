@@ -272,9 +272,21 @@ export default function WWDashboardView({
                 overflowY: "auto",
               }}
             >
-              {tasks.map((t) => (
-                <WWTaskRow key={t.id} t={t} advanceTask={advanceTask} ww={ww} />
-              ))}
+              {tasks.length === 0 ? (
+                <Stack alignItems="center" spacing={1.5} sx={{ py: 6, px: 2.5 }}>
+                  <Avatar sx={{ bgcolor: `${theme.palette.kpi.emerald}1f`, color: theme.palette.kpi.emerald, width: 44, height: 44 }}>
+                    <Ico d="M20 6 9 17l-5-5" size={20} />
+                  </Avatar>
+                  <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{ww.ui.nextTaskAllClear}</Typography>
+                  <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, textAlign: "center" }}>
+                    {ww.ui.taskQueueEmpty}
+                  </Typography>
+                </Stack>
+              ) : (
+                tasks.map((t) => (
+                  <WWTaskRow key={t.id} t={t} advanceTask={advanceTask} ww={ww} />
+                ))
+              )}
             </Box>
           </Card>
         </Stack>

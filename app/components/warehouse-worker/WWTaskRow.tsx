@@ -76,17 +76,29 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
       direction="row"
       spacing={2}
       alignItems="center"
+      flexWrap="wrap"
       sx={{
-        p: 2.2,
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        opacity: complete ? 0.55 : 1,
+        p: 2.5,
+        bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#ffffff",
+        borderRadius: "16px",
+        border: `1px solid ${theme.palette.divider}`,
+        borderLeft: `4px solid ${km.color}`,
+        position: "relative",
+        overflow: "hidden",
+        opacity: complete ? 0.6 : 1,
+        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        "&:hover": {
+          transform: complete ? "none" : "translateY(-2px)",
+          boxShadow: complete ? "none" : theme.palette.mode === "dark" ? "0 8px 24px rgba(0,0,0,0.2)" : "0 8px 24px rgba(0,0,0,0.08)",
+          borderColor: complete ? theme.palette.divider : km.color,
+        },
       }}
     >
       <Stack
         direction="row"
         spacing={1.5}
         alignItems="center"
-        sx={{ flex: 1, minWidth: 0 }}
+        sx={{ flex: "1 1 200px", minWidth: 0 }}
       >
         <Box
           sx={{
@@ -120,7 +132,7 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
           </Typography>
         </Box>
       </Stack>
-      <Box sx={{ width: 150 }}>
+      <Box sx={{ flex: "0 0 150px" }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -151,7 +163,8 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
         direction="row"
         spacing={1}
         alignItems="center"
-        sx={{ justifyContent: "flex-end" }}
+        justifyContent="flex-end"
+        sx={{ flex: "1 1 220px" }}
       >
         <Box
           sx={{

@@ -17,29 +17,29 @@ export const assignDriverToVehicle = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 
       if (driverId) {
-        const foundDriver = await db.driver.findUnique({
-          where: { id: driverId },
+        const foundDriver = await db.driver.findFirst({
+          where: { id: driverId, companyId },
           select: { companyId: true },
         });
-        if (!foundDriver || foundDriver.companyId !== companyId) {
+        if (!foundDriver) {
           throw new Error("Driver not found or belongs to another company");
         }
       }
 
       await db.$transaction(async (tx) => {
         if (driverId) {
-          const currentDriverOfVehicle = await tx.driver.findUnique({
-            where: { currentVehicleId: vehicleId },
+          const currentDriverOfVehicle = await tx.driver.findFirst({
+            where: { currentVehicleId: vehicleId, companyId },
           });
 
           if (currentDriverOfVehicle) {
@@ -54,8 +54,8 @@ export const assignDriverToVehicle = authenticatedAction(
             data: { currentVehicleId: vehicleId },
           });
         } else {
-          const currentDriverOfVehicle = await tx.driver.findUnique({
-            where: { currentVehicleId: vehicleId },
+          const currentDriverOfVehicle = await tx.driver.findFirst({
+            where: { currentVehicleId: vehicleId, companyId },
           });
           if (currentDriverOfVehicle) {
             await tx.driver.update({
@@ -76,8 +76,8 @@ export const assignDriverToVehicle = authenticatedAction(
         });
 
         if (driverUser) {
-          const vehicle = await db.vehicle.findUnique({
-            where: { id: vehicleId },
+          const vehicle = await db.vehicle.findFirst({
+            where: { id: vehicleId, companyId },
             select: { plate: true },
           });
 
@@ -109,17 +109,17 @@ export const unassignDriverFromVehicle = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 
-      const foundDriver = await db.driver.findUnique({
-        where: { currentVehicleId: vehicleId },
+      const foundDriver = await db.driver.findFirst({
+        where: { currentVehicleId: vehicleId, companyId },
       });
 
       if (foundDriver) {

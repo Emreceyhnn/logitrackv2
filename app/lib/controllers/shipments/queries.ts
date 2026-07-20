@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
@@ -159,8 +159,8 @@ export const getShipmentById = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const shipment = await db.shipment.findUnique({
-        where: { id: shipmentId },
+      const shipment = await db.shipment.findFirst({
+        where: { id: shipmentId, companyId: companyId! },
         include: {
           customer: true,
           driver: {
@@ -186,7 +186,7 @@ export const getShipmentById = authenticatedAction(
         },
       });
 
-      if (!shipment || shipment.companyId !== user.companyId) {
+      if (!shipment) {
         throw new Error("Shipment not found or unauthorized");
       }
 
@@ -201,8 +201,8 @@ export const getShipmentByTrackingId = authenticatedAction(
     return controllerGuard("getShipmentByTrackingId", async () => {
       await checkPermission(user, companyId);
 
-      const shipment = await db.shipment.findUnique({
-        where: { trackingId },
+      const shipment = await db.shipment.findFirst({
+        where: { trackingId, companyId: companyId! },
         include: {
           customer: true,
           driver: true,
@@ -215,7 +215,7 @@ export const getShipmentByTrackingId = authenticatedAction(
         },
       });
 
-      if (!shipment || shipment.companyId !== companyId) {
+      if (!shipment) {
         throw new Error("Shipment not found or unauthorized");
       }
 

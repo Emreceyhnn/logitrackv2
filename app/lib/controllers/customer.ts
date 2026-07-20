@@ -216,8 +216,8 @@ export const getCustomerById = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundCustomer = await db.customer.findUnique({
-        where: { id: customerId },
+      const foundCustomer = await db.customer.findFirst({
+        where: { id: customerId, companyId },
         include: {
           locations: true,
           shipments: {
@@ -227,7 +227,7 @@ export const getCustomerById = authenticatedAction(
         },
       });
 
-      if (!foundCustomer || foundCustomer.companyId !== companyId) {
+      if (!foundCustomer) {
         throw new NotFoundError("Customer");
       }
 
@@ -267,15 +267,15 @@ export const updateCustomer = authenticatedAction(
 
       const parsed = updateCustomerSchema.parse(data);
 
-      const existingCustomer = await db.customer.findUnique({
-        where: { id: customerId },
+      const existingCustomer = await db.customer.findFirst({
+        where: { id: customerId, companyId },
         select: { companyId: true },
       });
 
-      if (!existingCustomer || existingCustomer.companyId !== companyId) {
+      if (!existingCustomer) {
         throw new NotFoundError("Customer");
       }
-      
+
       let finalCode = parsed.code;
       if (finalCode === "") {
         finalCode = `CUST-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
@@ -345,12 +345,12 @@ export const deleteCustomer = authenticatedAction(
       const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const existingCustomer = await db.customer.findUnique({
-        where: { id: customerId },
+      const existingCustomer = await db.customer.findFirst({
+        where: { id: customerId, companyId },
         select: { companyId: true },
       });
 
-      if (!existingCustomer || existingCustomer.companyId !== companyId) {
+      if (!existingCustomer) {
         throw new NotFoundError("Customer");
       }
 

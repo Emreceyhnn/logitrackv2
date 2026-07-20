@@ -1,9 +1,17 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import {
+  generateAccessToken,
+  hashToken,
+  ACCESS_TOKEN_MAX_AGE,
+  COOKIE_OPTIONS,
+} from "../controllers/session/internal";
+import { redis } from "../redis";
 
 // ─── Get Current User Profile ─────────────────────────────────────────────
 export const getMyProfile = authenticatedAction(async (user) => {
@@ -53,6 +61,40 @@ export const updateMyProfile = authenticatedAction(
         email: true,
         avatarUrl: true,
       },
+    });
+
+    // The access token is a signed JWT carrying a snapshot of the user's
+    // profile fields (see generateAccessToken). Updating the DB row alone
+    // leaves the still-valid cookie showing the stale name/surname/avatar
+    // until it naturally expires or a refresh happens. Re-sign and swap the
+    // cookie now so the change is visible immediately, and repoint the
+    // existing session row + cache at the new token hash so it isn't
+    // treated as revoked.
+    const cookieStore = await cookies();
+    const oldToken = cookieStore.get("token")?.value;
+
+    const newAccessToken = await generateAccessToken({
+      ...user,
+      name: updated.name,
+      surname: updated.surname,
+      avatarUrl: updated.avatarUrl,
+    });
+
+    if (oldToken) {
+      const oldHash = hashToken(oldToken);
+      const newHash = hashToken(newAccessToken);
+      await db.session
+        .updateMany({
+          where: { id: user.sessionId, token: oldHash },
+          data: { token: newHash },
+        })
+        .catch(() => {});
+      await redis.del(`session:${oldHash}`).catch(() => {});
+    }
+
+    cookieStore.set("token", newAccessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: ACCESS_TOKEN_MAX_AGE,
     });
 
     revalidatePath("/", "layout");

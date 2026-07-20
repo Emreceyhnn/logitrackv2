@@ -36,6 +36,14 @@ export interface ReportsMetrics {
   onTimeRate: number;
   activeVehicles: number;
   totalInventoryValue: number;
+  pendingOrders: number;
+  avgDeliveryTime: number;
+  avgFuelCons: number;
+  maintenanceCost: number;
+  totalDistance: number;
+  stockTurnover: number;
+  deadStock: number;
+  warehouseCapacity: number;
 }
 
 export interface ReportsData {

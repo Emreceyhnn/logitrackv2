@@ -8,7 +8,7 @@ import { rejects } from "node:assert";
 // Prisma DB Mock
 const dbMock = {
   warehouse: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     create: mock.fn(),
     findMany: mock.fn(),
   },
@@ -93,7 +93,7 @@ describe("Warehouse Controller", () => {
 
   beforeEach(() => {
     // Her testten önce mockları sıfırla
-    dbMock.warehouse.findUnique.mock.resetCalls();
+    dbMock.warehouse.findFirst.mock.resetCalls();
     dbMock.warehouse.create.mock.resetCalls();
     dbMock.warehouse.findMany.mock.resetCalls();
     
@@ -111,7 +111,7 @@ describe("Warehouse Controller", () => {
 
     it("should_CreateWarehouse_AndSendNotification_WhenValidDataProvided", async () => {
       // Arrange
-      dbMock.warehouse.findUnique.mock.mockImplementation(async () => null); // No existing warehouse
+      dbMock.warehouse.findFirst.mock.mockImplementation(async () => null); // No existing warehouse
       dbMock.warehouse.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "wh-1",
         ...args.data,
@@ -140,7 +140,7 @@ describe("Warehouse Controller", () => {
 
     it("should_ThrowError_WhenWarehouseCodeAlreadyExists", async () => {
       // Arrange
-      dbMock.warehouse.findUnique.mock.mockImplementation(async () => ({
+      dbMock.warehouse.findFirst.mock.mockImplementation(async () => ({
         id: "existing-wh",
         code: "WH-MRKZ",
       }));

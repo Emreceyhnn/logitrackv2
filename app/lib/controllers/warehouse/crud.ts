@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
@@ -44,8 +44,8 @@ export const createWarehouse = authenticatedAction(
       }
       const warehouseCode = code;
 
-      const existingWarehouse = await db.warehouse.findUnique({
-        where: { companyId_code: { companyId, code: warehouseCode } },
+      const existingWarehouse = await db.warehouse.findFirst({
+        where: { companyId, code: warehouseCode },
       });
 
       if (existingWarehouse) {
@@ -78,8 +78,8 @@ export const createWarehouse = authenticatedAction(
       await createNotification(
         { companyId: companyId! },
         {
-          title: "Yeni Depo Oluşturuldu 🏗️",
-          message: `${name} (${warehouseCode}) isimli yeni depo sisteme tanımlandı.`,
+          title: "Yeni Depo OluÅŸturuldu ğŸ—ï¸",
+          message: `${name} (${warehouseCode}) isimli yeni depo sisteme tanÄ±mlandÄ±.`,
           type: "SUCCESS",
           link: `/dashboard/warehouses/${newWarehouse.id}`,
         }
@@ -130,8 +130,8 @@ export const getWarehouseById = authenticatedAction(
     return controllerGuard("getWarehouseById", async () => {
       await checkPermission(user, user.companyId);
 
-      const warehouse = await db.warehouse.findUnique({
-        where: { id: warehouseId },
+      const warehouse = await db.warehouse.findFirst({
+        where: { id: warehouseId, companyId: user.companyId! },
         include: {
           manager: {
             select: {
@@ -153,7 +153,7 @@ export const getWarehouseById = authenticatedAction(
         },
       });
 
-      if (!warehouse || warehouse.companyId !== user.companyId) {
+      if (!warehouse) {
         throw new Error("Warehouse not found or unauthorized");
       }
 
@@ -170,15 +170,12 @@ export const updateWarehouse = authenticatedAction(
         "role_manager",
       ]);
 
-      const existingWarehouse = await db.warehouse.findUnique({
-        where: { id: warehouseId },
+      const existingWarehouse = await db.warehouse.findFirst({
+        where: { id: warehouseId, companyId: user.companyId! },
         select: { companyId: true, managerId: true },
       });
 
-      if (
-        !existingWarehouse ||
-        existingWarehouse.companyId !== user.companyId
-      ) {
+      if (!existingWarehouse) {
         throw new Error("Warehouse not found or unauthorized");
       }
 
@@ -213,15 +210,12 @@ export const deleteWarehouse = authenticatedAction(
     return controllerGuard("deleteWarehouse", async () => {
       await checkPermission(user, user.companyId, ["role_admin"]);
 
-      const existingWarehouse = await db.warehouse.findUnique({
-        where: { id: warehouseId },
+      const existingWarehouse = await db.warehouse.findFirst({
+        where: { id: warehouseId, companyId: user.companyId! },
         select: { companyId: true },
       });
 
-      if (
-        !existingWarehouse ||
-        existingWarehouse.companyId !== user.companyId
-      ) {
+      if (!existingWarehouse) {
         throw new Error("Warehouse not found or unauthorized");
       }
 
@@ -240,15 +234,12 @@ export const assignManagerToWarehouse = authenticatedAction(
     return controllerGuard("assignManagerToWarehouse", async () => {
       await checkPermission(user, user.companyId, ["role_admin"]);
 
-      const existingWarehouse = await db.warehouse.findUnique({
-        where: { id: warehouseId },
+      const existingWarehouse = await db.warehouse.findFirst({
+        where: { id: warehouseId, companyId: user.companyId! },
         select: { companyId: true },
       });
 
-      if (
-        !existingWarehouse ||
-        existingWarehouse.companyId !== user.companyId
-      ) {
+      if (!existingWarehouse) {
         throw new Error("Warehouse not found or unauthorized");
       }
 
@@ -265,8 +256,8 @@ export const assignManagerToWarehouse = authenticatedAction(
       await createNotification(
         { companyId: user.companyId!, userId: managerId },
         {
-          title: "Depo Yöneticisi Atandınız 👤",
-          message: `${updatedWarehouse.name} deposu için yönetici olarak görevlendirildiniz.`,
+          title: "Depo YÃ¶neticisi AtandÄ±nÄ±z ğŸ‘¤",
+          message: `${updatedWarehouse.name} deposu iÃ§in yÃ¶netici olarak gÃ¶revlendirildiniz.`,
           type: "INFO",
           link: `/dashboard/warehouses/${updatedWarehouse.id}`,
         }

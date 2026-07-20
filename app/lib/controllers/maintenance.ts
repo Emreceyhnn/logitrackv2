@@ -53,12 +53,12 @@ export const createMaintenanceRecord = authenticatedAction(
         documentUrl,
       });
 
-      const vehicle = await db.vehicle.findUnique({
-        where: { id: parsed.vehicleId },
+      const vehicle = await db.vehicle.findFirst({
+        where: { id: parsed.vehicleId, companyId },
         select: { companyId: true },
       });
 
-      if (!vehicle || vehicle.companyId !== companyId) {
+      if (!vehicle) {
         throw new NotFoundError("Vehicle");
       }
 
@@ -136,12 +136,12 @@ export const getMaintenanceRecordById = authenticatedAction(
       const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
       
-      const record = await db.maintenanceRecord.findUnique({
-        where: { id: recordId },
+      const record = await db.maintenanceRecord.findFirst({
+        where: { id: recordId, companyId },
         include: { vehicle: true },
       });
 
-      if (!record || record.companyId !== companyId) {
+      if (!record) {
         throw new NotFoundError("Maintenance record");
       }
 
@@ -168,8 +168,8 @@ export const updateMaintenanceRecord = authenticatedAction(
 
       const parsed = updateMaintenanceRecordSchema.parse(data);
 
-      const existingRecord = await db.maintenanceRecord.findUnique({
-        where: { id: recordId },
+      const existingRecord = await db.maintenanceRecord.findFirst({
+        where: { id: recordId, companyId },
         select: {
           status: true,
           type: true,
@@ -178,7 +178,7 @@ export const updateMaintenanceRecord = authenticatedAction(
         },
       });
 
-      if (!existingRecord || existingRecord.companyId !== companyId) {
+      if (!existingRecord) {
         throw new NotFoundError("Maintenance record");
       }
 
@@ -263,8 +263,8 @@ export const deleteMaintenanceRecord = authenticatedAction(
       const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
       
-      const existingRecord = await db.maintenanceRecord.findUnique({
-        where: { id: recordId },
+      const existingRecord = await db.maintenanceRecord.findFirst({
+        where: { id: recordId, companyId },
         select: {
           type: true,
           vehicleId: true,
@@ -273,7 +273,7 @@ export const deleteMaintenanceRecord = authenticatedAction(
         },
       });
 
-      if (!existingRecord || existingRecord.companyId !== companyId) {
+      if (!existingRecord) {
         throw new NotFoundError("Maintenance record");
       }
 

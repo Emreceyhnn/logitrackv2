@@ -15,8 +15,8 @@ import { useCurrency } from "@/app/hooks/useCurrency";
 interface MetricCardProps {
   title: string;
   value: string;
-  change: string;
-  positive: boolean;
+  change?: string;
+  positive?: boolean;
   icon: React.ReactNode;
   color: string;
 }
@@ -25,7 +25,7 @@ const MetricCard = ({
   title,
   value,
   change,
-  positive,
+  positive = true,
   icon,
   color,
 }: MetricCardProps) => {
@@ -94,22 +94,24 @@ const MetricCard = ({
           >
             {icon}
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 0.5,
-              color: positive ? "success.main" : "error.main",
-              bgcolor: changeAlpha.main_10,
-              px: 1.2,
-              py: 0.6,
-              borderRadius: "10px",
-              fontSize: "0.75rem",
-              fontWeight: 800,
-            }}
-          >
-            {positive ? "↑" : "↓"} {change}
-          </Box>
+          {change && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                color: positive ? "success.main" : "error.main",
+                bgcolor: changeAlpha.main_10,
+                px: 1.2,
+                py: 0.6,
+                borderRadius: "10px",
+                fontSize: "0.75rem",
+                fontWeight: 800,
+              }}
+            >
+              {positive ? "↑" : "↓"} {change}
+            </Box>
+          )}
         </Stack>
 
         <Box>
@@ -172,32 +174,24 @@ export default function ReportSummaryCards({
           {
             title: dict.reports.metrics.totalShipments,
             value: metrics?.totalShipments.toLocaleString("en-US") || "0",
-            change: "12%",
-            positive: true,
             icon: <LocalShippingIcon />,
             color: theme.palette.kpi.indigo,
           },
           {
             title: dict.reports.metrics.onTimeRate,
             value: `${metrics?.onTimeRate.toFixed(1)}%` || "0%",
-            change: "2.1%",
-            positive: true,
             icon: <AccessTimeIcon />,
             color: theme.palette.kpi.emerald,
           },
           {
             title: dict.reports.metrics.avgDeliveryTime,
-            value: dict.reports.metrics.daysUnits.replace("{count}", "2.3"),
-            change: "5%",
-            positive: true,
+            value: dict.reports.metrics.daysUnits.replace("{count}", (metrics?.avgDeliveryTime || 0).toString()),
             icon: <TrendingUpIcon />,
             color: theme.palette.kpi.sky,
           },
           {
             title: dict.reports.metrics.pendingOrders,
-            value: "42",
-            change: "8%",
-            positive: false,
+            value: metrics?.pendingOrders?.toString() || "0",
             icon: <WarningAmberIcon />,
             color: theme.palette.kpi.amber,
           },
@@ -207,34 +201,20 @@ export default function ReportSummaryCards({
           {
             title: dict.reports.metrics.activeVehicles,
             value: metrics?.activeVehicles.toString() || "0",
-            change: "0%",
-            positive: true,
             icon: <DirectionsCarIcon />,
             color: theme.palette.kpi.indigo,
           },
           {
             title: dict.reports.metrics.avgFuelCons,
-            value: "22L/100km",
-            change: "1.2%",
-            positive: true,
+            value: `${metrics?.avgFuelCons || 0}L/100km`,
             icon: <LocalShippingIcon />,
             color: theme.palette.kpi.emerald,
           },
           {
             title: dict.reports.metrics.maintenanceCost,
-            value: format(4250),
-            change: "15%",
-            positive: false,
+            value: format(metrics?.maintenanceCost || 0),
             icon: <AttachMoneyIcon />,
             color: theme.palette.kpi.error,
-          },
-          {
-            title: dict.reports.metrics.totalDistance,
-            value: "125k km",
-            change: "10%",
-            positive: true,
-            icon: <TrendingUpIcon />,
-            color: theme.palette.kpi.sky,
           },
         ];
       case 2:
@@ -242,32 +222,24 @@ export default function ReportSummaryCards({
           {
             title: dict.reports.metrics.totalInventoryValue,
             value: compact(metrics?.totalInventoryValue || 0),
-            change: "5.4%",
-            positive: true,
             icon: <AttachMoneyIcon />,
             color: theme.palette.kpi.emerald,
           },
           {
             title: dict.reports.metrics.stockTurnover,
-            value: "4.2",
-            change: "0.3",
-            positive: true,
+            value: metrics?.stockTurnover?.toString() || "0",
             icon: <TrendingUpIcon />,
             color: theme.palette.kpi.sky,
           },
           {
             title: dict.reports.metrics.deadStock,
-            value: compact(12000),
-            change: "2%",
-            positive: true,
+            value: compact(metrics?.deadStock || 0),
             icon: <WarningAmberIcon />,
             color: theme.palette.kpi.error,
           },
           {
             title: "Warehouse Capacity",
-            value: "82%",
-            change: "4%",
-            positive: true,
+            value: `${metrics?.warehouseCapacity || 0}%`,
             icon: <Inventory2Icon />,
             color: theme.palette.kpi.amber,
           },

@@ -126,6 +126,7 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
         sx={{
           flexGrow: 1,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           p: 1,
@@ -143,7 +144,12 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
             sx={{
               position: "relative",
               width: "100%",
-              height: 300, // Increased height
+              // Fill the card's available height rather than a fixed box, so the
+              // donut sits in the real vertical centre and never bunches up top
+              // with dead space below. minHeight keeps it usable when the card
+              // is short; the extra floor accommodates a 2-line legend.
+              flex: 1,
+              minHeight: 320,
               display: "flex",
               justifyContent: "center",
               "& .MuiChartsLegend-root": {
@@ -172,7 +178,9 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
                   position: { vertical: "bottom", horizontal: "center" },
                 },
               }}
-              margin={{ top: 0, bottom: 90, left: 10, right: 10 }}
+              // Reserve room below the donut for the legend (up to 2 rows) so it
+              // never overlaps the ring; top margin keeps the donut off the divider.
+              margin={{ top: 16, bottom: 72, left: 10, right: 10 }}
             >
               <PieCenterLabel
                 total={total}

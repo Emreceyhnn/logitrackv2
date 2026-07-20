@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
@@ -21,12 +21,12 @@ export const assignDriverToShipment = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingShipment = await db.shipment.findUnique({
-        where: { id: shipmentId },
+      const existingShipment = await db.shipment.findFirst({
+        where: { id: shipmentId, companyId: companyId! },
         select: { companyId: true, status: true },
       });
 
-      if (!existingShipment || existingShipment.companyId !== companyId) {
+      if (!existingShipment) {
         throw new Error("Shipment not found or unauthorized");
       }
 
@@ -36,7 +36,7 @@ export const assignDriverToShipment = authenticatedAction(
       );
 
       const driver = await db.driver.findFirst({
-        where: { id: driverId, companyId },
+        where: { id: driverId, companyId: companyId! },
         select: { status: true },
       });
       if (!driver) {
@@ -68,8 +68,8 @@ export const assignDriverToShipment = authenticatedAction(
       await createNotification(
         { companyId: companyId! },
         {
-          title: "Sürücü Atandı 👤",
-          message: `${updatedShipment.trackingId} numaralı sevkiyata bir sürücü atandı.`,
+          title: "SÃ¼rÃ¼cÃ¼ AtandÄ± ğŸ‘¤",
+          message: `${updatedShipment.trackingId} numaralÄ± sevkiyata bir sÃ¼rÃ¼cÃ¼ atandÄ±.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
           link: `/dashboard/shipments/${updatedShipment.id}`,
@@ -92,8 +92,8 @@ export const assignRouteToShipment = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingShipment = await db.shipment.findUnique({
-        where: { id: shipmentId },
+      const existingShipment = await db.shipment.findFirst({
+        where: { id: shipmentId, companyId: companyId! },
         select: {
           companyId: true,
           status: true,
@@ -102,7 +102,7 @@ export const assignRouteToShipment = authenticatedAction(
         },
       });
 
-      if (!existingShipment || existingShipment.companyId !== companyId) {
+      if (!existingShipment) {
         throw new Error("Shipment not found or unauthorized");
       }
 
@@ -143,8 +143,8 @@ export const assignRouteToShipment = authenticatedAction(
       await createNotification(
         { companyId: companyId! },
         {
-          title: "Rota Planlandı 🚛",
-          message: `${updatedShipment.trackingId} numaralı sevkiyat bir rotaya dahil edildi.`,
+          title: "Rota PlanlandÄ± ğŸš›",
+          message: `${updatedShipment.trackingId} numaralÄ± sevkiyat bir rotaya dahil edildi.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
           link: `/dashboard/shipments/${updatedShipment.id}`,
@@ -169,12 +169,12 @@ export const updateShipmentStatus = authenticatedAction(
     return controllerGuard("updateShipmentStatus", async () => {
       await checkPermission(user, companyId);
 
-      const existingShipment = await db.shipment.findUnique({
-        where: { id: shipmentId },
+      const existingShipment = await db.shipment.findFirst({
+        where: { id: shipmentId, companyId: companyId! },
         select: { companyId: true, status: true },
       });
 
-      if (!existingShipment || existingShipment.companyId !== companyId) {
+      if (!existingShipment) {
         throw new Error("Shipment not found or unauthorized");
       }
 
@@ -216,9 +216,9 @@ export const updateShipmentStatus = authenticatedAction(
           {
             title:
               status === ShipmentStatus.DELAYED
-                ? "Sevkiyat Gecikmesi ⏳"
-                : "Sevkiyat İptal Edildi ❌",
-            message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status === ShipmentStatus.DELAYED ? "GECİKMİŞ" : "İPTAL EDİLDİ"} olarak güncellendi.`,
+                ? "Sevkiyat Gecikmesi â³"
+                : "Sevkiyat Ä°ptal Edildi âŒ",
+            message: `${updatedShipment.trackingId} numaralÄ± sevkiyatÄ±n durumu ${status === ShipmentStatus.DELAYED ? "GECÄ°KMÄ°Å" : "Ä°PTAL EDÄ°LDÄ°"} olarak gÃ¼ncellendi.`,
             type: status === ShipmentStatus.DELAYED ? "WARNING" : "ERROR",
             category:
               status === ShipmentStatus.DELAYED
@@ -231,8 +231,8 @@ export const updateShipmentStatus = authenticatedAction(
         await createNotification(
           { companyId: companyId! },
           {
-            title: "Sevkiyat Teslim Edildi ✅",
-            message: `${updatedShipment.trackingId} numaralı sevkiyat başarıyla teslim edildi.`,
+            title: "Sevkiyat Teslim Edildi âœ…",
+            message: `${updatedShipment.trackingId} numaralÄ± sevkiyat baÅŸarÄ±yla teslim edildi.`,
             type: "SUCCESS",
             category: "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
@@ -247,9 +247,9 @@ export const updateShipmentStatus = authenticatedAction(
           {
             title:
               status === ShipmentStatus.PROCESSING
-                ? "Sevkiyat Hazırlanıyor ⚙️"
-                : "Sevkiyat Yolda 🚛",
-            message: `${updatedShipment.trackingId} numaralı sevkiyat ${status === ShipmentStatus.PROCESSING ? "işleme alındı" : "yola çıktı"}.`,
+                ? "Sevkiyat HazÄ±rlanÄ±yor âš™ï¸"
+                : "Sevkiyat Yolda ğŸš›",
+            message: `${updatedShipment.trackingId} numaralÄ± sevkiyat ${status === ShipmentStatus.PROCESSING ? "iÅŸleme alÄ±ndÄ±" : "yola Ã§Ä±ktÄ±"}.`,
             type: "INFO",
             category: "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,

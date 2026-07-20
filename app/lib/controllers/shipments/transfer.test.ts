@@ -14,11 +14,11 @@ const dbMock = {
     createMany: mock.fn(),
   },
   trailer: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     findMany: mock.fn(),
   },
   vehicle: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   $transaction: mock.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(dbMock)),
 };
@@ -66,7 +66,7 @@ describe("Shipments Transfer Controller", () => {
 
   describe("getVehicleLinkedShipments()", () => {
     it("boş liste döner (araçta dorse yoksa)", async () => {
-      dbMock.vehicle.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.vehicle.findFirst.mock.mockImplementationOnce(async () => ({
         companyId: "company-1",
         currentTrailer: null,
       }));
@@ -79,7 +79,7 @@ describe("Shipments Transfer Controller", () => {
     });
 
     it("başka şirketin aracını reddeder", async () => {
-      dbMock.vehicle.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.vehicle.findFirst.mock.mockImplementationOnce(async () => ({
         companyId: "other",
         currentTrailer: { id: "t1" },
       }));
@@ -98,7 +98,7 @@ describe("Shipments Transfer Controller", () => {
     };
 
     it("hedef dorse müsait değilse reddeder", async () => {
-      dbMock.trailer.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.trailer.findFirst.mock.mockImplementationOnce(async () => ({
         ...availableTarget,
         status: "MAINTENANCE",
       }));
@@ -109,7 +109,7 @@ describe("Shipments Transfer Controller", () => {
     });
 
     it("hedef dorsenin aracı arızalıysa reddeder", async () => {
-      dbMock.trailer.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.trailer.findFirst.mock.mockImplementationOnce(async () => ({
         ...availableTarget,
         currentVehicle: { status: "OUT_OF_ORDER" },
       }));
@@ -120,7 +120,7 @@ describe("Shipments Transfer Controller", () => {
     });
 
     it("kapasite aşımında reddeder", async () => {
-      dbMock.trailer.findUnique.mock.mockImplementationOnce(async () => availableTarget);
+      dbMock.trailer.findFirst.mock.mockImplementationOnce(async () => availableTarget);
       dbMock.shipment.findMany.mock.mockImplementationOnce(async () => [
         { id: "s1", weightKg: 900, volumeM3: 10, trailerId: "src" },
         { id: "s2", weightKg: 900, volumeM3: 10, trailerId: "src" },
@@ -135,7 +135,7 @@ describe("Shipments Transfer Controller", () => {
     });
 
     it("geçerli durumda hepsini aktarır ve history yazar", async () => {
-      dbMock.trailer.findUnique.mock.mockImplementationOnce(async () => availableTarget);
+      dbMock.trailer.findFirst.mock.mockImplementationOnce(async () => availableTarget);
       dbMock.shipment.findMany.mock.mockImplementationOnce(async () => [
         { id: "s1", weightKg: 100, volumeM3: 2, trailerId: "src" },
         { id: "s2", weightKg: 100, volumeM3: 2, trailerId: "src" },

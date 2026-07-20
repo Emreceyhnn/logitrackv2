@@ -98,8 +98,8 @@ export const createShipment = authenticatedAction(
         trackingId ||
         `TRK-${Math.random().toString(36).substring(2, 9).toLocaleUpperCase('en-US')}`;
 
-      const existingShipment = await db.shipment.findUnique({
-        where: { trackingId: finalTrackingId },
+      const existingShipment = await db.shipment.findFirst({
+        where: { trackingId: finalTrackingId, companyId },
       });
 
       if (existingShipment) {
@@ -108,13 +108,13 @@ export const createShipment = authenticatedAction(
 
       // Fetch customer details to potentially get default location if destination is not provided
       const customer = customerId
-        ? ((await db.customer.findUnique({
-            where: { id: customerId },
+        ? ((await db.customer.findFirst({
+            where: { id: customerId, companyId },
             include: { locations: true },
           })) as CustomerWithLocations | null)
         : null;
 
-      if (customerId && (!customer || customer.companyId !== companyId)) {
+      if (customerId && !customer) {
         throw new NotFoundError("Customer");
       }
 
@@ -147,49 +147,47 @@ export const createShipment = authenticatedAction(
 
       // ── Trailer Capacity Validation ──────────────────────────────────────────
       if (trailerId) {
-        const trailer = await db.trailer.findUnique({
-          where: { id: trailerId },
+        const trailer = await db.trailer.findFirst({
+          where: { id: trailerId, companyId },
         });
-        if (trailer && trailer.companyId !== companyId) {
+        if (!trailer) {
           throw new NotFoundError("Trailer");
         }
-        if (trailer) {
-          const currentLoad = await db.shipment.aggregate({
-            where: {
-              trailerId,
-              status: {
-                in: [
-                  ShipmentStatus.PENDING,
-                  ShipmentStatus.PROCESSING,
-                  ShipmentStatus.IN_TRANSIT,
-                  ShipmentStatus.ASSIGNED,
-                  ShipmentStatus.DELAYED,
-                ],
-              },
+        const currentLoad = await db.shipment.aggregate({
+          where: {
+            trailerId,
+            status: {
+              in: [
+                ShipmentStatus.PENDING,
+                ShipmentStatus.PROCESSING,
+                ShipmentStatus.IN_TRANSIT,
+                ShipmentStatus.ASSIGNED,
+                ShipmentStatus.DELAYED,
+              ],
             },
-            _sum: { weightKg: true, volumeM3: true },
-          });
+          },
+          _sum: { weightKg: true, volumeM3: true },
+        });
 
-          const totalWeight = (currentLoad._sum.weightKg || 0) + weightKg;
-          const totalVolume = (currentLoad._sum.volumeM3 || 0) + volumeM3;
+        const totalWeight = (currentLoad._sum.weightKg || 0) + weightKg;
+        const totalVolume = (currentLoad._sum.volumeM3 || 0) + volumeM3;
 
-          const tolerance = 0.01;
-          if (
-            Math.round(totalWeight * 100) / 100 >
-            trailer.maxLoadKg + tolerance
-          ) {
-            throw new Error(
-              `Trailer capacity exceeded: Current load ${totalWeight.toFixed(2)}kg > Max ${trailer.maxLoadKg}kg`
-            );
-          }
-          if (
-            Math.round(totalVolume * 100) / 100 >
-            trailer.capacityVolumeM3 + tolerance
-          ) {
-            throw new Error(
-              `Trailer capacity exceeded: Current volume ${totalVolume.toFixed(2)}m³ > Max ${trailer.capacityVolumeM3}m³`
-            );
-          }
+        const tolerance = 0.01;
+        if (
+          Math.round(totalWeight * 100) / 100 >
+          trailer.maxLoadKg + tolerance
+        ) {
+          throw new Error(
+            `Trailer capacity exceeded: Current load ${totalWeight.toFixed(2)}kg > Max ${trailer.maxLoadKg}kg`
+          );
+        }
+        if (
+          Math.round(totalVolume * 100) / 100 >
+          trailer.capacityVolumeM3 + tolerance
+        ) {
+          throw new Error(
+            `Trailer capacity exceeded: Current volume ${totalVolume.toFixed(2)}m³ > Max ${trailer.capacityVolumeM3}m³`
+          );
         }
       }
 
@@ -197,11 +195,11 @@ export const createShipment = authenticatedAction(
       // Guard against cross-company assignment; the UI already filters to
       // available drivers, but the server is the authority.
       if (driverId) {
-        const driver = await db.driver.findUnique({
-          where: { id: driverId },
+        const driver = await db.driver.findFirst({
+          where: { id: driverId, companyId },
           select: { id: true, companyId: true },
         });
-        if (!driver || driver.companyId !== companyId) {
+        if (!driver) {
           throw new NotFoundError("Driver");
         }
       }
@@ -288,12 +286,11 @@ export const createShipment = authenticatedAction(
           if (finalWarehouseId && inventoryItems.length > 0) {
             await Promise.all(
               inventoryItems.map(async (item: InventoryShipmentItem) => {
-                const invItem = await tx.inventory.findUnique({
+                const invItem = await tx.inventory.findFirst({
                   where: {
-                    warehouseId_sku: {
-                      warehouseId: finalWarehouseId,
-                      sku: item.sku,
-                    },
+                    warehouseId: finalWarehouseId,
+                    sku: item.sku,
+                    companyId,
                   },
                 });
 

@@ -9,7 +9,7 @@ import { rejects } from "node:assert";
 // Prisma DB Mock
 const dbMock = {
   shipment: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     findUniqueOrThrow: mock.fn(),
     create: mock.fn(),
     findMany: mock.fn(),
@@ -18,13 +18,13 @@ const dbMock = {
     aggregate: mock.fn(),
   },
   customer: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   trailer: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   inventory: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     update: mock.fn(),
   },
   inventoryMovement: {
@@ -113,11 +113,11 @@ describe("Shipments Controller", () => {
 
   beforeEach(() => {
     // Her testten önce mockları sıfırla
-    dbMock.shipment.findUnique.mock.resetCalls();
+    dbMock.shipment.findFirst.mock.resetCalls();
     dbMock.shipment.create.mock.resetCalls();
     dbMock.shipment.findMany.mock.resetCalls();
-    dbMock.customer.findUnique.mock.resetCalls();
-    dbMock.trailer.findUnique.mock.resetCalls();
+    dbMock.customer.findFirst.mock.resetCalls();
+    dbMock.trailer.findFirst.mock.resetCalls();
     dbMock.$transaction.mock.resetCalls();
     
     redisMock.del.mock.resetCalls();
@@ -135,8 +135,8 @@ describe("Shipments Controller", () => {
 
     it("should_CreateShipment_AndSendNotification_WhenValidDataProvided", async () => {
       // Arrange
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => null); // No existing tracking ID
-      dbMock.customer.findUnique.mock.mockImplementation(async () => null); // No customer details
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => null); // No existing tracking ID
+      dbMock.customer.findFirst.mock.mockImplementation(async () => null); // No customer details
       dbMock.shipment.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "shipment-1",
         trackingId: "TRK-123456",
@@ -166,7 +166,7 @@ describe("Shipments Controller", () => {
 
     it("should_ThrowError_WhenTrackingIdAlreadyExists", async () => {
       // Arrange
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         id: "existing-shipment",
         trackingId: "TRK-EXISTING",
       }));
@@ -194,8 +194,8 @@ describe("Shipments Controller", () => {
 
     beforeEach(() => {
       dbMock.shipment.update.mock.resetCalls();
-      dbMock.shipment.findUnique.mock.resetCalls();
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+      dbMock.shipment.findFirst.mock.resetCalls();
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.ASSIGNED,
       }));
@@ -235,10 +235,10 @@ describe("Shipments Controller", () => {
     });
 
     it("should_ThrowWithoutUpdate_WhenShipmentBelongsToAnotherCompany", async () => {
-      // Arrange
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
-        companyId: "company-2", // different tenant
-      }));
+      // Arrange — tenant-scoped findFirst({ where: { id, companyId } }) never
+      // returns a row belonging to another company, so the mock reflects
+      // that as null (same outcome as "not found").
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => null);
       const consoleMock = mock.method(console, "error", () => {});
 
       // Act & Assert
@@ -256,7 +256,7 @@ describe("Shipments Controller", () => {
 
     it("should_ThrowWithoutUpdate_WhenShipmentDoesNotExist", async () => {
       // Arrange
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => null);
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => null);
       const consoleMock = mock.method(console, "error", () => {});
 
       // Act & Assert
@@ -301,7 +301,7 @@ describe("Shipments Controller", () => {
 
     it("should_SendSuccessNotification_WhenStatusIsDelivered", async () => {
       // Arrange: DELIVERED is only reachable from IN_TRANSIT / DELAYED
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.IN_TRANSIT,
       }));
@@ -335,7 +335,7 @@ describe("Shipments Controller", () => {
 
     it("should_RethrowError_WhenDbUpdateFails", async () => {
       // Arrange
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.IN_TRANSIT,
       }));
@@ -354,7 +354,7 @@ describe("Shipments Controller", () => {
 
     it("should_RejectIllegalTransition_WhenShipmentIsDelivered", async () => {
       // Arrange: a delivered shipment is terminal — no move back to IN_TRANSIT
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.DELIVERED,
       }));
@@ -370,7 +370,7 @@ describe("Shipments Controller", () => {
 
     it("should_RequireReason_WhenStatusIsFailed", async () => {
       // Arrange: FAILED is reachable from IN_TRANSIT but needs a reason
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.IN_TRANSIT,
       }));
@@ -386,7 +386,7 @@ describe("Shipments Controller", () => {
 
     it("should_MarkFailed_WhenReasonProvided", async () => {
       // Arrange
-      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.IN_TRANSIT,
       }));

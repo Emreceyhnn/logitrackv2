@@ -31,22 +31,21 @@ export const createInventoryItem = authenticatedAction(
 
       const parsed = createInventorySchema.parse(data);
 
-      const warehouse = await db.warehouse.findUnique({
-        where: { id: parsed.warehouseId },
+      const warehouse = await db.warehouse.findFirst({
+        where: { id: parsed.warehouseId, companyId },
       });
 
-      if (!warehouse || warehouse.companyId !== companyId) {
+      if (!warehouse) {
         throw new NotFoundError("Warehouse");
       }
 
       const itemSku = parsed.sku || `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
-      const existingItem = await db.inventory.findUnique({
+      const existingItem = await db.inventory.findFirst({
         where: {
-          warehouseId_sku: {
-            warehouseId: parsed.warehouseId,
-            sku: itemSku,
-          },
+          warehouseId: parsed.warehouseId,
+          sku: itemSku,
+          companyId,
         },
       });
 
@@ -107,12 +106,12 @@ export const updateInventoryItem = authenticatedAction(
 
       const parsed = updateInventorySchema.parse(data);
 
-      const currentItem = await db.inventory.findUnique({
-        where: { id: inventoryId },
+      const currentItem = await db.inventory.findFirst({
+        where: { id: inventoryId, companyId },
         select: { sku: true, warehouseId: true, companyId: true, quantity: true },
       });
 
-      if (!currentItem || currentItem.companyId !== companyId) {
+      if (!currentItem) {
         throw new NotFoundError("Inventory item");
       }
 
@@ -120,12 +119,11 @@ export const updateInventoryItem = authenticatedAction(
       const newWarehouseId = parsed.warehouseId !== undefined ? parsed.warehouseId : currentItem.warehouseId;
 
       if (newSku !== currentItem.sku || newWarehouseId !== currentItem.warehouseId) {
-        const duplicate = await db.inventory.findUnique({
+        const duplicate = await db.inventory.findFirst({
           where: {
-            warehouseId_sku: {
-              warehouseId: newWarehouseId,
-              sku: newSku,
-            },
+            warehouseId: newWarehouseId,
+            sku: newSku,
+            companyId,
           },
         });
 
@@ -180,12 +178,12 @@ export const adjustInventoryStock = authenticatedAction(
         notes,
       });
 
-      const currentItem = await db.inventory.findUnique({
-        where: { id: parsed.inventoryId },
+      const currentItem = await db.inventory.findFirst({
+        where: { id: parsed.inventoryId, companyId },
         select: { sku: true, warehouseId: true, companyId: true, quantity: true },
       });
 
-      if (!currentItem || currentItem.companyId !== companyId) {
+      if (!currentItem) {
         throw new NotFoundError("Inventory item");
       }
 
@@ -232,12 +230,12 @@ export const deleteInventoryItem = authenticatedAction(
         "role_warehouse",
       ]);
 
-      const existingItem = await db.inventory.findUnique({
-        where: { id: inventoryId },
+      const existingItem = await db.inventory.findFirst({
+        where: { id: inventoryId, companyId },
         select: { companyId: true },
       });
 
-      if (!existingItem || existingItem.companyId !== companyId) {
+      if (!existingItem) {
         throw new NotFoundError("Inventory item");
       }
 
@@ -273,8 +271,8 @@ export const logWarehouseFulfillment = authenticatedAction(
         type,
       });
 
-      const inventoryNode = await db.inventory.findUnique({
-        where: { warehouseId_sku: { warehouseId: parsed.warehouseId, sku: parsed.sku } }
+      const inventoryNode = await db.inventory.findFirst({
+        where: { warehouseId: parsed.warehouseId, sku: parsed.sku, companyId }
       });
 
       if (!inventoryNode) {

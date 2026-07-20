@@ -190,7 +190,7 @@ describe("Vehicle Controller", () => {
 
     it("should_ReturnVehicle_WhenVehicleExistsAndBelongsToCompany", async () => {
       // Arrange
-      dbMock.vehicle.findUnique.mock.mockImplementation(async () => ({
+      dbMock.vehicle.findFirst.mock.mockImplementation(async () => ({
         id: "veh-1",
         plate: "34 ABC 123",
         companyId: "company-1",
@@ -202,26 +202,24 @@ describe("Vehicle Controller", () => {
       // Assert
       expect(result.id).toBe("veh-1");
       expect(result.plate).toBe("34 ABC 123");
-      expect(dbMock.vehicle.findUnique.mock.calls.length).toBe(1);
+      expect(dbMock.vehicle.findFirst.mock.calls.length).toBe(1);
     });
 
     it("should_ThrowError_WhenVehicleDoesNotExist", async () => {
       // Arrange
-      dbMock.vehicle.findUnique.mock.mockImplementation(async () => null);
+      dbMock.vehicle.findFirst.mock.mockImplementation(async () => null);
 
       // Act & Assert
       await expect(
         vehicleController.getVehicleById(mockUser, "non-existent")
       ).rejects.toThrow("Vehicle not found or unauthorized");
     });
-    
+
     it("should_ThrowError_WhenVehicleBelongsToAnotherCompany", async () => {
-      // Arrange
-      dbMock.vehicle.findUnique.mock.mockImplementation(async () => ({
-        id: "veh-2",
-        plate: "34 DEF 456",
-        companyId: "company-2",
-      }));
+      // Arrange — the tenant-scoped findFirst({ where: { id, companyId } })
+      // never returns a row belonging to another company, so the mock
+      // reflects that by resolving to null (same as "not found").
+      dbMock.vehicle.findFirst.mock.mockImplementation(async () => null);
 
       // Act & Assert
       await expect(

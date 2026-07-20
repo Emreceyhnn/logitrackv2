@@ -14,10 +14,10 @@ const dbMock = {
     delete: mock.fn(),
   },
   driver: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   vehicle: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
 };
 
@@ -65,7 +65,7 @@ describe("Documents Controller", () => {
     dbMock.document.findMany.mock.resetCalls();
     dbMock.document.findUnique.mock.resetCalls();
     dbMock.document.delete.mock.resetCalls();
-    dbMock.driver.findUnique.mock.resetCalls();
+    dbMock.driver.findFirst.mock.resetCalls();
     dbMock.vehicle.findUnique.mock.resetCalls();
     
     checkPermissionMock.checkPermission.mock.resetCalls();
@@ -77,7 +77,7 @@ describe("Documents Controller", () => {
 
     it("should_CreateDocument_AndSetStatusToExpired_WhenExpiryDateIsInThePast", async () => {
       // Arrange
-      dbMock.driver.findUnique.mock.mockImplementation(async () => ({ companyId: "company-1" }));
+      dbMock.driver.findFirst.mock.mockImplementation(async () => ({ companyId: "company-1" }));
       dbMock.document.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({ id: "doc-1", ...args.data }));
 
       const pastDate = new Date();

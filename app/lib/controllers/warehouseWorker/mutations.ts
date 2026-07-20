@@ -36,8 +36,8 @@ export const logWarehouseMovement = authenticatedAction(
       });
       if (!warehouse) throw new Error("Invalid warehouse or unauthorized");
 
-      const inventoryNode = await db.inventory.findUnique({
-        where: { warehouseId_sku: { warehouseId, sku } },
+      const inventoryNode = await db.inventory.findFirst({
+        where: { warehouseId, sku, companyId },
       });
 
       const isInbound = INBOUND_KINDS.includes(kind);
@@ -119,8 +119,8 @@ export const adjustWarehouseStock = authenticatedAction(
       });
       if (!warehouse) throw new Error("Invalid warehouse or unauthorized");
 
-      const inventoryNode = await db.inventory.findUnique({
-        where: { warehouseId_sku: { warehouseId, sku } },
+      const inventoryNode = await db.inventory.findFirst({
+        where: { warehouseId, sku, companyId },
       });
       if (!inventoryNode)
         throw new Error("No inventory record for this SKU to adjust");
@@ -173,8 +173,8 @@ export const advanceWarehouseTask = authenticatedAction(
     return controllerGuard("advanceWarehouseTask", async () => {
       await checkPermission(user, companyId, WW_ROLES);
 
-      const task = await db.warehouseTask.findUnique({ where: { id: taskId } });
-      if (!task || task.companyId !== companyId)
+      const task = await db.warehouseTask.findFirst({ where: { id: taskId, companyId } });
+      if (!task)
         throw new Error("Task not found or unauthorized");
       if (task.status === "COMPLETED" || task.doneUnits >= task.totalUnits) {
         return { success: true, done: task.totalUnits, complete: true };

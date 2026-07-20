@@ -15,11 +15,9 @@ interface OverviewMapCardProps {
   stats: MapData[] | null;
 }
 
-// Marker type → the entity list it drills into. Vehicles carry the operation
-// (a moving shipment), so a vehicle marker deep-links to that vehicle's
-// shipments; warehouses/customers go to their own list.
+// Marker type → the entity list it drills into, highlighted by id.
 const DRILL_PATH: Record<MapData["type"], string> = {
-  V: "/shipments",
+  V: "/vehicle",
   W: "/warehouses",
   C: "/customers",
 };
@@ -49,12 +47,7 @@ const OverviewMapCard = ({ stats }: OverviewMapCardProps) => {
     const path = DRILL_PATH[marker.type as MapData["type"]];
     if (!path) return;
     const base = buildLocalizedHref(path, lang);
-    // Vehicle → find its shipments by name/plate via the search filter;
-    // warehouse/customer → their list highlighted by id.
-    const href =
-      marker.type === "V"
-        ? `${base}?search=${encodeURIComponent(marker.name)}`
-        : `${base}?id=${encodeURIComponent(marker.id)}`;
+    const href = `${base}?id=${encodeURIComponent(marker.id)}`;
     router.push(href);
   };
 

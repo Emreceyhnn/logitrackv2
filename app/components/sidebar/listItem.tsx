@@ -9,14 +9,14 @@ import {
   Collapse,
   useTheme,
   Box,
+  Chip,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  buildLocalizedHref,
-  isPathActive,
-} from "@/app/lib/language/navigation";
+import { buildLocalizedHref } from "@/app/lib/language/navigation";
+import { toast } from "sonner";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                       */
@@ -26,14 +26,31 @@ export type SidebarItem = {
   title: string;
   icon: ReactNode;
   href: string;
-  subTitles?: { title: string; href: string }[];
+  /** When rendered in demo mode, marks this item as a fully-built, clickable
+   * demo page. Items without this flag still render (for visual fidelity)
+   * but are visually disabled and non-navigating. Ignored outside demo mode. */
+  live?: boolean;
+  subTitles?: { title: string; href: string; live?: boolean }[];
 };
 
 export type Params = {
   items: SidebarItem[];
   lang: string;
   onMobileClose?: (() => void) | undefined;
+  /** Renders every href prefixed with /demo and disables non-`live` items
+   * (reduced opacity, "Soon" chip, no navigation, disabled-toast on click).
+   * Defaults to false — real dashboard usage is unaffected. */
+  isDemo?: boolean;
 };
+
+/** Prefixes a canonical path with /demo without running it through the
+ * localized-slug translator (buildLocalizedHref would rewrite "/overview"
+ * into e.g. "/genel-bakis", which has no corresponding folder under
+ * app/[lang]/(pages)/demo/). Demo routes are English-only path segments. */
+function buildDemoHref(canonicalPath: string, lang: string): string {
+  const segments = canonicalPath.split("/").filter(Boolean);
+  return `/${lang}/demo/${segments.join("/")}`;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  SidebarList                                                                 */
@@ -43,18 +60,26 @@ export const SidebarList = memo(function SidebarList({
   items,
   lang,
   onMobileClose,
+  isDemo = false,
 }: Params) {
   const pathname = usePathname();
   const theme = useTheme();
+  const dict = useDictionary();
 
   /* ---------------------------------------------------------------------- */
   /*  Helpers — pure functions, no side effects                               */
   /* ---------------------------------------------------------------------- */
 
-  /** True if the localized sub-item path matches the current pathname exactly. */
+  const resolveHref = useCallback(
+    (canonicalPath: string) =>
+      isDemo ? buildDemoHref(canonicalPath, lang) : buildLocalizedHref(canonicalPath, lang),
+    [isDemo, lang]
+  );
+
+  /** True if the sub-item's resolved path matches the current pathname exactly. */
   const isSubActive = useCallback(
-    (href: string) => isPathActive(pathname, href, lang, true),
-    [pathname, lang]
+    (href: string) => pathname === resolveHref(href),
+    [pathname, resolveHref]
   );
 
   /** True if this parent item (or any of its children) is the active page. */
@@ -63,9 +88,17 @@ export const SidebarList = memo(function SidebarList({
       if (item.subTitles?.length) {
         return item.subTitles.some((sub) => isSubActive(sub.href));
       }
-      return isPathActive(pathname, item.href, lang, true);
+      return pathname === resolveHref(item.href);
     },
-    [pathname, lang, isSubActive]
+    [pathname, resolveHref, isSubActive]
+  );
+
+  const handleDisabledClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      toast.info(dict.toasts.demoActionDisabled);
+    },
+    [dict]
   );
 
   /* ---------------------------------------------------------------------- */
@@ -125,17 +158,25 @@ export const SidebarList = memo(function SidebarList({
         const hasChildren = Boolean(item.subTitles?.length);
         const isOpen = openKey === item.href;
         const parentActive = isParentActive(item);
-        const localizedHref = buildLocalizedHref(item.href, lang);
+        const resolvedHref = resolveHref(item.href);
+        // A parent with children is never itself a nav target (it just
+        // toggles the collapse), so it's never "disabled" — only leaf items
+        // (no children) can be live/soon in demo mode.
+        const parentDisabled = isDemo && !hasChildren && item.live !== true;
 
         return (
           <Box key={item.href} sx={{ width: "100%" }}>
             {/* ---- Parent row ---- */}
             <ListItemButton
-              component={hasChildren ? "div" : Link}
-              {...(hasChildren ? {} : { href: localizedHref, prefetch: true })}
+              component={hasChildren || parentDisabled ? "div" : Link}
+              {...(hasChildren || parentDisabled
+                ? {}
+                : { href: resolvedHref, prefetch: true })}
               onClick={
                 hasChildren
                   ? () => handleToggle(item.href)
+                  : parentDisabled
+                  ? handleDisabledClick
                   : onMobileClose
               }
               selected={parentActive}
@@ -147,6 +188,7 @@ export const SidebarList = memo(function SidebarList({
                 width: "calc(100% - 16px)",
                 transition: "all 0.2s ease-in-out",
                 cursor: "pointer",
+                opacity: parentDisabled ? 0.5 : 1,
                 bgcolor: parentActive
                   ? theme.palette.primary._alpha.main_10
                   : "transparent",
@@ -191,6 +233,20 @@ export const SidebarList = memo(function SidebarList({
                 }}
               />
 
+              {parentDisabled && (
+                <Chip
+                  label={dict.sidebar.demoSoon}
+                  size="small"
+                  sx={{
+                    height: 18,
+                    fontSize: 10,
+                    fontWeight: 600,
+                    bgcolor: theme.palette.action.selected,
+                    color: "text.secondary",
+                  }}
+                />
+              )}
+
               {hasChildren && (
                 <ExpandMoreIcon
                   sx={{
@@ -213,15 +269,21 @@ export const SidebarList = memo(function SidebarList({
                 <List disablePadding sx={{ width: "100%", mt: 0.5 }}>
                   {item.subTitles?.map((sub) => {
                     const subActive = isSubActive(sub.href);
-                    const subLocalizedHref = buildLocalizedHref(sub.href, lang);
+                    const subResolvedHref = resolveHref(sub.href);
+                    const subDisabled = isDemo && sub.live !== true;
 
                     return (
                       <ListItemButton
                         key={sub.href}
-                        component={Link}
-                        href={subLocalizedHref}
-                        prefetch={true}
-                        onClick={onMobileClose ?? (() => {})}
+                        component={subDisabled ? "div" : Link}
+                        {...(subDisabled
+                          ? {}
+                          : { href: subResolvedHref, prefetch: true })}
+                        onClick={
+                          subDisabled
+                            ? handleDisabledClick
+                            : onMobileClose ?? (() => {})
+                        }
                         selected={subActive}
                         sx={{
                           pl: 7,
@@ -230,6 +292,7 @@ export const SidebarList = memo(function SidebarList({
                           mx: 1.5,
                           width: "calc(100% - 24px)",
                           transition: "all 0.2s",
+                          opacity: subDisabled ? 0.5 : 1,
                           color: subActive
                             ? theme.palette.primary.main
                             : "text.secondary",
@@ -258,6 +321,19 @@ export const SidebarList = memo(function SidebarList({
                             fontWeight: subActive ? 700 : 500,
                           }}
                         />
+                        {subDisabled && (
+                          <Chip
+                            label={dict.sidebar.demoSoon}
+                            size="small"
+                            sx={{
+                              height: 18,
+                              fontSize: 10,
+                              fontWeight: 600,
+                              bgcolor: theme.palette.action.selected,
+                              color: "text.secondary",
+                            }}
+                          />
+                        )}
                       </ListItemButton>
                     );
                   })}
