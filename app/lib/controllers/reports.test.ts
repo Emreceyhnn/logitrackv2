@@ -12,7 +12,7 @@ const dbMock = {
     count: mock.fn(),
   },
   route: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   vehicle: {
     findMany: mock.fn(),
@@ -50,7 +50,7 @@ describe("Reports Controller", () => {
     // Her testten önce mockları sıfırla
     dbMock.shipment.groupBy.mock.resetCalls();
     dbMock.shipment.count.mock.resetCalls();
-    dbMock.route.findUnique.mock.resetCalls();
+    dbMock.route.findFirst.mock.resetCalls();
     dbMock.vehicle.findMany.mock.resetCalls();
     dbMock.vehicle.count.mock.resetCalls();
     dbMock.inventory.findMany.mock.resetCalls();
@@ -90,8 +90,8 @@ describe("Reports Controller", () => {
         return [];
       });
 
-      // Mock Route FindUnique
-      dbMock.route.findUnique.mock.mockImplementation(async () => ({
+      // Mock Route FindFirst
+      dbMock.route.findFirst.mock.mockImplementation(async () => ({
         name: "Istanbul-Ankara",
       }));
 

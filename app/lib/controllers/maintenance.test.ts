@@ -10,12 +10,12 @@ const dbMock = {
   maintenanceRecord: {
     create: mock.fn(),
     findMany: mock.fn(),
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     update: mock.fn(),
     delete: mock.fn(),
   },
   vehicle: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
 };
 
@@ -80,10 +80,10 @@ describe("Maintenance Controller", () => {
     // Her testten önce mockları sıfırla
     dbMock.maintenanceRecord.create.mock.resetCalls();
     dbMock.maintenanceRecord.findMany.mock.resetCalls();
-    dbMock.maintenanceRecord.findUnique.mock.resetCalls();
+    dbMock.maintenanceRecord.findFirst.mock.resetCalls();
     dbMock.maintenanceRecord.update.mock.resetCalls();
     dbMock.maintenanceRecord.delete.mock.resetCalls();
-    dbMock.vehicle.findUnique.mock.resetCalls();
+    dbMock.vehicle.findFirst.mock.resetCalls();
     
     checkPermissionMock.checkPermission.mock.resetCalls();
     notificationsMock.sendNotificationAction.mock.resetCalls();
@@ -94,7 +94,7 @@ describe("Maintenance Controller", () => {
 
     it("should_CreateRecordAndSendNotification_WhenValidDataProvided", async () => {
       // Arrange
-      dbMock.vehicle.findUnique.mock.mockImplementation(async () => ({
+      dbMock.vehicle.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
       }));
       
@@ -131,7 +131,7 @@ describe("Maintenance Controller", () => {
 
     it("should_ThrowError_WhenVehicleBelongsToAnotherCompany", async () => {
       // Arrange
-      dbMock.vehicle.findUnique.mock.mockImplementation(async () => ({
+      dbMock.vehicle.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-2", // different company
       }));
 
@@ -149,7 +149,7 @@ describe("Maintenance Controller", () => {
 
     it("should_UpdateRecordAndSendNotification_WhenStatusChanges", async () => {
       // Arrange
-      dbMock.maintenanceRecord.findUnique.mock.mockImplementation(async () => ({
+      dbMock.maintenanceRecord.findFirst.mock.mockImplementation(async () => ({
         status: MaintenanceStatus.SCHEDULED,
         type: MaintenanceType.ENGINE_REPAIR,
         companyId: "company-1",

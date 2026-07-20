@@ -63,8 +63,8 @@ export const getVehicleById = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         include: {
           driver: {
             include: {
@@ -87,7 +87,7 @@ export const getVehicleById = authenticatedAction(
         },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 
@@ -108,12 +108,12 @@ export const updateVehicle = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 
@@ -146,12 +146,12 @@ export const deleteVehicle = authenticatedAction(
     return controllerGuard("deleteVehicle", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 
@@ -182,12 +182,12 @@ export const updateVehicleStatus = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true, plate: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 

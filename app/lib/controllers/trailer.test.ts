@@ -161,7 +161,7 @@ describe("Trailer Controller", () => {
 
     it("should_ReturnTrailer_WhenTrailerExistsAndBelongsToCompany", async () => {
       // Arrange
-      dbMock.trailer.findUnique.mock.mockImplementation(async () => ({
+      dbMock.trailer.findFirst.mock.mockImplementation(async () => ({
         id: "trailer-1",
         plate: "34 TR 123",
         companyId: "company-1",
@@ -173,12 +173,12 @@ describe("Trailer Controller", () => {
       // Assert
       expect(result.id).toBe("trailer-1");
       expect(result.plate).toBe("34 TR 123");
-      expect(dbMock.trailer.findUnique.mock.calls.length).toBe(1);
+      expect(dbMock.trailer.findFirst.mock.calls.length).toBe(1);
     });
 
     it("should_ThrowError_WhenTrailerDoesNotExist", async () => {
       // Arrange
-      dbMock.trailer.findUnique.mock.mockImplementation(async () => null);
+      dbMock.trailer.findFirst.mock.mockImplementation(async () => null);
 
       // Act & Assert
       await expect(

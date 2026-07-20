@@ -24,12 +24,12 @@ export const uploadVehicleDocument = authenticatedAction(
     return controllerGuard("uploadVehicleDocument", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 

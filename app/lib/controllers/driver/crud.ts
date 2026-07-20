@@ -22,8 +22,8 @@ export const getDriverById = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundDriver = await db.driver.findUnique({
-        where: { id: driverId },
+      const foundDriver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
         include: {
           user: true,
           currentVehicle: true,
@@ -34,7 +34,7 @@ export const getDriverById = authenticatedAction(
         },
       });
 
-      if (!foundDriver || foundDriver.companyId !== companyId) {
+      if (!foundDriver) {
         throw new NotFoundError("Driver");
       }
 
@@ -65,10 +65,8 @@ export const createDriver = authenticatedAction(
       }
 
       if (parsed.employeeId) {
-        const existingEmployee = await db.driver.findUnique({
-          where: {
-            companyId_employeeId: { companyId, employeeId: parsed.employeeId },
-          },
+        const existingEmployee = await db.driver.findFirst({
+          where: { companyId, employeeId: parsed.employeeId },
         });
         if (existingEmployee) {
           throw new ConflictError("A driver with this Employee ID already exists");
@@ -76,11 +74,11 @@ export const createDriver = authenticatedAction(
       }
 
       if (parsed.currentVehicleId) {
-        const vehicle = await db.vehicle.findUnique({
-          where: { id: parsed.currentVehicleId },
+        const vehicle = await db.vehicle.findFirst({
+          where: { id: parsed.currentVehicleId, companyId },
           include: { driver: true },
         });
-        if (!vehicle || vehicle.companyId !== companyId || vehicle.deletedAt) {
+        if (!vehicle || vehicle.deletedAt) {
           throw new NotFoundError("Selected vehicle");
         }
         if (vehicle.driver && vehicle.driver.userId !== parsed.userId) {
@@ -170,20 +168,20 @@ export const updateDriver = authenticatedAction(
 
       const parsed = updateDriverSchema.parse(data);
 
-      const foundDriver = await db.driver.findUnique({
-        where: { id: driverId },
+      const foundDriver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
       });
 
-      if (!foundDriver || foundDriver.companyId !== companyId) {
+      if (!foundDriver) {
         throw new NotFoundError("Driver");
       }
 
       if (parsed.currentVehicleId) {
-        const vehicle = await db.vehicle.findUnique({
-          where: { id: parsed.currentVehicleId },
+        const vehicle = await db.vehicle.findFirst({
+          where: { id: parsed.currentVehicleId, companyId },
           include: { driver: true },
         });
-        if (!vehicle || vehicle.companyId !== companyId || vehicle.deletedAt) {
+        if (!vehicle || vehicle.deletedAt) {
           throw new NotFoundError("Selected vehicle");
         }
         if (vehicle.driver && vehicle.driver.userId !== foundDriver.userId) {
@@ -262,12 +260,12 @@ export const deleteDriver = authenticatedAction(
       const companyId = user?.companyId || "";
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const foundDriver = await db.driver.findUnique({
-        where: { id: driverId },
+      const foundDriver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
         select: { userId: true, companyId: true },
       });
 
-      if (!foundDriver || foundDriver.companyId !== companyId) {
+      if (!foundDriver) {
         throw new NotFoundError("Driver");
       }
 

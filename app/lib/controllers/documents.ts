@@ -7,7 +7,7 @@ import { DocumentStatus, DocumentType, Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { driverCacheKeys, invalidatePattern, vehicleCacheKeys } from "../redis";
 import { controllerGuard } from "./utils/controllerGuard";
-import { NotFoundError, ForbiddenError, ValidationError } from "../errors";
+import { NotFoundError, ValidationError } from "../errors";
 
 export const createDocument = authenticatedAction(
   async (
@@ -34,20 +34,20 @@ export const createDocument = authenticatedAction(
       }
 
       if (driverId) {
-        const driver = await db.driver.findUnique({
-          where: { id: driverId },
+        const driver = await db.driver.findFirst({
+          where: { id: driverId, companyId },
           select: { companyId: true },
         });
-        if (!driver || driver.companyId !== companyId)
+        if (!driver)
           throw new NotFoundError("Driver");
       }
 
       if (vehicleId) {
-        const vehicle = await db.vehicle.findUnique({
-          where: { id: vehicleId },
+        const vehicle = await db.vehicle.findFirst({
+          where: { id: vehicleId, companyId },
           select: { companyId: true },
         });
-        if (!vehicle || vehicle.companyId !== companyId)
+        if (!vehicle)
           throw new NotFoundError("Vehicle");
       }
 
@@ -148,8 +148,8 @@ export const getDocumentById = authenticatedAction(
         "role_manager",
         "role_dispatcher",
       ]);
-      const document = await db.document.findUnique({
-        where: { id: documentId },
+      const document = await db.document.findFirst({
+        where: { id: documentId, companyId },
         include: {
           driver: true,
           vehicle: true,
@@ -157,10 +157,6 @@ export const getDocumentById = authenticatedAction(
       });
 
       if (!document) throw new NotFoundError("Document");
-
-      if (document.companyId !== companyId) {
-        throw new ForbiddenError();
-      }
 
       return document;
     });
@@ -176,8 +172,8 @@ export const deleteDocument = authenticatedAction(
         "role_manager",
         "role_dispatcher",
       ]);
-      const existingDocument = await db.document.findUnique({
-        where: { id: documentId },
+      const existingDocument = await db.document.findFirst({
+        where: { id: documentId, companyId },
         select: { companyId: true, vehicleId: true, driverId: true },
       });
 

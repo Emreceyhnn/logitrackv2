@@ -9,7 +9,7 @@ import { DriverStatus } from "@prisma/client";
 // Prisma DB Mock
 const dbMock = {
   driver: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     create: mock.fn(),
     update: mock.fn(),
     delete: mock.fn(),
@@ -23,7 +23,7 @@ const dbMock = {
     findMany: mock.fn(),
   },
   vehicle: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   role: {
     findFirst: mock.fn(),
@@ -106,7 +106,7 @@ describe("Driver Controller", () => {
   });
 
   beforeEach(() => {
-    dbMock.driver.findUnique.mock.resetCalls();
+    dbMock.driver.findFirst.mock.resetCalls();
     dbMock.driver.create.mock.resetCalls();
     dbMock.driver.update.mock.resetCalls();
     dbMock.driver.delete.mock.resetCalls();
@@ -118,7 +118,7 @@ describe("Driver Controller", () => {
     dbMock.user.update.mock.resetCalls();
     dbMock.user.findMany.mock.resetCalls();
     
-    dbMock.vehicle.findUnique.mock.resetCalls();
+    dbMock.vehicle.findFirst.mock.resetCalls();
     dbMock.role.findFirst.mock.resetCalls();
     dbMock.$transaction.mock.resetCalls();
     
@@ -141,7 +141,7 @@ describe("Driver Controller", () => {
         driver: null, // User is not a driver yet
       }));
 
-      dbMock.driver.findUnique.mock.mockImplementation(async () => null); // Employee ID is available
+      dbMock.driver.findFirst.mock.mockImplementation(async () => null); // Employee ID is available
       
       const expectedDriver = { id: "driver-1" };
       dbMock.driver.create.mock.mockImplementation(async () => expectedDriver);
@@ -186,7 +186,7 @@ describe("Driver Controller", () => {
 
     it("should_UpdateStatusAndSendNotification", async () => {
       // Arrange
-      dbMock.driver.findUnique.mock.mockImplementation(async () => ({
+      dbMock.driver.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         user: { name: "John", surname: "Doe" }
       }));

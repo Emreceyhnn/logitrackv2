@@ -33,12 +33,12 @@ export const addMaintenanceRecord = authenticatedAction(
         "role_driver",
       ]);
 
-      const foundVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const foundVehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         select: { companyId: true, plate: true },
       });
 
-      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+      if (!foundVehicle) {
         throw new Error("Vehicle not found or unauthorized");
       }
 
@@ -107,8 +107,8 @@ export const updateMaintenanceRecord = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundRecord = await db.maintenanceRecord.findUnique({
-        where: { id: recordId },
+      const foundRecord = await db.maintenanceRecord.findFirst({
+        where: { id: recordId, companyId },
         include: {
           vehicle: {
             select: {
@@ -120,7 +120,7 @@ export const updateMaintenanceRecord = authenticatedAction(
         },
       });
 
-      if (!foundRecord || foundRecord.vehicle.companyId !== companyId) {
+      if (!foundRecord) {
         throw new Error("Record not found or unauthorized");
       }
 

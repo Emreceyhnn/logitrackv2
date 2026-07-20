@@ -35,12 +35,12 @@ export const updateShipment = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingShipment = await db.shipment.findUnique({
-        where: { id: shipmentId },
+      const existingShipment = await db.shipment.findFirst({
+        where: { id: shipmentId, companyId: companyId! },
         select: { companyId: true, status: true },
       });
 
-      if (!existingShipment || existingShipment.companyId !== companyId) {
+      if (!existingShipment) {
         throw new Error("Shipment not found or unauthorized");
       }
 
@@ -106,41 +106,41 @@ export const updateShipment = authenticatedAction(
         trailerOwner,
       ] = await Promise.all([
         customerIdFk
-          ? db.customer.findUnique({ where: { id: customerIdFk }, select: { companyId: true } })
+          ? db.customer.findFirst({ where: { id: customerIdFk, companyId: companyId! }, select: { companyId: true } })
           : null,
         customerLocationIdFk
-          ? db.customerLocation.findUnique({ where: { id: customerLocationIdFk }, select: { companyId: true } })
+          ? db.customerLocation.findFirst({ where: { id: customerLocationIdFk, companyId: companyId! }, select: { companyId: true } })
           : null,
         routeIdFk
-          ? db.route.findUnique({ where: { id: routeIdFk }, select: { companyId: true } })
+          ? db.route.findFirst({ where: { id: routeIdFk, companyId: companyId! }, select: { companyId: true } })
           : null,
         originWarehouseIdFk
-          ? db.warehouse.findUnique({ where: { id: originWarehouseIdFk }, select: { companyId: true } })
+          ? db.warehouse.findFirst({ where: { id: originWarehouseIdFk, companyId: companyId! }, select: { companyId: true } })
           : null,
         driverIdFk
-          ? db.driver.findUnique({ where: { id: driverIdFk }, select: { companyId: true } })
+          ? db.driver.findFirst({ where: { id: driverIdFk, companyId: companyId! }, select: { companyId: true } })
           : null,
         trailerIdFk
-          ? db.trailer.findUnique({ where: { id: trailerIdFk }, select: { companyId: true } })
+          ? db.trailer.findFirst({ where: { id: trailerIdFk, companyId: companyId! }, select: { companyId: true } })
           : null,
       ]);
 
-      if (customerIdFk && (!customerOwner || customerOwner.companyId !== companyId)) {
+      if (customerIdFk && !customerOwner) {
         throw new NotFoundError("Customer");
       }
-      if (customerLocationIdFk && (!customerLocationOwner || customerLocationOwner.companyId !== companyId)) {
+      if (customerLocationIdFk && !customerLocationOwner) {
         throw new NotFoundError("Customer location");
       }
-      if (routeIdFk && (!routeOwner || routeOwner.companyId !== companyId)) {
+      if (routeIdFk && !routeOwner) {
         throw new NotFoundError("Route");
       }
-      if (originWarehouseIdFk && (!warehouseOwner || warehouseOwner.companyId !== companyId)) {
+      if (originWarehouseIdFk && !warehouseOwner) {
         throw new NotFoundError("Warehouse");
       }
-      if (driverIdFk && (!driverOwner || driverOwner.companyId !== companyId)) {
+      if (driverIdFk && !driverOwner) {
         throw new NotFoundError("Driver");
       }
-      if (trailerIdFk && (!trailerOwner || trailerOwner.companyId !== companyId)) {
+      if (trailerIdFk && !trailerOwner) {
         throw new NotFoundError("Trailer");
       }
 
@@ -153,8 +153,8 @@ export const updateShipment = authenticatedAction(
         const updatedShipment = await db.$transaction(
           async (tx) => {
             // 1. Get old items to restore inventory
-            const oldShipment = await tx.shipment.findUnique({
-              where: { id: shipmentId },
+            const oldShipment = await tx.shipment.findFirst({
+              where: { id: shipmentId, companyId: companyId! },
               include: { items: true },
             });
 
@@ -165,8 +165,8 @@ export const updateShipment = authenticatedAction(
               updateData.trackingId &&
               updateData.trackingId !== oldShipment.trackingId
             ) {
-              const duplicate = await tx.shipment.findUnique({
-                where: { trackingId: updateData.trackingId as string },
+              const duplicate = await tx.shipment.findFirst({
+                where: { trackingId: updateData.trackingId as string, companyId: companyId! },
               });
               if (duplicate) {
                 throw new Error(
@@ -180,12 +180,11 @@ export const updateShipment = authenticatedAction(
             if (oldWarehouseId) {
               await Promise.all(
                 oldShipment!.items.map(async (oldItem) => {
-                  const invItem = await tx.inventory.findUnique({
+                  const invItem = await tx.inventory.findFirst({
                     where: {
-                      warehouseId_sku: {
-                        warehouseId: oldWarehouseId,
-                        sku: oldItem.sku,
-                      },
+                      warehouseId: oldWarehouseId,
+                      sku: oldItem.sku,
+                      companyId: companyId!,
                     },
                   });
 
@@ -204,7 +203,7 @@ export const updateShipment = authenticatedAction(
                         quantity: oldItem.quantity,
                         type: "ALLOCATION_REVERT",
                         userId,
-                        companyId,
+                        companyId: companyId!,
                       },
                     });
                   }
@@ -262,12 +261,11 @@ export const updateShipment = authenticatedAction(
             const newWarehouseId = updated.originWarehouseId;
             if (newWarehouseId) {
               for (const item of items) {
-                const invItem = await tx.inventory.findUnique({
+                const invItem = await tx.inventory.findFirst({
                   where: {
-                    warehouseId_sku: {
-                      warehouseId: newWarehouseId,
-                      sku: item.sku,
-                    },
+                    warehouseId: newWarehouseId,
+                    sku: item.sku,
+                    companyId: companyId!,
                   },
                 });
 
@@ -288,7 +286,7 @@ export const updateShipment = authenticatedAction(
                       quantity: -item.quantity,
                       type: "ALLOCATION",
                       userId,
-                      companyId,
+                      companyId: companyId!,
                     },
                   });
                 }
@@ -361,12 +359,12 @@ export const deleteShipment = authenticatedAction(
     return controllerGuard("deleteShipment", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const existingShipment = await db.shipment.findUnique({
-        where: { id: shipmentId },
+      const existingShipment = await db.shipment.findFirst({
+        where: { id: shipmentId, companyId: companyId! },
         include: { items: true },
       });
 
-      if (!existingShipment || existingShipment.companyId !== companyId) {
+      if (!existingShipment) {
         throw new Error("Shipment not found or unauthorized");
       }
 
@@ -375,12 +373,11 @@ export const deleteShipment = authenticatedAction(
         const warehouseId = existingShipment.originWarehouseId;
         if (warehouseId) {
           for (const item of existingShipment.items) {
-            const invItem = await tx.inventory.findUnique({
+            const invItem = await tx.inventory.findFirst({
               where: {
-                warehouseId_sku: {
-                  warehouseId,
-                  sku: item.sku,
-                },
+                warehouseId,
+                sku: item.sku,
+                companyId: companyId!,
               },
             });
 
@@ -401,7 +398,7 @@ export const deleteShipment = authenticatedAction(
                   quantity: item.quantity,
                   type: "ALLOCATION_CANCEL",
                   userId,
-                  companyId,
+                  companyId: companyId!,
                 },
               });
             }

@@ -20,13 +20,13 @@ const dbMock = {
     findFirst: mock.fn(),
   },
   inventory: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
   },
   inventoryMovement: {
     create: mock.fn(),
   },
   warehouseTask: {
-    findUnique: mock.fn(),
+    findFirst: mock.fn(),
     update: mock.fn(),
   },
   issue: {
@@ -67,9 +67,9 @@ describe("WarehouseWorker Controller", () => {
 
   beforeEach(() => {
     dbMock.warehouse.findFirst.mock.resetCalls();
-    dbMock.inventory.findUnique.mock.resetCalls();
+    dbMock.inventory.findFirst.mock.resetCalls();
     dbMock.inventoryMovement.create.mock.resetCalls();
-    dbMock.warehouseTask.findUnique.mock.resetCalls();
+    dbMock.warehouseTask.findFirst.mock.resetCalls();
     dbMock.warehouseTask.update.mock.resetCalls();
     dbMock.issue.create.mock.resetCalls();
     txMock.inventoryMovement.create.mock.resetCalls();
@@ -99,7 +99,7 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementationOnce(async () => ({
         id: "inv-1",
         name: "Widget",
         quantity: 10,
@@ -133,7 +133,7 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementationOnce(
+      dbMock.inventory.findFirst.mock.mockImplementationOnce(
         async () => null
       );
       txMock.inventoryMovement.create.mock.mockImplementationOnce(
@@ -176,7 +176,7 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => null);
+      dbMock.inventory.findFirst.mock.mockImplementationOnce(async () => null);
       await rejects(
         controller.adjustWarehouseStock(user, "wh-1", "SKU-1", 5, "sebep"),
         /No inventory record for this SKU to adjust/
@@ -188,7 +188,7 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementationOnce(async () => ({
         id: "inv-1",
         quantity: 10,
       }));
@@ -223,7 +223,7 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementationOnce(async () => ({
         id: "inv-1",
         quantity: 4,
       }));
@@ -250,7 +250,7 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.inventory.findUnique.mock.mockImplementationOnce(async () => ({
+      dbMock.inventory.findFirst.mock.mockImplementationOnce(async () => ({
         id: "inv-1",
         quantity: 6,
       }));
@@ -276,8 +276,10 @@ describe("WarehouseWorker Controller", () => {
 
   describe("advanceWarehouseTask()", () => {
     it("başka şirketin görevini reddeder", async () => {
-      dbMock.warehouseTask.findUnique.mock.mockImplementationOnce(
-        async () => ({ id: "t-1", companyId: "other-company" })
+      // Tenant-scoped findFirst({ where: { id, companyId } }) never returns a
+      // row belonging to another company, so the mock reflects that as null.
+      dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(
+        async () => null
       );
       await rejects(
         controller.advanceWarehouseTask(user, "t-1"),
@@ -286,7 +288,7 @@ describe("WarehouseWorker Controller", () => {
     });
 
     it("tamamlanmış görevi tekrar ilerletmez", async () => {
-      dbMock.warehouseTask.findUnique.mock.mockImplementationOnce(
+      dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(
         async () => ({
           id: "t-1",
           companyId: "company-1",
@@ -302,7 +304,7 @@ describe("WarehouseWorker Controller", () => {
     });
 
     it("görevi ilerletir ve hedefe ulaşınca COMPLETED yapar", async () => {
-      dbMock.warehouseTask.findUnique.mock.mockImplementationOnce(
+      dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(
         async () => ({
           id: "t-1",
           companyId: "company-1",

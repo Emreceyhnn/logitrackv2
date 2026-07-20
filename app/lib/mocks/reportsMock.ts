@@ -54,6 +54,14 @@ export function getReportsDashboardMock(): ReportsData {
       onTimeRate: 91.4,
       activeVehicles: 38,
       totalInventoryValue: 3955000,
+      pendingOrders: 0,
+      avgDeliveryTime: 0,
+      avgFuelCons: 0,
+      maintenanceCost: 0,
+      totalDistance: 0,
+      stockTurnover: 0,
+      deadStock: 0,
+      warehouseCapacity: 0,
     },
   };
 }

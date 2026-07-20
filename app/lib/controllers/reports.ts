@@ -39,8 +39,8 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
         }) => {
           if (!item.routeId)
             return { route: "Unassigned", count: item._count.routeId };
-          const route = await db.route.findUnique({
-            where: { id: item.routeId },
+          const route = await db.route.findFirst({
+            where: { id: item.routeId, companyId },
             select: { name: true },
           });
           return {
@@ -104,12 +104,25 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
     const delayedShipments = await db.shipment.count({
       where: { companyId, status: "DELAYED" },
     });
+    const pendingShipments = await db.shipment.count({
+      where: { companyId, status: "PENDING" },
+    });
     const onTimeRate =
       totalShipments > 0 ? ((totalShipments - delayedShipments) / totalShipments) * 100 : 100;
 
     const activeVehicles = await db.vehicle.count({
       where: { companyId, status: { not: "MAINTENANCE" } },
     });
+    
+    const avgFuelCons = vehicles.length > 0 
+      ? vehicles.reduce((sum, v) => sum + (v.avgFuelConsumption || 0), 0) / vehicles.length 
+      : 0;
+
+    const totalMaintenanceCost = vehicles.reduce((sum, v) => 
+      sum + v.maintenanceRecords.reduce((s, r) => s + Number(r.cost), 0), 
+    0);
+
+    const totalDistance = vehicles.reduce((sum, v) => sum + (v.odometerKm || 0), 0);
 
     const totalInventoryValue = enrichedInventory.reduce(
       (sum, item) => sum + item.quantity * item.unitPrice,
@@ -133,6 +146,14 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
         onTimeRate: parseFloat(onTimeRate.toFixed(1)),
         activeVehicles: activeVehicles,
         totalInventoryValue: totalInventoryValue,
+        pendingOrders: pendingShipments,
+        avgDeliveryTime: 0,
+        avgFuelCons: parseFloat(avgFuelCons.toFixed(1)),
+        maintenanceCost: totalMaintenanceCost,
+        totalDistance: totalDistance,
+        stockTurnover: 0,
+        deadStock: 0,
+        warehouseCapacity: 0,
       },
     };
   }, { fallback: null });

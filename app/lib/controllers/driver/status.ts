@@ -19,12 +19,12 @@ export const updateDriverStatus = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundDriver = await db.driver.findUnique({
-        where: { id: driverId },
+      const foundDriver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundDriver || foundDriver.companyId !== companyId) {
+      if (!foundDriver) {
         throw new NotFoundError("Driver");
       }
 
@@ -36,8 +36,8 @@ export const updateDriverStatus = authenticatedAction(
       await driverCache.invalidate(companyId, driverId);
 
       // Dispatch Notification for status changes
-      const driver = await db.driver.findUnique({
-        where: { id: driverId },
+      const driver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
         include: { user: { select: { name: true, surname: true } } }
       });
 
@@ -74,12 +74,12 @@ export const assignVehicleToDriver = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const vehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
+      const vehicle = await db.vehicle.findFirst({
+        where: { id: vehicleId, companyId },
         include: { driver: true },
       });
 
-      if (!vehicle || vehicle.companyId !== companyId) {
+      if (!vehicle) {
         throw new NotFoundError("Vehicle");
       }
 
@@ -110,12 +110,12 @@ export const unassignVehicleFromDriver = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const foundDriver = await db.driver.findUnique({
-        where: { id: driverId },
+      const foundDriver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
         select: { companyId: true },
       });
 
-      if (!foundDriver || foundDriver.companyId !== companyId) {
+      if (!foundDriver) {
         throw new NotFoundError("Driver");
       }
 

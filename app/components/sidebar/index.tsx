@@ -73,8 +73,8 @@ const SideBar = ({
     }
     try {
       await clearAuthCookies();
-      // Build the localized sign-in URL (e.g. /tr/giris/oturum-ac or /en/auth/sign-in)
-      const logoutHref = buildLocalizedHref("/auth/sign-in", lang);
+      // Build the localized landing URL
+      const logoutHref = buildLocalizedHref("/", lang);
       router.push(logoutHref);
     } catch (error) {
       logger.error("Logout failed:", error);

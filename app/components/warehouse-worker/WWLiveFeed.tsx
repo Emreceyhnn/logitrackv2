@@ -86,95 +86,132 @@ export default function WWLiveFeed({ fd, ww }: WWLiveFeedProps) {
         <Box sx={{ width: 90, textAlign: "right" }}>{ww.ui.time}</Box>
       </Stack>
       <Box sx={{ maxHeight: 320, overflowY: "auto" }}>
-        {fd.map((mv) => {
-          const mm = getMoveMetaFor(mv.type, theme, ww);
-          return (
-            <Stack
-              key={mv.id}
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={{
-                px: 3,
-                py: 1.5,
-                borderBottom: `1px solid ${theme.palette.divider}`,
+        {fd.length === 0 ? (
+          <Stack 
+            alignItems="center" 
+            justifyContent="center" 
+            spacing={2} 
+            sx={{ 
+              py: 6, 
+              px: 3, 
+              minHeight: 220,
+              m: 2,
+              borderRadius: 3,
+              border: `1px dashed ${theme.palette.divider}`,
+              bgcolor: "rgba(255,255,255,0.01)"
+            }}
+          >
+            <Avatar 
+              sx={{ 
+                bgcolor: "rgba(255,255,255,0.03)", 
+                color: "rgba(255,255,255,0.3)", 
+                width: 56, 
+                height: 56,
+                border: "1px solid rgba(255,255,255,0.05)"
               }}
             >
-              <Box
+              <Ico d={I.activity} size={24} />
+            </Avatar>
+            <Box textAlign="center">
+              <Typography sx={{ fontSize: 16, fontWeight: 700, color: theme.palette.text.secondary, mb: 0.5 }}>
+                {ww.ui.noMovements ?? "Henüz hareket yok"}
+              </Typography>
+              <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontWeight: 500 }}>
+                {ww.ui.noMovementsDesc ?? "Canlı stok hareketleri burada listelenecektir."}
+              </Typography>
+            </Box>
+          </Stack>
+        ) : (
+          fd.map((mv) => {
+            const mm = getMoveMetaFor(mv.type, theme, ww);
+            return (
+              <Stack
+                key={mv.id}
+                direction="row"
+                spacing={2}
+                alignItems="center"
                 sx={{
-                  width: 90,
-                  textAlign: "center",
-                  bgcolor: mm.bg,
-                  color: mm.color,
-                  py: 0.5,
-                  borderRadius: 2,
-                  fontSize: 10,
-                  fontWeight: 800,
+                  px: 3,
+                  py: 1.5,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                {mm.label}
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography noWrap sx={{ fontSize: 13, fontWeight: 600 }}>
-                  {mv.name}
-                </Typography>
-                <Typography
-                  noWrap
+                <Box
                   sx={{
-                    fontSize: 11,
+                    width: 90,
+                    textAlign: "center",
+                    bgcolor: mm.bg,
+                    color: mm.color,
+                    py: 0.5,
+                    borderRadius: 2,
+                    fontSize: 10,
+                    fontWeight: 800,
+                  }}
+                >
+                  {mm.label}
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography noWrap sx={{ fontSize: 13, fontWeight: 600 }}>
+                    {mv.name}
+                  </Typography>
+                  <Typography
+                    noWrap
+                    sx={{
+                      fontSize: 11,
+                      fontFamily: "monospace",
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    {mv.sku}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    width: 80,
+                    textAlign: "right",
+                    color: mm.color,
+                    fontFamily: "monospace",
+                    fontSize: 14,
+                    fontWeight: 800,
+                  }}
+                >
+                  {mv.qty > 0 ? `+${mv.qty}` : mv.qty}
+                </Box>
+                <Box
+                  sx={{
+                    width: 80,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  {mv.zone}
+                </Box>
+                <Box
+                  sx={{
+                    width: 120,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: mv.self ? theme.palette.primary.main : theme.palette.text.secondary,
+                  }}
+                >
+                  {mv.who}
+                </Box>
+                <Box
+                  sx={{
+                    width: 90,
+                    textAlign: "right",
+                    fontSize: 12,
                     fontFamily: "monospace",
                     color: theme.palette.text.secondary,
                   }}
                 >
-                  {mv.sku}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  width: 80,
-                  textAlign: "right",
-                  color: mm.color,
-                  fontFamily: "monospace",
-                  fontSize: 14,
-                  fontWeight: 800,
-                }}
-              >
-                {mv.qty > 0 ? `+${mv.qty}` : mv.qty}
-              </Box>
-              <Box
-                sx={{
-                  width: 80,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: theme.palette.text.secondary,
-                }}
-              >
-                {mv.zone}
-              </Box>
-              <Box
-                sx={{
-                  width: 120,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: mv.self ? theme.palette.primary.main : theme.palette.text.secondary,
-                }}
-              >
-                {mv.who}
-              </Box>
-              <Box
-                sx={{
-                  width: 90,
-                  textAlign: "right",
-                  fontSize: 12,
-                  fontFamily: "monospace",
-                  color: theme.palette.text.secondary,
-                }}
-              >
-                {mv.t}
-              </Box>
-            </Stack>
-          );
-        })}
+                  {mv.t}
+                </Box>
+              </Stack>
+            );
+          })
+        )}
       </Box>
     </Card>
   );
