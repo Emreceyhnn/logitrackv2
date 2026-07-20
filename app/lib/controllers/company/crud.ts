@@ -60,6 +60,19 @@ export const createCompany = authenticatedAction(
       id: user.id,
       roleId: updatedUser.roleId,
       companyId: newCompany.id,
+      name: updatedUser.name,
+      surname: updatedUser.surname,
+      avatarUrl: updatedUser.avatarUrl,
+      timezone: updatedUser.timezone,
+      dateFormat: updatedUser.dateFormat,
+      timeFormat: updatedUser.timeFormat,
+      currency: updatedUser.currency,
+      language: updatedUser.language,
+      notifEmailShipment: updatedUser.notifEmailShipment,
+      notifEmailMaint: updatedUser.notifEmailMaint,
+      notifEmailWeekly: updatedUser.notifEmailWeekly,
+      notifPushAssignment: updatedUser.notifPushAssignment,
+      notifPushDelay: updatedUser.notifPushDelay,
     });
 
     return { company: newCompany, user: updatedUser };
