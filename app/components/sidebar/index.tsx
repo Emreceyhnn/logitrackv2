@@ -147,6 +147,16 @@ const SideBar = ({
           />
         ),
       },
+      {
+        title: dict.sidebar.driverConsolePanel,
+        href: "/driver-console",
+        live: true,
+        icon: (
+          <LocalShippingOutlinedIcon
+            sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
+          />
+        ),
+      },
     ],
     [dict, theme]
   );

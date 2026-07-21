@@ -8,6 +8,11 @@ import {
   getCompanyProfile,
   removeCompanyUser,
 } from "@/app/lib/controllers/company";
+import {
+  getPendingJoinRequests,
+  acceptJoinRequest,
+  rejectJoinRequest,
+} from "@/app/lib/controllers/joinRequests";
 import { toast } from "sonner";
 
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
@@ -79,4 +84,44 @@ export function useCompanyMutations() {
   return {
     deleteMember: deleteMemberMutation,
   };
+}
+
+export function usePendingJoinRequests() {
+  return useQuery({
+    queryKey: companyKeys.joinRequests(),
+    queryFn: () => getPendingJoinRequests(),
+    staleTime: 1000 * 30,
+  });
+}
+
+export function useJoinRequestMutations() {
+  const queryClient = useQueryClient();
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: companyKeys.joinRequests() });
+
+  const accept = useMutation({
+    mutationFn: (params: {
+      id: string;
+      roleName: string;
+      driverData?: {
+        employeeId: string;
+        phone: string;
+        licenseType?: string;
+        licenseNumber?: string;
+        licenseExpiry?: string;
+      };
+    }) => acceptJoinRequest(params.id, params.roleName, params.driverData),
+    onSuccess: () => {
+      invalidate();
+      queryClient.invalidateQueries({ queryKey: companyKeys.all });
+    },
+  });
+
+  const reject = useMutation({
+    mutationFn: (id: string) => rejectJoinRequest(id),
+    onSuccess: invalidate,
+  });
+
+  return { accept, reject };
 }

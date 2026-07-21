@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Stack,
   Button,
@@ -13,6 +14,7 @@ import type {
   WarehouseWorkerDict,
   WarehouseOption,
 } from "@/app/lib/type/warehouseWorkerClient";
+import { buildDashboardHomeHref } from "@/app/lib/language/navigation";
 import { Ico } from "./Ico";
 
 interface WWHeaderProps {
@@ -37,7 +39,9 @@ export default function WWHeader({
   worker,
 }: WWHeaderProps) {
   const theme = useTheme();
-  const backHref = `/${lang}/overview`;
+  // Demo visitors must return to the demo overview — the real one is
+  // protected and would bounce them to sign-in.
+  const backHref = buildDashboardHomeHref(usePathname(), lang);
 
   return (
     <Stack

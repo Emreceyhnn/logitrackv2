@@ -9,6 +9,7 @@ datasource db {
 model Company {
   id                 String              @id @default(cuid())
   name               String              @unique
+  domain             String?             @unique
   avatarUrl          String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
@@ -35,6 +36,8 @@ model Company {
   warehouses         Warehouse[]
   warehouseZones     WarehouseZone[]
   warehouseTasks     WarehouseTask[]
+  invitations        Invitation[]
+  joinRequests       JoinRequest[]
 
   @@map("companies")
 }
@@ -42,15 +45,16 @@ model Company {
 // companyId == null  -> immutable system role (seeded, shared read-only catalog)
 // companyId != null  -> tenant-owned custom role, editable only by that tenant
 model Role {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
   permissions String[]
   companyId   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  company     Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  company     Company?     @relation(fields: [companyId], references: [id], onDelete: Restrict)
   users       User[]
+  invitations Invitation[]
 
   @@unique([companyId, name])
   @@index([companyId])
@@ -90,6 +94,9 @@ model User {
   role                   Role?               @relation(fields: [roleId], references: [id], onDelete: Restrict)
   managedWarehouses      Warehouse[]
   assignedWarehouseTasks WarehouseTask[]
+  sentInvitations        Invitation[]        @relation("InvitationInvitedBy")
+  joinRequests           JoinRequest[]       @relation("JoinRequestUser")
+  decidedJoinRequests    JoinRequest[]       @relation("JoinRequestDecidedBy")
 
   @@index([companyId])
   @@index([roleId])
@@ -132,6 +139,56 @@ model Driver {
   // (`licenseExpiry <= cutoff` with no companyId filter).
   @@index([licenseExpiry])
   @@map("drivers")
+}
+
+// Email-invite for a person who does not yet have a User account. The invited
+// person never selects a role themselves — roleId/companyId/driverData are set
+// by the inviting admin and inherited verbatim when the invite is accepted.
+model Invitation {
+  id          String           @id @default(cuid())
+  email       String
+  companyId   String
+  roleId      String
+  tokenHash   String           @unique
+  driverData  Json
+  invitedById String
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  role        Role             @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  invitedBy   User             @relation("InvitationInvitedBy", fields: [invitedById], references: [id], onDelete: Restrict)
+
+  @@index([companyId, email, status])
+  @@index([expiresAt])
+  @@map("invitations")
+}
+
+// User-initiated request to join an existing company, suggested via
+// email-domain match on the onboarding page. Distinct from Invitation
+// (admin-initiated, email-keyed, for people without an account yet) — a
+// JoinRequest always references an existing, already-registered, companyless
+// User. Role + driver details are decided by the ACCEPTING admin at accept
+// time (mirrors AddCompanyMemberDialog's existing "search existing user"
+// flow) and are never persisted here — only passed as transient args into
+// addCompanyUser.
+model JoinRequest {
+  id          String            @id @default(cuid())
+  userId      String
+  companyId   String
+  status      JoinRequestStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  decidedAt   DateTime?
+  decidedById String?
+  user        User              @relation("JoinRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  company     Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  decidedBy   User?             @relation("JoinRequestDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, companyId])
+  @@index([companyId, status])
+  @@map("join_requests")
 }
 
 model Vehicle {
@@ -375,48 +432,48 @@ model InventoryMovement {
 }
 
 model Shipment {
-  id                 String               @id @default(cuid())
+  id                 String              @id @default(cuid())
   // trackingId is intentionally globally unique: it is an opaque public
   // tracking token that must be resolvable without a tenant context.
-  trackingId         String               @unique
+  trackingId         String              @unique
   referenceNumber    String?
   customerId         String?
   customerLocationId String?
   driverId           String?
-  status             ShipmentStatus       @default(PENDING)
+  status             ShipmentStatus      @default(PENDING)
   origin             String?
   originLat          Float?
   originLng          Float?
   destination        String
   destinationLat     Float?
   destinationLng     Float?
-  itemsCount         Int                  @default(1)
-  priority           ShipmentPriority     @default(MEDIUM)
-  type               ShipmentServiceType  @default(STANDARD_FREIGHT)
+  itemsCount         Int                 @default(1)
+  priority           ShipmentPriority    @default(MEDIUM)
+  type               ShipmentServiceType @default(STANDARD_FREIGHT)
   slaDeadline        DateTime?
-  weightKg           Float?               @default(0)
-  volumeM3           Float?               @default(0)
-  palletCount        Int?                 @default(0)
+  weightKg           Float?              @default(0)
+  volumeM3           Float?              @default(0)
+  palletCount        Int?                @default(0)
   cargoType          String?
   contactEmail       String?
   billingAccount     String?
   routeId            String?
   companyId          String
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   originWarehouseId  String?
   trailerId          String?
   issues             Issue[]
   history            ShipmentHistory[]
   items              ShipmentItem[]
   stops              ShipmentStop[]
-  company            Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer           Customer?            @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  customerLocation   CustomerLocation?    @relation(fields: [customerLocationId], references: [id], onDelete: Restrict)
-  driver             Driver?              @relation(fields: [driverId], references: [id], onDelete: Restrict)
-  originWarehouse    Warehouse?           @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id], onDelete: Restrict)
-  route              Route?               @relation(fields: [routeId], references: [id], onDelete: Restrict)
-  trailer            Trailer?             @relation(fields: [trailerId], references: [id], onDelete: Restrict)
+  company            Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer           Customer?           @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customerLocation   CustomerLocation?   @relation(fields: [customerLocationId], references: [id], onDelete: Restrict)
+  driver             Driver?             @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  originWarehouse    Warehouse?          @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id], onDelete: Restrict)
+  route              Route?              @relation(fields: [routeId], references: [id], onDelete: Restrict)
+  trailer            Trailer?            @relation(fields: [trailerId], references: [id], onDelete: Restrict)
 
   @@index([companyId, status])
   @@index([companyId, createdAt(sort: Desc)])
@@ -504,32 +561,32 @@ model ShipmentItem {
 }
 
 model Route {
-  id          String      @id @default(cuid())
-  name        String?
-  status      RouteStatus @default(PLANNED)
-  date        DateTime
-  startTime   DateTime?
-  endTime     DateTime?
-  distanceKm  Float?
-  durationMin Int?
-  driverId    String?
-  vehicleId   String?
-  companyId   String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id           String      @id @default(cuid())
+  name         String?
+  status       RouteStatus @default(PLANNED)
+  date         DateTime
+  startTime    DateTime?
+  endTime      DateTime?
+  distanceKm   Float?
+  durationMin  Int?
+  driverId     String?
+  vehicleId    String?
+  companyId    String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   // Valhalla-encoded polyline of the planned corridor centre line, stored at
   // precision 6 to match `decodeShape`. Nullable: routes created before this
   // column existed (and any route the routing engine failed to shape) have no
   // geometry, and deviation checks skip them rather than guessing.
-  shape          String?
+  shape        String?
   // Corridor half-width. A ping further than this from the centre line counts
   // as off-route. Null falls back to DEFAULT_ROUTE_BUFFER_METERS.
-  bufferMeters   Int?
-  company     Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  driver      Driver?     @relation(fields: [driverId], references: [id], onDelete: Restrict)
-  vehicle     Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
-  shipments   Shipment[]
-  stops       RouteStop[]
+  bufferMeters Int?
+  company      Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  driver       Driver?     @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  shipments    Shipment[]
+  stops        RouteStop[]
 
   @@index([companyId, date])
   @@index([driverId, date])
@@ -544,17 +601,18 @@ model Route {
 }
 
 model RouteStop {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   routeId   String
   companyId String
   sequence  Int
   address   String
   lat       Float?
   lng       Float?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  arrivedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  route     Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   @@index([routeId, sequence])
   @@index([companyId])
@@ -838,6 +896,19 @@ enum DriverStatus {
   ON_JOB
   OFF_DUTY
   ON_LEAVE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum JoinRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum WarehouseType {

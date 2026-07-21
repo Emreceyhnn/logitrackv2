@@ -22,6 +22,7 @@ export const createVehicleIssue = authenticatedAction(
       type: IssueType;
       priority: IssuePriority;
       description?: string | undefined;
+      driverId?: string | undefined;
     }
   ) => {
     const companyId = user?.companyId || "";
@@ -50,6 +51,7 @@ export const createVehicleIssue = authenticatedAction(
           description: issueData.description || null,
           status: IssueStatus.OPEN,
           vehicleId,
+          driverId: issueData.driverId ?? null,
           companyId,
         },
       });

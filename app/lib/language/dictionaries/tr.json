@@ -1,6 +1,8 @@
 {
   "common": {
     "logitrack": "LogiTrack",
+    "home": "Ana Sayfa",
+    "backToHome": "Ana Sayfaya Dön",
     "needHelp": "Yardım mı lazım?",
     "help": "Yardım",
     "logout": "Çıkış Yap",
@@ -378,6 +380,7 @@
     "analytics": "Analitik",
     "reports": "Raporlar",
     "warehousePanel": "Depo Paneli",
+    "driverConsolePanel": "Şoför Paneli",
     "demoSoon": "Yakında"
   },
   "liveDemo": {
@@ -2435,6 +2438,19 @@
       "created": "{date} tarihinde oluşturuldu",
       "active": "Aktif"
     },
+    "joinRequests": {
+      "title": "Bekleyen Katılma İstekleri",
+      "empty": "Bekleyen katılma isteği yok.",
+      "columns": {
+        "requester": "İsim",
+        "email": "Email",
+        "requestedAt": "İstek Tarihi"
+      },
+      "actions": {
+        "accept": "Kabul Et",
+        "reject": "Reddet"
+      }
+    },
     "roles": {
       "Admin": "Yönetici",
       "Manager": "Müdür",
@@ -2485,6 +2501,15 @@
       "addToCompany": "Şirkete Ekle",
       "employeeIdHelper": "Şirket tarafından atanan benzersiz kimlik",
       "phoneHelper": "Sürücü iletişimi için gereklidir",
+      "existingUser": "Mevcut kullanıcı ekle",
+      "inviteByEmail": "Şoförü email ile davet et",
+      "inviteEmailPlaceholder": "sofor@ornek.com",
+      "sendInvite": "Davet Gönder",
+      "domainLabel": "Şirket Email Domain'i",
+      "domainHelperText": "İsteğe bağlı. Eşleşen email domain'ine (örn. acme.com) sahip ekip arkadaşları otomatik olarak katılma isteği gönderebilir.",
+      "acceptJoinRequestTitle": "Katılma İsteğini Kabul Et",
+      "rejectJoinRequestTitle": "Katılma İsteğini Reddet",
+      "rejectJoinRequestDescription": "Bu kişi tekrar katılmak için yeni bir istek göndermesi gerekecek.",
       "steps": {
         "branding": "Markalama",
         "regional": "Bölgesel",
@@ -3042,7 +3067,12 @@
     "errorNoConnection": "Döküman bağlantısı bulunamadı.",
     "errorNoPermission": "Dosya erişim yetkisi alınamadı.",
     "errorUpload": "Dosya yüklenirken bir hata oluştu.",
-    "demoActionDisabled": "Bu işlem canlı demoda devre dışıdır."
+    "demoActionDisabled": "Bu işlem canlı demoda devre dışıdır.",
+    "successInvite": "Davet gönderildi!",
+    "successJoinRequestSent": "İstek gönderildi! Onay bekleniyor.",
+    "successJoinRequestAccepted": "Katılma isteği kabul edildi!",
+    "successJoinRequestRejected": "Katılma isteği reddedildi.",
+    "errorJoinRequestDuplicate": "Bu şirket için zaten bekleyen bir katılma isteği var."
   },
   "notifications": {
     "title": "Bildirimler",
@@ -3611,6 +3641,102 @@
       "pack": "Pack (Paketle)"
     }
   },
+  "driverConsole": {
+    "driverConsole": "Şoför Paneli",
+    "backToPanel": "Panele dön",
+    "noDriverProfile": "Bu hesaba bağlı bir şoför profili yok",
+    "dutyChanged": "Görev durumu güncellendi",
+    "couldNotChangeDuty": "Görev durumu güncellenemedi",
+    "stopMarkedArrived": "Durak tamamlandı olarak işaretlendi",
+    "stopMarkedPending": "Durak bekliyor olarak işaretlendi",
+    "couldNotUpdateStop": "Durak güncellenemedi",
+    "fuelLogged": "Yakıt kaydı eklendi",
+    "couldNotLogFuel": "Yakıt kaydı eklenemedi",
+    "issueReported": "Sorun bildirildi",
+    "couldNotReportIssue": "Sorun bildirilemedi",
+    "shipmentStatusUpdated": "Sevkiyat durumu güncellendi",
+    "couldNotUpdateShipment": "Sevkiyat durumu güncellenemedi",
+    "nav": {
+      "dashboard": "Panel",
+      "route": "Rota",
+      "shipments": "Sevkiyatlar",
+      "vehicle": "Araç",
+      "documents": "Belgeler"
+    },
+    "duty": {
+      "ON_JOB": "Görevde",
+      "OFF_DUTY": "Görev Dışı",
+      "ON_LEAVE": "İzinli"
+    },
+    "dashboard": {
+      "dutyStatus": "Görev Durumu",
+      "confirmDutyChangeTitle": "Aktif bir rota devam ediyor",
+      "confirmDutyChangeBody": "Bugün için aktif bir rotan var. Yine de \"{status}\" durumuna geçmek istediğine emin misin?",
+      "confirmYes": "Evet, geç",
+      "confirmCancel": "Vazgeç",
+      "todaysActiveRoute": "Bugünkü Aktif Rota",
+      "stopsRemaining": "durak kaldı",
+      "departure": "Kalkış",
+      "viewRoute": "Rotayı Görüntüle →",
+      "safetyScore": "Güvenlik Puanı",
+      "safetyScoreSub": "Son 30 gün ortalaması",
+      "efficiencyScore": "Verimlilik",
+      "efficiencyScoreSub": "Zamanında teslim oranı",
+      "rating": "Puan",
+      "ratingSub": "Müşteri değerlendirmesi",
+      "nextStop": "Sıradaki Durak",
+      "eta": "Tahmini varış",
+      "arrived": "Vardım / Tamamlandı",
+      "noRouteToday": "Bugün için atanmış rota yok",
+      "noRouteTodaySub": "Yeni bir rota atandığında burada görünecek. İstersen durumunu güncelleyebilirsin.",
+      "goOffDuty": "Görev Dışı'na Geç",
+      "licenseExpiringSoon": "Ehliyet {days} gün içinde doluyor"
+    },
+    "route": {
+      "optimizeRoute": "Rotayı Optimize Et",
+      "comingSoon": "Yakında",
+      "shapeUnavailable": "Rota hesaplaması başarısız oldu — sadece durak konumları gösteriliyor. Sapma kontrolü bu rota için devre dışı.",
+      "deviationWarning": "Rota sapması tespit edildi — tolerans {buffer} m aşıldı.",
+      "stop": "Durak",
+      "arrivedBtn": "Vardım",
+      "done": "TAMAMLANDI"
+    },
+    "shipmentsView": {
+      "all": "Tümü",
+      "PENDING": "Bekliyor",
+      "IN_TRANSIT": "Yolda",
+      "DELIVERED": "Teslim Edildi",
+      "DELAYED": "Gecikti",
+      "slaRisk": "SLA RİSKİ",
+      "stopsComplete": "durak tamam"
+    },
+    "vehicleView": {
+      "assignedVehicle": "Atanmış Araç",
+      "fuel": "Yakıt",
+      "odometer": "Kilometre",
+      "addFuelLog": "Yakıt Kaydı Ekle",
+      "volumeLiter": "Litre",
+      "cost": "Tutar",
+      "odometerKm": "Kilometre",
+      "submitFuelLog": "Kaydı Ekle",
+      "reportIssue": "Arıza / Sorun Bildir",
+      "issueTitle": "Kısa başlık",
+      "priorityLow": "Düşük",
+      "priorityMedium": "Orta",
+      "priorityHigh": "Yüksek",
+      "submitIssue": "Sorunu Bildir"
+    },
+    "documentsView": {
+      "profile": "Profil",
+      "hazmatCertified": "Hazmat Sertifikalı",
+      "languages": "Diller",
+      "expiresOn": "Geçerlilik",
+      "ACTIVE": "GEÇERLİ",
+      "MISSING": "EKSİK",
+      "EXPIRING_SOON": "YAKINDA DOLUYOR",
+      "EXPIRED": "SÜRESİ DOLMUŞ"
+    }
+  },
   "onboarding": {
     "welcomeTitle": "{name} uygulamasına hoş geldiniz",
     "welcomeSubtitle": "Hesabınızı başarıyla oluşturdunuz. Panele geçmek için bir şirketle ilişkilendirilmeniz gerekir",
@@ -3619,7 +3745,25 @@
     "createButton": "Şirket Oluştur",
     "joinTitle": "Mevcut Bir Şirkete Katıl",
     "joinDescription": "Şirketiniz zaten LogiTrack kullanıyorsa, bir davet kodu veya şirket e-postanızla katılma isteği gönderebilirsiniz.",
-    "joinButton": "Şirkete Katıl"
+    "joinButton": "Şirkete Katıl",
+    "joinDialogTitle": "Şirkete Katıl",
+    "joinDialogSubtitle": "Email domain'inizi kayıtlı şirketlerle eşleştirdik.",
+    "joinNoMatchTitle": "Şirket bulunamadı",
+    "joinNoMatchDescription": "Email domain'inizle kayıtlı bir şirket yok. Yöneticinizden domain'i eklemesini isteyin veya yeni bir şirket oluşturun.",
+    "joinMatchesFound": "Katılmak istediğiniz şirketi seçin",
+    "joinSubmit": "Katılma İsteği Gönder",
+    "joinPendingTitle": "{company} şirketine katılma isteğiniz onay bekliyor",
+    "joinPendingDescription": "{company} şirketindeki bir yöneticinin, panele erişebilmeniz için isteğinizi onaylaması gerekiyor.",
+    "cancelRequest": "İsteği İptal Et",
+    "pendingInvitations": "Bekleyen Davetiyeler",
+    "youHaveBeenInvited": "Davet edildiniz!",
+    "invitedYouToJoinAs": "{company}, {role} olarak katılmanız için sizi davet etti.",
+    "decline": "Reddet",
+    "acceptInvitation": "Daveti Kabul Et",
+    "accepting": "Kabul ediliyor...",
+    "declining": "Reddediliyor...",
+    "invitationAccepted": "Davet kabul edildi!",
+    "invitationDeclined": "Davet reddedildi."
   },
   "pendingAccess": {
     "title": "Erişiminiz hazırlanıyor",

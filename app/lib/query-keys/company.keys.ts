@@ -3,4 +3,5 @@ export const companyKeys = {
   profile: () => [...companyKeys.all, "profile"] as const,
   dashboardWithFilters: (filters: { page: number; pageSize: number; search?: string | undefined }) =>
     [...companyKeys.all, "dashboard", filters] as const,
+  joinRequests: () => [...companyKeys.all, "joinRequests"] as const,
 };

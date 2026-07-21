@@ -223,6 +223,32 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
             )}
           </FormControl>
         </Box>
+
+        <Box>
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
+            {dict.company.dialogs.domainLabel}
+          </Typography>
+          <TextField
+            fullWidth
+            placeholder="acme.com"
+            name="domain"
+            value={formData.domain}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.domain && !!errors.domain}
+            helperText={(touched.domain && errors.domain) || dict.company.dialogs.domainHelperText}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                bgcolor: theme.palette.background.paper_alpha.main_50,
+                borderRadius: 3,
+                border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                "&.Mui-focused": {
+                  boxShadow: `0 0 0 3px ${theme.palette.primary._alpha.main_10}`,
+                }
+              },
+            }}
+          />
+        </Box>
       </Stack>
     </Box>
   );

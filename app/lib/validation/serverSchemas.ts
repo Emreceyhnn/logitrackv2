@@ -47,6 +47,22 @@ export const loginUserSchema = z.object({
   password: z.string().min(1).max(1024),
 });
 
+// ─── Invitations ────────────────────────────────────────────────────────────
+export const createDriverInvitationSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
+  employeeId: z.string().min(1, "Employee ID is required"),
+  phone: z.string().min(1, "Phone is required"),
+  licenseType: z.string().optional(),
+  licenseNumber: z.string().optional(),
+  licenseExpiry: z.string().optional(),
+});
+
+export const acceptInvitationSchema = registerUserSchema.pick({
+  name: true,
+  surname: true,
+  password: true,
+});
+
 export const updateWarehouseSchema = z.object({
   name: z.string().optional(),
   code: z.string().min(1, "Warehouse code is required").optional(),
@@ -304,6 +320,7 @@ export const logWarehouseFulfillmentSchema = z.object({
 export const createCompanySchema = z.object({
   name: z.string().min(1, "Company name is required"),
   avatarUrl: z.string().optional(),
+  domain: z.string().trim().toLowerCase().optional(),
   regional: z.object({
     timezone: z.string(),
     currency: z.string(),

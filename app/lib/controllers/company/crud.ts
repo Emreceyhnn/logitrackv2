@@ -14,7 +14,8 @@ export const createCompany = authenticatedAction(
     user,
     name: string,
     avatarUrl?: string,
-    regional?: { timezone: string; currency: string; language: string }
+    regional?: { timezone: string; currency: string; language: string },
+    domain?: string
   ) => {
     // Server-side entitlement guard (the middleware gate is the first line of
     // defense; this closes the direct-action path). Only a live trial or an
@@ -26,10 +27,16 @@ export const createCompany = authenticatedAction(
     const existingCompany = await db.company.findUnique({ where: { name } });
     if (existingCompany) throw new Error("Company name already exists");
 
+    if (domain) {
+      const existingDomain = await db.company.findUnique({ where: { domain } });
+      if (existingDomain) throw new Error("This domain is already registered to another company");
+    }
+
     const newCompany = await db.company.create({
       data: {
         name,
         avatarUrl: avatarUrl ?? null,
+        domain: domain || null,
         users: { connect: { id: user.id } },
       },
     });
@@ -144,6 +151,7 @@ export const deleteCompany = authenticatedAction(async (user) => {
       await tx.maintenanceRecord.deleteMany({ where });
       await tx.trailerAssignment.deleteMany({ where });
       await tx.document.deleteMany({ where });
+      await tx.joinRequest.deleteMany({ where });
       await tx.shipment.deleteMany({ where });
       await tx.routeStop.deleteMany({ where });
       await tx.route.deleteMany({ where });

@@ -6,6 +6,7 @@ export interface CompanyFormData {
   name: string;
   logo: string | null;
   industry: string;
+  domain: string;
 
   // Step 2: Regional
   timezone: string;
@@ -41,7 +42,7 @@ export interface CreateCompanyActions {
 export interface CreateCompanyDialogProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (lang?: string) => void;
 }
 
 /**

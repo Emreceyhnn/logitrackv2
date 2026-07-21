@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,22 +8,80 @@ import {
   Card,
   CardContent,
   Button,
-  Chip,
   Stack,
+  CircularProgress,
   useTheme,
 } from "@mui/material";
 import { Business, AddBusiness } from "@mui/icons-material";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { formatMessage } from "@/app/lib/language/language";
 import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
+import JoinCompanyDialog from "@/app/components/dialogs/company/JoinCompanyDialog";
+import { getMyJoinRequest, cancelJoinRequest } from "@/app/lib/controllers/joinRequests";
+import { getMyInvitations, acceptExistingUserInvitation, declineExistingUserInvitation } from "@/app/lib/controllers/invitations";
+import { checkAndSyncCompany } from "./actions";
+import { toast } from "sonner";
 
 export default function OnboardingPage() {
   const theme = useTheme();
   const dict = useDictionary();
-  const params = useParams();
-  const locale = (params?.lang as string) || "en";
+  const { lang: locale } = useLanguage();
 
   const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false);
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+  const [checkingPending, setCheckingPending] = useState(true);
+  const [pendingRequest, setPendingRequest] = useState<{ id: string; companyName: string } | null>(null);
+  const [pendingInvitations, setPendingInvitations] = useState<{ id: string; company: { name: string }; role: { name: string } }[]>([]);
+
+  useEffect(() => {
+    checkAndSyncCompany().then((hasCompany) => {
+      if (hasCompany) {
+        window.location.href = `/${locale}/overview`;
+      } else {
+        Promise.all([getMyJoinRequest(), getMyInvitations()])
+          .then(([req, invs]) => {
+            if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
+            if (invs) setPendingInvitations(invs);
+          })
+          .finally(() => setCheckingPending(false));
+      }
+    }).catch(() => setCheckingPending(false));
+  }, [locale]);
+
+  const handleAcceptInvitation = async (id: string) => {
+    const loadingToast = toast.loading(dict.onboarding?.accepting || "Accepting...");
+    try {
+      await acceptExistingUserInvitation(id);
+      toast.success(dict.onboarding?.invitationAccepted || "Invitation accepted!", { id: loadingToast });
+      window.location.href = `/${locale}/overview`;
+    } catch (err) {
+      const e = err as Error;
+      toast.error(e.message || dict.toasts.errorGeneric, { id: loadingToast });
+    }
+  };
+
+  const handleDeclineInvitation = async (id: string) => {
+    const loadingToast = toast.loading(dict.onboarding?.declining || "Declining...");
+    try {
+      await declineExistingUserInvitation(id);
+      setPendingInvitations((prev) => prev.filter((inv) => inv.id !== id));
+      toast.success(dict.onboarding?.invitationDeclined || "Invitation declined.", { id: loadingToast });
+    } catch (err) {
+      const e = err as Error;
+      toast.error(e.message || dict.toasts.errorGeneric, { id: loadingToast });
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!pendingRequest) return;
+    const id = pendingRequest.id;
+    setPendingRequest(null);
+    try {
+      await cancelJoinRequest(id);
+    } catch {
+      toast.error(dict.toasts.errorGeneric);
+    }
+  };
 
   return (
     <Box
@@ -56,6 +113,101 @@ export default function OnboardingPage() {
           </Typography>
         </Box>
 
+        {checkingPending ? (
+          <Stack alignItems="center" py={6}>
+            <CircularProgress size={32} />
+          </Stack>
+        ) : pendingRequest ? (
+          <Card
+            sx={{
+              maxWidth: 480,
+              mx: "auto",
+              borderRadius: 4,
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <CardContent sx={{ p: 4, textAlign: "center" }}>
+              <Box
+                sx={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: "50%",
+                  backgroundColor: theme.palette.secondary._alpha?.main_10 || "rgba(156, 39, 176, 0.1)",
+                  color: theme.palette.secondary.main,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mx: "auto",
+                  mb: 3,
+                }}
+              >
+                <Business fontSize="large" />
+              </Box>
+              <Typography variant="h6" fontWeight={700} gutterBottom>
+                {formatMessage(dict.onboarding.joinPendingTitle, { company: pendingRequest.companyName })}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+                {formatMessage(dict.onboarding.joinPendingDescription, { company: pendingRequest.companyName })}
+              </Typography>
+              <Button variant="outlined" color="secondary" onClick={handleCancelRequest}>
+                {dict.onboarding.cancelRequest}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : pendingInvitations.length > 0 ? (
+          <Stack spacing={4} alignItems="center">
+            <Typography variant="h5" fontWeight={700}>
+              {dict.onboarding?.pendingInvitations || "Pending Invitations"}
+            </Typography>
+            {pendingInvitations.map((invitation) => (
+              <Card
+                key={invitation.id}
+                sx={{
+                  width: "100%",
+                  maxWidth: 480,
+                  borderRadius: 4,
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                <CardContent sx={{ p: 4, textAlign: "center" }}>
+                  <Box
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: "50%",
+                      backgroundColor: theme.palette.success._alpha?.main_10 || "rgba(76, 175, 80, 0.1)",
+                      color: theme.palette.success.main,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      mx: "auto",
+                      mb: 3,
+                    }}
+                  >
+                    <Business fontSize="large" />
+                  </Box>
+                  <Typography variant="h6" fontWeight={700} gutterBottom>
+                    {dict.onboarding?.youHaveBeenInvited || "You have been invited!"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+                    {formatMessage(
+                      dict.onboarding?.invitedYouToJoinAs || "{company} has invited you to join as a {role}.",
+                      { company: invitation.company.name, role: invitation.role.name }
+                    )}
+                  </Typography>
+                  <Stack direction="row" spacing={2} justifyContent="center">
+                    <Button variant="outlined" color="error" onClick={() => handleDeclineInvitation(invitation.id)}>
+                      {dict.onboarding?.decline || "Decline"}
+                    </Button>
+                    <Button variant="contained" color="success" onClick={() => handleAcceptInvitation(invitation.id)}>
+                      {dict.onboarding?.acceptInvitation || "Accept Invitation"}
+                    </Button>
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        ) : (
         <Stack
           direction={{ xs: "column", md: "row" }}
           spacing={4}
@@ -123,32 +275,21 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
 
-          {/* Join Company — not yet available. Shown dimmed with a "Coming
-              soon" badge and a disabled button so it reads as a preview rather
-              than an equal-weight option that then fails with a toast. */}
+          {/* Join Company */}
           <Card
-            aria-disabled
             sx={{
               flex: 1,
               position: "relative",
               borderRadius: 4,
               border: `1px solid ${theme.palette.divider}`,
-              opacity: 0.6,
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: theme.shadows[4],
+                borderColor: theme.palette.secondary.main,
+              },
             }}
           >
-            <Chip
-              label={dict.common?.comingSoon || "Coming Soon"}
-              size="small"
-              sx={{
-                position: "absolute",
-                top: 16,
-                right: 16,
-                fontWeight: 700,
-                bgcolor: theme.palette.text.secondary_alpha?.main_10 ||
-                  "rgba(0,0,0,0.08)",
-                color: "text.secondary",
-              }}
-            />
             <CardContent
               sx={{
                 p: 4,
@@ -192,7 +333,7 @@ export default function OnboardingPage() {
                 color="secondary"
                 size="large"
                 fullWidth
-                disabled
+                onClick={() => setIsJoinDialogOpen(true)}
                 sx={{
                   borderRadius: 2,
                   py: 1.5,
@@ -204,18 +345,28 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
         </Stack>
+        )}
       </Container>
-      
+
       <CreateCompanyDialog
         open={isCreateCompanyOpen}
         onClose={() => setIsCreateCompanyOpen(false)}
-        onSuccess={() => {
+        onSuccess={(newLang?: string) => {
           setIsCreateCompanyOpen(false);
           // Land directly on the dashboard. A full navigation (not client
           // router) is intentional: creating the company changes companyId, so
           // the proxy must re-mint the token on the next request for the
           // dashboard's tenant-scoped queries to resolve.
-          window.location.href = `/${locale}/overview`;
+          window.location.href = `/${newLang || locale}/overview`;
+        }}
+      />
+
+      <JoinCompanyDialog
+        open={isJoinDialogOpen}
+        onClose={() => setIsJoinDialogOpen(false)}
+        onSuccess={(result) => {
+          setIsJoinDialogOpen(false);
+          setPendingRequest(result);
         }}
       />
     </Box>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+
 import {
   Box,
   Button,
@@ -32,7 +32,7 @@ import Step2Regional from "./Step2Regional";
 import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { createCompany } from "@/app/lib/controllers/company";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getRegionalDefaults } from "@/app/lib/constants";
 
 export default function CreateCompanyDialog({
@@ -42,8 +42,7 @@ export default function CreateCompanyDialog({
 }: CreateCompanyDialogProps) {
   const theme = useTheme();
   const dict = useDictionary();
-  const params = useParams();
-  const locale = (params?.lang as string) || "en";
+  const { lang: locale, changeLanguage } = useLanguage();
 
   // Seed timezone/currency/language from the user's UI locale so the form opens
   // with region-appropriate defaults (e.g. Europe/Istanbul + TRY for tr) rather
@@ -54,6 +53,7 @@ export default function CreateCompanyDialog({
       name: "",
       logo: null,
       industry: "",
+      domain: "",
       timezone,
       currency,
       language: locale === "tr" ? "tr" : "en",
@@ -93,12 +93,20 @@ export default function CreateCompanyDialog({
           logoUrl = uploadResult.url;
         }
 
-        await createCompany(values.name, logoUrl || "", {
-          timezone: values.timezone,
-          currency: values.currency,
-          language: values.language,
-        });
-        onSuccess?.();
+        await createCompany(
+          values.name,
+          logoUrl || "",
+          {
+            timezone: values.timezone,
+            currency: values.currency,
+            language: values.language,
+          },
+          values.domain || undefined
+        );
+        if (values.language !== locale) {
+          changeLanguage(values.language);
+        }
+        onSuccess?.(values.language);
       })(),
       {
         loading: dict.toasts?.loading || "Creating company...",

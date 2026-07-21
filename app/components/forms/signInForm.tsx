@@ -15,8 +15,8 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import AuthButton from "../ui/AuthButton";
-import { useRouter, useParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useRouter } from "next/navigation";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { LoginUser } from "@/app/lib/controllers/users";
 import { loginValidationSchema } from "@/app/lib/validationSchema";
 import { logger } from "@/app/lib/logger";
@@ -30,9 +30,7 @@ interface LoginFormValues {
 export default function LoginForm() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const router = useRouter();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useDictionary();
+  const { lang, dict } = useLanguage();
 
   /* --------------------------------- STATES --------------------------------- */
   const [showPassword, setShowPassword] = useState<boolean>(false);

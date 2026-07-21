@@ -14,7 +14,10 @@ neonConfig.webSocketConstructor = ws;
  *
  * Deliberately excluded: Company (the tenant itself), User/Session/AuditLog
  * (auth flows must work before a company is assigned), Role (system roles
- * have companyId = null and are shared), ExchangeRate (global data).
+ * have companyId = null and are shared), ExchangeRate (global data),
+ * Invitation and JoinRequest (both must be reachable by a companyless caller
+ * — an invited person who has no account/company yet, or a newly-registered
+ * user requesting to join one).
  */
 const TENANT_MODELS = new Set<string>([
   "Driver",

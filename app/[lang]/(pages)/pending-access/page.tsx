@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+
 import {
   Box,
   Button,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { pollDashboardAccess } from "@/app/lib/actions/demoRequest";
 import { logoutAction } from "@/app/lib/actions/auth";
 
@@ -35,8 +35,7 @@ const POLL_INTERVAL_MS = 5000;
 export default function PendingAccessPage() {
   const theme = useTheme();
   const dict = useDictionary();
-  const { lang } = useParams();
-  const locale = (lang as string) || "tr";
+  const { lang: locale } = useLanguage();
 
   const [granted, setGranted] = useState(false);
   const [checking, setChecking] = useState(false);
