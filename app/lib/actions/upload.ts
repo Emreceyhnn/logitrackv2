@@ -1,7 +1,13 @@
 "use server";
 
 import { headers } from "next/headers";
-import { supabase } from "../supabase";
+import {
+  cloudinary,
+  BUCKET_DELIVERY_TYPE,
+  resourceTypeForMime,
+  type UploadBucket,
+  type CloudinaryResourceType,
+} from "../cloudinary";
 import { logger } from "@/app/lib/logger";
 import { db } from "../db";
 import { rateLimit } from "../rate-limiter";
@@ -10,13 +16,12 @@ import {
   maybeAuthenticatedAction,
 } from "../auth-middleware";
 
-type UploadBucket = "vehicles" | "documents" | "avatars" | "general";
-
 /**
  * Buckets an UNAUTHENTICATED caller may write to. Uploads happen during the
  * pre-account registration flow (profile avatar, company logo), so these two
  * must stay open; every other bucket — notably `documents`, which holds
- * sensitive files in a private bucket — requires an authenticated session.
+ * sensitive files under authenticated delivery — requires an authenticated
+ * session.
  */
 const ANON_WRITABLE_BUCKETS: ReadonlySet<UploadBucket> = new Set([
   "avatars",
@@ -36,6 +41,8 @@ interface SignedUrlResult {
 }
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+const SIGNED_URL_TTL_SECONDS = 3600;
 
 const ALLOWED_MIME_PREFIXES = [
   "data:image/jpeg",
@@ -111,45 +118,119 @@ export const uploadImageAction = maybeAuthenticatedAction(
 
     validateBase64Image(fileData);
 
-    const base64Part = fileData.split(",")[1] ?? "";
+    // Cloudinary accepts the full data URI directly and derives the extension
+    // from it, so no manual buffer handling is needed. We still parse the MIME
+    // ourselves to pin resource_type (see resourceTypeForMime).
     const mimeType = fileData.split(";")[0]?.split(":")[1] ?? "";
-    const buffer = Buffer.from(base64Part, "base64");
 
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const ext = mimeType.split("/")[1];
-    const filePath = folder
-      ? `${folder}/${fileName}.${ext}`
-      : `${fileName}.${ext}`;
+    // Cloudinary namespaces by folder, not bucket. Keeping the bucket as the
+    // top-level folder preserves the old path layout: <bucket>/<folder?>/<name>
+    const targetFolder = folder ? `${bucket}/${folder}` : bucket;
 
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, buffer, {
-        contentType: mimeType,
-        upsert: false,
+    const deliveryType = BUCKET_DELIVERY_TYPE[bucket];
+    const resourceType = resourceTypeForMime(mimeType);
+
+    try {
+      const result = await cloudinary.uploader.upload(fileData, {
+        folder: targetFolder,
+        public_id: fileName,
+        // Explicit, never "auto": getSignedUrlAction must be able to
+        // reconstruct this exact value from the stored URL, or signatures for
+        // private documents won't match and reads 404.
+        resource_type: resourceType,
+        // `authenticated` assets 404 on their bare delivery URL and require a
+        // signed URL — this is the private-bucket equivalent for `documents`.
+        type: deliveryType,
+        overwrite: false,
       });
 
-    if (error) {
-      logger.error("[uploadImageAction] Supabase upload failed:", error);
-      throw new Error(`Failed to upload to Supabase: ${error.message}`);
+      // For `authenticated` assets Cloudinary returns a secure_url that already
+      // carries a permanent signature token (".../s--AbC123--/v17.../id.png").
+      // Persisting that would hand out non-expiring access to anyone who reads
+      // the DB row or a log line, bypassing both the 1-hour expiry and the
+      // ownership check in getSignedUrlAction. Strip it and store the bare
+      // reference; reads are signed on demand.
+      const url =
+        deliveryType === "authenticated"
+          ? result.secure_url.replace(/\/s--[^/]+--\//, "/")
+          : result.secure_url;
+
+      return {
+        success: true,
+        url,
+        publicId: result.public_id,
+      };
+    } catch (error) {
+      logger.error("[uploadImageAction] Cloudinary upload failed:", error);
+      const message =
+        error instanceof Error ? error.message : "Unknown upload error";
+      throw new Error(`Failed to upload to Cloudinary: ${message}`);
     }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(bucket).getPublicUrl(data.path);
-
-    return {
-      success: true,
-      url: publicUrl,
-      publicId: data.path,
-    };
   }
 );
+
+interface ParsedAssetRef {
+  publicId: string;
+  resourceType: CloudinaryResourceType;
+}
+
+/**
+ * Extracts the Cloudinary public_id and resource_type from a delivery URL.
+ *
+ * Cloudinary URLs look like:
+ *   https://res.cloudinary.com/<cloud>/<resource_type>/<type>/v<version>/<public_id>.<ext>
+ * optionally with transformation segments between <type> and the version. The
+ * public_id is everything after the version segment, minus the extension.
+ *
+ * resource_type is read from the path rather than inferred from the file
+ * extension: a signature is only valid for the resource_type the asset was
+ * actually stored under, and the URL is the one authoritative record of that.
+ */
+function parseAssetRef(fileUrl: string): ParsedAssetRef | null {
+  try {
+    const { hostname, pathname } = new URL(fileUrl);
+
+    // Legacy pre-migration URLs (e.g. Supabase) are not signable here, and
+    // their paths can contain version-looking segments ("/storage/v1/object/")
+    // that would otherwise parse into a bogus public_id and produce a broken
+    // signed link. Only Cloudinary-hosted assets get signed.
+    if (!/(^|\.)res\.cloudinary\.com$/.test(hostname)) {
+      return null;
+    }
+
+    const segments = pathname.split("/").filter(Boolean);
+
+    // Cloudinary version segments are "v" + a timestamp (10+ digits); the
+    // narrower pattern avoids matching short API-version segments like "v1".
+    const versionIndex = segments.findIndex((s) => /^v\d{10,}$/.test(s));
+    if (versionIndex === -1 || versionIndex === segments.length - 1) {
+      return null;
+    }
+
+    // Path shape is /<cloud>/<resource_type>/<type>/..., so resource_type sits
+    // at index 1 — before any transformation segments.
+    const resourceType: CloudinaryResourceType =
+      segments[1] === "raw" ? "raw" : "image";
+
+    // Everything after the version is the public_id. Any signature segment
+    // ("s--AbC123--") sits *before* the version, so slicing here drops it —
+    // which keeps rows written before signature-stripping parseable.
+    const publicIdWithExt = segments.slice(versionIndex + 1).join("/");
+    const publicId = publicIdWithExt.replace(/\.[^./]+$/, "");
+    if (!publicId) return null;
+
+    return { publicId, resourceType };
+  } catch {
+    return null;
+  }
+}
 
 export const getSignedUrlAction = authenticatedAction(
   async (
     user,
     fileUrl: string,
-    bucket: string = "documents"
+    bucket: UploadBucket = "documents"
   ): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
 
@@ -167,25 +248,29 @@ export const getSignedUrlAction = authenticatedAction(
       throw new Error("Document not found or unauthorized.");
     }
 
-    const urlParts = fileUrl.split("/");
-    const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/");
-
-    if (!path) {
+    const asset = parseAssetRef(fileUrl);
+    if (!asset) {
       return { success: true, url: fileUrl, signed: false };
     }
 
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .createSignedUrl(path, 3600);
+    try {
+      const signedUrl = cloudinary.url(asset.publicId, {
+        type: BUCKET_DELIVERY_TYPE[bucket],
+        resource_type: asset.resourceType,
+        sign_url: true,
+        secure: true,
+        // Cloudinary signatures are permanent unless the URL also carries an
+        // expiry, so set one to match the old 1-hour Supabase signed URLs.
+        expires_at: Math.floor(Date.now() / 1000) + SIGNED_URL_TTL_SECONDS,
+      });
 
-    if (error) {
+      return { success: true, url: signedUrl, signed: true };
+    } catch (error) {
       logger.error(
         "[getSignedUrlAction] Failed to generate signed URL:",
         error
       );
       throw new Error("Failed to generate a secure viewing link.");
     }
-
-    return { success: true, url: data.signedUrl, signed: true };
   }
 );

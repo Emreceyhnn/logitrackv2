@@ -33,15 +33,23 @@ mock.module("./rate-limiter.ts", {
   },
 });
 
-describe("Testing Supabase Connection & Upload Actions", async () => {
-  const { supabase } = await import("./supabase");
+describe("Testing Cloudinary Connection & Upload Actions", async () => {
+  const { cloudinary, BUCKET_DELIVERY_TYPE } = await import("./cloudinary");
   const { uploadImageAction, getSignedUrlAction } =
     await import("./actions/upload");
 
-  it("Should properly instantiate the Supabase client", () => {
-    expect(supabase).toBeDefined();
-    expect(supabase.storage).toBeDefined();
-    expect(supabase.auth).toBeDefined();
+  it("Should properly instantiate the Cloudinary client", () => {
+    expect(cloudinary).toBeDefined();
+    expect(cloudinary.uploader).toBeDefined();
+    expect(cloudinary.config().cloud_name).toBeTruthy();
+    expect(cloudinary.config().api_key).toBeTruthy();
+  });
+
+  it("Should keep the documents bucket on authenticated delivery", () => {
+    // Regression guard: flipping this to "upload" would make every stored
+    // document publicly readable from its bare URL, silently voiding the
+    // ownership check in getSignedUrlAction.
+    expect(BUCKET_DELIVERY_TYPE.documents).toBe("authenticated");
   });
 
   describe("uploadImageAction Validation", () => {
