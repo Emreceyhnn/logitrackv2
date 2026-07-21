@@ -53,6 +53,8 @@ mock.module("../cloudinary.ts", {
     cloudinary: cloudinaryMock,
     BUCKET_DELIVERY_TYPE,
     resourceTypeForMime,
+    ensureCloudinaryConfigured: () => {},
+    isCloudinaryConfigured: () => true,
   },
 });
 mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });

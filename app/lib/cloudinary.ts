@@ -2,20 +2,10 @@ import { v2 as cloudinary } from "cloudinary";
 
 // Server-only client. This module is imported exclusively from "use server"
 // code (see app/lib/actions/upload.ts) and MUST have the API secret. Signed
-// uploads and signed delivery URLs are both derived from it, so a missing
-// secret would degrade every private-document read into a broken link — we
-// fail fast instead.
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-if (!cloudName || !apiKey || !apiSecret) {
-  throw new Error(
-    "[Cloudinary] Missing CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY or " +
-      "CLOUDINARY_API_SECRET. The server Cloudinary client requires all " +
-      "three; refusing to start with a degraded/unsigned fallback."
-  );
-}
+// uploads and signed delivery URLs are both derived from it.
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME || "logitrack_dev";
+const apiKey = process.env.CLOUDINARY_API_KEY || "dev_key";
+const apiSecret = process.env.CLOUDINARY_API_SECRET || "dev_secret";
 
 cloudinary.config({
   cloud_name: cloudName,
@@ -23,6 +13,24 @@ cloudinary.config({
   api_secret: apiSecret,
   secure: true,
 });
+
+export function isCloudinaryConfigured(): boolean {
+  return Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET
+  );
+}
+
+export function ensureCloudinaryConfigured(): void {
+  if (!isCloudinaryConfigured()) {
+    throw new Error(
+      "[Cloudinary] Missing CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY or " +
+        "CLOUDINARY_API_SECRET. The server Cloudinary client requires all " +
+        "three; refusing to execute with a degraded/unsigned fallback."
+    );
+  }
+}
 
 export { cloudinary };
 

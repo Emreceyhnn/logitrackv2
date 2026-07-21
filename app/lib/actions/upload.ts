@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import {
   cloudinary,
+  ensureCloudinaryConfigured,
   BUCKET_DELIVERY_TYPE,
   resourceTypeForMime,
   type UploadBucket,
@@ -131,6 +132,8 @@ export const uploadImageAction = maybeAuthenticatedAction(
     const deliveryType = BUCKET_DELIVERY_TYPE[bucket];
     const resourceType = resourceTypeForMime(mimeType);
 
+    ensureCloudinaryConfigured();
+
     try {
       const result = await cloudinary.uploader.upload(fileData, {
         folder: targetFolder,
@@ -252,6 +255,8 @@ export const getSignedUrlAction = authenticatedAction(
     if (!asset) {
       return { success: true, url: fileUrl, signed: false };
     }
+
+    ensureCloudinaryConfigured();
 
     try {
       const signedUrl = cloudinary.url(asset.publicId, {
