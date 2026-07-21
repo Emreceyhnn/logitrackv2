@@ -32,20 +32,28 @@ export default function Step3Profile() {
 
     setUploading(true);
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64String = reader.result as string;
-        const result = await uploadImageAction(
-          base64String,
-          "avatars",
-          "register-flow"
-        );
+      // FileReader is callback-based, so the upload must be awaited through a
+      // promise. Doing the upload inside `reader.onloadend` instead would let a
+      // rejection escape as an unhandled rejection — the try/catch only covers
+      // the synchronous readAsDataURL call — and would flip `uploading` off in
+      // `finally` before the upload had actually finished.
+      const base64String = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () =>
+          reject(reader.error ?? new Error("Failed to read file."));
+        reader.readAsDataURL(file);
+      });
 
-        if (result.success) {
-          setFieldValue("avatarUrl", result.url);
-        }
-      };
-      reader.readAsDataURL(file);
+      const result = await uploadImageAction(
+        base64String,
+        "avatars",
+        "register-flow"
+      );
+
+      if (result.success) {
+        setFieldValue("avatarUrl", result.url);
+      }
     } catch (error) {
       logger.error("Upload failed:", error);
     } finally {

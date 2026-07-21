@@ -1,18 +1,30 @@
- 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
 // 1. MOCK'LAR
-const supabaseStorageMock = {
-  from: mock.fn(() => ({
-    upload: mock.fn(),
-    getPublicUrl: mock.fn(() => ({ data: { publicUrl: "http://public.url" } })),
-    createSignedUrl: mock.fn(),
+const uploaderMock = {
+  upload: mock.fn(async () => ({
+    secure_url: "https://res.cloudinary.com/demo/image/upload/v1/general/test.png",
+    public_id: "general/test",
   })),
 };
 
-const supabaseMock = {
-  storage: supabaseStorageMock,
+const cloudinaryMock = {
+  uploader: uploaderMock,
+  url: mock.fn(() => "https://signed.url"),
+};
+
+const BUCKET_DELIVERY_TYPE = {
+  vehicles: "upload",
+  documents: "authenticated",
+  avatars: "upload",
+  general: "upload",
+};
+
+const resourceTypeForMime = (mimeType: string) => {
+  if (mimeType === "application/pdf") return "raw";
+  if (mimeType.startsWith("image/")) return "image";
+  return "raw";
 };
 
 const authMiddlewareMock = {
@@ -36,7 +48,15 @@ const dbMock = {
   },
 };
 
-mock.module("../supabase.ts", { namedExports: { supabase: supabaseMock } });
+mock.module("../cloudinary.ts", {
+  namedExports: {
+    cloudinary: cloudinaryMock,
+    BUCKET_DELIVERY_TYPE,
+    resourceTypeForMime,
+    ensureCloudinaryConfigured: () => {},
+    isCloudinaryConfigured: () => true,
+  },
+});
 mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 mock.module("next/headers", { namedExports: headersMock });
 mock.module("../rate-limiter.ts", { namedExports: rateLimiterMock });
@@ -51,7 +71,8 @@ describe("Upload Actions", () => {
   });
 
   beforeEach(() => {
-    supabaseStorageMock.from.mock.resetCalls();
+    uploaderMock.upload.mock.resetCalls();
+    cloudinaryMock.url.mock.resetCalls();
   });
 
   describe("uploadImageAction() metodu", () => {
@@ -59,22 +80,7 @@ describe("Upload Actions", () => {
     const mockBase64 =
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
-    it("should_UploadImageAndReturnPublicUrl_WhenValidBase64Provided", async () => {
-      // Arrange
-      const uploadMock = mock.fn(async () => ({
-        data: { path: "test.png" },
-        error: null,
-      }));
-      supabaseStorageMock.from.mock.mockImplementation(
-        () =>
-          ({
-            upload: uploadMock,
-            getPublicUrl: mock.fn(() => ({
-              data: { publicUrl: "http://public.url/test.png" },
-            })),
-          }) as unknown
-      );
-
+    it("should_UploadImageAndReturnSecureUrl_WhenValidBase64Provided", async () => {
       // Act
       const result = await uploadActions.uploadImageAction(
         mockUser,
@@ -84,8 +90,134 @@ describe("Upload Actions", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.url).toBe("http://public.url/test.png");
-      expect(uploadMock.mock.calls.length).toBe(1);
+      expect(result.url).toBe(
+        "https://res.cloudinary.com/demo/image/upload/v1/general/test.png"
+      );
+      expect(result.publicId).toBe("general/test");
+      expect(uploaderMock.upload.mock.calls.length).toBe(1);
+    });
+
+    it("should_UploadDocumentsAsAuthenticated_ToPreservePrivacy", async () => {
+      // Act
+      await uploadActions.uploadImageAction(
+        mockUser,
+        mockBase64,
+        "documents",
+        "invoices"
+      );
+
+      // Assert — private delivery, and bucket prefixes the folder path
+      const opts = uploaderMock.upload.mock.calls[0].arguments[1];
+      expect(opts.type).toBe("authenticated");
+      expect(opts.folder).toBe("documents/invoices");
+    });
+
+    it("should_PinResourceType_ForEveryAcceptedFormat", async () => {
+      // resource_type must never be "auto": getSignedUrlAction reconstructs it
+      // from the stored URL, so an unobservable server-side choice would break
+      // signature generation for private documents.
+      const formats = [
+        { mime: "image/jpeg", expected: "image" },
+        { mime: "image/jpg", expected: "image" },
+        { mime: "image/png", expected: "image" },
+        { mime: "image/webp", expected: "image" },
+        { mime: "image/gif", expected: "image" },
+        // PDFs must be "raw": delivery under "image" is blocked by account
+        // security settings and 401s even with a valid signature.
+        { mime: "application/pdf", expected: "raw" },
+      ];
+
+      for (const { mime, expected } of formats) {
+        uploaderMock.upload.mock.resetCalls();
+        await uploadActions.uploadImageAction(
+          mockUser,
+          `data:${mime};base64,aGVsbG8=`,
+          "documents"
+        );
+        const opts = uploaderMock.upload.mock.calls[0].arguments[1];
+        expect(opts.resource_type).toBe(expected);
+        expect(opts.type).toBe("authenticated");
+      }
+    });
+
+    it("should_RoundTripResourceType_FromUploadToSignedUrl", async () => {
+      // End-to-end guard: whatever resource_type a PDF is stored under must be
+      // the one used to sign it back, or every document read 404s.
+      uploaderMock.upload.mock.mockImplementationOnce(async () => ({
+        secure_url:
+          "https://res.cloudinary.com/daeiwh3qr/raw/authenticated/v1712345678/documents/invoice.pdf",
+        public_id: "documents/invoice",
+      }));
+
+      const uploaded = await uploadActions.uploadImageAction(
+        mockUser,
+        "data:application/pdf;base64,JVBERi0=",
+        "documents"
+      );
+      const uploadResourceType =
+        uploaderMock.upload.mock.calls[0].arguments[1].resource_type;
+
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-1",
+      }));
+      await uploadActions.getSignedUrlAction(
+        mockUser,
+        uploaded.url,
+        "documents"
+      );
+
+      const signOpts = cloudinaryMock.url.mock.calls[0].arguments[1];
+      expect(signOpts.resource_type).toBe(uploadResourceType);
+    });
+
+    it("should_StripPermanentSignature_FromStoredDocumentUrl", async () => {
+      // Cloudinary's secure_url for authenticated assets embeds a permanent
+      // signature token. Persisting it would grant non-expiring access to
+      // anyone reading the DB row, bypassing the 1h expiry and the ownership
+      // check — so the stored URL must be the bare, unsigned reference.
+      uploaderMock.upload.mock.mockImplementationOnce(async () => ({
+        secure_url:
+          "https://res.cloudinary.com/daeiwh3qr/image/authenticated/s--AbC123--/v1712345678/documents/secret.pdf",
+        public_id: "documents/secret",
+      }));
+
+      const result = await uploadActions.uploadImageAction(
+        mockUser,
+        "data:application/pdf;base64,JVBERi0=",
+        "documents"
+      );
+
+      expect(result.url).not.toMatch(/\/s--[^/]+--\//);
+      expect(result.url).toBe(
+        "https://res.cloudinary.com/daeiwh3qr/image/authenticated/v1712345678/documents/secret.pdf"
+      );
+    });
+
+    it("should_KeepSecureUrlIntact_ForPublicBuckets", async () => {
+      // Public assets carry no signature token; leave their URL untouched.
+      uploaderMock.upload.mock.mockImplementationOnce(async () => ({
+        secure_url:
+          "https://res.cloudinary.com/daeiwh3qr/image/upload/v1712345678/vehicles/truck.png",
+        public_id: "vehicles/truck",
+      }));
+
+      const result = await uploadActions.uploadImageAction(
+        mockUser,
+        mockBase64,
+        "vehicles"
+      );
+
+      expect(result.url).toBe(
+        "https://res.cloudinary.com/daeiwh3qr/image/upload/v1712345678/vehicles/truck.png"
+      );
+    });
+
+    it("should_ThrowError_WhenAnonymousUploadsToPrivateBucket", async () => {
+      // Act & Assert — documents is not anon-writable
+      await expect(
+        uploadActions.uploadImageAction(null, mockBase64, "documents")
+      ).rejects.toThrow("Authentication required to upload to this bucket.");
+      expect(uploaderMock.upload.mock.calls.length).toBe(0);
     });
 
     it("should_ThrowError_WhenFileTypeIsUnsupported", async () => {
@@ -105,24 +237,12 @@ describe("Upload Actions", () => {
       await expect(
         uploadActions.uploadImageAction(null, mockBase64, "avatars")
       ).rejects.toThrow("Too many uploads");
-      expect(supabaseStorageMock.from.mock.calls.length).toBe(0);
+      expect(uploaderMock.upload.mock.calls.length).toBe(0);
     });
 
     it("should_NotRateLimit_AuthenticatedUploads", async () => {
       // Arrange
       rateLimiterMock.rateLimit.mock.resetCalls();
-      supabaseStorageMock.from.mock.mockImplementation(
-        () =>
-          ({
-            upload: mock.fn(async () => ({
-              data: { path: "test.png" },
-              error: null,
-            })),
-            getPublicUrl: mock.fn(() => ({
-              data: { publicUrl: "http://public.url/test.png" },
-            })),
-          }) as unknown
-      );
 
       // Act
       await uploadActions.uploadImageAction(mockUser, mockBase64, "general");
@@ -134,6 +254,8 @@ describe("Upload Actions", () => {
 
   describe("getSignedUrlAction() metodu", () => {
     const mockUser = { id: "user-1", companyId: "company-1" };
+    const docUrl =
+      "https://res.cloudinary.com/demo/image/authenticated/v1712345678/documents/test.pdf";
 
     beforeEach(() => {
       dbMock.document.findFirst.mock.resetCalls();
@@ -144,32 +266,30 @@ describe("Upload Actions", () => {
       dbMock.document.findFirst.mock.mockImplementation(async () => ({
         id: "doc-1",
       }));
-      const createSignedUrlMock = mock.fn(async () => ({
-        data: { signedUrl: "http://signed.url" },
-        error: null,
-      }));
-      supabaseStorageMock.from.mock.mockImplementation(
-        () =>
-          ({
-            createSignedUrl: createSignedUrlMock,
-          }) as unknown
-      );
 
       // Act
       const result = await uploadActions.getSignedUrlAction(
         mockUser,
-        "http://supabase.com/documents/test.pdf",
+        docUrl,
         "documents"
       );
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.url).toBe("http://signed.url");
+      expect(result.url).toBe("https://signed.url");
       expect(result.signed).toBe(true);
-      expect(createSignedUrlMock.mock.calls.length).toBe(1);
+      expect(cloudinaryMock.url.mock.calls.length).toBe(1);
+
+      // public_id is parsed out of the delivery URL, version and extension stripped
+      const [publicId, opts] = cloudinaryMock.url.mock.calls[0].arguments;
+      expect(publicId).toBe("documents/test");
+      expect(opts.sign_url).toBe(true);
+      expect(opts.type).toBe("authenticated");
+      expect(opts.expires_at).toBeGreaterThan(Math.floor(Date.now() / 1000));
+
       // Ownership check is tenant-scoped
       expect(dbMock.document.findFirst.mock.calls[0].arguments[0].where).toEqual({
-        url: "http://supabase.com/documents/test.pdf",
+        url: docUrl,
         companyId: "company-1",
       });
     });
@@ -182,11 +302,48 @@ describe("Upload Actions", () => {
       await expect(
         uploadActions.getSignedUrlAction(
           mockUser,
-          "http://supabase.com/documents/other-company.pdf",
+          "https://res.cloudinary.com/demo/image/authenticated/v1/documents/other.pdf",
           "documents"
         )
       ).rejects.toThrow("Document not found or unauthorized.");
-      expect(supabaseStorageMock.from.mock.calls.length).toBe(0);
+      expect(cloudinaryMock.url.mock.calls.length).toBe(0);
+    });
+
+    it("should_ReturnUnsignedUrl_WhenPublicIdCannotBeParsed", async () => {
+      // Arrange — a legacy (pre-migration) Supabase URL has no /v<version>/ segment
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-legacy",
+      }));
+
+      // Act
+      const result = await uploadActions.getSignedUrlAction(
+        mockUser,
+        "https://stcbrfzcftmdbpukxsxw.supabase.co/storage/v1/object/documents/old.pdf",
+        "documents"
+      );
+
+      // Assert — degrades to the raw URL rather than emitting a broken signature
+      expect(result.signed).toBe(false);
+      expect(cloudinaryMock.url.mock.calls.length).toBe(0);
+    });
+
+    it("should_ParseSignedLegacyUrls_WrittenBeforeStripping", async () => {
+      // Rows saved before signature-stripping still contain an "s--TOKEN--"
+      // segment; those must remain signable rather than silently 404.
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-legacy-signed",
+      }));
+
+      const result = await uploadActions.getSignedUrlAction(
+        mockUser,
+        "https://res.cloudinary.com/daeiwh3qr/image/authenticated/s--AbC123--/v1712345678/documents/old.pdf",
+        "documents"
+      );
+
+      expect(result.signed).toBe(true);
+      expect(cloudinaryMock.url.mock.calls[0].arguments[0]).toBe(
+        "documents/old"
+      );
     });
 
     it("should_ThrowError_WhenUrlIsInvalid", async () => {
