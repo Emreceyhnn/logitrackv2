@@ -6,18 +6,15 @@ import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
 import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
 import UserAccountNav from "../nav/UserAccountNav";
-import { useParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 import { UserProvider } from "@/app/lib/context/UserContext";
 
 export default function LandingHeaderAuth() {
   /* -------------------------------- VARIABLES ------------------------------- */
-  const params = useParams();
   const theme = useTheme();
-  const dict = useDictionary();
-  const lang = (params?.lang as string) || "tr";
+  const { lang, dict } = useLanguage();
 
   /* --------------------------------- STATES --------------------------------- */
 
@@ -44,8 +41,12 @@ export default function LandingHeaderAuth() {
   }, []);
 
   /* -------------------------------- HANDLERS -------------------------------- */
-  const handleSuccess = () => {
+  const handleSuccess = (newLang?: string) => {
     setOpenCompanyModal(false);
+    if (newLang && newLang !== lang) {
+      window.location.href = `/${newLang}${getLocalizedPath("/overview", newLang)}`;
+      return;
+    }
     checkAuth();
   };
 

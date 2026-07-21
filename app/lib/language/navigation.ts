@@ -167,6 +167,30 @@ export function buildBreadcrumbSchema(
 }
 
 /**
+ * True when a pathname sits inside the public Live Demo subtree
+ * (/{lang}/demo/...), which anonymous visitors browse without a session.
+ */
+export function isDemoPathname(pathname: string | null | undefined): boolean {
+  if (!pathname) return false;
+  return pathname.split('/').filter(Boolean)[1] === 'demo';
+}
+
+/**
+ * The dashboard "home" a given pathname should return to.
+ *
+ * Demo pages must stay inside /{lang}/demo: the real /{lang}/overview is a
+ * PROTECTED_ROUTE, so sending an anonymous demo visitor there makes the proxy
+ * auth gate bounce them to the sign-in page (see proxy.ts). Demo route
+ * segments are English-only (there is no /tr/demo/genel-bakis folder), so the
+ * demo branch deliberately skips slug localization.
+ */
+export function buildDashboardHomeHref(pathname: string | null | undefined, lang: string): string {
+  return isDemoPathname(pathname)
+    ? `/${lang}/demo/overview`
+    : buildLocalizedHref('/overview', lang);
+}
+
+/**
  * Check whether a localized pathname is 'active' for a given canonical path.
  * Supports exact match and optional prefix (startsWith) matching.
  */

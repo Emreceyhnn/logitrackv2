@@ -30,12 +30,17 @@ mock.module("next/navigation", {
 });
 
 mock.module("../../lib/language/navigation.ts", {
-  namedExports: { 
+  namedExports: {
     routeTranslations: {
       en: {
         warehouses: "warehouses"
       }
-    }
+    },
+    isDemoPathname: (p: string) => p?.split("/").filter(Boolean)[1] === "demo",
+    buildDashboardHomeHref: (p: string, lang: string) =>
+      p?.split("/").filter(Boolean)[1] === "demo"
+        ? `/${lang}/demo/overview`
+        : `/${lang}/overview`,
   },
 });
 
@@ -94,6 +99,36 @@ describe("DashboardBreadcrumbs RTL Component", () => {
       // It should NOT render "Overview" because we skip redundant Overview if index === 0
       const overviewEls = screen.queryAllByText("Overview");
       expect(overviewEls.length).toBe(0);
+    });
+
+    // Regression: the home crumb used to hardcode /{lang}/overview, a
+    // PROTECTED_ROUTE. Anonymous demo visitors clicking it got bounced to the
+    // sign-in page by the proxy auth gate.
+    it("should_LinkHomeToDemoOverview_WhenOnDemoPath", async () => {
+      usePathnameMock.mock.mockImplementation(() => "/en/demo/warehouses");
+
+      const { container } = render(
+        <ThemeProvider theme={customTheme}>
+          <DashboardBreadcrumbs />
+        </ThemeProvider>
+      );
+
+      const homeLink = container.querySelector("a");
+      expect(homeLink?.getAttribute("href")).toBe("/en/demo/overview");
+    });
+
+    // The "demo" path segment is a routing detail, not a navigable page.
+    it("should_NotRenderDemoSegmentAsCrumb_WhenOnDemoPath", async () => {
+      usePathnameMock.mock.mockImplementation(() => "/en/demo/warehouses");
+
+      render(
+        <ThemeProvider theme={customTheme}>
+          <DashboardBreadcrumbs />
+        </ThemeProvider>
+      );
+
+      expect(screen.queryAllByText("Demo").length).toBe(0);
+      expect(screen.getByText("Warehouses")).toBeTruthy();
     });
   });
 });

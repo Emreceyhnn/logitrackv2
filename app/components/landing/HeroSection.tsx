@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 import { hasDashboardAccess } from "@/app/lib/actions/demoRequest";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
@@ -16,9 +15,7 @@ import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { motion } from "framer-motion";
 
 export default function HeroSection() {
-  const dict = useDictionary();
-  const params = useParams();
-  const lang = (params?.lang as string) || "tr";
+  const { lang, dict } = useLanguage();
 
   // CTA gating: only a signed-in user with dashboard access (active plan or a
   // live trial) sees the "Start" CTA into onboarding. Everyone else sees

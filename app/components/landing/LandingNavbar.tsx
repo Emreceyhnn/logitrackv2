@@ -13,15 +13,12 @@ import Image from "next/image";
 import Link from "next/link";
 import LandingHeaderAuth from "./LandingHeaderAuth";
 import LanguageSwitcher from "../nav/LanguageSwitcher";
-import { useParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 export default function LandingNavbar() {
   /* -------------------------------- VARIABLES ------------------------------- */
-  const params = useParams();
-  const dict = useDictionary();
-  const lang = (params?.lang as string) || "tr";
+  const { lang, dict } = useLanguage();
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 50,

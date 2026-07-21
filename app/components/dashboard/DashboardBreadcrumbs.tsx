@@ -7,7 +7,11 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 
-import { routeTranslations } from "@/app/lib/language/navigation";
+import {
+  routeTranslations,
+  isDemoPathname,
+  buildDashboardHomeHref,
+} from "@/app/lib/language/navigation";
 
 const DashboardBreadcrumbs = () => {
   const pathname = usePathname();
@@ -18,7 +22,23 @@ const DashboardBreadcrumbs = () => {
 
   // First segment is usually the language (en/tr)
   const lang = segments[0] ?? "en";
-  const breadcrumbSegments = segments.slice(1);
+
+  // Live Demo pages are browsed by anonymous visitors, so the trail must stay
+  // inside the demo subtree (see buildDashboardHomeHref).
+  const isDemo = isDemoPathname(pathname);
+
+  // Drop the "demo" segment from the visible trail — it is a routing detail,
+  // not a place the user can navigate to (there is no /{lang}/demo page).
+  const breadcrumbSegments = isDemo ? segments.slice(2) : segments.slice(1);
+
+  /** Root of the current subtree: the demo overview in demo mode, the real one otherwise. */
+  const homeHref = buildDashboardHomeHref(pathname, lang);
+
+  /** Rebuilds a crumb's href, re-inserting the /demo prefix stripped above. */
+  const buildCrumbHref = (index: number) =>
+    isDemo
+      ? `/${lang}/demo/${breadcrumbSegments.slice(0, index + 1).join("/")}`
+      : `/${segments.slice(0, index + 2).join("/")}`;
 
   // Helper to map segments to dictionary labels
   const getLabel = (segment: string) => {
@@ -92,7 +112,7 @@ const DashboardBreadcrumbs = () => {
       >
         <Link
           component={NextLink}
-          href={`/${lang}/overview`}
+          href={homeHref}
           sx={{
             display: "flex",
             alignItems: "center",
@@ -109,7 +129,7 @@ const DashboardBreadcrumbs = () => {
 
         {breadcrumbSegments.map((segment, index) => {
           const isLast = index === breadcrumbSegments.length - 1;
-          const href = `/${segments.slice(0, index + 2).join("/")}`;
+          const href = buildCrumbHref(index);
           const label = getLabel(segment);
 
           if (label === dict.sidebar.overview && index === 0) return null; // Skip redundant Overview if we have Home

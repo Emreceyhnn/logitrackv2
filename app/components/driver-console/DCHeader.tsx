@@ -2,6 +2,8 @@ import { Stack, Box, Typography, useTheme } from "@mui/material";
 import { Ico } from "@/app/components/warehouse-worker/Ico";
 import type { DriverConsoleState } from "@/app/hooks/useDriverConsoleState";
 import { DUTY_ORDER } from "@/app/lib/utils/driverConsoleUi";
+import LanguageSwitcher from "../nav/LanguageSwitcher";
+import UserAccountNav from "../nav/UserAccountNav";
 
 const DUTY_COLORS: Record<string, { fg: string; bg: string; dot: string }> = {
   ON_JOB: { fg: "#0B0F19", bg: "#34D399", dot: "#34D399" },
@@ -124,6 +126,12 @@ export default function DCHeader({ state }: { state: DriverConsoleState }) {
             </Box>
           );
         })}
+      </Stack>
+
+      {/* Profile & Language */}
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ ml: 1, flexShrink: 0 }}>
+        <LanguageSwitcher />
+        <UserAccountNav user={null} />
       </Stack>
     </Stack>
   );

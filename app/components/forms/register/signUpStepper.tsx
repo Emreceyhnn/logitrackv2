@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Button,
@@ -22,7 +22,7 @@ import Step3Profile from "./step3Profile";
 import { RegisterUser } from "@/app/lib/controllers/users";
 import AuthButton from "../../ui/AuthButton";
 import { signUpValidationSchema } from "@/app/lib/validationSchema";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { logger } from "@/app/lib/logger";
 
 
@@ -121,9 +121,9 @@ interface RegisterFormValues {
 export default function SignUpStepper() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const dict = useDictionary();
+  const { lang } = useLanguage();
   const steps = [dict.auth.personalInfo, dict.auth.security, dict.auth.review];
   const router = useRouter();
-  const { lang } = useParams();
   const schemas = useMemo(() => signUpValidationSchema(dict), [dict]);
 
   /* --------------------------------- STATES --------------------------------- */

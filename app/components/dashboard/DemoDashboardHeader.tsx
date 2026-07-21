@@ -16,12 +16,15 @@ import {
   Badge,
   Popover,
   Chip,
+  Tooltip,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
@@ -102,6 +105,36 @@ export default function DemoDashboardHeader({
       </Stack>
 
       <Stack direction="row" spacing={{ xs: 1.5, md: 3 }} alignItems="center">
+        <Tooltip title={dict.common.backToHome || "Back to Home"} arrow>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<HomeRoundedIcon sx={{ fontSize: 18 }} />}
+            onClick={handleExitDemo}
+            sx={{
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: "0.8rem",
+              borderRadius: "999px",
+              px: 2,
+              py: 0.5,
+              borderColor: theme.palette.primary._alpha.main_30,
+              color: theme.palette.primary.main,
+              bgcolor: theme.palette.primary._alpha.main_05,
+              transition: "all 0.2s ease",
+              "&:hover": {
+                borderColor: theme.palette.primary.main,
+                bgcolor: theme.palette.primary._alpha.main_10,
+                transform: "translateY(-1px)",
+                boxShadow: `0 4px 12px ${theme.palette.primary._alpha.main_20}`,
+              },
+            }}
+          >
+            <Box sx={{ display: { xs: "none", sm: "block" } }}>
+              {dict.common.home || "Home"}
+            </Box>
+          </Button>
+        </Tooltip>
         <IconButton
           onClick={(e) => setBellAnchorEl(e.currentTarget)}
           aria-label="notifications"

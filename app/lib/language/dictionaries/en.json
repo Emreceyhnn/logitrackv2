@@ -1,6 +1,8 @@
 {
   "common": {
     "logitrack": "LogiTrack",
+    "home": "Home",
+    "backToHome": "Back to Home",
     "needHelp": "Need Help?",
     "help": "Help",
     "logout": "Log Out",
@@ -3751,7 +3753,16 @@
     "joinSubmit": "Request to Join",
     "joinPendingTitle": "Your request to join {company} is pending approval",
     "joinPendingDescription": "An admin at {company} needs to approve your request before you can access the dashboard.",
-    "cancelRequest": "Cancel Request"
+    "cancelRequest": "Cancel Request",
+    "pendingInvitations": "Pending Invitations",
+    "youHaveBeenInvited": "You have been invited!",
+    "invitedYouToJoinAs": "{company} has invited you to join as a {role}.",
+    "decline": "Decline",
+    "acceptInvitation": "Accept Invitation",
+    "accepting": "Accepting...",
+    "declining": "Declining...",
+    "invitationAccepted": "Invitation accepted!",
+    "invitationDeclined": "Invitation declined."
   },
   "pendingAccess": {
     "title": "Setting up your access",

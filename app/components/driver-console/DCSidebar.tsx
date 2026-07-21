@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Stack, Box, IconButton, useTheme, Tooltip } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { View } from "@/app/lib/type/driverConsoleClient";
 import type { Dictionary } from "@/app/lib/language/language";
+import { buildDashboardHomeHref } from "@/app/lib/language/navigation";
 import { Ico } from "@/app/components/warehouse-worker/Ico";
 
 interface DCSidebarProps {
@@ -27,7 +29,9 @@ export default function DCSidebar({
   dict,
 }: DCSidebarProps) {
   const theme = useTheme();
-  const backHref = `/${lang}/overview`;
+  // Demo visitors must return to the demo overview — the real one is
+  // protected and would bounce them to sign-in.
+  const backHref = buildDashboardHomeHref(usePathname(), lang);
 
   return (
     <Stack

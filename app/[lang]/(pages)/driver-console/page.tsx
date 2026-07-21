@@ -11,6 +11,7 @@ import { isDriverOnlyRole } from "@/app/lib/roles";
 import { getDriverConsoleDashboard } from "@/app/lib/controllers/driverConsole";
 import { driverConsoleKeys } from "@/app/lib/query-keys/driverConsole.keys";
 import { GuidedTourProvider } from "@/app/lib/context/GuidedTourContext";
+import { UserProvider } from "@/app/lib/context/UserContext";
 import DriverConsoleClient from "./DriverConsoleClient";
 import { logger } from "@/app/lib/logger";
 
@@ -56,9 +57,11 @@ export default async function DriverConsolePage({
   return (
     <HydrationBoundary state={dehydratedState}>
       <Suspense fallback={null}>
-        <GuidedTourProvider>
-          <DriverConsoleClient locked={locked} lang={lang} />
-        </GuidedTourProvider>
+        <UserProvider initialUser={user}>
+          <GuidedTourProvider>
+            <DriverConsoleClient locked={locked} lang={lang} />
+          </GuidedTourProvider>
+        </UserProvider>
       </Suspense>
     </HydrationBoundary>
   );

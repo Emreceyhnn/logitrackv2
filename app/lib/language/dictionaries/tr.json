@@ -1,6 +1,8 @@
 {
   "common": {
     "logitrack": "LogiTrack",
+    "home": "Ana Sayfa",
+    "backToHome": "Ana Sayfaya Dön",
     "needHelp": "Yardım mı lazım?",
     "help": "Yardım",
     "logout": "Çıkış Yap",
@@ -3752,7 +3754,16 @@
     "joinSubmit": "Katılma İsteği Gönder",
     "joinPendingTitle": "{company} şirketine katılma isteğiniz onay bekliyor",
     "joinPendingDescription": "{company} şirketindeki bir yöneticinin, panele erişebilmeniz için isteğinizi onaylaması gerekiyor.",
-    "cancelRequest": "İsteği İptal Et"
+    "cancelRequest": "İsteği İptal Et",
+    "pendingInvitations": "Bekleyen Davetiyeler",
+    "youHaveBeenInvited": "Davet edildiniz!",
+    "invitedYouToJoinAs": "{company}, {role} olarak katılmanız için sizi davet etti.",
+    "decline": "Reddet",
+    "acceptInvitation": "Daveti Kabul Et",
+    "accepting": "Kabul ediliyor...",
+    "declining": "Reddediliyor...",
+    "invitationAccepted": "Davet kabul edildi!",
+    "invitationDeclined": "Davet reddedildi."
   },
   "pendingAccess": {
     "title": "Erişiminiz hazırlanıyor",

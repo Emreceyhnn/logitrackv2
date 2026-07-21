@@ -42,7 +42,7 @@ export interface CreateCompanyActions {
 export interface CreateCompanyDialogProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (lang?: string) => void;
 }
 
 /**
