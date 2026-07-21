@@ -17,7 +17,18 @@ export interface TenantContext {
  * extension in `db.ts` can enforce tenant scoping on every query without
  * relying on each call site remembering to add `where: { companyId }`.
  */
-export const tenantContext = new AsyncLocalStorage<TenantContext>();
+declare global {
+  // eslint-disable-next-line no-var
+  var __tenantContext: AsyncLocalStorage<TenantContext> | undefined;
+}
+
+// Fix Next.js double-instantiation bug by using globalThis
+const globalContext = globalThis.__tenantContext || new AsyncLocalStorage<TenantContext>();
+if (process.env.NODE_ENV !== "production") {
+  globalThis.__tenantContext = globalContext;
+}
+
+export const tenantContext = globalContext;
 
 export function getTenantCompanyId(): string | null {
   return tenantContext.getStore()?.companyId ?? null;

@@ -200,6 +200,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
               where: {
                 warehouseId: m.warehouseId,
                 sku: m.sku,
+                companyId,
               },
               select: { name: true },
             });

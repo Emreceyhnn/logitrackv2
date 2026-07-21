@@ -19,6 +19,7 @@ import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyD
 import JoinCompanyDialog from "@/app/components/dialogs/company/JoinCompanyDialog";
 import { getMyJoinRequest, cancelJoinRequest } from "@/app/lib/controllers/joinRequests";
 import { getMyInvitations, acceptExistingUserInvitation, declineExistingUserInvitation } from "@/app/lib/controllers/invitations";
+import { checkAndSyncCompany } from "./actions";
 import { toast } from "sonner";
 
 export default function OnboardingPage() {
@@ -33,13 +34,19 @@ export default function OnboardingPage() {
   const [pendingInvitations, setPendingInvitations] = useState<{ id: string; company: { name: string }; role: { name: string } }[]>([]);
 
   useEffect(() => {
-    Promise.all([getMyJoinRequest(), getMyInvitations()])
-      .then(([req, invs]) => {
-        if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
-        if (invs) setPendingInvitations(invs);
-      })
-      .finally(() => setCheckingPending(false));
-  }, []);
+    checkAndSyncCompany().then((hasCompany) => {
+      if (hasCompany) {
+        window.location.href = `/${locale}/overview`;
+      } else {
+        Promise.all([getMyJoinRequest(), getMyInvitations()])
+          .then(([req, invs]) => {
+            if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
+            if (invs) setPendingInvitations(invs);
+          })
+          .finally(() => setCheckingPending(false));
+      }
+    }).catch(() => setCheckingPending(false));
+  }, [locale]);
 
   const handleAcceptInvitation = async (id: string) => {
     const loadingToast = toast.loading(dict.onboarding?.accepting || "Accepting...");

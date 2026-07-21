@@ -83,7 +83,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
           select: { type: true, quantity: true },
         }),
         db.warehouseTask.findMany({
-          where: { warehouseId: warehouse.id },
+          where: { warehouseId: warehouse.id, companyId },
           orderBy: [
             { status: "asc" },
             { priority: "desc" },
@@ -92,7 +92,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
           take: 12,
         }),
         db.warehouseZone.findMany({
-          where: { warehouseId: warehouse.id },
+          where: { warehouseId: warehouse.id, companyId },
           orderBy: { code: "asc" },
         }),
         db.inventoryMovement.findMany({
@@ -102,7 +102,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
           take: 12,
         }),
         db.inventory.findMany({
-          where: { warehouseId: warehouse.id },
+          where: { warehouseId: warehouse.id, companyId },
           select: {
             sku: true,
             name: true,
