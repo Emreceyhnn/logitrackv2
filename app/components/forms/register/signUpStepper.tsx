@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   Button,
@@ -19,11 +19,12 @@ import { Form, Formik, FormikHelpers } from "formik";
 import Step1PersonalInfo from "./step1PersonalInfo";
 import Step2Security from "./step2Security";
 import Step3Profile from "./step3Profile";
-import { RegisterUser } from "@/app/lib/controllers/users";
+import { RegisterUser, LoginWithGoogle } from "@/app/lib/controllers/users";
 import AuthButton from "../../ui/AuthButton";
 import { signUpValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { logger } from "@/app/lib/logger";
+import GoogleSignInButton from "../../ui/GoogleSignInButton";
 
 
 /* --------------------------------- STYLES --------------------------------- */
@@ -124,13 +125,41 @@ export default function SignUpStepper() {
   const { lang } = useLanguage();
   const steps = [dict.auth.personalInfo, dict.auth.security, dict.auth.review];
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const demoToken = searchParams.get("demoToken") ?? undefined;
   const schemas = useMemo(() => signUpValidationSchema(dict), [dict]);
 
   /* --------------------------------- STATES --------------------------------- */
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
+
   const isLastStep = activeStep === steps.length - 1;
+
+  const handleGoogleCredential = async (idToken: string) => {
+    setGoogleError(null);
+    setGoogleLoading(true);
+    try {
+      const res = await LoginWithGoogle(idToken, demoToken);
+
+      if (res && "error" in res && res.error) {
+        setGoogleError(res.error);
+        return;
+      }
+
+      if (res && "user" in res && res.user) {
+        router.refresh();
+        router.push(`/${lang}`);
+      }
+    } catch (error: unknown) {
+      logger.error("Google sign-up failed:", error);
+      setGoogleError(dict.auth.googleSignInFailed);
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleNext = async (
@@ -160,7 +189,8 @@ export default function SignUpStepper() {
         values.surname,
         values.password,
         values.email,
-        values.avatarUrl
+        values.avatarUrl,
+        demoToken
       );
 
       if (res && "error" in res) {
@@ -245,6 +275,21 @@ export default function SignUpStepper() {
               {activeStep === 1 && <Step2Security />}
               {activeStep === 2 && <Step3Profile />}
             </Box>
+
+            {activeStep === 0 && (
+              <Box mt={3}>
+                <GoogleSignInButton
+                  onCredential={handleGoogleCredential}
+                  onError={() => setGoogleError(dict.auth.googleSignInFailed)}
+                  disabled={googleLoading}
+                />
+                {googleError && (
+                  <Typography sx={{ color: "#f87171", fontSize: "13px", textAlign: "center", mt: 1.5 }}>
+                    {googleError}
+                  </Typography>
+                )}
+              </Box>
+            )}
 
             <Stack direction="row" spacing={2} mt={5}>
               {activeStep > 0 && (

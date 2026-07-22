@@ -4,6 +4,7 @@ export {
   getUserFromToken,
   RegisterUser,
   LoginUser,
+  LoginWithGoogle,
   LogoutUser,
 } from "./users/auth";
 export {

@@ -17,9 +17,10 @@ import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import AuthButton from "../ui/AuthButton";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/app/lib/language/DictionaryContext";
-import { LoginUser } from "@/app/lib/controllers/users";
+import { LoginUser, LoginWithGoogle } from "@/app/lib/controllers/users";
 import { loginValidationSchema } from "@/app/lib/validationSchema";
 import { logger } from "@/app/lib/logger";
+import GoogleSignInButton from "../ui/GoogleSignInButton";
 
 
 interface LoginFormValues {
@@ -82,6 +83,36 @@ export default function LoginForm() {
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const [googleLoading, setGoogleLoading] = useState<boolean>(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
+
+  const handleGoogleCredential = async (idToken: string) => {
+    setGoogleError(null);
+    setGoogleLoading(true);
+    try {
+      const res = await LoginWithGoogle(idToken);
+
+      if (res && "error" in res && res.error) {
+        setGoogleError(res.error);
+        return;
+      }
+
+      if (res && "user" in res && res.user) {
+        router.refresh();
+        if (res.user.companyId) {
+          router.push(`/${lang}/overview`);
+        } else {
+          router.push(`/${lang}`);
+        }
+      }
+    } catch (error: unknown) {
+      logger.error("Google login failed:", error);
+      setGoogleError(dict.auth.googleSignInFailed);
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -231,6 +262,17 @@ export default function LoginForm() {
               >
                 {dict.auth.logInNow}
               </AuthButton>
+
+              <GoogleSignInButton
+                onCredential={handleGoogleCredential}
+                onError={() => setGoogleError(dict.auth.googleSignInFailed)}
+                disabled={googleLoading}
+              />
+              {googleError && (
+                <Typography sx={{ color: "#f87171", fontSize: "13px", textAlign: "center" }}>
+                  {googleError}
+                </Typography>
+              )}
             </Stack>
           </Form>
         </Formik>

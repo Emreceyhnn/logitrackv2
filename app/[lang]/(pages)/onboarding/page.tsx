@@ -19,8 +19,9 @@ import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyD
 import JoinCompanyDialog from "@/app/components/dialogs/company/JoinCompanyDialog";
 import { getMyJoinRequest, cancelJoinRequest } from "@/app/lib/controllers/joinRequests";
 import { getMyInvitations, acceptExistingUserInvitation, declineExistingUserInvitation } from "@/app/lib/controllers/invitations";
-import { checkAndSyncCompany } from "./actions";
+import { checkAndSyncCompany, canCreateCompany } from "./actions";
 import { toast } from "sonner";
+import Tooltip from "@mui/material/Tooltip";
 
 export default function OnboardingPage() {
   const theme = useTheme();
@@ -30,6 +31,7 @@ export default function OnboardingPage() {
   const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false);
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [checkingPending, setCheckingPending] = useState(true);
+  const [canCreate, setCanCreate] = useState(false);
   const [pendingRequest, setPendingRequest] = useState<{ id: string; companyName: string } | null>(null);
   const [pendingInvitations, setPendingInvitations] = useState<{ id: string; company: { name: string }; role: { name: string } }[]>([]);
 
@@ -38,10 +40,11 @@ export default function OnboardingPage() {
       if (hasCompany) {
         window.location.href = `/${locale}/overview`;
       } else {
-        Promise.all([getMyJoinRequest(), getMyInvitations()])
-          .then(([req, invs]) => {
+        Promise.all([getMyJoinRequest(), getMyInvitations(), canCreateCompany()])
+          .then(([req, invs, createAllowed]) => {
             if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
             if (invs) setPendingInvitations(invs);
+            setCanCreate(createAllowed);
           })
           .finally(() => setCheckingPending(false));
       }
@@ -213,18 +216,23 @@ export default function OnboardingPage() {
           spacing={4}
           justifyContent="center"
         >
-          {/* Create Company */}
+          {/* Create Company — disabled without a live trial/plan; createCompany
+              enforces the same check server-side, this just avoids letting
+              someone fill out the whole dialog only to hit an error at the end. */}
           <Card
             sx={{
               flex: 1,
               borderRadius: 4,
               border: `1px solid ${theme.palette.divider}`,
-              transition: "transform 0.2s, box-shadow 0.2s",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: theme.shadows[4],
-                borderColor: theme.palette.primary.main,
-              },
+              opacity: canCreate ? 1 : 0.6,
+              transition: "transform 0.2s, box-shadow 0.2s, opacity 0.2s",
+              "&:hover": canCreate
+                ? {
+                    transform: "translateY(-4px)",
+                    boxShadow: theme.shadows[4],
+                    borderColor: theme.palette.primary.main,
+                  }
+                : undefined,
             }}
           >
             <CardContent
@@ -263,15 +271,27 @@ export default function OnboardingPage() {
                 {dict.onboarding?.createDescription ||
                   "Register a new logistics or transport company. You will be set as the initial Administrator with full control."}
               </Typography>
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                onClick={() => setIsCreateCompanyOpen(true)}
-                sx={{ borderRadius: 2, py: 1.5 }}
+              <Tooltip
+                title={
+                  canCreate
+                    ? ""
+                    : dict.onboarding?.createRequiresAccess ||
+                      "Creating a company requires an active plan or trial. Request a demo to get started, or join an existing company instead."
+                }
               >
-                {dict.onboarding?.createButton || "Create Company"}
-              </Button>
+                <span>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    disabled={!canCreate}
+                    onClick={() => setIsCreateCompanyOpen(true)}
+                    sx={{ borderRadius: 2, py: 1.5 }}
+                  >
+                    {dict.onboarding?.createButton || "Create Company"}
+                  </Button>
+                </span>
+              </Tooltip>
             </CardContent>
           </Card>
 
