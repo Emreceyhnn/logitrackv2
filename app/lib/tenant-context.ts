@@ -18,7 +18,6 @@ export interface TenantContext {
  * relying on each call site remembering to add `where: { companyId }`.
  */
 declare global {
-  // eslint-disable-next-line no-var
   var __tenantContext: AsyncLocalStorage<TenantContext> | undefined;
 }
 
