@@ -1,6 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { OAuth2Client } from "google-auth-library";
 import { checkPermission } from "../utils/checkPermission";
 import { jwtVerify } from "jose";
 import { db } from "../../db";
@@ -25,7 +26,7 @@ import {
   loginUserSchema,
 } from "../../validation/serverSchemas";
 import { logger } from "@/app/lib/logger";
-import { grantTrial } from "@/app/lib/entitlement.server";
+import { grantTrial, verifyDemoSignupToken } from "@/app/lib/entitlement.server";
 
 
 const getJwtSecret = () => {
@@ -33,6 +34,9 @@ const getJwtSecret = () => {
   if (!secret) throw new Error("JWT_SECRET environment variable is not defined");
   return secret;
 };
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
 export const getUserFromToken = authenticatedAction(
   async (
@@ -79,7 +83,8 @@ export const RegisterUser = maybeAuthenticatedAction(
     surname: string,
     password: string,
     email: string,
-    avatarUrl?: string
+    avatarUrl?: string,
+    demoToken?: string
   ) => {
     try {
       // Server actions are directly callable from the network, so input must
@@ -144,18 +149,25 @@ export const RegisterUser = maybeAuthenticatedAction(
       // An admin registering someone else keeps their own session cookies, and
       // that user inherits the company's plan rather than a self-serve trial.
       if (!user) {
-        // Self-serve trial: grant it BEFORE minting the session so the access
-        // token already carries accessStatus=TRIAL — instant dashboard access
-        // with no token-refresh wait. A failure here is non-fatal: registration
-        // still succeeds and the user lands on the pending-access screen, which
-        // polls until entitlement resolves.
-        try {
-          await grantTrial(newUser.id);
-        } catch (trialErr) {
-          logger.error(
-            "Trial grant failed at signup; user will see pending-access:",
-            trialErr
-          );
+        // Self-serve trial is a demo-request perk, not a default: only a
+        // signup that arrives with a valid demoToken (minted by
+        // submitDemoRequest for this exact email) gets one. A direct/organic
+        // signup gets no trial and lands on pending-access with accessStatus
+        // NONE — they can't create a company until approved. Grant it BEFORE
+        // minting the session so the access token already carries
+        // accessStatus=TRIAL — instant dashboard access with no token-refresh
+        // wait. A failure here is non-fatal: registration still succeeds and
+        // the user lands on the pending-access screen, which polls until
+        // entitlement resolves.
+        if (await verifyDemoSignupToken(demoToken, input.email)) {
+          try {
+            await grantTrial(newUser.id);
+          } catch (trialErr) {
+            logger.error(
+              "Trial grant failed at signup; user will see pending-access:",
+              trialErr
+            );
+          }
         }
         await createSession(newUser, userAgent, ip);
       }
@@ -290,6 +302,222 @@ export const LoginUser = maybeAuthenticatedAction(
       };
     } catch (error) {
       logger.error("Critical Login Error:", error);
+      const message =
+        error instanceof Error ? error.message : "Internal server error";
+      return { error: message };
+    }
+  }
+);
+
+// ─── Google OAuth ───────────────────────────────────────────────────────────
+
+// Minimal shape we read off either verification path — the id_token JWT
+// payload and Google's tokeninfo/userinfo response both carry these fields
+// under the same names.
+interface GoogleIdentity {
+  email: string;
+  emailVerified: boolean;
+  sub: string;
+  givenName?: string;
+  familyName?: string;
+  name?: string;
+  picture?: string;
+}
+
+/**
+ * The button hands us either a real `id_token` (a signed JWT — verified
+ * offline against Google's public keys) or an implicit-flow `access_token`
+ * (an opaque string — must be verified by asking Google's own endpoint who
+ * it belongs to, since we can't check its signature ourselves).
+ */
+async function resolveGoogleIdentity(
+  credential: string
+): Promise<GoogleIdentity | null> {
+  const looksLikeJwt = credential.split(".").length === 3;
+
+  if (looksLikeJwt && googleClient && GOOGLE_CLIENT_ID) {
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      if (!payload?.email || !payload.sub) return null;
+      return {
+        email: payload.email,
+        emailVerified: Boolean(payload.email_verified),
+        sub: payload.sub,
+        ...(payload.given_name && { givenName: payload.given_name }),
+        ...(payload.family_name && { familyName: payload.family_name }),
+        ...(payload.name && { name: payload.name }),
+        ...(payload.picture && { picture: payload.picture }),
+      };
+    } catch (verifyError) {
+      logger.error("Google ID token verification failed:", verifyError);
+      return null;
+    }
+  }
+
+  // Opaque access_token: ask Google's tokeninfo endpoint to resolve it. This
+  // call is itself the verification — a forged/expired token gets rejected
+  // by Google, not by us.
+  try {
+    const resp = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(credential)}`
+    );
+    if (!resp.ok) return null;
+    const info = (await resp.json()) as {
+      email?: string;
+      email_verified?: string | boolean;
+      user_id?: string;
+      aud?: string;
+      error?: string;
+    };
+    if (info.error || !info.email || !info.user_id) return null;
+    // tokeninfo doesn't return name/picture — fetch userinfo for those.
+    let profile: { given_name?: string; family_name?: string; name?: string; picture?: string } = {};
+    try {
+      const profileResp = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${credential}` },
+      });
+      if (profileResp.ok) profile = await profileResp.json();
+    } catch {
+      // Non-fatal — we still have email/sub from tokeninfo.
+    }
+    return {
+      email: info.email,
+      emailVerified: info.email_verified === true || info.email_verified === "true",
+      sub: info.user_id,
+      ...(profile.given_name && { givenName: profile.given_name }),
+      ...(profile.family_name && { familyName: profile.family_name }),
+      ...(profile.name && { name: profile.name }),
+      ...(profile.picture && { picture: profile.picture }),
+    };
+  } catch (fetchError) {
+    logger.error("Google access_token verification failed:", fetchError);
+    return null;
+  }
+}
+
+export const LoginWithGoogle = maybeAuthenticatedAction(
+  async (_user: AuthenticatedUser | null, credential: string, demoToken?: string) => {
+    try {
+      if (!GOOGLE_CLIENT_ID) {
+        return { error: "Google sign-in is not configured on this server." };
+      }
+      if (!credential || typeof credential !== "string") {
+        return { error: "Invalid Google credential." };
+      }
+
+      const headerStore = await headers();
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = headerStore.get("user-agent") || "Unknown Device";
+
+      // Rate limit by IP: Max 10 attempts per minute — Google sign-in can't be
+      // brute-forced (the token is verified against Google's public keys), but
+      // this still caps abuse of our own DB lookups/creates.
+      const ipLimit = await rateLimit(ip, 10, 60, "rate-limit:google-auth-ip:");
+      if (!ipLimit.success) {
+        return { error: "Too many attempts. Please try again later." };
+      }
+
+      const identity = await resolveGoogleIdentity(credential);
+      if (!identity) {
+        return { error: "Invalid Google credential." };
+      }
+      if (!identity.emailVerified) {
+        return { error: "Google email is not verified." };
+      }
+
+      const email = identity.email.toLowerCase();
+      let foundUser = await db.user.findUnique({ where: { email } });
+
+      if (foundUser) {
+        // Existing local account signing in with Google for the first time:
+        // link the googleId so future Google sign-ins resolve immediately.
+        if (!foundUser.googleId) {
+          foundUser = await db.user.update({
+            where: { id: foundUser.id },
+            data: { googleId: identity.sub, provider: foundUser.provider === "local" ? "google" : foundUser.provider },
+          });
+        }
+      } else {
+        const ipLimitRegister = await rateLimit(ip, 5, 3600, "rate-limit:register-ip:");
+        if (!ipLimitRegister.success) {
+          return { error: "Too many registration attempts from this IP. Please try again in an hour." };
+        }
+
+        foundUser = await db.user.create({
+          data: {
+            name: identity.givenName || identity.name || "Google",
+            surname: identity.familyName || "",
+            email,
+            password: null,
+            provider: "google",
+            googleId: identity.sub,
+            avatarUrl: identity.picture ?? null,
+            currency: "USD",
+          },
+        });
+
+        // Same rule as the password signup path: only a valid demoToken for
+        // this exact email unlocks the self-serve trial (and with it, company
+        // creation). A direct "Continue with Google" click carries none.
+        if (await verifyDemoSignupToken(demoToken, email)) {
+          try {
+            await grantTrial(foundUser.id);
+          } catch (trialErr) {
+            logger.error(
+              "Trial grant failed at Google signup; user will see pending-access:",
+              trialErr
+            );
+          }
+        }
+
+        await logAuditEvent({
+          userId: foundUser.id,
+          action: "REGISTER",
+          ipAddress: ip,
+          deviceInfo: userAgent,
+          metadata: { email, provider: "google" },
+        });
+      }
+
+      if (foundUser.status !== "ACTIVE") {
+        return { error: "This account is not active." };
+      }
+
+      await db.user.update({
+        where: { id: foundUser.id },
+        data: { lastLoginAt: new Date() },
+      });
+
+      await createSession(foundUser, userAgent, ip);
+
+      await logAuditEvent({
+        userId: foundUser.id,
+        action: "LOGIN",
+        ipAddress: ip,
+        deviceInfo: userAgent,
+        metadata: { provider: "google" },
+      });
+
+      return {
+        user: {
+          id: foundUser.id,
+          name: foundUser.name,
+          surname: foundUser.surname,
+          email: foundUser.email,
+          companyId: foundUser.companyId,
+          timezone: foundUser.timezone,
+          dateFormat: foundUser.dateFormat,
+          timeFormat: foundUser.timeFormat,
+          currency: foundUser.currency || "USD",
+          language: foundUser.language || "en",
+        },
+      };
+    } catch (error) {
+      logger.error("Critical Google Login Error:", error);
       const message =
         error instanceof Error ? error.message : "Internal server error";
       return { error: message };

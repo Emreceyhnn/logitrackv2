@@ -4,6 +4,9 @@ import { Box, Stack, Typography, useTheme, Grid } from "@mui/material";
 import Image from "next/image";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useEffect } from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
 export default function AuthLayout({
   children,
@@ -12,7 +15,7 @@ export default function AuthLayout({
 }) {
   const theme = useTheme();
   const dict = useDictionary();
-  
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -20,7 +23,7 @@ export default function AuthLayout({
     };
   }, []);
 
-  return (
+  const content = (
     <Box
       sx={{
         width: "100%",
@@ -239,5 +242,11 @@ export default function AuthLayout({
         </Grid>
       </Grid>
     </Box>
+  );
+
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      {content}
+    </GoogleOAuthProvider>
   );
 }

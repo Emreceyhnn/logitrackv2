@@ -5,7 +5,7 @@ import { db } from "../db";
 import { rateLimit } from "../rate-limiter";
 import { getUserSession } from "./auth";
 import { hasAccess } from "../entitlement";
-import { grantTrial, resolveEntitlement } from "../entitlement.server";
+import { grantTrial, resolveEntitlement, createDemoSignupToken } from "../entitlement.server";
 import { logger } from "@/app/lib/logger";
 
 export type DemoRequestKind = "DEMO" | "CONTACT";
@@ -22,6 +22,12 @@ export interface DemoRequestInput {
 export interface DemoRequestResult {
   success?: boolean;
   error?: string;
+  /**
+   * Only set for `type: "DEMO"` submissions: a short-lived signed token
+   * proving this email just filed a demo request, so the self-serve signup
+   * shortcut can grant an instant trial without waiting for manual approval.
+   */
+  demoToken?: string;
 }
 
 // Basic RFC-5322-ish email check — good enough for a public lead form.
@@ -74,6 +80,13 @@ export async function submitDemoRequest(
         type,
       },
     });
+
+    // Only demo requests unlock the self-serve trial shortcut — a plain
+    // contact message shouldn't let someone skip approval.
+    if (type === "DEMO") {
+      const demoToken = await createDemoSignupToken(email);
+      return { success: true, demoToken };
+    }
 
     return { success: true };
   } catch (error) {

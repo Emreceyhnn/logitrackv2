@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Box, Stack, Typography } from "@mui/material";
 import SignUpStepper from "./register/signUpStepper";
 import { getDictionary } from "@/app/lib/language/language";
@@ -75,7 +76,9 @@ export default async function RegisterForm({
           </Link>
         </Stack>
 
-        <SignUpStepper />
+        <Suspense fallback={null}>
+          <SignUpStepper />
+        </Suspense>
       </Box>
     </Box>
   );

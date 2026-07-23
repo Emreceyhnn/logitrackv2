@@ -57,9 +57,15 @@ export default function ContactClient({
   const dict = useDictionary();
   const cDict = dict?.landing?.contactPage;
   const [submitted, setSubmitted] = useState(false);
+  const [demoToken, setDemoToken] = useState<string | null>(null);
   // Demo requesters can skip the manual-approval wait entirely: signup grants a
-  // 7-day trial instantly, so we offer it as a self-serve shortcut.
-  const signUpHref = `/${lang}${getLocalizedPath("/auth/sign-up", lang)}`;
+  // 7-day trial instantly, so we offer it as a self-serve shortcut. The signed
+  // demoToken (set on successful submit below) is what actually authorizes the
+  // trial server-side — a direct/organic sign-up never carries one.
+  const signUpBaseHref = `/${lang}${getLocalizedPath("/auth/sign-up", lang)}`;
+  const signUpHref = demoToken
+    ? `${signUpBaseHref}?demoToken=${encodeURIComponent(demoToken)}`
+    : signUpBaseHref;
 
   if (!cDict) {
     return (
@@ -346,6 +352,7 @@ export default function ContactClient({
 
               if (result.success) {
                 toast.success(cDict.success);
+                setDemoToken(result.demoToken ?? null);
                 resetForm();
                 setSubmitted(true);
               } else {

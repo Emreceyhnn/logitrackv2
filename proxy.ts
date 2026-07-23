@@ -82,11 +82,15 @@ function getLocaleFromPathname(pathname: string): {
 // statically rendered.
 function buildCsp(nonce: string, strict: boolean): string {
   const scriptSrc = strict
-    ? `'self' 'nonce-${nonce}' https://maps.googleapis.com`
-    : `'self' 'unsafe-inline' https://maps.googleapis.com`;
+    ? `'self' 'nonce-${nonce}' https://maps.googleapis.com https://accounts.google.com/gsi/client`
+    : `'self' 'unsafe-inline' https://maps.googleapis.com https://accounts.google.com/gsi/client`;
 
   return [
     `script-src ${scriptSrc}`,
+    // Google Identity Services renders the button/One Tap prompt in its own
+    // iframe and posts back via this origin — without it the GSI script loads
+    // but the sign-in UI never mounts.
+    "frame-src https://accounts.google.com",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -242,31 +246,28 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // "No access" splits by *why*: a brand-new user still awaiting a trial
-  // (accessStatus NONE) sees the pending-access screen, which polls until the
-  // trial resolves; a user whose trial/plan lapsed (EXPIRED) sees pricing with
-  // an upgrade notice. Keeps "you're almost in" distinct from "time to pay".
+  // "No access" splits by *why*: a lapsed trial/plan (EXPIRED) sees pricing
+  // with an upgrade notice. A brand-new user without access (NONE) is NOT
+  // stuck waiting anymore — they still belong on /onboarding, where the
+  // "join an existing company" path stays open to everyone; only the
+  // "create a company" card is gated (client-side, backed by createCompany's
+  // own hasAccess check) behind a live trial/plan.
   const noAccessHome: { pathname: string; search: string } =
     accessStatus === "NONE"
-      ? { pathname: buildLocalizedHref("/pending-access", locale), search: "" }
+      ? { pathname: buildLocalizedHref("/onboarding", locale), search: "" }
       : { pathname: buildLocalizedHref("/pricing", locale), search: "?reason=expired" };
 
-  // Where an authenticated user belongs, given their entitlement:
-  //   - no access  → pending-access (NONE) or pricing (EXPIRED), per above
-  //   - has company → dashboard
-  //   - otherwise   → onboarding (create a company)
-  const authedHome: { pathname: string; search: string } = !userHasAccess
-    ? noAccessHome
-    : {
-        pathname: buildLocalizedHref(
-          companyId ? DEFAULT_REDIRECT_AFTER_LOGIN : "/onboarding",
-          locale
-        ),
-        search: "",
-      };
+  // Where an authenticated user belongs:
+  //   - has company           → dashboard
+  //   - no company, EXPIRED   → pricing (they had access and lost it)
+  //   - no company, otherwise → onboarding (create-or-join a company; NONE
+  //     users can still join, just not create)
+  const authedHome: { pathname: string; search: string } = companyId
+    ? { pathname: buildLocalizedHref(DEFAULT_REDIRECT_AFTER_LOGIN, locale), search: "" }
+    : accessStatus === "EXPIRED"
+      ? noAccessHome
+      : { pathname: buildLocalizedHref("/onboarding", locale), search: "" };
 
-  // `/onboarding` requires access too: without it, company creation is blocked,
-  // so route the user to pricing instead of the create-company screen.
   const isOnboarding =
     currentPath === "/onboarding" || currentPath.startsWith("/onboarding/");
 
@@ -278,9 +279,11 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Authenticated but without access, trying to reach onboarding → their
-  // no-access home (pending-access for NONE, pricing for EXPIRED).
-  if (isOnboarding && isTokenValid && !userHasAccess) {
+  // Onboarding only requires being signed in with no company yet — access
+  // level decides which card is clickable client-side, not whether the page
+  // is reachable at all. An EXPIRED user (had access, lost it) still gets
+  // sent to pricing instead, same as everywhere else.
+  if (isOnboarding && isTokenValid && accessStatus === "EXPIRED") {
     const url = request.nextUrl.clone();
     url.pathname = noAccessHome.pathname;
     url.search = noAccessHome.search;
@@ -296,7 +299,8 @@ export default async function middleware(request: NextRequest) {
     }
 
     // Signed in but no dashboard access → pending-access (NONE) or pricing
-    // (EXPIRED trial / no plan).
+    // (EXPIRED trial / no plan). The dashboard itself still requires real
+    // access — only /onboarding's "join" path is available without it.
     if (isTokenValid && !userHasAccess) {
       const url = request.nextUrl.clone();
       url.pathname = noAccessHome.pathname;

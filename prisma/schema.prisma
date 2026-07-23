@@ -67,6 +67,8 @@ model User {
   name                   String
   surname                String
   password               String?
+  provider               String              @default("local")
+  googleId               String?             @unique
   avatarUrl              String?
   roleId                 String?
   status                 UserStatus          @default(ACTIVE)
