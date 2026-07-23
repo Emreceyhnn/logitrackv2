@@ -244,8 +244,6 @@ export default function AuthLayout({
     </Box>
   );
 
-  if (!GOOGLE_CLIENT_ID) return content;
-
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       {content}
