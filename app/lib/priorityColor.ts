@@ -3,8 +3,15 @@ import { Dictionary } from "./language/language";
 import { NotificationType } from "./type/notification";
 
 /**
- * Looks up a runtime status key in a translation table, returning only
+ * tr-Çeviri tablosunda çalışma zamanı durum anahtarını arar ve yalnızca
+ * string eşleşmelerini döndürür (çeviri tabloları nesneleri iç içe barındırabilir, örneğin `common.tooltips`).
+ * en-Looks up a runtime status key in a translation table, returning only
  * string hits (translation tables may nest objects, e.g. `common.tooltips`).
+ * input (
+  table: Record<string, unknown> | undefined,
+  key: string
+)
+ * output (string | undefined)
  */
 export const lookupTranslation = (
   table: Record<string, unknown> | undefined,
@@ -14,8 +21,16 @@ export const lookupTranslation = (
   return typeof value === "string" ? value : undefined;
 };
 
+/**
+ * tr-Önceliğe göre Chip bileşeni için bir renk alır.
+ * en-Returns a color for the Chip component based on priority.
+ * input (
+  priority: string
+)
+ * output (ChipProps["color"])
+ */
 export const getPriorityColor = (priority: string): ChipProps["color"] => {
-  const normalizedPriority = priority?.toLocaleUpperCase('en-US');
+  const normalizedPriority = priority?.toLocaleUpperCase("en-US");
 
   switch (normalizedPriority) {
     case "CRITICAL":
@@ -30,8 +45,21 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
   }
 };
 
+/**
+ * tr-Belirli bir durum için durum meta verilerini (renk, etiket, palet anahtarı) alır.
+ * en-Returns status metadata (color, label, palette key) for a given status.
+ * input (
+  status?: string,
+  dict?: Dictionary
+)
+ * output ({
+  color: string;
+  paletteKey: "success" | "info" | "warning" | "error" | "secondary";
+  label: string;
+})
+ */
 export const getStatusMeta = (status?: string, dict?: Dictionary) => {
-  const s = status?.toLocaleUpperCase('en-US') || "";
+  const s = status?.toLocaleUpperCase("en-US") || "";
 
   const getDictColor = (
     paletteKey: "success" | "info" | "warning" | "error" | "secondary",
@@ -56,8 +84,8 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
       lookupTranslation(dict?.common, key) ||
       key
         .replace(/_/g, " ")
-        .toLocaleLowerCase('en-US')
-        .replace(/^\w/, (c) => c.toLocaleUpperCase('en-US'))
+        .toLocaleLowerCase("en-US")
+        .replace(/^\w/, (c) => c.toLocaleUpperCase("en-US"))
     );
   };
 
@@ -130,6 +158,14 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   }
 };
 
+/**
+ * tr-Bir bildirim tipine göre durum rengini alır.
+ * en-Returns the status color for a notification type.
+ * input (
+  t: NotificationType
+)
+ * output (string)
+ */
 export const getStatusColor = (t: NotificationType) => {
   switch (t) {
     case "SUCCESS":
@@ -143,6 +179,14 @@ export const getStatusColor = (t: NotificationType) => {
   }
 };
 
+/**
+ * tr-Bir bildirim tipine göre durumun yarı saydam renk değerini alır.
+ * en-Returns the alpha color value of a status based on a notification type.
+ * input (
+  t: NotificationType
+)
+ * output (string)
+ */
 export const resolveStatusAlpha = (t: NotificationType) => {
   switch (t) {
     case "SUCCESS":

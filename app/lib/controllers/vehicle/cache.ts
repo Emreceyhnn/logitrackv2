@@ -6,8 +6,12 @@ import { createCacheManager } from "../utils/cacheFactory";
 // Shared cache manager instance for all vehicle submodules.
 export const vehicleCache = createCacheManager("vehicles", VEHICLE_CACHE_TTL);
 
-// Re-export the invalidate function for backward compatibility
-// with existing callers that use `invalidateVehicleCache(companyId, vehicleId)`
+/**
+ * tr-şirkete ve (varsa) araca ait önbelleği (cache) temizler
+ * en-clears the cache for the company and (if provided) the specified vehicle
+ * input (companyId: string, vehicleId?: string)
+ * output (Promise<void>)
+ */
 export async function invalidateVehicleCache(
   companyId: string,
   vehicleId?: string

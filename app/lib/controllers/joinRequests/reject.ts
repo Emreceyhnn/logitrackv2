@@ -6,7 +6,12 @@ import { authenticatedAction } from "../../auth-middleware";
 import { controllerGuard } from "../utils/controllerGuard";
 import { ConflictError, NotFoundError } from "../../errors";
 
-/** Reject a pending join request — admin/manager only, scoped to their own company. */
+/**
+ * tr-bekleyen bir katılım isteğini reddeder (sadece şirket yöneticileri için)
+ * en-rejects a pending join request (for company admins/managers only)
+ * input (user: AuthenticatedUser, joinRequestId: string)
+ * output (Promise<{ status: string, decidedAt: Date, decidedById: string }>)
+ */
 export const rejectJoinRequest = authenticatedAction(
   async (user, joinRequestId: string) => {
     const companyId = user?.companyId || "";
@@ -29,7 +34,12 @@ export const rejectJoinRequest = authenticatedAction(
   }
 );
 
-/** Cancel my own pending join request. */
+/**
+ * tr-kullanıcının kendi bekleyen şirket katılım isteğini iptal etmesini sağlar
+ * en-allows the user to cancel their own pending company join request
+ * input (user: AuthenticatedUser, joinRequestId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const cancelJoinRequest = authenticatedAction(
   async (user, joinRequestId: string) => {
     return controllerGuard("cancelJoinRequest", async () => {

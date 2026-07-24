@@ -15,6 +15,12 @@ import { WW_ROLES } from "./shared";
 type FloorMovementKind = "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY";
 const INBOUND_KINDS: readonly FloorMovementKind[] = ["STOCK_IN", "PUTAWAY"];
 
+/**
+ * tr-depo sahasındaki bir stok hareketini (toplama, paketleme, mal kabul vb.) kaydeder ve envanter miktarını günceller
+ * en-logs a stock movement (pick, pack, stock-in, etc.) from the warehouse floor and updates inventory quantities accordingly
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, quantity: number, kind: FloorMovementKind)
+ * output (Promise<{ success: boolean, movementId: string }>)
+ */
 export const logWarehouseMovement = authenticatedAction(
   async (
     user,
@@ -95,6 +101,12 @@ export const logWarehouseMovement = authenticatedAction(
  * signed delta and the new on-hand are computed against the live row. Writes an
  * ADJUSTMENT movement carrying the reason and sets inventory to `counted`.
  */
+/**
+ * tr-fiziksel sayım sonucunu sistemle karşılaştırarak (eksik/fazla) stok düzeltmesi yapar ve 'ADJUSTMENT' hareketi kaydeder
+ * en-reconciles a physical stock count against the system, adjusts the on-hand quantity, and logs an 'ADJUSTMENT' movement
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, counted: number, reason: string, expected?: number)
+ * output (Promise<{ success: boolean, movementId: string | null, delta: number, counted: number }>)
+ */
 export const adjustWarehouseStock = authenticatedAction(
   async (
     user,
@@ -166,7 +178,12 @@ export const adjustWarehouseStock = authenticatedAction(
   }
 );
 
-/** Advance a task's progress; auto-completes when done reaches total. */
+/**
+ * tr-bir depo görevinin (task) ilerlemesini kaydeder; tamamlanan birimler toplamı aşarsa görevi otomatik tamamlandı işaretler
+ * en-advances the progress of a warehouse task; auto-completes it if done units reach the total
+ * input (user: AuthenticatedUser, taskId: string, delta?: number)
+ * output (Promise<{ success: boolean, done: number, complete: boolean }>)
+ */
 export const advanceWarehouseTask = authenticatedAction(
   async (user, taskId: string, delta?: number) => {
     const companyId = user?.companyId || "";
@@ -203,6 +220,12 @@ export const advanceWarehouseTask = authenticatedAction(
  * Raise a restock request (recorded as a RESTOCK_REQUEST movement). Pass `sku`
  * (and optionally `quantity`) to target a specific item — the worker saw *this*
  * product run low; omit `sku` for the legacy zone-wide request.
+ */
+/**
+ * tr-depo sahasından (örneğin bir bölge veya belirli bir ürün için) stok tamamlama (restock) talebi oluşturur
+ * en-raises a restock request from the warehouse floor (for a specific zone or item)
+ * input (user: AuthenticatedUser, warehouseId: string, zone: string, sku?: string, quantity?: number)
+ * output (Promise<{ success: boolean }>)
  */
 export const requestRestock = authenticatedAction(
   async (
@@ -251,7 +274,12 @@ export const requestRestock = authenticatedAction(
   }
 );
 
-/** File an issue from the warehouse floor. */
+/**
+ * tr-depo çalışanının sahadan yeni bir sorun/arıza bildirmesini sağlar
+ * en-allows a warehouse worker to report a new issue/defect from the floor
+ * input (user: AuthenticatedUser, warehouseId: string, title: string, description?: string)
+ * output (Promise<{ success: boolean, issueId: string }>)
+ */
 export const reportWarehouseIssue = authenticatedAction(
   async (user, warehouseId: string, title: string, description?: string) => {
     const companyId = user?.companyId || "";

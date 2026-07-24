@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
@@ -10,6 +10,12 @@ import { assertRouteCapacity } from "../utils/routeCapacity";
 import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-belirtilen sevkiyata bir sürücü atar ve durumunu günceller
+ * en-assigns a driver to the specified shipment and updates its status
+ * input (user: AuthenticatedUser, shipmentId: string, driverId: string)
+ * output (Promise<Shipment>)
+ */
 export const assignDriverToShipment = authenticatedAction(
   async (user, shipmentId: string, driverId: string) => {
     const userId = user?.id;
@@ -68,8 +74,8 @@ export const assignDriverToShipment = authenticatedAction(
       await createNotification(
         { companyId: companyId! },
         {
-          title: "SÃ¼rÃ¼cÃ¼ AtandÄ± ğŸ‘¤",
-          message: `${updatedShipment.trackingId} numaralÄ± sevkiyata bir sÃ¼rÃ¼cÃ¼ atandÄ±.`,
+          title: "Sürücü Atandı 👤",
+          message: `${updatedShipment.trackingId} numaralı sevkiyata bir sürücü atandı.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
           link: `/dashboard/shipments/${updatedShipment.id}`,
@@ -81,6 +87,12 @@ export const assignDriverToShipment = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen sevkiyatı bir rotaya atar ve rota kapasite kontrollerini yapar
+ * en-assigns the specified shipment to a route and performs route capacity checks
+ * input (user: AuthenticatedUser, shipmentId: string, routeId: string)
+ * output (Promise<Shipment>)
+ */
 export const assignRouteToShipment = authenticatedAction(
   async (user, shipmentId: string, routeId: string) => {
     const userId = user?.id;
@@ -143,8 +155,8 @@ export const assignRouteToShipment = authenticatedAction(
       await createNotification(
         { companyId: companyId! },
         {
-          title: "Rota PlanlandÄ± ğŸš›",
-          message: `${updatedShipment.trackingId} numaralÄ± sevkiyat bir rotaya dahil edildi.`,
+          title: "Rota Planlandı 🚛",
+          message: `${updatedShipment.trackingId} numaralı sevkiyat bir rotaya dahil edildi.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
           link: `/dashboard/shipments/${updatedShipment.id}`,
@@ -156,6 +168,12 @@ export const assignRouteToShipment = authenticatedAction(
   }
 );
 
+/**
+ * tr-sevkiyat durumunu ve konum bilgisini günceller; duruma göre bildirim gönderir
+ * en-updates shipment status and location info; sends notifications based on the status
+ * input (user: AuthenticatedUser, shipmentId: string, status: ShipmentStatus, location?: string, description?: string)
+ * output (Promise<Shipment>)
+ */
 export const updateShipmentStatus = authenticatedAction(
   async (
     user,
@@ -216,9 +234,9 @@ export const updateShipmentStatus = authenticatedAction(
           {
             title:
               status === ShipmentStatus.DELAYED
-                ? "Sevkiyat Gecikmesi â³"
-                : "Sevkiyat Ä°ptal Edildi âŒ",
-            message: `${updatedShipment.trackingId} numaralÄ± sevkiyatÄ±n durumu ${status === ShipmentStatus.DELAYED ? "GECÄ°KMÄ°Å" : "Ä°PTAL EDÄ°LDÄ°"} olarak gÃ¼ncellendi.`,
+                ? "Sevkiyat Gecikmesi ⚠️"
+                : "Sevkiyat İptal Edildi ❌",
+            message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status === ShipmentStatus.DELAYED ? "GECİKMİŞ" : "İPTAL EDİLDİ"} olarak güncellendi.`,
             type: status === ShipmentStatus.DELAYED ? "WARNING" : "ERROR",
             category:
               status === ShipmentStatus.DELAYED
@@ -231,8 +249,8 @@ export const updateShipmentStatus = authenticatedAction(
         await createNotification(
           { companyId: companyId! },
           {
-            title: "Sevkiyat Teslim Edildi âœ…",
-            message: `${updatedShipment.trackingId} numaralÄ± sevkiyat baÅŸarÄ±yla teslim edildi.`,
+            title: "Sevkiyat Teslim Edildi ✅",
+            message: `${updatedShipment.trackingId} numaralı sevkiyat başarıyla teslim edildi.`,
             type: "SUCCESS",
             category: "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
@@ -247,9 +265,9 @@ export const updateShipmentStatus = authenticatedAction(
           {
             title:
               status === ShipmentStatus.PROCESSING
-                ? "Sevkiyat HazÄ±rlanÄ±yor âš™ï¸"
-                : "Sevkiyat Yolda ğŸš›",
-            message: `${updatedShipment.trackingId} numaralÄ± sevkiyat ${status === ShipmentStatus.PROCESSING ? "iÅŸleme alÄ±ndÄ±" : "yola Ã§Ä±ktÄ±"}.`,
+                ? "Sevkiyat Hazırlanıyor ⚙️"
+                : "Sevkiyat Yola Çıktı 🚚",
+            message: `${updatedShipment.trackingId} numaralı sevkiyat ${status === ShipmentStatus.PROCESSING ? "işleme alındı" : "yola çıktı"}.`,
             type: "INFO",
             category: "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,

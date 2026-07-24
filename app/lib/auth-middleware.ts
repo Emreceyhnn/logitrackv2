@@ -39,6 +39,15 @@ export type AuthenticatedUser = {
   trialEndsAt: number | null;
 };
 
+/**
+ * tr-Giriş yapan kullanıcıyı döndürür veya oturum açılmamışsa oturum açma sayfasına yönlendirir.
+ * en-Returns the authenticated user or redirects to the sign-in page if not logged in.
+ * input (
+  action: (user: AuthenticatedUser, ...args: Args) => Promise<T>
+)
+ * output (Promise<T>)
+ */
+
 export const getAuthenticatedUser = cache(
   async (): Promise<AuthenticatedUser | null> => {
     try {
@@ -63,7 +72,10 @@ export const getAuthenticatedUser = cache(
         const revoked = await redis.get(revokedTokenKey(hashToken(token)));
         if (revoked) return null;
       } catch (err) {
-        logger.warn("[getAuthenticatedUser] revocation check failed (fail-open)", err);
+        logger.warn(
+          "[getAuthenticatedUser] revocation check failed (fail-open)",
+          err
+        );
       }
 
       return {
@@ -95,8 +107,15 @@ export const getAuthenticatedUser = cache(
       if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
         throw error;
       }
-      if (error instanceof Error && !error.name.includes("JOSE") && !error.name.includes("JWT")) {
-        logger.error("[getAuthenticatedUser] ❌ Session check failed critical:", error);
+      if (
+        error instanceof Error &&
+        !error.name.includes("JOSE") &&
+        !error.name.includes("JWT")
+      ) {
+        logger.error(
+          "[getAuthenticatedUser] ❌ Session check failed critical:",
+          error
+        );
       }
     }
 
@@ -104,6 +123,14 @@ export const getAuthenticatedUser = cache(
   }
 );
 
+/**
+ * tr-Giriş yapan kullanıcıyı döndürür veya oturum açılmamışsa oturum açma sayfasına yönlendirir.
+ * en-Returns the authenticated user or redirects to the sign-in page if not logged in.
+ * input (
+  action: (user: AuthenticatedUser, ...args: Args) => Promise<T>
+)
+ * output (Promise<T>)
+ */
 async function getLocaleFromReferer(): Promise<string> {
   try {
     const headerStore = await headers();
@@ -113,7 +140,10 @@ async function getLocaleFromReferer(): Promise<string> {
       const pathname = url.pathname;
       const segments = pathname.split("/").filter(Boolean);
       const possibleLocale = segments[0];
-      if (possibleLocale && (LOCALES as readonly string[]).includes(possibleLocale)) {
+      if (
+        possibleLocale &&
+        (LOCALES as readonly string[]).includes(possibleLocale)
+      ) {
         return possibleLocale;
       }
     }
@@ -132,6 +162,14 @@ async function getLocaleFromReferer(): Promise<string> {
 const ACTION_RATE_LIMIT = 300;
 const ACTION_RATE_WINDOW_SECONDS = 60;
 
+/**
+ * tr-Giriş yapan kullanıcıyı döndürür veya oturum açılmamışsa oturum açma sayfasına yönlendirir.
+ * en-Returns the authenticated user or redirects to the sign-in page if not logged in.
+ * input (
+  action: (user: AuthenticatedUser, ...args: Args) => Promise<T>
+)
+ * output (Promise<T>)
+ */
 export function authenticatedAction<T, Args extends unknown[]>(
   action: (user: AuthenticatedUser, ...args: Args) => Promise<T>
 ) {
@@ -159,6 +197,14 @@ export function authenticatedAction<T, Args extends unknown[]>(
   };
 }
 
+/**
+ * tr-Giriş yapan kullanıcıyı döndürür veya oturum açılmamışsa oturum açma sayfasına yönlendirir.
+ * en-Returns the authenticated user or redirects to the sign-in page if not logged in.
+ * input (
+  action: (user: AuthenticatedUser | null, ...args: Args) => Promise<T>
+)
+ * output (Promise<T>)
+ */
 export function maybeAuthenticatedAction<T, Args extends unknown[]>(
   action: (user: AuthenticatedUser | null, ...args: Args) => Promise<T>
 ) {

@@ -10,6 +10,12 @@ import { controllerGuard } from "./utils/controllerGuard";
 import { createFuelLogSchema } from "../validation/serverSchemas";
 import { logger } from "../logger";
 
+/**
+ * tr-belirtilen filtrelere göre yakıt kayıtlarını getirir
+ * en-retrieves fuel logs based on the specified filters
+ * input (user: AuthenticatedUser, filters: FuelPageState["filters"])
+ * output (Promise<FuelLogWithRelations[]>)
+ */
 export const getFuelLogs = authenticatedAction(
   async (user, filters: FuelPageState["filters"]) => {
     return controllerGuard("getFuelLogs", async () => {
@@ -64,6 +70,12 @@ export const getFuelLogs = authenticatedAction(
   }
 );
 
+/**
+ * tr-yeni bir yakıt kaydı oluşturur
+ * en-creates a new fuel log
+ * input (user: AuthenticatedUser, data: object)
+ * output (Promise<FuelLog>)
+ */
 export const createFuelLog = authenticatedAction(
   async (
     user,
@@ -114,6 +126,12 @@ export const createFuelLog = authenticatedAction(
   }
 );
 
+/**
+ * tr-yakıt tüketimi ve maliyet istatistiklerini getirir
+ * en-retrieves fuel consumption and cost statistics
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ totalCost: number, totalVolume: number, avgFuelPrice: number, efficiencyKml: number }>)
+ */
 export const getFuelStats = authenticatedAction(async (user) => {
   return controllerGuard("getFuelStats", async () => {
     const companyId = user?.companyId || "";

@@ -10,6 +10,7 @@ import { AddMemberDialogProps, DriverStateData } from "@/app/lib/type/add-compan
 import { toast } from "sonner";
 import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { addCompanyUser } from "@/app/lib/controllers/company";
+import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { createDriverInvitation } from "@/app/lib/controllers/invitations";
 import { addCompanyMemberDriverValidationSchema } from "@/app/lib/validationSchema";
 import { ValidationError } from "yup";
@@ -25,6 +26,16 @@ interface SearchedUser {
   email: string;
   avatar: string | null;
 }
+
+interface WarehouseOption {
+  id: string;
+  code: string;
+  name: string;
+}
+
+// tr-Depo ataması gerektiren roller: operatör (çalışan) ve depo yöneticisi
+// en-Roles that require a warehouse assignment: operator (staff) and warehouse manager
+const isWarehouseRole = (roleId: string) => roleId === "role_warehouse" || roleId === "role_manager";
 
 const initialDriverData: DriverStateData = { employeeId: "", phone: "", licenseNumber: "", licenseType: "", licenseExpiry: "" };
 
@@ -63,6 +74,8 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
   const [selectedRole, setSelectedRole] = useState("role_default");
   const [inviteEmail, setInviteEmail] = useState("");
   const [driverData, setDriverData] = useState<DriverStateData>(initialDriverData);
+  const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -71,7 +84,7 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
   const resetDialog = () => {
     setMode("search");
     setSearchQuery(""); setResults([]); setSelectedUserId(null); setSelectedRole("role_default");
-    setInviteEmail(""); setDriverData(initialDriverData); setError(null); setValidationErrors({});
+    setInviteEmail(""); setDriverData(initialDriverData); setSelectedWarehouseId(""); setError(null); setValidationErrors({});
   };
 
   const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -119,7 +132,12 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
       onClose();
       resetDialog();
       await toast.promise(
-        addCompanyUser(selectedUserId, selectedRole, selectedRole === "role_driver" ? driverData : undefined),
+        addCompanyUser(
+          selectedUserId,
+          selectedRole,
+          selectedRole === "role_driver" ? driverData : undefined,
+          isWarehouseRole(selectedRole) ? selectedWarehouseId : undefined
+        ),
         { loading: dict.toasts?.loading || "Adding member...", success: dict.toasts.successAdd, error: (err: unknown) => err instanceof Error ? err.message : dict.toasts.errorGeneric }
       );
       onSuccess?.();
@@ -136,6 +154,21 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
       }
     }
   };
+
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    (async () => {
+      try {
+        const list = await getWarehouses();
+        if (active) setWarehouses(list.map((w) => ({ id: w.id, code: w.code, name: w.name })));
+      } catch (err) {
+        logger.error("Warehouse fetch error:", err);
+        if (active) setWarehouses([]);
+      }
+    })();
+    return () => { active = false; };
+  }, [open]);
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -204,6 +237,39 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", opacity: 0.7 }}>{dict.company.dialogs.invitationNote}</Typography>
               </Box>
 
+              {isWarehouseRole(selectedRole) && (
+                <Box sx={{ p: 2, borderRadius: 3, bgcolor: paletteTheme.primary?._alpha?.main_02, border: `1px solid ${paletteTheme.divider_alpha?.main_05}` }}>
+                  <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block" }}>
+                    {dict.company.dialogs.assignWarehouse} *
+                  </Typography>
+                  {warehouses.length === 0 ? (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", opacity: 0.8 }}>
+                      {dict.company.dialogs.noWarehouses}
+                    </Typography>
+                  ) : (
+                    <>
+                      <FormControl fullWidth>
+                        <Select
+                          value={selectedWarehouseId}
+                          onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                          displayEmpty
+                          IconComponent={KeyboardArrowDownIcon}
+                          sx={{ bgcolor: paletteTheme.background?.paper_alpha?.main_40, borderRadius: 2, "& .MuiSelect-select": { py: 1.5, px: 2, fontSize: 13, fontWeight: 600 } }}
+                        >
+                          <MenuItem value="" disabled sx={{ fontSize: 13 }}>{dict.company.dialogs.selectWarehouse}</MenuItem>
+                          {warehouses.map((w) => (
+                            <MenuItem key={w.id} value={w.id} sx={{ fontSize: 13 }}>{w.code} · {w.name}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", opacity: 0.7 }}>
+                        {selectedRole === "role_manager" ? dict.company.dialogs.warehouseManagerNote : dict.company.dialogs.warehouseStaffNote}
+                      </Typography>
+                    </>
+                  )}
+                </Box>
+              )}
+
               {selectedRole === "role_driver" && (
                 <DriverDetailsForm driverData={driverData} handleDriverDataChange={handleDriverDataChange} validationErrors={validationErrors} dict={dict} />
               )}
@@ -229,7 +295,9 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
           disabled={
             mode === "invite"
               ? !inviteEmail || !driverData.employeeId || !driverData.phone
-              : !selectedUserId || (selectedRole === "role_driver" && (!driverData.employeeId || !driverData.phone))
+              : !selectedUserId
+                || (selectedRole === "role_driver" && (!driverData.employeeId || !driverData.phone))
+                || (isWarehouseRole(selectedRole) && !selectedWarehouseId)
           }
           startIcon={<GroupAddIcon />} sx={{ borderRadius: 2.5, textTransform: "none", px: 4, transition: "all 0.3s ease", boxShadow: `0 8px 16px ${paletteTheme.primary?._alpha?.main_20}` }}
         >

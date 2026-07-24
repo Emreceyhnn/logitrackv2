@@ -38,6 +38,12 @@ const getJwtSecret = () => {
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
+/**
+ * tr-JWT jetonundan (token) kullanıcı bilgisini doğrular ve getirir
+ * en-verifies and retrieves user information from a JWT token
+ * input (user: AuthenticatedUser, token: string)
+ * output (Promise<UserWithoutPassword | null>)
+ */
 export const getUserFromToken = authenticatedAction(
   async (
     user,
@@ -76,6 +82,12 @@ export const getUserFromToken = authenticatedAction(
   }
 );
 
+/**
+ * tr-yeni bir kullanıcı kaydı oluşturur, rate limit uygular ve (varsa) demo jetonunu doğrular
+ * en-creates a new user registration, applies rate limiting, and verifies demo token if present
+ * input (user: AuthenticatedUser | null, name: string, surname: string, password: string, email: string, avatarUrl?: string, demoToken?: string)
+ * output (Promise<{ user?: User, error?: string, field?: string }>)
+ */
 export const RegisterUser = maybeAuthenticatedAction(
   async (
     user: AuthenticatedUser | null,
@@ -202,6 +214,12 @@ export const RegisterUser = maybeAuthenticatedAction(
 
 // ─── Login ──────────────────────────────────────────────────────────────────
 
+/**
+ * tr-kullanıcı girişi yapar, rate limit denetimleri uygular ve başarılı olursa oturum başlatır
+ * en-logs in a user, applies rate limit checks, and starts a session upon success
+ * input (_user: AuthenticatedUser | null, email: string, password: string)
+ * output (Promise<{ user?: User, error?: string }>)
+ */
 export const LoginUser = maybeAuthenticatedAction(
   async (
     _user: AuthenticatedUser | null,
@@ -399,6 +417,12 @@ async function resolveGoogleIdentity(
   }
 }
 
+/**
+ * tr-Google hesabıyla giriş yapar veya yeni bir hesap oluşturup oturum başlatır
+ * en-logs in with a Google account or creates a new one and starts a session
+ * input (_user: AuthenticatedUser | null, credential: string, demoToken?: string)
+ * output (Promise<{ user?: User, error?: string }>)
+ */
 export const LoginWithGoogle = maybeAuthenticatedAction(
   async (_user: AuthenticatedUser | null, credential: string, demoToken?: string) => {
     try {
@@ -527,6 +551,12 @@ export const LoginWithGoogle = maybeAuthenticatedAction(
 
 // ─── Logout ─────────────────────────────────────────────────────────────────
 
+/**
+ * tr-kullanıcının mevcut oturumunu kapatır ve çerezleri temizler
+ * en-logs out the user from the current session and clears cookies
+ * input ()
+ * output (Promise<{ success: boolean }>)
+ */
 export const LogoutUser = authenticatedAction(async () => {
   try {
     // Get current session

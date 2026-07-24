@@ -24,6 +24,12 @@ type AlertIssue = Pick<
 >;
 type AlertDocument = Pick<Document, "name" | "expiryDate" | "driverId" | "vehicleId">;
 
+/**
+ * tr-açık olan sorunları ve süresi yaklaşan/dolan belgeleri eyleme dönüştürülebilir uyarılar olarak birleştirir
+ * en-combines open issues and approaching/expired documents into actionable alerts
+ * input (openIssues: AlertIssue[], expiringDocs: AlertDocument[])
+ * output (ActionRequiredItems[])
+ */
 export function buildAlerts(
   openIssues: AlertIssue[],
   expiringDocs: AlertDocument[]
@@ -63,6 +69,12 @@ export function buildAlerts(
   return [...issueAlerts, ...docAlerts];
 }
 
+/**
+ * tr-yakıt kayıtlarını gruplayarak her aracın yakıt tüketimi ve maliyet istatistiklerini hesaplar
+ * en-groups fuel logs to calculate fuel consumption and cost statistics for each vehicle
+ * input (fuelLogsRaw: FuelLog[], vehicleMap: Map<string, string>, rates: Record<string, number>)
+ * output (FuelStat[])
+ */
 export function buildFuelStats(
   fuelLogsRaw: FuelLog[],
   vehicleMap: Map<string, string>,
@@ -104,6 +116,12 @@ interface PalletSumRow {
   _sum: { palletCount: number | null; volumeM3: number | null };
 }
 
+/**
+ * tr-depoların hacim ve palet bazında kapasite kullanım oranlarını hesaplar
+ * en-calculates warehouse capacity utilization rates based on volume and pallets
+ * input (warehousesRaw: WarehouseCapacityInput[], palletSumsRaw: PalletSumRow[])
+ * output (WarehouseCapacityStat[])
+ */
 export function buildWarehouseCapacity(
   warehousesRaw: WarehouseCapacityInput[],
   palletSumsRaw: PalletSumRow[]
@@ -134,6 +152,12 @@ export function buildWarehouseCapacity(
   });
 }
 
+/**
+ * tr-son 180 gün için günlük sevkiyat hacmini hesaplar ve gün bazında listeler
+ * en-calculates the daily shipment volume for the last 180 days and lists them by day
+ * input (shipmentVolumeRaw: { createdAt: Date }[], tz: string)
+ * output (ShipmentDayStat[])
+ */
 export function buildShipmentVolume(
   shipmentVolumeRaw: { createdAt: Date }[],
   tz: string
@@ -167,6 +191,12 @@ interface MapCustomer {
   locations: { lat: number | null; lng: number | null; isDefault: boolean }[];
 }
 
+/**
+ * tr-harita üzerinde gösterilecek depo, araç ve müşteri konumlarını birleştirilmiş formatta döndürür
+ * en-returns warehouse, vehicle, and customer locations in a combined format to be displayed on the map
+ * input (mapDataRaw: [MapWarehouse[], MapVehicle[], MapCustomer[]])
+ * output (MapData[])
+ */
 export function buildMapData(
   mapDataRaw: [MapWarehouse[], MapVehicle[], MapCustomer[]]
 ): MapData[] {

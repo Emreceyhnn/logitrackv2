@@ -2,10 +2,18 @@ import { Resend } from "resend";
 import { logger } from "@/app/lib/logger";
 
 let resendClient: Resend | null = null;
+/**
+ * tr-description
+ * en-description
+ * input ()
+ * output (Resend)
+ *
+ */
 function getResendClient(): Resend {
   if (!resendClient) {
     const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) throw new Error("RESEND_API_KEY environment variable is not defined");
+    if (!apiKey)
+      throw new Error("RESEND_API_KEY environment variable is not defined");
     resendClient = new Resend(apiKey);
   }
   return resendClient;
@@ -20,18 +28,26 @@ export interface SendEmailOptions {
 }
 
 /**
- * Sends a generic email using Resend.
- * If RESEND_API_KEY isn't configured, logs the email instead of sending it.
+ * tr-Resend kullanarak genel bir e-posta gönderir. RESEND_API_KEY yapılandırılmamışsa e-postayı göndermek yerine günlüğe kaydeder.
+ * en-Sends a generic email using Resend. If RESEND_API_KEY isn't configured, logs the email instead of sending it.
+ * input (options: SendEmailOptions)
+ * output (Promise<void>)
+ *
  */
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
   if (!process.env.RESEND_API_KEY) {
-    logger.warn(`[email] RESEND_API_KEY not set — email to ${options.to}: ${options.subject}`);
+    logger.warn(
+      `[email] RESEND_API_KEY not set — email to ${options.to}: ${options.subject}`
+    );
     return;
   }
   try {
     const resend = getResendClient();
     const { error } = await resend.emails.send({
-      from: options.from || process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
+      from:
+        options.from ||
+        process.env.RESEND_FROM_EMAIL ||
+        "LogiTrack <onboarding@resend.dev>",
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -49,9 +65,11 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
 }
 
 /**
- * Sends a driver invite email. If RESEND_API_KEY isn't configured (local/dev),
- * logs the invite URL instead of failing, so testing never requires a real
- * Resend account.
+ * tr-RESEND_API_KEY yapılandırılmamışsa (yerel/dev) bir sürücü davet e-postası gönderir, e-postayı göndermek yerine davet URL'sini günlüğe kaydeder, böylece test için asla gerçek bir Resend hesabı gerekmez.
+ * en-Sends a driver invite email. If RESEND_API_KEY isn't configured (local/dev), logs the invite URL instead of failing, so testing never requires a real Resend account.
+ * input (to: string, inviteUrl: string, companyName: string)
+ * output (Promise<void>)
+ *
  */
 export async function sendDriverInviteEmail(
   to: string,
@@ -59,13 +77,16 @@ export async function sendDriverInviteEmail(
   companyName: string
 ): Promise<void> {
   if (!process.env.RESEND_API_KEY) {
-    logger.warn(`[email] RESEND_API_KEY not set — invite URL for ${to}: ${inviteUrl}`);
+    logger.warn(
+      `[email] RESEND_API_KEY not set — invite URL for ${to}: ${inviteUrl}`
+    );
     return;
   }
   try {
     const resend = getResendClient();
     const { error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
+      from:
+        process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
       to,
       subject: `You've been invited to join ${companyName} on LogiTrack`,
       html: `<p>You've been invited to join <strong>${companyName}</strong> as a driver.</p><p><a href="${inviteUrl}">Accept your invitation</a></p><p>This link expires in 7 days.</p>`,

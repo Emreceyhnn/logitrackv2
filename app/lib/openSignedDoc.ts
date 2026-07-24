@@ -3,12 +3,14 @@
 import { getSignedUrlAction } from "@/app/lib/actions/upload";
 import { logger } from "@/app/lib/logger";
 
-
 /**
- * Resolves a short-lived signed URL for a document stored in the private
- * `documents` bucket and opens it in a new tab. Raw stored URLs can't be opened
- * directly (bucket is private → 403/400), so every "open document" affordance
- * must route through here.
+ * tr-Gizli 'documents' bucket'ında saklanan bir belge için kısa ömürlü imzalı URL çözer ve yeni bir sekmede açar.
+ * en-Resolves a short-lived signed URL for a document stored in the private
+ * `documents` bucket and opens it in a new tab.
+ * input (
+  url: string
+)
+ * output (Promise<void>)
  */
 export async function openSignedDoc(url: string): Promise<void> {
   if (!url) return;

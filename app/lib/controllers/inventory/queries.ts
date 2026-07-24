@@ -14,6 +14,12 @@ import {
   INVENTORY_CACHE_TTL,
 } from "../../redis";
 
+/**
+ * tr-şirketin genel veya belirli bir depoya ait tüm stoklarını getirir
+ * en-retrieves all inventory of the company, overall or for a specific warehouse
+ * input (user: AuthenticatedUser, warehouseId?: string)
+ * output (Promise<any[]>)
+ */
 export const getInventory = authenticatedAction(
   async (user, warehouseId?: string) => {
     return controllerGuard("getInventory", async () => {
@@ -43,6 +49,12 @@ export const getInventory = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen kimliğe sahip stok kalemini getirir
+ * en-retrieves the inventory item with the specified ID
+ * input (user: AuthenticatedUser, inventoryId: string)
+ * output (Promise<Inventory>)
+ */
 export const getInventoryItemById = authenticatedAction(
   async (user, inventoryId: string) => {
     return controllerGuard("getInventoryItemById", async () => {
@@ -67,6 +79,12 @@ export const getInventoryItemById = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen SKU'ya sahip ürünlerin farklı depolardaki stok bilgilerini getirir
+ * en-retrieves stock information of products with the specified SKU across different warehouses
+ * input (user: AuthenticatedUser, sku: string)
+ * output (Promise<any[]>)
+ */
 export const getInventoryBySku = authenticatedAction(
   async (user, sku: string) => {
     return controllerGuard("getInventoryBySku", async () => {
@@ -87,6 +105,12 @@ export const getInventoryBySku = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirket genelinde kritik stok seviyesinin altına düşen ürünleri getirir
+ * en-retrieves items across the company that have fallen below the critical stock level
+ * input (user: AuthenticatedUser)
+ * output (Promise<LowStockItem[]>)
+ */
 export const getLowStockItems = authenticatedAction(async (user) => {
   return controllerGuard("getLowStockItems", async () => {
     const companyId = user?.companyId || "";
@@ -115,6 +139,12 @@ export const getLowStockItems = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-belirtilen depoda ve SKU'ya sahip ürünün stok hareket geçmişini getirir
+ * en-retrieves the stock movement history of the product with the specified SKU in the given warehouse
+ * input (user: AuthenticatedUser, sku: string, warehouseId: string)
+ * output (Promise<any[]>)
+ */
 export const getInventoryMovements = authenticatedAction(
   async (user, sku: string, warehouseId: string) => {
     return controllerGuard("getInventoryMovements", async () => {

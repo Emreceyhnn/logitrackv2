@@ -16,6 +16,12 @@ interface InvitationDriverData {
   licenseExpiry: string | null;
 }
 
+/**
+ * tr-mevcut bir kullanıcının kendisine gönderilen şirket davetini kabul etmesini sağlar
+ * en-allows an existing user to accept a company invitation sent to them
+ * input (user: AuthenticatedUser, invitationId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const acceptExistingUserInvitation = authenticatedAction(
   async (user, invitationId: string) => {
     return controllerGuard("acceptExistingUserInvitation", async () => {
@@ -98,6 +104,12 @@ export const acceptExistingUserInvitation = authenticatedAction(
   }
 );
 
+/**
+ * tr-mevcut bir kullanıcının kendisine gönderilen şirket davetini reddetmesini sağlar
+ * en-allows an existing user to decline a company invitation sent to them
+ * input (user: AuthenticatedUser, invitationId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const declineExistingUserInvitation = authenticatedAction(
   async (user, invitationId: string) => {
     return controllerGuard("declineExistingUserInvitation", async () => {

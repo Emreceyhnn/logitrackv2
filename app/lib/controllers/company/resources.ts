@@ -5,6 +5,12 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-şirkete ait tüm kullanıcıları getirir
+ * en-retrieves all users belonging to the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<User[]>)
+ */
 export const getCompanyUsers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
@@ -42,6 +48,12 @@ export const getCompanyUsers = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirkete ait tüm depoları getirir
+ * en-retrieves all warehouses belonging to the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<Warehouse[]>)
+ */
 export const getCompanyWarehouses = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
@@ -60,6 +72,12 @@ export const getCompanyWarehouses = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirkete ait tüm araçları getirir
+ * en-retrieves all vehicles belonging to the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<Vehicle[]>)
+ */
 export const getCompanyVehicles = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
@@ -78,6 +96,12 @@ export const getCompanyVehicles = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirkete ait tüm sürücüleri getirir
+ * en-retrieves all drivers belonging to the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<Driver[]>)
+ */
 export const getCompanyDrivers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
@@ -96,6 +120,12 @@ export const getCompanyDrivers = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirkete ait tüm müşterileri getirir
+ * en-retrieves all customers belonging to the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<Customer[]>)
+ */
 export const getCompanyCustomers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 

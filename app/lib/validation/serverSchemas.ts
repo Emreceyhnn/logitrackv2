@@ -65,7 +65,7 @@ export const acceptInvitationSchema = registerUserSchema.pick({
 
 export const updateWarehouseSchema = z.object({
   name: z.string().optional(),
-  code: z.string().min(1, "Warehouse code is required").optional(),
+  code: z.string().optional(),
   type: z.nativeEnum(WarehouseType).optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -82,7 +82,6 @@ export const updateWarehouseSchema = z.object({
 
 export const createWarehouseSchema = updateWarehouseSchema.required({
   name: true,
-  code: true,
   type: true,
   address: true,
   city: true,

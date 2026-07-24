@@ -3,11 +3,15 @@ import { ensureFirebaseAuth } from "./firebase-auth";
 import { VehicleLocation } from "@/app/lib/type/vehicle";
 
 /**
- * Reads are tenant-scoped: `vehicles/locations/{companyId}/...`. The client must
- * be signed in to Firebase Auth with a `companyId` custom claim (see
- * `ensureFirebaseAuth`) and RTDB security rules (`database.rules.json`) reject
- * any subscription whose path companyId differs from the token claim. A caller
- * that passes another tenant's companyId simply gets a permission-denied error.
+ * tr- Belirli bir araç için gerçek zamanlı konum güncellemelerini dinler
+ * en- Listens for real-time location updates for a specific vehicle
+ * input (
+  companyId: string,
+  vehicleId: string,
+  callback: (location: VehicleLocation | null) => void,
+  onError?: (error: Error) => void
+)
+ * output ( () => void)
  */
 
 export const subscribeToVehicleLocation = (
@@ -24,9 +28,7 @@ export const subscribeToVehicleLocation = (
     .then(() => {
       if (cancelled) return;
       vehicleRef = ref(firebase, path);
-      // The 3rd arg is RTDB's error callback — without it a permission-denied,
-      // quota (403) or dropped-socket error is swallowed silently and the UI
-      // keeps showing the last snapshot as if it were live.
+
       onValue(
         vehicleRef,
         (snapshot) => callback(snapshot.val()),
@@ -42,6 +44,17 @@ export const subscribeToVehicleLocation = (
     if (vehicleRef) off(vehicleRef);
   };
 };
+
+/**
+ * tr-Belirli bir şirket için tüm araç konumlarını dinler
+ * en-Listens to all vehicle locations for a specific company
+ * input (
+  companyId: string,
+  callback: (locations: Record<string, VehicleLocation>) => void,
+  onError?: (error: Error) => void
+)
+ * output ( () => void)
+ */
 
 export const subscribeToAllVehicles = (
   companyId: string,

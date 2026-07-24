@@ -13,6 +13,12 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { logger } from "@/app/lib/logger";
 
 
+/**
+ * tr-sisteme yeni bir araç ekler ve Firebase ile senkronize eder
+ * en-creates a new vehicle in the system and synchronizes it with Firebase
+ * input (user: AuthenticatedUser, vehicleData: unknown)
+ * output (Promise<Vehicle>)
+ */
 export const createVehicle = authenticatedAction(
   // `unknown` on purpose: the payload is validated by vehicleSchema.parse()
   // below, so callers can pass their own typed shapes without casting.
@@ -53,6 +59,12 @@ export const createVehicle = authenticatedAction(
   }
 );
 
+/**
+ * tr-verilen kimlik numarasına (id) göre araç detaylarını (sürücü, sorunlar, bakım ve yakıt kayıtları ile) getirir
+ * en-retrieves vehicle details by its ID (including driver, issues, maintenance, and fuel logs)
+ * input (user: AuthenticatedUser, vehicleId: string)
+ * output (Promise<Vehicle>)
+ */
 export const getVehicleById = authenticatedAction(
   async (user, vehicleId: string) => {
     const companyId = user?.companyId || "";
@@ -98,6 +110,12 @@ export const getVehicleById = authenticatedAction(
 
 const vehicleUpdateSchema = vehicleSchema.partial();
 
+/**
+ * tr-belirtilen aracın bilgilerini günceller ve Firebase ile senkronize eder
+ * en-updates the specified vehicle's information and synchronizes it with Firebase
+ * input (user: AuthenticatedUser, vehicleId: string, data: Record<string, unknown>)
+ * output (Promise<Vehicle>)
+ */
 export const updateVehicle = authenticatedAction(
   async (user, vehicleId: string, data: Record<string, unknown>) => {
     const companyId = user?.companyId || "";
@@ -140,6 +158,12 @@ export const updateVehicle = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen aracı sistemden (geçici olarak/soft-delete) siler ve ilişkili sürücünün atamasını kaldırır
+ * en-soft-deletes the specified vehicle and unassigns its associated driver
+ * input (user: AuthenticatedUser, vehicleId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
     const companyId = user?.companyId || "";
@@ -172,6 +196,12 @@ export const deleteVehicle = authenticatedAction(
   }
 );
 
+/**
+ * tr-aracın durumunu günceller ve duruma göre bildirim gönderir (örn: bakıma alındıysa)
+ * en-updates the vehicle's status and dispatches notifications accordingly (e.g., if put in maintenance)
+ * input (user: AuthenticatedUser, vehicleId: string, status: VehicleStatus)
+ * output (Promise<Vehicle>)
+ */
 export const updateVehicleStatus = authenticatedAction(
   async (user, vehicleId: string, status: VehicleStatus) => {
     const companyId = user?.companyId || "";

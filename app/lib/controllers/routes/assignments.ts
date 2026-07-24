@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { type Prisma, RouteStatus } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
@@ -14,6 +14,12 @@ import { invalidateRouteCache } from "./cache";
 import { ROUTE_TRANSITIONS } from "./types";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-belirtilen rotaya bir sürücü atar
+ * en-assigns a driver to the specified route
+ * input (user: AuthenticatedUser, routeId: string, driverId: string)
+ * output (Promise<Route>)
+ */
 export const assignDriverToRoute = authenticatedAction(
   async (user, routeId: string, driverId: string) => {
     const companyId = user?.companyId || "";
@@ -56,6 +62,12 @@ export const assignDriverToRoute = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen rotaya bir araç atar (kapasite kontrolleriyle birlikte)
+ * en-assigns a vehicle to the specified route (with capacity checks)
+ * input (user: AuthenticatedUser, routeId: string, vehicleId: string)
+ * output (Promise<Route>)
+ */
 export const assignVehicleToRoute = authenticatedAction(
   async (user, routeId: string, vehicleId: string) => {
     const companyId = user?.companyId || "";
@@ -139,6 +151,12 @@ export const assignVehicleToRoute = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen rotanın üzerindeki sürücüyü kaldırır
+ * en-unassigns the driver from the specified route
+ * input (user: AuthenticatedUser, routeId: string)
+ * output (Promise<Route>)
+ */
 export const unassignDriverFromRoute = authenticatedAction(
   async (user, routeId: string) => {
     const companyId = user?.companyId || "";
@@ -170,6 +188,12 @@ export const unassignDriverFromRoute = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen rotanın üzerindeki aracı kaldırır
+ * en-unassigns the vehicle from the specified route
+ * input (user: AuthenticatedUser, routeId: string)
+ * output (Promise<Route>)
+ */
 export const unassignVehicleFromRoute = authenticatedAction(
   async (user, routeId: string) => {
     const companyId = user?.companyId || "";
@@ -201,6 +225,12 @@ export const unassignVehicleFromRoute = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen rotanın durumunu günceller ve ilgili sevkiyat, araç ve sürücü durumlarını eşzamanlı olarak değiştirir
+ * en-updates the status of the specified route and simultaneously changes related shipment, vehicle, and driver statuses
+ * input (user: AuthenticatedUser, routeId: string, status: RouteStatus)
+ * output (Promise<Route>)
+ */
 export const updateRouteStatus = authenticatedAction(
   async (user, routeId: string, status: RouteStatus) => {
     const userId = user?.id;
@@ -291,8 +321,8 @@ export const updateRouteStatus = authenticatedAction(
             await createNotification(
               { companyId: companyId! },
               {
-                title: "Rota BaÅŸlatÄ±ldÄ± ğŸšš",
-                message: `${route.name || route.id} numaralÄ± rota ÅŸu an aktif durumda. AraÃ§ yola Ã§Ä±ktÄ±.`,
+                title: "Rota Başlatıldı 🚛",
+                message: `${route.name || route.id} numaralı rota şu an aktif durumda. Araç yola çıktı.`,
                 type: "SUCCESS",
                 link: `/dashboard/routes/${route.id}`,
               }
@@ -338,11 +368,11 @@ export const updateRouteStatus = authenticatedAction(
             await createNotification(
               { companyId: companyId! },
               {
-                title: "Rota TamamlandÄ± âœ…",
+                title: "Rota Tamamlandı ✅",
                 message:
                   failedCount > 0
-                    ? `${route.name || route.id} numaralÄ± rota tamamlandÄ±. ${activeShipmentIds.length} sevkiyat teslim edildi, ${failedCount} sevkiyat teslim edilemedi.`
-                    : `${route.name || route.id} numaralÄ± rota baÅŸarÄ±yla tamamlandÄ±. TÃ¼m sevkiyatlar teslim edildi.`,
+                    ? `${route.name || route.id} numaralı rota tamamlandı. ${activeShipmentIds.length} sevkiyat teslim edildi, ${failedCount} sevkiyat teslim edilemedi.`
+                    : `${route.name || route.id} numaralı rota başarıyla tamamlandı. Tüm sevkiyatlar teslim edildi.`,
                 type: failedCount > 0 ? "WARNING" : "SUCCESS",
                 link: `/dashboard/routes/${route.id}`,
               }
@@ -383,8 +413,8 @@ export const updateRouteStatus = authenticatedAction(
             await createNotification(
               { companyId: companyId! },
               {
-                title: "Rota Ä°ptal Edildi âš ï¸",
-                message: `${route.name || route.id} numaralÄ± rota iptal edildi. AraÃ§ mÃ¼sait durumuna Ã§ekildi.`,
+                title: "Rota İptal Edildi ⚠️",
+                message: `${route.name || route.id} numaralı rota iptal edildi. Araç müsait durumuna çekildi.`,
                 type: "WARNING",
                 link: `/dashboard/routes/${route.id}`,
               }

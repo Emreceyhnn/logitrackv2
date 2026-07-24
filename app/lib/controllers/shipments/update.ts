@@ -17,6 +17,12 @@ import { logger } from "@/app/lib/logger";
 import { NotFoundError } from "../../errors";
 
 
+/**
+ * tr-sevkiyat bilgilerini ve bağlı stok öğelerini güvenli bir şekilde günceller
+ * en-securely updates shipment information and its linked inventory items
+ * input (user: AuthenticatedUser, shipmentId: string, data: object)
+ * output (Promise<Shipment>)
+ */
 export const updateShipment = authenticatedAction(
   async (
     user,
@@ -352,6 +358,12 @@ export const updateShipment = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen sevkiyatı siler ve ilişkili stok miktarlarını depoya iade eder
+ * en-deletes the specified shipment and restores the related allocated inventory stock
+ * input (user: AuthenticatedUser, shipmentId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteShipment = authenticatedAction(
   async (user, shipmentId: string) => {
     const userId = user?.id;

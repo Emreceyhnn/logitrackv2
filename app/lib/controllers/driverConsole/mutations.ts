@@ -13,6 +13,12 @@ import { updateShipmentStatus } from "../shipments/assign";
 import { DC_ROLES, getDriverForUser } from "./shared";
 
 /** Toggle the calling driver's own duty status. */
+/**
+ * tr-sürücünün kendi mesai durumunu günceller
+ * en-updates the driver's own duty status
+ * input (user: AuthenticatedUser, status: DriverStatus)
+ * output (Promise<{ success: boolean, status: string }>)
+ */
 export const updateDriverDutyStatus = authenticatedAction(
   async (user, status: DriverStatus) => {
     const companyId = user?.companyId || "";
@@ -31,6 +37,12 @@ export const updateDriverDutyStatus = authenticatedAction(
 );
 
 /** Mark (or unmark) one of the calling driver's own route stops as arrived. */
+/**
+ * tr-sürücünün kendi rota durağına varış durumunu günceller (geldi veya gelmedi olarak işaretler)
+ * en-updates the arrival status of the driver's own route stop (marks as arrived or not)
+ * input (user: AuthenticatedUser, routeStopId: string, arrived: boolean)
+ * output (Promise<{ success: boolean }>)
+ */
 export const updateRouteStopArrival = authenticatedAction(
   async (user, routeStopId: string, arrived: boolean) => {
     const companyId = user?.companyId || "";
@@ -60,6 +72,12 @@ export const updateRouteStopArrival = authenticatedAction(
 );
 
 /** Driver-console wrapper around createFuelLog — derives driver/vehicle server-side. */
+/**
+ * tr-sürücünün mevcut aracı için yakıt alım kaydı oluşturur
+ * en-creates a fuel log for the driver's current vehicle
+ * input (user: AuthenticatedUser, data: { volumeLiter: number, cost: number, odometerKm: number, location?: string, fuelType: FuelType, receiptUrl?: string, currency?: string })
+ * output (Promise<FuelLog>)
+ */
 export const submitFuelLog = authenticatedAction(
   async (
     user,
@@ -100,6 +118,12 @@ export const submitFuelLog = authenticatedAction(
 );
 
 /** Driver-console wrapper around createVehicleIssue — derives vehicle/driver server-side. */
+/**
+ * tr-sürücünün mevcut aracı için yeni bir arıza/sorun kaydı oluşturur
+ * en-creates a new issue/problem record for the driver's current vehicle
+ * input (user: AuthenticatedUser, data: { title: string, priority: IssuePriority, description?: string })
+ * output (Promise<Issue>)
+ */
 export const reportVehicleIssue = authenticatedAction(
   async (
     user,
@@ -128,6 +152,12 @@ export const reportVehicleIssue = authenticatedAction(
 );
 
 /** Driver-console wrapper around updateShipmentStatus — adds an ownership check. */
+/**
+ * tr-sürücünün kendisine atanmış olan sevkiyatın durumunu günceller
+ * en-updates the status of the shipment assigned to the driver
+ * input (user: AuthenticatedUser, shipmentId: string, status: ShipmentStatus, location?: string, description?: string)
+ * output (Promise<Shipment>)
+ */
 export const updateMyShipmentStatus = authenticatedAction(
   async (
     user,

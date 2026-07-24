@@ -6,7 +6,12 @@ import { db } from "../db";
 import { Prisma } from "@prisma/client";
 import { logger } from "@/app/lib/logger";
 
-
+/**
+ * tr-belirtilen hedefe yeni bir bildirim gönderir
+ * en-sends a new notification to the specified target
+ * input (target: NotificationTarget, notification: Omit<Notification, "id" | "createdAt" | "isRead">)
+ * output (Promise<{ success: boolean; error?: string; id?: string }>)
+ */
 export async function sendNotificationAction(
   target: NotificationTarget,
   notification: Omit<Notification, "id" | "createdAt" | "isRead">
@@ -61,8 +66,6 @@ export async function sendNotificationAction(
       return { success: true };
     }
 
-    // Tenant-scoped path segments so RTDB security rules can enforce isolation
-    // via `auth.token.companyId` / `auth.token.roleId`. See database.rules.json.
     if (target.isGlobal) {
       path = "notifications/broadcast";
     } else if (target.userId) {
@@ -93,6 +96,12 @@ export async function sendNotificationAction(
   }
 }
 
+/**
+ * tr-belirtilen bildirimi okundu olarak işaretler
+ * en-marks the specified notification as read
+ * input (path: string, notificationId: string)
+ * output (Promise<{ success: boolean; error?: string }>)
+ */
 export async function markAsReadAction(path: string, notificationId: string) {
   try {
     if (!adminDb) throw new Error("Firebase not initialized");
@@ -104,6 +113,12 @@ export async function markAsReadAction(path: string, notificationId: string) {
   }
 }
 
+/**
+ * tr-belirtilen bildirimi siler
+ * en-deletes the specified notification
+ * input (path: string, notificationId: string)
+ * output (Promise<{ success: boolean; error?: string }>)
+ */
 export async function deleteNotificationAction(
   path: string,
   notificationId: string

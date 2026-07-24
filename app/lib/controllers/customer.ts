@@ -17,6 +17,12 @@ import { ConflictError, NotFoundError } from "../errors";
 
 const customerCache = createCacheManager("customers", CUSTOMER_CACHE_TTL);
 
+/**
+ * tr-yeni bir müşteri oluşturur
+ * en-creates a new customer
+ * input (user: AuthenticatedUser, name: string, code: string, industry?: string, taxId?: string, email?: string, phone?: string, locations?: array)
+ * output (Promise<{ customer: Customer }>)
+ */
 export const createCustomer = authenticatedAction(
   async (
     user,
@@ -88,6 +94,12 @@ export const createCustomer = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirkete ait tüm müşterileri getirir
+ * en-retrieves all customers belonging to the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<Customer[]>)
+ */
 export const getCustomers = authenticatedAction(async (user) => {
   return controllerGuard("getCustomers", async () => {
     const companyId = user?.companyId || "";
@@ -112,6 +124,12 @@ export const getCustomers = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-müşterileri sayfalama ve arama ile dashboard istatistikleriyle birlikte getirir
+ * en-retrieves customers with pagination, search, and dashboard statistics
+ * input (user: AuthenticatedUser, page?: number, pageSize?: number, search?: string)
+ * output (Promise<{ customers: CustomerWithRelations[], totalCount: number, stats: object, statsTrends?: object }>)
+ */
 export const getCustomersWithDashboardData = authenticatedAction(
   async (
     user,
@@ -206,6 +224,12 @@ export const getCustomersWithDashboardData = authenticatedAction(
 );
 
 
+/**
+ * tr-belirtilen kimliğe sahip müşteriyi getirir
+ * en-retrieves the customer with the specified ID
+ * input (user: AuthenticatedUser, customerId: string)
+ * output (Promise<Customer>)
+ */
 export const getCustomerById = authenticatedAction(
   async (user, customerId: string) => {
     return controllerGuard("getCustomerById", async () => {
@@ -236,6 +260,12 @@ export const getCustomerById = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen müşterinin bilgilerini günceller
+ * en-updates the information of the specified customer
+ * input (user: AuthenticatedUser, customerId: string, data: object)
+ * output (Promise<Customer>)
+ */
 export const updateCustomer = authenticatedAction(
   async (
     user,
@@ -339,6 +369,12 @@ export const updateCustomer = authenticatedAction(
 
 
 
+/**
+ * tr-belirtilen müşteriyi siler
+ * en-deletes the specified customer
+ * input (user: AuthenticatedUser, customerId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteCustomer = authenticatedAction(
   async (user, customerId: string) => {
     return controllerGuard("deleteCustomer", async () => {

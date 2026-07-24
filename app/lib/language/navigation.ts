@@ -48,12 +48,14 @@ export const routeTranslations: Record<string, Record<string, string>> = {
   }
 };
 
-/**
- * Build reverse map: localized-slug → canonical-key.
- * We cache per-lang to avoid rebuilding on every call.
- */
 const reverseMapCache: Record<string, Record<string, string>> = {};
 
+/**
+ * tr-yerelleştirilmiş URL (slug) değerinden standart İngilizce (canonical) değerine dönüşüm haritası oluşturur
+ * en-builds a reverse map from localized slug to canonical English key
+ * input (lang: string)
+ * output (Record<string, string>)
+ */
 function getReverseMap(lang: string): Record<string, string> {
   if (reverseMapCache[lang]) return reverseMapCache[lang];
   const map = Object.entries(routeTranslations[lang] || {}).reduce(
@@ -69,8 +71,10 @@ function getReverseMap(lang: string): Record<string, string> {
 }
 
 /**
- * Translate a canonical (English-key-based) path to the localized URL slug.
- * e.g. getLocalizedPath('/vehicle', 'tr') → '/araclar'
+ * tr-standart İngilizce yolu (canonical path), belirtilen dildeki yerelleştirilmiş URL slug'ına çevirir
+ * en-translates a canonical (English) path to the localized URL slug for the given language
+ * input (path: string, lang: string)
+ * output (string)
  */
 export function getLocalizedPath(path: string, lang: string): string {
   if (!path) return '/';
@@ -85,8 +89,10 @@ export function getLocalizedPath(path: string, lang: string): string {
 }
 
 /**
- * Translate a localized URL slug back to its canonical (English-key-based) path.
- * e.g. getCanonicalPath('/araclar', 'tr') → '/vehicle'
+ * tr-yerelleştirilmiş bir URL slug'ını tekrar standart İngilizce (canonical) yola dönüştürür
+ * en-translates a localized URL slug back to its canonical English path
+ * input (path: string, lang: string)
+ * output (string)
  */
 export function getCanonicalPath(path: string, lang: string): string {
   if (!path) return '/';
@@ -103,8 +109,10 @@ export function getCanonicalPath(path: string, lang: string): string {
 }
 
 /**
- * Given a localized pathname (e.g. '/tr/araclar'), return the full localized URL.
- * Accepts paths with or without the leading locale prefix.
+ * tr-verilen standart yol (canonical) için dil kodunu ve yerelleştirilmiş slug'ı içeren tam bir URL döndürür
+ * en-returns the full localized URL containing the language code and localized slug for a given canonical path
+ * input (canonicalPath: string, lang: string)
+ * output (string)
  */
 export function buildLocalizedHref(canonicalPath: string, lang: string): string {
   const localized = getLocalizedPath(canonicalPath, lang);
@@ -112,11 +120,10 @@ export function buildLocalizedHref(canonicalPath: string, lang: string): string 
 }
 
 /**
- * Build a Next.js `alternates` metadata block (self canonical + per-locale
- * hreflang links, including x-default) for a public page, given its canonical
- * (English-key-based) path such as '/features' or '/' for the home page.
- * Each locale points at its own localized slug (e.g. /tr/ozellikler,
- * /en/features), which is what crawlers need for correct language targeting.
+ * tr-Next.js SEO metadata 'alternates' bloğunu oluşturarak hreflang ve canonical etiketlerini sağlar
+ * en-builds a Next.js SEO metadata 'alternates' block providing hreflang and canonical tags
+ * input (canonicalPath: string, lang: string)
+ * output ({ canonical: string, languages: Record<string, string> })
  */
 export function buildSeoAlternates(
   canonicalPath: string,
@@ -136,9 +143,10 @@ export function buildSeoAlternates(
 }
 
 /**
- * Build a BreadcrumbList JSON-LD schema (Home → page) for a public landing
- * page. Lets search engines and AI answer engines render/understand the
- * page's position in the site hierarchy.
+ * tr-açılış sayfaları için arama motorlarına uygun BreadcrumbList JSON-LD şemasını oluşturur
+ * en-builds a BreadcrumbList JSON-LD schema for public landing pages to aid search engines
+ * input (canonicalPath: string, pageName: string, lang: string, baseUrl: string)
+ * output (Record<string, unknown>)
  */
 export function buildBreadcrumbSchema(
   canonicalPath: string,
@@ -167,8 +175,10 @@ export function buildBreadcrumbSchema(
 }
 
 /**
- * True when a pathname sits inside the public Live Demo subtree
- * (/{lang}/demo/...), which anonymous visitors browse without a session.
+ * tr-verilen URL'in (/demo) kökü altındaki anonim "Live Demo" sayfalarından biri olup olmadığını kontrol eder
+ * en-checks whether the given URL falls under the anonymous "Live Demo" subtree (/demo)
+ * input (pathname: string | null | undefined)
+ * output (boolean)
  */
 export function isDemoPathname(pathname: string | null | undefined): boolean {
   if (!pathname) return false;
@@ -176,13 +186,10 @@ export function isDemoPathname(pathname: string | null | undefined): boolean {
 }
 
 /**
- * The dashboard "home" a given pathname should return to.
- *
- * Demo pages must stay inside /{lang}/demo: the real /{lang}/overview is a
- * PROTECTED_ROUTE, so sending an anonymous demo visitor there makes the proxy
- * auth gate bounce them to the sign-in page (see proxy.ts). Demo route
- * segments are English-only (there is no /tr/demo/genel-bakis folder), so the
- * demo branch deliberately skips slug localization.
+ * tr-geçerli yola bağlı olarak (demo veya gerçek hesap) doğru "ana sayfa" (dashboard/overview) URL'sini döndürür
+ * en-returns the correct dashboard "home" (overview) URL based on whether the path is demo or real
+ * input (pathname: string | null | undefined, lang: string)
+ * output (string)
  */
 export function buildDashboardHomeHref(pathname: string | null | undefined, lang: string): string {
   return isDemoPathname(pathname)
@@ -191,8 +198,10 @@ export function buildDashboardHomeHref(pathname: string | null | undefined, lang
 }
 
 /**
- * Check whether a localized pathname is 'active' for a given canonical path.
- * Supports exact match and optional prefix (startsWith) matching.
+ * tr-belirli bir yerel sayfanın (pathname) aktif olup olmadığını (tam eşleşme veya alt dizin) kontrol eder
+ * en-checks if a localized pathname is active (exact match or subdirectory prefix) for a given canonical path
+ * input (pathname: string, canonicalPath: string, lang: string, exact?: boolean)
+ * output (boolean)
  */
 export function isPathActive(
   pathname: string,

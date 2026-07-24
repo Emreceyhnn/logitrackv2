@@ -10,6 +10,12 @@ import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import { logger } from "../../logger";
 
+/**
+ * tr-araca yeni bir bakım kaydı ekler, para birimini dönüştürür ve bildirim gönderir
+ * en-adds a new maintenance record to the vehicle, converts the currency, and sends a notification
+ * input (user: AuthenticatedUser, vehicleId: string, recordData: object)
+ * output (Promise<MaintenanceRecord>)
+ */
 export const addMaintenanceRecord = authenticatedAction(
   async (
     user,
@@ -85,6 +91,12 @@ export const addMaintenanceRecord = authenticatedAction(
   }
 );
 
+/**
+ * tr-mevcut bir bakım kaydını günceller ve durum değişikliklerinde (örn. tamamlandı) bildirim gönderir
+ * en-updates an existing maintenance record and sends notifications on status changes (e.g., completed)
+ * input (user: AuthenticatedUser, recordId: string, data: object)
+ * output (Promise<MaintenanceRecord>)
+ */
 export const updateMaintenanceRecord = authenticatedAction(
   async (
     user,

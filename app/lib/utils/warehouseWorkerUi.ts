@@ -59,6 +59,15 @@ export const I = {
   activity: "M3 12h4l3-8 4 16 3-8h4",
 };
 
+/**
+ * tr-Bir bölgenin doluluk oranına göre rengi döndürür.
+ * en-Returns the color for a zone based on its fill percentage.
+ * input (
+  pct: number,
+  theme: Theme
+)
+ * output (string)
+ */
 export function zoneColor(pct: number, theme: Theme) {
   return pct >= ZONE_CRITICAL_PCT
     ? theme.palette.error.main
@@ -77,11 +86,14 @@ export interface ZoneAdvice {
 }
 
 /**
- * Turns a set of zones into actionable capacity advice: for every critical zone
- * (>= ZONE_CRITICAL_PCT) tell the worker to stop putaway there and, when one
- * exists, point at the emptiest healthy zone (< ZONE_WARNING_PCT) to divert to.
- * Returns [] when nothing is critical, so callers can render conditionally.
+ * tr-Biraz dolu bir bölge için tavsiye: buraya koymayı durdur ve `alternative` bölgeye yönlendir.
+ * en-Advice for one over-full zone: stop putaway here, divert to `alternative`.
+ * input (
+  zones: Zone[]
+)
+ * output (ZoneAdvice[])
  */
+
 export function zoneCapacityAdvice(zones: Zone[]): ZoneAdvice[] {
   const critical = zones.filter((z) => z.pct >= ZONE_CRITICAL_PCT);
   if (critical.length === 0) return [];

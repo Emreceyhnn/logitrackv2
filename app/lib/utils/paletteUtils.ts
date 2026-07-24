@@ -1,8 +1,14 @@
 import type { Palette } from "@mui/material/styles";
 
 /**
- * Resolves a dotted palette path like "success.main" coming from runtime
+ * tr-Çalışma zamanı statü meta verilerinden gelen "success.main" gibi noktalı palet yolunu, yazılmış MUI paletine karşı çözer.
+ * en-Resolves a dotted palette path like "success.main" coming from runtime
  * status metadata against the typed MUI palette.
+ * input (
+  palette: Palette,
+  path: string
+)
+ * output (string | undefined)
  */
 export function resolvePaletteColor(
   palette: Palette,
@@ -18,8 +24,15 @@ export function resolvePaletteColor(
 }
 
 /**
- * Returns the `_alpha` scale of a palette entry (e.g. "success" →
+ * tr-Bir palet girdisinin (örn. "success" → palette.success._alpha)
+ * bir _alpha ölçeği tanımladığında döndürür.
+ * en-Returns the `_alpha` scale of a palette entry (e.g. "success" →
  * palette.success._alpha) when the entry defines one.
+ * input (
+  palette: Palette,
+  key: string
+)
+ * output (Record<string, string> | undefined)
  */
 export function resolvePaletteAlpha(
   palette: Palette,

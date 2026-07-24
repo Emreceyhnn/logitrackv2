@@ -20,6 +20,12 @@ import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
 import { NoCompanyError } from "../../errors";
 
+/**
+ * tr-şirketin genel sevkiyat istatistiklerini (toplam, aktif, geciken, yolda) getirir
+ * en-retrieves general shipment statistics (total, active, delayed, in transit) for the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ total: number, active: number, delayed: number, inTransit: number }>)
+ */
 export const getShipmentStats = authenticatedAction(async (user) => {
   const companyId = user?.companyId;
 
@@ -54,6 +60,12 @@ export const getShipmentStats = authenticatedAction(async (user) => {
   }, { fallback: { total: 0, active: 0, delayed: 0, inTransit: 0 } });
 });
 
+/**
+ * tr-son 7 güne ait günlük sevkiyat hacmi geçmişini hesaplar
+ * en-calculates the daily shipment volume history for the last 7 days
+ * input (user: AuthenticatedUser)
+ * output (Promise<ShipmentVolumeData[]>)
+ */
 export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
   const companyId = user?.companyId;
 
@@ -88,6 +100,12 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-sevkiyatların durumlarına (PENDING, IN_TRANSIT vb.) göre dağılımını getirir
+ * en-retrieves the distribution of shipments by their status (PENDING, IN_TRANSIT, etc.)
+ * input (user: AuthenticatedUser)
+ * output (Promise<ShipmentStatusData[]>)
+ */
 export const getShipmentStatusDistribution = authenticatedAction(
   async (user) => {
     const companyId = user?.companyId;
@@ -111,6 +129,12 @@ export const getShipmentStatusDistribution = authenticatedAction(
   }
 );
 
+/**
+ * tr-sevkiyat listesini ve ilgili dashboard verilerini (istatistikler, hacim geçmişi, dağılım) birlikte getirir
+ * en-retrieves the shipment list along with dashboard data (stats, volume history, status distribution)
+ * input (user: AuthenticatedUser, page?: number, pageSize?: number, status?: ShipmentStatus | "ALL", search?: string)
+ * output (Promise<{ shipments: ShipmentWithRelations[], totalCount: number, stats: ShipmentStats, statsTrends: any, volumeHistory: ShipmentVolumeData[], statusDistribution: ShipmentStatusData[] }>)
+ */
 export const getShipmentsWithDashboardData = authenticatedAction(
   async (
     user,

@@ -22,6 +22,12 @@ import {
   resolveWarehouse,
 } from "./shared";
 
+/**
+ * tr-depo çalışanı (warehouse worker) gösterge paneli için görevler, hedefler, stok hareketleri ve düşük stok uyarıları dahil tüm verileri getirir
+ * en-fetches all data for the warehouse worker dashboard, including tasks, KPIs, stock movements, and low stock alerts
+ * input (user: AuthenticatedUser, warehouseId?: string)
+ * output (Promise<WarehouseWorkerDashboard>)
+ */
 export const getWarehouseWorkerDashboard = authenticatedAction(
   async (user, warehouseId?: string): Promise<WarehouseWorkerDashboard> => {
     const companyId = user?.companyId || "";

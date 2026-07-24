@@ -6,6 +6,12 @@ import { Prisma } from "@prisma/client";
 import { logger } from "@/app/lib/logger";
 import { redis, invalidatePattern, companyCacheKeys } from "../../redis";
 
+/**
+ * tr-belirtilen şirkete ait tüm önbellek kayıtlarını temizler
+ * en-clears all cache records belonging to the specified company
+ * input (companyId: string)
+ * output (Promise<void>)
+ */
 export async function invalidateCompanyCache(companyId: string) {
   await Promise.all([
     invalidatePattern(companyCacheKeys.companyPattern(companyId)),
@@ -14,6 +20,12 @@ export async function invalidateCompanyCache(companyId: string) {
   revalidatePath("/", "layout");
 }
 
+/**
+ * tr-standart sistem rollerinin veritabanında var olduğundan emin olur, yoksa oluşturur
+ * en-ensures standard system roles exist in the database, creating them if necessary
+ * input ()
+ * output (Promise<void>)
+ */
 export async function ensureStandardRoles() {
   const standardRoles = [
     { id: "role_admin", name: "Administrator", description: "Full system access" },

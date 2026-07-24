@@ -57,7 +57,10 @@ describe("routeDeviation", () => {
     redisMock.del.mock.resetCalls();
   });
 
-  const ping = (point: [number, number], bufferMeters: number | null = BUFFER) =>
+  const ping = (
+    point: [number, number],
+    bufferMeters: number | null = BUFFER
+  ) =>
     evaluateDeviation({
       routeId: ROUTE_ID,
       vehicleId: VEHICLE_ID,

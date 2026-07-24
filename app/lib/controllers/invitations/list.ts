@@ -4,7 +4,12 @@ import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { controllerGuard } from "../utils/controllerGuard";
 
-/** Pending invitations for the caller's email. Used on onboarding. */
+/**
+ * tr-kullanıcının e-posta adresine gönderilmiş bekleyen davetiyeleri getirir
+ * en-retrieves pending invitations sent to the user's email address
+ * input (user: AuthenticatedUser)
+ * output (Promise<any[]>)
+ */
 export const getMyInvitations = authenticatedAction(async (user) => {
   return controllerGuard("getMyInvitations", async () => {
     if (user.companyId) return [];

@@ -9,6 +9,12 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { hasAccess } from "../../entitlement";
 import { ForbiddenError } from "../../errors";
 
+/**
+ * tr-yeni bir şirket oluşturur ve kullanıcıyı bu şirkete atar
+ * en-creates a new company and assigns the user to this company
+ * input (user: AuthenticatedUser, name: string, avatarUrl?: string, regional?: { timezone: string, currency: string, language: string }, domain?: string)
+ * output (Promise<{ company: Company, user: User }>)
+ */
 export const createCompany = authenticatedAction(
   async (
     user,
@@ -86,6 +92,12 @@ export const createCompany = authenticatedAction(
   }
 );
 
+/**
+ * tr-kullanıcının ait olduğu şirketin bilgilerini getirir
+ * en-retrieves the information of the company the user belongs to
+ * input (user: AuthenticatedUser)
+ * output (Promise<Company>)
+ */
 export const getCompanyById = authenticatedAction(async (user) => {
   const userId = user?.id || "";
   const companyId = user?.companyId || "";
@@ -111,6 +123,12 @@ export const getCompanyById = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirket bilgilerini günceller
+ * en-updates company information
+ * input (user: AuthenticatedUser, data: { name?: string, avatarUrl?: string })
+ * output (Promise<Company>)
+ */
 export const updateCompany = authenticatedAction(
   async (user, data: { name?: string; avatarUrl?: string }) => {
     const companyId = user?.companyId || "";
@@ -132,6 +150,12 @@ export const updateCompany = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirketi ve ilişkili tüm verilerini siler
+ * en-deletes the company and all its related data
+ * input (user: AuthenticatedUser)
+ * output (Promise<Company>)
+ */
 export const deleteCompany = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 

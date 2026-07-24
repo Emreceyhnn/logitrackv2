@@ -32,6 +32,10 @@ async function fetchCompanyDashboard(filters: {
   const res = await fetch(`/api/company/dashboard?${params.toString()}`, {
     method: "GET",
     credentials: "include",
+    headers: {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+    },
   });
 
   if (!res.ok) {

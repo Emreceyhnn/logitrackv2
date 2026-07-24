@@ -14,14 +14,26 @@ cloudinary.config({
   secure: true,
 });
 
+/**
+ * tr-Cloudinary yapılandırılmış mı kontrol eder.
+ * en-Checks if Cloudinary is configured.
+ * input (void)
+ * output (boolean)
+ */
 export function isCloudinaryConfigured(): boolean {
   return Boolean(
     process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_SECRET
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
   );
 }
 
+/**
+ * tr-Cloudinary yapılandırılmamışsa hata verir.
+ * en-Throws an error if Cloudinary is not configured.
+ * input (void)
+ * output (void)
+ */
 export function ensureCloudinaryConfigured(): void {
   if (!isCloudinaryConfigured()) {
     throw new Error(
@@ -34,16 +46,6 @@ export function ensureCloudinaryConfigured(): void {
 
 export { cloudinary };
 
-/**
- * Logical storage areas, carried over 1:1 from the previous Supabase buckets.
- * Cloudinary has no bucket concept, so each maps to a top-level folder plus a
- * delivery type.
- *
- * `documents` is `authenticated`: assets are NOT readable from their bare URL
- * and can only be fetched through a time-limited signed URL. This is what
- * preserves the private-bucket guarantee the Supabase setup relied on. The
- * rest are `upload` (publicly readable), matching the old public buckets.
- */
 export type UploadBucket = "vehicles" | "documents" | "avatars" | "general";
 
 export const BUCKET_DELIVERY_TYPE: Record<
@@ -59,18 +61,12 @@ export const BUCKET_DELIVERY_TYPE: Record<
 export type CloudinaryResourceType = "image" | "raw";
 
 /**
- * Resource type per MIME. This MUST be deterministic rather than Cloudinary's
- * `auto`: a signed delivery URL is only valid if it is generated for the same
- * resource_type the asset was stored under, and `auto` decides server-side
- * where we cannot observe it. Guessing wrong yields a 404 on every read of a
- * private document.
- *
- * PDFs go to `raw`, not `image`. Cloudinary can treat PDFs as multi-page image
- * assets, but delivery of PDFs under `image` is blocked by default account
- * security settings ("Allow delivery of PDF and ZIP files") and returns 401
- * even with a valid signature — verified live against this account. `raw`
- * stores and serves them verbatim, which is all the app needs since documents
- * are downloaded/opened rather than transformed.
+ * tr-MIME tipine göre kaynak türünü döndürür.
+ * en-Returns the resource type based on the MIME type.
+ * input (
+  mimeType: string
+)
+ * output (CloudinaryResourceType)
  */
 export function resourceTypeForMime(mimeType: string): CloudinaryResourceType {
   if (mimeType === "application/pdf") return "raw";

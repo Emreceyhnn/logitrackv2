@@ -14,6 +14,12 @@ import {
 import { redis } from "../redis";
 
 // ─── Get Current User Profile ─────────────────────────────────────────────
+/**
+ * tr-mevcut kullanıcının profil bilgilerini getirir
+ * en-retrieves the profile information of the current user
+ * input ()
+ * output (Promise<User>)
+ */
 export const getMyProfile = authenticatedAction(async (user) => {
   const found = await db.user.findUnique({
     where: { id: user.id },
@@ -35,6 +41,12 @@ export const getMyProfile = authenticatedAction(async (user) => {
   return found;
 });
 
+/**
+ * tr-mevcut kullanıcının profil bilgilerini günceller
+ * en-updates the profile information of the current user
+ * input (data: { name: string; surname: string; avatarUrl?: string | null })
+ * output (Promise<{ user?: User; error?: string }>)
+ */
 export const updateMyProfile = authenticatedAction(
   async (
     user,
@@ -104,6 +116,12 @@ export const updateMyProfile = authenticatedAction(
 );
 
 // ─── Change Password ──────────────────────────────────────────────────────
+/**
+ * tr-mevcut kullanıcının şifresini değiştirir
+ * en-changes the password of the current user
+ * input (data: { currentPassword: string; newPassword: string })
+ * output (Promise<{ success?: boolean; error?: string }>)
+ */
 export const changeMyPassword = authenticatedAction(
   async (
     user,

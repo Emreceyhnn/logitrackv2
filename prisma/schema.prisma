@@ -71,6 +71,7 @@ model User {
   googleId               String?             @unique
   avatarUrl              String?
   roleId                 String?
+  assignedWarehouseId    String?
   status                 UserStatus          @default(ACTIVE)
   lastLoginAt            DateTime?
   companyId              String?
@@ -94,7 +95,8 @@ model User {
   shipmentHistoryEntries ShipmentHistory[]   @relation("ShipmentHistoryCreatedBy")
   company                Company?            @relation(fields: [companyId], references: [id], onDelete: Restrict)
   role                   Role?               @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  managedWarehouses      Warehouse[]
+  managedWarehouses      Warehouse[]         @relation("WarehouseManager")
+  assignedWarehouse      Warehouse?          @relation("WarehouseStaff", fields: [assignedWarehouseId], references: [id], onDelete: SetNull)
   assignedWarehouseTasks WarehouseTask[]
   sentInvitations        Invitation[]        @relation("InvitationInvitedBy")
   joinRequests           JoinRequest[]       @relation("JoinRequestUser")
@@ -102,6 +104,7 @@ model User {
 
   @@index([companyId])
   @@index([roleId])
+  @@index([assignedWarehouseId])
   @@map("users")
 }
 
@@ -289,7 +292,8 @@ model Warehouse {
   movements        InventoryMovement[]
   shipmentsOrigin  Shipment[]          @relation("ShipmentOrigin")
   company          Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  manager          User?               @relation(fields: [managerId], references: [id], onDelete: Restrict)
+  manager          User?               @relation("WarehouseManager", fields: [managerId], references: [id], onDelete: Restrict)
+  staff            User[]              @relation("WarehouseStaff")
   zones            WarehouseZone[]
   tasks            WarehouseTask[]
 

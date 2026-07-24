@@ -1,3 +1,9 @@
+/**
+ * tr-bildirim başlığı ve mesajını belirtilen dile (en/tr) göre düzenli ifadelerle çevirir
+ * en-translates the notification title and message into the specified language (en/tr) using regex replacements
+ * input (title: string, message: string, lang: string)
+ * output ({ title: string, message: string })
+ */
 export function getLocalizedNotification(
   title: string,
   message: string,

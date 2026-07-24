@@ -76,6 +76,14 @@ export interface RouteResponse {
 
 const VALHALLA_URL = "/api/valhalla";
 
+/**
+ * tr-Valhalla rotalama hizmetinden bir rota alır
+ * en-Fetches a route from the Valhalla routing service
+ * input (
+  params: RoutingParams
+)
+ * output (Promise<RouteResponse>)
+ */
 export async function fetchRoute(
   params: RoutingParams
 ): Promise<RouteResponse> {
@@ -102,14 +110,25 @@ export async function fetchRoute(
   return response.json();
 }
 
+/**
+ * tr-Polyline dizgesini bir sayı çiftleri dizisine çözümler
+ * en-Decodes a polyline string into an array of coordinate pairs
+ * input (
+  shapeString: string
+)
+ * output ([number, number][])
+ */
 export function decodeShape(shapeString: string): [number, number][] {
   return polyline.decode(shapeString, 6);
 }
 
 /**
- * Inverse of `decodeShape`. Used to persist a multi-leg route as one shape:
- * each leg carries its own encoded string, and encoded polylines cannot be
- * concatenated, so the merged points are re-encoded at the same precision.
+ * tr-Nokta dizisini bir polyline dizgesine kodlar
+ * en-Encodes an array of points into a polyline string
+ * input (
+  points: [number, number][] 
+)
+ * output (string)
  */
 export function encodeShape(points: [number, number][]): string {
   return polyline.encode(points, 6);

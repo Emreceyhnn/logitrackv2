@@ -6,19 +6,6 @@ import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
 
-/**
- * Models that carry a required `companyId` column. Every query against them
- * issued inside a tenant context (see `tenant-context.ts`) is automatically
- * constrained to that tenant. Manual `where: { companyId }` filters in the
- * controllers remain as a second line of defense.
- *
- * Deliberately excluded: Company (the tenant itself), User/Session/AuditLog
- * (auth flows must work before a company is assigned), Role (system roles
- * have companyId = null and are shared), ExchangeRate (global data),
- * Invitation and JoinRequest (both must be reachable by a companyless caller
- * — an invited person who has no account/company yet, or a newly-registered
- * user requesting to join one).
- */
 const TENANT_MODELS = new Set<string>([
   "Driver",
   "Vehicle",
@@ -75,11 +62,14 @@ const CREATE_OPS = new Set<string>([
 ]);
 
 /**
- * Throws unless a tenant-model operation running *without* an ambient companyId
- * has been explicitly scoped by the caller. Reads/updates/deletes must carry
- * `where.companyId`; creates must carry `companyId` in every row of the payload.
- * This is the fail-closed backstop that stops a missing tenant context from
- * silently exposing or mutating data across every company.
+ tr-
+ * en-
+ * input (
+  model: string,
+  operation: string,
+  args: unknown
+)
+ * output (void)
  */
 function assertExplicitlyScoped(
   model: string,
@@ -128,12 +118,23 @@ function assertExplicitlyScoped(
   }
 }
 
+/**
+ * tr-Prisma istemcisini oluşturur.
+ * en-Creates a Prisma client.
+ * input (void)
+ * output (PrismaClient)
+ */
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
-  if (!connectionString && process.env.NEXT_PHASE !== "phase-production-build") {
-    throw new Error("DATABASE_URL is not set — cannot initialise the database pool");
+  if (
+    !connectionString &&
+    process.env.NEXT_PHASE !== "phase-production-build"
+  ) {
+    throw new Error(
+      "DATABASE_URL is not set — cannot initialise the database pool"
+    );
   }
-  
+
   const adapter = new PrismaNeon({ connectionString: connectionString! });
   return new PrismaClient({ adapter }).$extends({
     name: "tenant-guard",
@@ -193,13 +194,19 @@ function createPrismaClient() {
             (operation === "create" || operation === "upsert")
           ) {
             // TypeScript trick to cast args so we can mutate the inner object safely
-            type MutArgs = { data?: { companyId?: unknown }, create?: { companyId?: unknown } };
+            type MutArgs = {
+              data?: { companyId?: unknown };
+              create?: { companyId?: unknown };
+            };
             const mArgs = args as MutArgs;
 
             const data = operation === "create" ? mArgs.data : mArgs.create;
 
             if (data) {
-              if (typeof data.companyId === "string" && data.companyId !== companyId) {
+              if (
+                typeof data.companyId === "string" &&
+                data.companyId !== companyId
+              ) {
                 throw new Error(
                   `Tenant guard: attempted to create ${model} for another company`
                 );
@@ -232,7 +239,10 @@ function createPrismaClient() {
                 ? [mArgs.data as { companyId?: unknown }]
                 : [];
             for (const row of rows) {
-              if (typeof row.companyId === "string" && row.companyId !== companyId) {
+              if (
+                typeof row.companyId === "string" &&
+                row.companyId !== companyId
+              ) {
                 throw new Error(
                   `Tenant guard: attempted to create ${model} for another company`
                 );

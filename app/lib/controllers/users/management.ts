@@ -12,6 +12,12 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { ConflictError, ForbiddenError, NoCompanyError, NotFoundError } from "../../errors";
 import { logger } from "@/app/lib/logger";
 
+/**
+ * tr-şirketteki tüm kullanıcıları (şifresiz olarak) listeler
+ * en-lists all users in the company (without passwords)
+ * input (user: AuthenticatedUser)
+ * output (Promise<UserWithoutPassword[]>)
+ */
 export const getUsers = authenticatedAction(async (user) => {
   return controllerGuard("getUsers", async () => {
     await checkPermission(user, user.companyId, [
@@ -32,6 +38,12 @@ export const getUsers = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-kullanıcının profil bilgilerini ve (verilmişse) şifresini günceller
+ * en-updates user profile information and (if provided) password
+ * input (user: AuthenticatedUser, userId: string, name: string, surname: string, password: string, email: string, avatarUrl: string, role: string)
+ * output (Promise<UserWithoutPassword>)
+ */
 export const updateUser = authenticatedAction(
   async (
     user,
@@ -102,6 +114,12 @@ export const updateUser = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirket içine yeni bir kullanıcı ekler ve bildirim gönderir
+ * en-adds a new user to the company and dispatches a notification
+ * input (user: AuthenticatedUser, userData: object)
+ * output (Promise<UserWithoutPassword>)
+ */
 export const createUserForCompany = authenticatedAction(
   async (
     user,
@@ -174,6 +192,12 @@ export const createUserForCompany = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirkete ait kullanıcıları JWT jetonu doğrulayarak listeler
+ * en-lists company users by verifying the JWT token
+ * input (user: AuthenticatedUser, token: string)
+ * output (Promise<UserWithoutPassword[]>)
+ */
 export const getUsersForMyCompany = authenticatedAction(
   async (user, token: string) => {
     return controllerGuard("getUsersForMyCompany", async () => {
@@ -199,6 +223,12 @@ export const getUsersForMyCompany = authenticatedAction(
   }
 );
 
+/**
+ * tr-oturum açmış kullanıcının şirketindeki tüm kullanıcıları getirir
+ * en-retrieves all users in the logged-in user's company
+ * input (user: AuthenticatedUser)
+ * output (Promise<UserWithoutPassword[]>)
+ */
 export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
   return controllerGuard("getMyCompanyUsersAction", async () => {
     await checkPermission(user, user.companyId);
@@ -220,6 +250,12 @@ export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
 // `contains` scan a caller can push at the DB.
 const MAX_SEARCH_QUERY_LENGTH = 100;
 
+/**
+ * tr-platform (sistem) genelinde kullanıcılarda arama yapar
+ * en-searches for users across the platform (system-wide)
+ * input (user: AuthenticatedUser, query: string)
+ * output (Promise<Array<{id: string, name: string, email: string, avatar: string | null}>>)
+ */
 export const searchPlatformUsers = authenticatedAction(
   async (user, query: string) => {
     if (!query || query.length < 2 || query.length > MAX_SEARCH_QUERY_LENGTH) {

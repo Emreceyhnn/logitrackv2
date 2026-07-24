@@ -16,6 +16,7 @@ import {
 } from "@/app/lib/language/navigation";
 import { rateLimit } from "@/app/lib/rate-limiter";
 import { hasAccess, type AccessStatus } from "@/app/lib/entitlement";
+import { redis } from "@/app/lib/redis";
 
 /* -------------------------------------------------------------------------- */
 /*  Startup Validations                                                         */
@@ -55,6 +56,23 @@ function getClientIp(request: NextRequest): string {
 
   return "unknown";
 }
+
+// Edge-safe SHA-256 hex, matching the node `hashToken` used server-side so the
+// hashes line up on the same Redis revocation denylist keys. We can't import the
+// session helpers here — that module pulls in node `crypto`/`jose` internals that
+// don't belong in the edge bundle — so the hashing is reproduced with Web Crypto.
+async function hashTokenEdge(token: string): Promise<string> {
+  const data = new TextEncoder().encode(token);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+// Mirror of session/internal.ts `revokedTokenKey`. Kept in sync manually rather
+// than imported, for the same edge-bundle reason as hashTokenEdge above.
+const revokedTokenKeyEdge = (tokenHash: string): string =>
+  `revoked:token:${tokenHash}`;
 
 function getLocaleFromPathname(pathname: string): {
   locale: Locale;
@@ -227,6 +245,31 @@ export default async function middleware(request: NextRequest) {
     } catch {
       // jwtVerify throws errors.JWTExpired if expired, or other errors if invalid
       isTokenValid = false;
+    }
+  }
+
+  // A cryptographically-valid JWT can still be revoked (logout, admin removed
+  // the user / deactivated the account) before it expires. Server Components
+  // reject it via the same Redis denylist (getAuthenticatedUser), but the edge
+  // trusted it — so a removed user's still-valid token bounced between the
+  // dashboard (rejects → /auth/sign-in) and the proxy (sign-in + valid token →
+  // back to the dashboard), an infinite redirect loop that tripped the rate
+  // limiter ("too many requests"). Treat a denylisted token as invalid so the
+  // refresh flow below fires: refreshSession fails for a revoked session and
+  // clears the cookies, landing the user cleanly on sign-in. One Redis GET,
+  // only when a valid token is actually present (anonymous requests skip it).
+  if (isTokenValid && token) {
+    try {
+      const revoked = await redis.get(revokedTokenKeyEdge(await hashTokenEdge(token)));
+      if (revoked) {
+        isTokenValid = false;
+        companyId = null;
+        accessStatus = null;
+        trialEndsAt = null;
+      }
+    } catch {
+      // Fail-open on a Redis blip: the token is still signature-valid and
+      // short-lived, matching getAuthenticatedUser's fail-open posture.
     }
   }
 

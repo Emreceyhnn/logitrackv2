@@ -53,6 +53,15 @@ export const COMPANY_REQUIRED_ROUTES = [
 export const DEFAULT_REDIRECT_AFTER_LOGIN = "/overview";
 export const SIGN_IN_ROUTE = "/auth/sign-in";
 
+/**
+ * tr-Belirli bir locale için path oluşturur.
+ * en-Creates a path for a given locale.
+ * input (
+  locale: string,
+  path: string
+)
+ * output (string)
+ */
 export function localePath(locale: string, path: string): string {
   return `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
 }

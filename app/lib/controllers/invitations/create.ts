@@ -13,6 +13,12 @@ import { ConflictError, RateLimitError, ValidationError } from "../../errors";
 
 const INVITE_EXPIRY_DAYS = 7;
 
+/**
+ * tr-yeni bir sürücü davetiyesi oluşturur ve davet e-postası gönderir
+ * en-creates a new driver invitation and sends an invitation email
+ * input (user: AuthenticatedUser, email: string, driverData: object)
+ * output (Promise<{ id: string, email: string, expiresAt: Date }>)
+ */
 export const createDriverInvitation = authenticatedAction(
   async (
     user,

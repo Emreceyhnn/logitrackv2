@@ -11,7 +11,14 @@
 import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
-/** Collapses URLSearchParams into a plain object; repeated keys become arrays. */
+/**
+ * Collapses URLSearchParams into a plain object; repeated keys become arrays.
+ * 
+ * tr-URLSearchParams nesnesini düz bir nesneye dönüştürür
+ * en-collapses URLSearchParams into a plain object
+ * input (sp: URLSearchParams)
+ * output (Record<string, string | string[]>)
+ */
 function searchParamsToObject(
   sp: URLSearchParams
 ): Record<string, string | string[]> {
@@ -30,6 +37,11 @@ export type QueryParseResult<T> =
 /**
  * Validates a request's query string against `schema`. On failure returns a
  * ready-to-send 400 response; on success returns the typed, validated data.
+ * 
+ * tr-bir isteğin sorgu dizesini belirtilen şemaya göre doğrular
+ * en-validates a request's query string against the given schema
+ * input (req: NextRequest, schema: T)
+ * output (QueryParseResult<z.infer<T>>)
  */
 export function parseQueryParams<T extends z.ZodType>(
   req: NextRequest,
@@ -53,6 +65,11 @@ export function parseQueryParams<T extends z.ZodType>(
 /**
  * Validates a JSON request body against `schema`. Returns a 400 response for
  * malformed JSON or schema violations.
+ * 
+ * tr-bir JSON istek gövdesini belirtilen şemaya göre doğrular
+ * en-validates a JSON request body against the given schema
+ * input (req: NextRequest, schema: T)
+ * output (Promise<QueryParseResult<z.infer<T>>>)
  */
 export async function parseJsonBody<T extends z.ZodType>(
   req: NextRequest,
@@ -117,6 +134,11 @@ export const boolParam = z
 /**
  * A single enum value coming from a query param (validated), or undefined.
  * `values` is a client-safe enum const object (e.g. from lib/type/enums).
+ * 
+ * tr-sorgu parametresinden gelen tek bir enum değerini doğrular
+ * en-validates a single enum value coming from a query param
+ * input (values: T)
+ * output (z.ZodOptional<z.ZodNativeEnum<T>>)
  */
 export function enumParam<T extends Record<string, string>>(values: T) {
   return z.nativeEnum(values).optional();
@@ -125,6 +147,11 @@ export function enumParam<T extends Record<string, string>>(values: T) {
 /**
  * One-or-many enum values from repeated query params (`?status=A&status=B`)
  * normalised to an array, with every entry validated. Undefined when absent.
+ * 
+ * tr-tekrarlanan sorgu parametrelerinden gelen enum değerlerini dizi olarak doğrular
+ * en-validates one-or-many enum values from repeated query params as an array
+ * input (values: T)
+ * output (z.ZodOptional<z.ZodEffects<z.ZodUnion<[z.ZodNativeEnum<T>, z.ZodArray<z.ZodNativeEnum<T>>]>>>)
  */
 export function enumArrayParam<T extends Record<string, string>>(values: T) {
   const inner = z.nativeEnum(values);

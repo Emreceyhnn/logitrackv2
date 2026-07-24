@@ -29,11 +29,11 @@ const NOT_ON_ROUTE: RouteDeviationCheckResult = {
 };
 
 /**
- * Checks a freshly-received GPS ping against the vehicle's active route
- * corridor and notifies the company if the vehicle has strayed.
+ * tr-Araç rota koridoruyla eşleşmeyen yeni bir GPS ping'ini kontrol eder ve araç saptıysa şirketi bilgilendirir. `companyId` çağrı için zaten yetkili olmalıdır - rota aramasını ve bildirim hedefini kapsamını belirler.
+ * en-Checks a freshly-received GPS ping against the vehicle's active route corridor and notifies the company if the vehicle has strayed. `companyId` must already be authorised for the caller — it scopes both the route lookup and the notification target.
+ * input (params: { companyId: string; vehicleId: string; plate: string; lat: number; lng: number; })
+ * output (Promise<RouteDeviationCheckResult>)
  *
- * `companyId` must already be authorised for the caller — it scopes both the
- * route lookup and the notification target.
  */
 export async function checkRouteDeviation(params: {
   companyId: string;

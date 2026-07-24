@@ -1,11 +1,13 @@
 import crypto from "crypto";
 
 /**
- * Constant-time string comparison for secrets (cron tokens, API keys, etc).
- * A plain `===` short-circuits on the first mismatched byte, which in theory
- * lets an attacker recover a secret one character at a time via response
- * timing. `crypto.timingSafeEqual` requires equal-length buffers, so unequal
- * lengths are treated as a mismatch without ever calling it.
+ * tr-Sırlar için sabit zamanlı dize karşılaştırması (cron belirteçleri, API anahtarları vb.).
+ * en-Constant-time string comparison for secrets (cron tokens, API keys, etc).
+ * input (
+  a: string,
+  b: string
+)
+ * output (boolean)
  */
 export function timingSafeEqual(a: string, b: string): boolean {
   const bufA = Buffer.from(a, "utf8");

@@ -19,6 +19,12 @@ import {
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-şirkete ait güncel rota istatistiklerini (aktif, devam eden, tamamlanan, geciken) getirir
+ * en-retrieves current route statistics (active, in progress, completed, delayed) for the company
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ active: number, inProgress: number, completedToday: number, delayed: number }>)
+ */
 export const getRouteStats = authenticatedAction(async (user) => {
   return controllerGuard("getRouteStats", async () => {
     const companyId = user?.companyId || "";
@@ -72,6 +78,12 @@ export const getRouteStats = authenticatedAction(async (user) => {
   }, { fallback: { active: 0, inProgress: 0, completedToday: 0, delayed: 0 } });
 });
 
+/**
+ * tr-rota ve araç verimliliği istatistiklerini hesaplar (yakıt tüketimi, zamanında teslimat, araç kullanımı)
+ * en-calculates route and vehicle efficiency statistics (fuel consumption, on-time performance, vehicle utilization)
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ fuelConsumption: number, onTimePerformance: number, vehicleUtilization: number, recentNotifications: any[] }>)
+ */
 export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
   return controllerGuard("getRouteEfficiencyStats", async () => {
     const companyId = user?.companyId || "";
@@ -124,6 +136,12 @@ export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-aktif olan rotalardaki araçların konum bilgilerini haritada göstermek üzere getirir
+ * en-retrieves location information of vehicles on active routes for display on the map
+ * input (user: AuthenticatedUser)
+ * output (Promise<MapRouteData[]>)
+ */
 export const getActiveRoutesLocations = authenticatedAction(async (user) => {
   return controllerGuard("getActiveRoutesLocations", async () => {
     const companyId = user?.companyId || "";
@@ -181,6 +199,12 @@ export const getActiveRoutesLocations = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-rotaları (sayfalama ve filtreleme ile) ve rota dashboard verilerini birlikte getirir
+ * en-retrieves routes (with pagination and filtering) alongside route dashboard data
+ * input (user: AuthenticatedUser, page?: number, pageSize?: number, status?: string | string[])
+ * output (Promise<{ routes: any[], totalCount: number, stats: RouteStats, efficiency: RouteEfficiencyStats, mapData: MapRouteData[] }>)
+ */
 export const getRoutesWithDashboardData = authenticatedAction(
   async (
     user,

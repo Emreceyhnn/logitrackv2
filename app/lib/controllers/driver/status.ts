@@ -9,6 +9,12 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { ConflictError, NotFoundError } from "../../errors";
 import { driverCache } from "./shared";
 
+/**
+ * tr-belirtilen sürücünün durumunu (mesaide, izinli vb.) günceller ve bildirim gönderir
+ * en-updates the status of the specified driver (on duty, on leave, etc.) and sends a notification
+ * input (user: AuthenticatedUser, driverId: string, status: DriverStatus)
+ * output (Promise<Driver>)
+ */
 export const updateDriverStatus = authenticatedAction(
   async (user, driverId: string, status: DriverStatus) => {
     return controllerGuard("updateDriverStatus", async () => {
@@ -64,6 +70,12 @@ export const updateDriverStatus = authenticatedAction(
   }
 );
 
+/**
+ * tr-bir aracı belirli bir sürücüye atar
+ * en-assigns a vehicle to a specific driver
+ * input (user: AuthenticatedUser, driverId: string, vehicleId: string)
+ * output (Promise<Driver>)
+ */
 export const assignVehicleToDriver = authenticatedAction(
   async (user, driverId: string, vehicleId: string) => {
     return controllerGuard("assignVehicleToDriver", async () => {
@@ -100,6 +112,12 @@ export const assignVehicleToDriver = authenticatedAction(
   }
 );
 
+/**
+ * tr-sürücünün üzerindeki aracı kaldırır (atamasını iptal eder)
+ * en-removes the vehicle from the driver (unassigns it)
+ * input (user: AuthenticatedUser, driverId: string)
+ * output (Promise<Driver>)
+ */
 export const unassignVehicleFromDriver = authenticatedAction(
   async (user, driverId: string) => {
     return controllerGuard("unassignVehicleFromDriver", async () => {

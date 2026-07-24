@@ -70,6 +70,12 @@ async function getWeeklyShipmentStats(
   return result;
 }
 
+/**
+ * tr-sürücüler dashboard'u için KPI verilerini ve en iyi performans gösteren sürücüleri getirir
+ * en-retrieves KPI data and top-performing drivers for the drivers dashboard
+ * input (user: AuthenticatedUser)
+ * output (Promise<DriverDashboardResponseType>)
+ */
 export const getDriverDashboardData = authenticatedAction(async (user) => {
   return controllerGuard("getDriverDashboardData", async () => {
     const companyId = user?.companyId || "";
@@ -173,6 +179,12 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-sürücüler listesini (sayfalama ve filtreleme ile) ve dashboard istatistiklerini birlikte getirir
+ * en-retrieves the paginated/filtered list of drivers alongside dashboard statistics
+ * input (user: AuthenticatedUser, filters?: DriverFilters)
+ * output (Promise<{ drivers: any[], meta: object, driversKpis: object, topPerformers: object[], performanceCharts: object[] }>)
+ */
 export const getDriverWithDashboardData = authenticatedAction(
   async (
     user,

@@ -13,6 +13,12 @@ import { NextResponse } from "next/server";
 import { AppError, ValidationError } from "@/app/lib/errors";
 import { logger } from "@/app/lib/logger";
 
+/**
+ * tr-API yönlendirme işleyicileri için paylaşılan hata yakalama işleyicisi
+ * en-shared catch-block handler for API route handlers
+ * input (routeName: string, error: unknown)
+ * output (NextResponse)
+ */
 export function handleApiError(routeName: string, error: unknown): NextResponse {
   // `authenticatedAction` calls redirect() when there is no session; inside a
   // route handler that surfaces as a NEXT_REDIRECT error → translate to 401.

@@ -18,6 +18,12 @@ const ReactQueryDevtools =
       )
     : () => null;
 
+/**
+ * tr-Uygulama genelinde React Query sağlayıcısını (provider) yapılandırır ve entegre eder
+ * en-Configures and integrates the React Query provider across the application
+ * input (props: { children: React.ReactNode })
+ * output (JSX.Element)
+ */
 export default function QueryProvider({
   children,
 }: {

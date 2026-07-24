@@ -5,12 +5,12 @@ import { ThemeProvider } from "@mui/material";
 import { getTheme } from "./theme";
 
 /**
- * LandingThemeProvider
- *
- * Wraps landing pages with a permanently dark MUI theme, completely
- * independent of the user's Light/Dark preference that lives in
- * ThemeContext. This ensures landing page colours are always static
- * and never flip to the dashboard's light theme.
+ * tr-Landing sayfalarını kalıcı olarak koyu modda çalışan bir MUI temasıyla sarmalar.
+ * Kullanıcının ThemeContext'te bulunan Light/Dark tercihini yoksayar.
+ * en-Wraps landing pages in a MUI theme that runs permanently in dark mode.
+ * Ignores the user's Light/Dark preference from ThemeContext.
+ * input (children: React.ReactNode)
+ * output (JSX.Element)
  */
 export default function LandingThemeProvider({
   children,

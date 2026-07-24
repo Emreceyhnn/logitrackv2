@@ -4,6 +4,7 @@ import { parseQueryParams, pageParam, pageSizeParam, searchParam } from "@/app/l
 import { z } from "zod";
 import { handleApiError } from "@/app/lib/api/handleApiError";
 
+export const dynamic = "force-dynamic";
 
 const querySchema = z.object({
   page: pageParam,

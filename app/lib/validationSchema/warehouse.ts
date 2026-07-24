@@ -7,9 +7,7 @@ export const getAddWarehouseValidationSchema = (dict: Dictionary) =>
     name: Yup.string()
       .required(formatMessage(dict.validation.required, { field: dict.routes?.fields?.name || "Name" }))
       .min(3, formatMessage(dict.validation.min, { field: dict.routes?.fields?.name || "Name", min: 3 })),
-    code: Yup.string()
-      .required(formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.code || "Code" }))
-      .min(3, formatMessage(dict.validation.min, { field: dict.warehouses?.fields?.code || "Code", min: 3 })),
+    code: Yup.string().optional(),
     type: Yup.string()
       .required(formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.type || "Type" }))
       .oneOf(

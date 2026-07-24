@@ -14,6 +14,12 @@ import {
 import { formatDisplayDate } from "../../utils/date";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-genel bakış sayfası için temel istatistikleri getirir
+ * en-retrieves basic statistics for the overview page
+ * input (user: AuthenticatedUser)
+ * output (Promise<any>)
+ */
 export const getOverviewStats = authenticatedAction(async (user) => {
   return controllerGuard("getOverviewStats", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -70,6 +76,12 @@ export const getOverviewStats = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-kullanıcının dikkatini gerektiren acil durumları ve yaklaşan belge sürelerini getirir
+ * en-retrieves urgent issues and approaching document expirations requiring user attention
+ * input (user: AuthenticatedUser)
+ * output (Promise<any[]>)
+ */
 export const getActionRequired = authenticatedAction(async (user) => {
   return controllerGuard("getActionRequired", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -159,6 +171,12 @@ export const getActionRequired = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-günlük operasyon özetini (planlanan rota, teslimatlar vb.) getirir
+ * en-retrieves the daily operations summary (planned routes, deliveries, etc.)
+ * input (user: AuthenticatedUser)
+ * output (Promise<any>)
+ */
 export const getDailyOperations = authenticatedAction(async (user) => {
   return controllerGuard("getDailyOperations", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -225,6 +243,12 @@ export const getDailyOperations = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-günlük toplama ve paketleme (pick/pack) işlemlerinin sayısını getirir
+ * en-retrieves the number of daily pick and pack operations
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ picks: number, packs: number }>)
+ */
 export const getPicksAndPacks = authenticatedAction(async (user) => {
   return controllerGuard("getPicksAndPacks", async () => {
     await checkPermission(user, user.companyId, [], {

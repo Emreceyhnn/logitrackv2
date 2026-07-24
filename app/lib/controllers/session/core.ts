@@ -24,9 +24,10 @@ import { logger } from "@/app/lib/logger";
 
 
 /**
- * Narrows a verified jose payload to our session payload with a real runtime
- * check — a token signed with our secret but missing `id` is rejected instead
- * of being blindly cast through.
+ * tr-jose payload nesnesini oturum payload yapısına dönüştürür ve doğrular
+ * en-converts and validates a jose payload object into the session payload structure
+ * input (payload: JWTPayload)
+ * output (Promise<SessionJWTPayload | null>)
  */
 export async function toSessionPayload(
   payload: JWTPayload
@@ -43,13 +44,10 @@ export async function toSessionPayload(
 }
 
 /**
- * Creates a new server-side session for a user.
- *
- * 1. Generates an access token (JWT, 1 hour) and refresh token (opaque, 7 days)
- * 2. Persists the session in the database with hashed token for lookup
- * 3. Sets httpOnly cookies for both tokens
- *
- * @returns The raw access token (for immediate response if needed)
+ * tr-kullanıcı için yeni bir sunucu taraflı oturum oluşturur ve yetkilendirme çerezlerini ayarlar
+ * en-creates a new server-side session for a user and sets authorization cookies
+ * input (user: object, deviceInfo?: string, ipAddress?: string)
+ * output (Promise<{ accessToken: string, sessionId: string }>)
  */
 export async function createSession(
   user: {
@@ -134,13 +132,10 @@ export async function createSession(
 }
 
 /**
- * Validates the current session by:
- * 1. Reading the access token from the cookie
- * 2. Verifying the JWT signature
- * 3. Looking up the session in the DB (not revoked, not expired)
- * 4. Updating lastActivityAt if stale (throttled)
- *
- * @returns SessionUser or null if invalid/expired
+ * tr-mevcut oturumu doğrulayarak geçerli kullanıcının oturum bilgilerini getirir
+ * en-validates the current session and retrieves the active user's session information
+ * input ()
+ * output (Promise<SessionUser | null>)
  */
 export async function validateSession(): Promise<SessionUser | null> {
   try {
@@ -326,13 +321,10 @@ export async function validateSession(): Promise<SessionUser | null> {
 }
 
 /**
- * Refreshes the session by:
- * 1. Reading the refresh token from the cookie
- * 2. Finding the session in DB
- * 3. Issuing a new access token + rotating the refresh token
- * 4. Setting new cookies
- *
- * @returns true if refresh succeeded, false otherwise
+ * tr-refresh token kullanarak kullanıcının oturumunu yeniler ve yeni yetkilendirme çerezleri ayarlar
+ * en-refreshes the user's session using the refresh token and sets new authorization cookies
+ * input ()
+ * output (Promise<boolean>)
  */
 export async function refreshSession(): Promise<boolean> {
   try {

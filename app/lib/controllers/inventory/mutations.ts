@@ -18,6 +18,12 @@ import {
 } from "../../type/inventory";
 import { invalidateInventoryCache } from "./cache";
 
+/**
+ * tr-yeni bir stok kalemi oluşturur
+ * en-creates a new inventory item
+ * input (user: AuthenticatedUser, data: CreateInventoryInput)
+ * output (Promise<{ inventory: object }>)
+ */
 export const createInventoryItem = authenticatedAction(
   async (user, data: CreateInventoryInput) => {
     return controllerGuard("createInventoryItem", async () => {
@@ -93,6 +99,12 @@ export const createInventoryItem = authenticatedAction(
   }
 );
 
+/**
+ * tr-mevcut bir stok kaleminin bilgilerini günceller
+ * en-updates the information of an existing inventory item
+ * input (user: AuthenticatedUser, inventoryId: string, data: UpdateInventoryInput)
+ * output (Promise<Inventory>)
+ */
 export const updateInventoryItem = authenticatedAction(
   async (user, inventoryId: string, data: UpdateInventoryInput) => {
     return controllerGuard("updateInventoryItem", async () => {
@@ -160,6 +172,12 @@ export const updateInventoryItem = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen stok kaleminin miktarını ayarlar (artırır veya azaltır) ve hareket kaydı oluşturur
+ * en-adjusts the quantity of the specified inventory item (increases or decreases) and creates a movement record
+ * input (user: AuthenticatedUser, inventoryId: string, delta: number, type?: MovementType, notes?: string)
+ * output (Promise<Inventory>)
+ */
 export const adjustInventoryStock = authenticatedAction(
   async (user, inventoryId: string, delta: number, type: MovementType = "ADJUSTMENT", notes?: string) => {
     return controllerGuard("adjustInventoryStock", async () => {
@@ -220,6 +238,12 @@ export const adjustInventoryStock = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen stok kalemini siler
+ * en-deletes the specified inventory item
+ * input (user: AuthenticatedUser, inventoryId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteInventoryItem = authenticatedAction(
   async (user, inventoryId: string) => {
     return controllerGuard("deleteInventoryItem", async () => {
@@ -246,6 +270,12 @@ export const deleteInventoryItem = authenticatedAction(
   }
 );
 
+/**
+ * tr-depo içerisindeki toplama (pick) veya paketleme (pack) işlemlerini kaydeder ve stokları düşürür
+ * en-logs pick or pack operations within the warehouse and deducts stock
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, quantity: number, type: "PICK" | "PACK")
+ * output (Promise<{ success: boolean, movement: object }>)
+ */
 export const logWarehouseFulfillment = authenticatedAction(
   async (
     user,

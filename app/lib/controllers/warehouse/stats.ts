@@ -17,6 +17,12 @@ import {
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-kullanıcının şirketindeki depolara ait temel istatistikleri (kapasite, toplam kalem, SKU vb.) hesaplar
+ * en-calculates basic statistics (capacity, total items, SKUs, etc.) for warehouses in the user's company
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ totalWarehouses: number, totalSkus: number, totalItems: number, totalCapacityPallets: number, totalCapacityVolume: number }>)
+ */
 export const getWarehouseStats = authenticatedAction(async (user) => {
   return controllerGuard("getWarehouseStats", async () => {
     await checkPermission(user, user.companyId);
@@ -63,6 +69,12 @@ export const getWarehouseStats = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirketteki son 10 envanter hareketini depo ve kalem adıyla zenginleştirerek getirir
+ * en-retrieves the last 10 inventory movements in the company, enriched with warehouse and item names
+ * input (user: AuthenticatedUser)
+ * output (Promise<InventoryMovementWithRelations[]>)
+ */
 export const getRecentStockMovements = authenticatedAction(async (user) => {
   return controllerGuard("getRecentStockMovements", async () => {
     await checkPermission(user, user.companyId);
@@ -98,6 +110,12 @@ export const getRecentStockMovements = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-sayfalama yapılarak (pagination) depoları ve beraberinde depo gösterge paneli özetlerini (istatistik, hareketler, trend) getirir
+ * en-retrieves paginated warehouses along with dashboard summaries (stats, movements, trends)
+ * input (user: AuthenticatedUser, page?: number, pageSize?: number)
+ * output (Promise<{ warehouses: WarehouseWithRelations[], totalCount: number, stats: WarehouseStats, statsTrends?: any, recentMovements: InventoryMovementWithRelations[] }>)
+ */
 export const getWarehousesWithDashboardData = authenticatedAction(
   async (
     user,

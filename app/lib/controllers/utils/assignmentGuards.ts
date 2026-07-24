@@ -11,8 +11,10 @@ function dayRange(date: Date): { gte: Date; lt: Date } {
 }
 
 /**
- * A driver can be assigned to a route only if they belong to the company,
- * are not on leave, and have no other PLANNED/ACTIVE route on the same day.
+ * tr-bir sürücünün belirli bir tarihte rotaya atanmaya uygun olup olmadığını (şirket aidiyeti, izin durumu, başka aktif/planlanmış rotası olmaması) doğrular
+ * en-asserts whether a driver is available to be assigned to a route on a given date (checking company ownership, leave status, and conflicting planned/active routes)
+ * input (db: DbClient, params: { driverId: string, companyId: string, date: Date, excludeRouteId?: string })
+ * output (Promise<void>)
  */
 export async function assertDriverAvailableForRoute(
   db: DbClient,
@@ -54,9 +56,10 @@ export async function assertDriverAvailableForRoute(
 }
 
 /**
- * A vehicle can be assigned to a route only if it belongs to the company,
- * is not in maintenance / out of order, and has no other PLANNED/ACTIVE
- * route on the same day.
+ * tr-bir aracın belirli bir tarihte rotaya atanmaya uygun olup olmadığını (şirket aidiyeti, arıza/bakım durumu, başka aktif/planlanmış rotası olmaması) doğrular
+ * en-asserts whether a vehicle is available to be assigned to a route on a given date (checking company ownership, maintenance/out_of_order status, and conflicting planned/active routes)
+ * input (db: DbClient, params: { vehicleId: string, companyId: string, date: Date, excludeRouteId?: string })
+ * output (Promise<void>)
  */
 export async function assertVehicleAvailableForRoute(
   db: DbClient,

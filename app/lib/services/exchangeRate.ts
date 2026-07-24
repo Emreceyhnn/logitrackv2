@@ -6,7 +6,6 @@ import {
 import { db } from "@/app/lib/db";
 import { logger } from "@/app/lib/logger";
 
-
 export type SupportedCurrency = "USD" | "EUR" | "TRY" | "GBP";
 
 export interface ExchangeRates {
@@ -21,7 +20,13 @@ interface ExchangeRateApiResponse {
   "error-type"?: string;
 }
 
-/** Builds the base URL at call-time so env vars set after module load are respected. */
+/**
+ * tr-EXCHANGE_RATE_BASE_URL'i çağrı zamanında oluşturur, böylece modül yüklemesinden sonra ayarlanan ortam değişkenleri dikkate alınır.
+ * en-Builds the base URL at call-time so env vars set after module load are respected.
+ * input ()
+ * output (string)
+ *
+ */
 function getBaseUrl(): string {
   const baseUrl = process.env.EXCHANGE_RATE_BASE_URL;
   if (baseUrl) return baseUrl;
@@ -32,6 +37,13 @@ function getBaseUrl(): string {
   return "";
 }
 
+/**
+ * tr-exchangeRate veritabanında ve Redis önbelleğinde saklanan güncel döviz kurları nesnesini döndürür. API anahtarı yoksa veya hatalıysa hata verir, ancak hata durumunda veritabanına veya Redis'e yazmaz.
+ * en-Returns the current exchange rates object stored in exchangeRate database and Redis cache. Throws an error if the API key is missing or invalid, but does not write to the database or Redis in case of error.
+ * input ()
+ * output (Promise<ExchangeRates>)
+ *
+ */
 export async function getExchangeRates(): Promise<ExchangeRates> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -125,6 +137,13 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   return rates;
 }
 
+/**
+ * tr-Belirli bir para birimi için USD'den dönüşüm oranını alır. Hata durumunda 1 döndürür.
+ * en-Retrieves the USD conversion rate for a specific currency. Returns 1 in case of error.
+ * input (currency: SupportedCurrency)
+ * output (Promise<number>)
+ *
+ */
 export async function getExchangeRate(
   currency: SupportedCurrency
 ): Promise<number> {
@@ -141,7 +160,11 @@ export async function getExchangeRate(
 }
 
 /**
- * Converts a USD amount to the target currency.
+ * tr-Bir USD miktarını hedef para birimine dönüştürür.
+ * en-Converts a USD amount to the target currency.
+ * input (usdAmount: number, targetCurrency: SupportedCurrency)
+ * output (Promise<number>)
+ *
  */
 export async function convertFromUSD(
   usdAmount: number,
@@ -153,8 +176,11 @@ export async function convertFromUSD(
 }
 
 /**
- * Converts an amount from any supported currency to any other supported currency.
- * Uses USD as the intermediate pivot currency.
+ * tr-USD'den herhangi bir desteklenen para birimine veya herhangi bir desteklenen para biriminden USD'ye tutarı dönüştürür. USD'yi aracı pivot para birimi olarak kullanır.
+ * en-Converts an amount from any supported currency to any other supported currency. Uses USD as the intermediate pivot currency.
+ * input (amount: number, fromCurrency: string, toCurrency: string)
+ * output (Promise<number>)
+ *
  */
 export async function convertCurrency(
   amount: number,
@@ -173,8 +199,11 @@ export async function convertCurrency(
 }
 
 /**
- * Forces a refresh of the exchange rate cache.
- * Useful for a cron job or admin trigger.
+ * tr-Döviz kuru önbelleğini yeniler. Bir cron işi veya yönetici tetikleyicisi için kullanışlıdır.
+ * en-Forces a refresh of the exchange rate cache. Useful for a cron job or admin trigger.
+ * input ()
+ * output (Promise<ExchangeRates>)
+ *
  */
 export async function refreshExchangeRates(): Promise<ExchangeRates> {
   try {

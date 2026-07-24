@@ -38,6 +38,12 @@ interface GuidedTourContextValue {
 
 const GuidedTourContext = createContext<GuidedTourContextValue | null>(null);
 
+/**
+ * tr-kullanıcıya rehberli tur sağlamak için context sağlayıcısı bileşeni
+ * en-context provider component to supply the guided tour to the user
+ * input ({ children }: { children: ReactNode })
+ * output (JSX.Element)
+ */
 export function GuidedTourProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GuidedTourState>({
     isActive: false,
@@ -89,6 +95,12 @@ export function GuidedTourProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * tr-rehberli tur context değerlerini döndüren hook
+ * en-hook that returns the guided tour context values
+ * input ()
+ * output (GuidedTourContextValue)
+ */
 export function useGuidedTour(): GuidedTourContextValue {
   const ctx = useContext(GuidedTourContext);
   if (!ctx) {

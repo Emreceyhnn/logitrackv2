@@ -9,6 +9,12 @@ import { driverCacheKeys, invalidatePattern, vehicleCacheKeys } from "../redis";
 import { controllerGuard } from "./utils/controllerGuard";
 import { NotFoundError, ValidationError } from "../errors";
 
+/**
+ * tr-sürücü veya araç için yeni bir belge oluşturur
+ * en-creates a new document for a driver or a vehicle
+ * input (user: AuthenticatedUser, type: DocumentType, name: string, url: string, expiryDate?: Date, driverId?: string, vehicleId?: string)
+ * output (Promise<{ document: Document }>)
+ */
 export const createDocument = authenticatedAction(
   async (
     user,
@@ -106,6 +112,12 @@ export const createDocument = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirkete ait tüm belgeleri getirir, istenirse araç veya sürücüye göre filtrelenir
+ * en-retrieves all documents belonging to the company, optionally filtered by vehicle or driver
+ * input (user: AuthenticatedUser, entityType?: "driver" | "vehicle", entityId?: string)
+ * output (Promise<Document[]>)
+ */
 export const getDocuments = authenticatedAction(
   async (user, entityType?: "driver" | "vehicle", entityId?: string) => {
     const companyId = user?.companyId || "";
@@ -139,6 +151,12 @@ export const getDocuments = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen kimliğe sahip belgeyi getirir
+ * en-retrieves the document with the specified ID
+ * input (user: AuthenticatedUser, documentId: string)
+ * output (Promise<Document>)
+ */
 export const getDocumentById = authenticatedAction(
   async (user, documentId: string) => {
     const companyId = user?.companyId || "";
@@ -163,6 +181,12 @@ export const getDocumentById = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen belgeyi siler
+ * en-deletes the specified document
+ * input (user: AuthenticatedUser, documentId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteDocument = authenticatedAction(
   async (user, documentId: string) => {
     const companyId = user?.companyId || "";
@@ -204,6 +228,12 @@ export const deleteDocument = authenticatedAction(
   }
 );
 
+/**
+ * tr-süresi dolmak üzere olan belgeleri getirir
+ * en-retrieves documents that are expiring soon
+ * input (user: AuthenticatedUser, daysThreshold?: number)
+ * output (Promise<Document[]>)
+ */
 export const getExpiringDocuments = authenticatedAction(
   async (user, daysThreshold: number = 30) => {
     const companyId = user?.companyId || "";

@@ -24,6 +24,12 @@ import {
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-kullanıcının şirketine ait araçları, uygulanan filtrelere (arama, durum, tip vb.) göre ilişkili verilerle listeler
+ * en-lists the user's company vehicles with related data based on applied filters (search, status, type, etc.)
+ * input (user: AuthenticatedUser, filters?: VehicleFilters)
+ * output (Promise<VehicleWithRelations[]>)
+ */
 export const getVehicles = authenticatedAction(
   async (user, filters?: VehicleFilters): Promise<VehicleWithRelations[]> => {
     const companyId = user?.companyId || "";
@@ -111,6 +117,12 @@ export const getVehicles = authenticatedAction(
   }
 );
 
+/**
+ * tr-araç gösterge paneli (dashboard) için gerekli KPI, kapasite, belge ve servis özet verilerini trendlerle birlikte getirir
+ * en-fetches KPI, capacity, document, and service summary data along with trends for the vehicle dashboard
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ vehiclesKpis, vehiclesCapacity, expiringDocs, plannedServices, kpiTrends }>)
+ */
 export const getVehiclesDashboardData = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
   return controllerGuard("getVehiclesDashboardData", async () => {
@@ -188,6 +200,12 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-araçları listelerken aynı anda gösterge paneli (dashboard) özet verilerini tek bir istekte döndürür (önbelleklemeli)
+ * en-returns both the list of vehicles and dashboard summary data in a single request (cached)
+ * input (user: AuthenticatedUser, filters?: VehicleFilters)
+ * output (Promise<{ vehicles: VehicleWithRelations[], vehiclesKpis, vehiclesCapacity, expiringDocs, plannedServices }>)
+ */
 export const getVehiclesWithDashboard = authenticatedAction(
   async (
     user,

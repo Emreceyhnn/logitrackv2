@@ -12,6 +12,12 @@ import { createDriverSchema, updateDriverSchema } from "../../validation/serverS
 import { ConflictError, NotFoundError } from "../../errors";
 import { driverCache } from "./shared";
 
+/**
+ * tr-belirtilen kimliğe sahip sürücünün detaylarını getirir
+ * en-retrieves the details of the driver with the specified ID
+ * input (user: AuthenticatedUser, driverId: string)
+ * output (Promise<Driver>)
+ */
 export const getDriverById = authenticatedAction(
   async (user, driverId: string) => {
     return controllerGuard("getDriverById", async () => {
@@ -43,6 +49,12 @@ export const getDriverById = authenticatedAction(
   }
 );
 
+/**
+ * tr-sisteme yeni bir sürücü ekler
+ * en-adds a new driver to the system
+ * input (user: AuthenticatedUser, data: CreateDriverFormData)
+ * output (Promise<{ success: boolean }>)
+ */
 export const createDriver = authenticatedAction(
   async (user, data: CreateDriverFormData) => {
     return controllerGuard("createDriver", async () => {
@@ -160,6 +172,12 @@ export const createDriver = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen sürücünün bilgilerini günceller
+ * en-updates the information of the specified driver
+ * input (user: AuthenticatedUser, driverId: string, data: Partial<CreateDriverFormData>)
+ * output (Promise<Driver>)
+ */
 export const updateDriver = authenticatedAction(
   async (user, driverId: string, data: Partial<CreateDriverFormData>) => {
     return controllerGuard("updateDriver", async () => {
@@ -254,6 +272,12 @@ export const updateDriver = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen sürücüyü sistemden siler (kullanıcı rolünü varsayılana çevirir)
+ * en-deletes the specified driver from the system (resets user role to default)
+ * input (user: AuthenticatedUser, driverId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteDriver = authenticatedAction(
   async (user, driverId: string) => {
     return controllerGuard("deleteDriver", async () => {

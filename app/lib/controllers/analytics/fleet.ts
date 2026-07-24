@@ -10,6 +10,12 @@ import { ShipmentStatus, VehicleStatus } from "@prisma/client";
 import { getExchangeRates } from "../../services/exchangeRate";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-filo için yakıt istatistiklerini getirir (en çok tüketen 8 araç)
+ * en-retrieves fuel statistics for the fleet (top 8 consuming vehicles)
+ * input (user: AuthenticatedUser)
+ * output (Promise<any[]>)
+ */
 export const getFuelStats = authenticatedAction(async (user) => {
   return controllerGuard("getFuelStats", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -67,6 +73,12 @@ export const getFuelStats = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-harita üzerinde gösterilecek depo, araç ve müşteri konumlarını getirir
+ * en-retrieves warehouse, vehicle, and customer locations to be displayed on the map
+ * input (user: AuthenticatedUser)
+ * output (Promise<MapData[]>)
+ */
 export const getMapData = authenticatedAction(async (user): Promise<MapData[]> => {
   return controllerGuard("getMapData", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -128,6 +140,12 @@ export const getMapData = authenticatedAction(async (user): Promise<MapData[]> =
   }, { fallback: [] });
 });
 
+/**
+ * tr-analitik dashboard'u için gerekli performans ve maliyet verilerini getirir
+ * en-retrieves performance and cost data required for the analytics dashboard
+ * input (user: AuthenticatedUser)
+ * output (Promise<any>)
+ */
 export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
   return controllerGuard("getAnalyticsDashboardData", async () => {
     await checkPermission(user, user.companyId, [], {

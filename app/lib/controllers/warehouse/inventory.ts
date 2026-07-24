@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
@@ -8,6 +8,12 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { invalidateWarehouseCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-depoya yeni bir envanter/stok kalemi ekler ve ilk giriş hareketini (putaway) kaydeder
+ * en-adds a new inventory/stock item to the warehouse and records the initial putaway movement
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, name: string, quantity: number, minStock?: number, weightKg?: number, volumeM3?: number, palletCount?: number, cargoType?: string, imageUrl?: string, unitValue?: number, currency?: string)
+ * output (Promise<Inventory>)
+ */
 export const addInventoryItem = authenticatedAction(
   async (
     user,
@@ -97,7 +103,7 @@ export const addInventoryItem = authenticatedAction(
         await createNotification(
           { companyId: user.companyId!, roleId: "role_manager" },
           {
-            title: "DÃ¼ÅŸÃ¼k Stok UyarÄ±sÄ±! âš ï¸",
+            title: "Düşük Stok Uyarısı! ⚠️",
             message: `${result.name} (SKU: ${result.sku}) kritik stok seviyesinde kaydedildi.`,
             type: "WARNING",
             link: `/dashboard/inventory?warehouseId=${result.warehouseId}`,
@@ -110,6 +116,12 @@ export const addInventoryItem = authenticatedAction(
   }
 );
 
+/**
+ * tr-mevcut bir envanter kalemini günceller, eğer miktar (quantity) değişirse ayar (adjustment) hareketi oluşturur
+ * en-updates an existing inventory item; creates an adjustment movement if the quantity changes
+ * input (user: AuthenticatedUser, inventoryId: string, data: Prisma.InventoryUpdateInput)
+ * output (Promise<Inventory>)
+ */
 export const updateInventoryItem = authenticatedAction(
   async (user, inventoryId: string, data: Prisma.InventoryUpdateInput) => {
     return controllerGuard("updateInventoryItem", async () => {
@@ -173,8 +185,8 @@ export const updateInventoryItem = authenticatedAction(
         await createNotification(
           { companyId: user.companyId!, roleId: "role_manager" },
           {
-            title: "Kritik Stok Seviyesi! ğŸš¨",
-            message: `${updatedItem.name} (SKU: ${updatedItem.sku}) stok seviyesi ${updatedItem.quantity}'e dÃ¼ÅŸtÃ¼. (Min: ${updatedItem.minStock})`,
+            title: "Kritik Stok Seviyesi! 🚨",
+            message: `${updatedItem.name} (SKU: ${updatedItem.sku}) stok seviyesi ${updatedItem.quantity}'e düştü. (Min: ${updatedItem.minStock})`,
             type: "ERROR",
             link: `/dashboard/inventory?warehouseId=${updatedItem.warehouseId}`,
           }
@@ -186,6 +198,12 @@ export const updateInventoryItem = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen envanter kalemini sistemden siler
+ * en-deletes the specified inventory item from the system
+ * input (user: AuthenticatedUser, inventoryId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteInventoryItem = authenticatedAction(
   async (user, inventoryId: string) => {
     return controllerGuard("deleteInventoryItem", async () => {
@@ -213,6 +231,12 @@ export const deleteInventoryItem = authenticatedAction(
   }
 );
 
+/**
+ * tr-stok seviyesi minimum değerin altına düşmüş olan envanter kalemlerini listeler
+ * en-lists inventory items whose stock level has fallen below their minimum threshold
+ * input (user: AuthenticatedUser, warehouseId: string)
+ * output (Promise<Inventory[]>)
+ */
 export const getLowStockItems = authenticatedAction(
   async (user, warehouseId: string) => {
     return controllerGuard("getLowStockItems", async () => {

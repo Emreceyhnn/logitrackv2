@@ -12,6 +12,12 @@ import { logger } from "@/app/lib/logger";
  * write another tenant's vehicles. See `database.rules.json`.
  */
 
+/**
+ * tr-aracın konumunu günceller
+ * en-updates the location of the vehicle
+ * input (companyId: string, vehicleId: string, location: Omit<VehicleLocation, "lastUpdated">)
+ * output (Promise<{ success: boolean; error?: string }>)
+ */
 export async function updateVehicleLocationAction(
   companyId: string,
   vehicleId: string,
@@ -33,6 +39,12 @@ export async function updateVehicleLocationAction(
   }
 }
 
+/**
+ * tr-aracın verilerini kısmi olarak günceller
+ * en-partially updates the data of the vehicle
+ * input (companyId: string, vehicleId: string, data: Partial<VehicleLocation>)
+ * output (Promise<{ success: boolean; error?: string }>)
+ */
 export async function updateVehicleDataAction(
   companyId: string,
   vehicleId: string,
@@ -53,6 +65,12 @@ export async function updateVehicleDataAction(
   }
 }
 
+/**
+ * tr-araç bilgilerini Firebase Realtime Database'e kaydeder
+ * en-syncs the vehicle information to Firebase Realtime Database
+ * input (vehicle: { id: string; companyId: string | null } & Record<string, unknown>)
+ * output (Promise<{ success: boolean; error?: string }>)
+ */
 export async function syncVehicleToFirebaseAction(
   vehicle: { id: string; companyId: string | null } & Record<string, unknown>
 ) {

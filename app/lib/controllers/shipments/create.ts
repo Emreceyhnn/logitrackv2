@@ -18,6 +18,12 @@ import type { CustomerWithLocations, ShipmentStopInput } from "./types";
 import { createShipmentSchema } from "../../validation/serverSchemas";
 import { NotFoundError } from "../../errors";
 
+/**
+ * tr-yeni bir sevkiyat oluşturur, rota kapasitelerini kontrol eder ve gerekirse depo stoğunu ayırır
+ * en-creates a new shipment, checks route capacities, and allocates warehouse stock if necessary
+ * input (user: AuthenticatedUser, data: object)
+ * output (Promise<{ shipment: Shipment }>)
+ */
 export const createShipment = authenticatedAction(
   async (
     user,

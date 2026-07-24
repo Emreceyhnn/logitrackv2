@@ -7,7 +7,10 @@ import { logger } from "@/app/lib/logger";
 
 
 /**
- * Writes a security event to the audit log.
+ * tr-bir güvenlik olayını veya işlemini denetim (audit) günlüğüne yazar
+ * en-writes a security event or action to the audit log
+ * input (params: { userId?: string, action: AuditAction, ipAddress?: string | null, deviceInfo?: string | null, metadata?: Record<string, unknown> })
+ * output (Promise<void>)
  */
 export async function logAuditEvent(params: {
   userId?: string;

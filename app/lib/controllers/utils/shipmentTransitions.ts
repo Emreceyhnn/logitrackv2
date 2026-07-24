@@ -14,7 +14,12 @@ export {
   canTransitionShipment,
 } from "../../type/shipmentTransitions";
 
-/** Throws when the requested status change is not a legal lifecycle move. */
+/**
+ * tr-istenen sevkiyat durum değişikliğinin yasal bir yaşam döngüsü adımı olup olmadığını kontrol eder, aksi halde hata fırlatır
+ * en-checks if the requested shipment status change is a legal lifecycle move, otherwise throws an error
+ * input (from: ShipmentStatus, to: ShipmentStatus)
+ * output (void)
+ */
 export function assertShipmentTransition(
   from: ShipmentStatus,
   to: ShipmentStatus

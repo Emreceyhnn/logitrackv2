@@ -5,10 +5,27 @@
  */
 
 // PII fields to mask
-const PII_KEYS = ["password", "token", "refreshToken", "accessToken", "email", "phone", "address", "secret", "cookie", "session"];
+const PII_KEYS = [
+  "password",
+  "token",
+  "refreshToken",
+  "accessToken",
+  "email",
+  "phone",
+  "address",
+  "secret",
+  "cookie",
+  "session",
+];
 
 /**
- * Recursively masks sensitive fields in an object.
+ * tr-Bir nesnedeki hassas alanları özyinelemeli olarak maskeler.
+ * en-Recursively masks sensitive fields in an object.
+ * input (
+  obj: unknown,
+  seen?: WeakSet<object>
+)
+ * output (unknown)
  */
 function maskPII(obj: unknown, seen = new WeakSet()): unknown {
   if (obj === null || obj === undefined) return obj;
@@ -35,7 +52,12 @@ function maskPII(obj: unknown, seen = new WeakSet()): unknown {
 }
 
 /**
- * Extracts useful info from Error objects for serialization
+ * tr-Hata nesnelerinden serileştirme için kullanışlı bilgiler çıkarır.
+ * en-Extracts useful info from Error objects for serialization
+ * input (
+  error: unknown
+)
+ * output (unknown)
  */
 function formatError(error: unknown) {
   if (error instanceof Error) {
@@ -49,10 +71,27 @@ function formatError(error: unknown) {
   return error;
 }
 
-function buildLogEntry(level: "INFO" | "WARN" | "ERROR" | "DEBUG", message: string, meta?: unknown) {
+/**
+ * tr-Günlük kaydı girişini oluşturur.
+ * en-Builds a log entry.
+ * input (
+  level: "INFO" | "WARN" | "ERROR" | "DEBUG",
+  message: string,
+  meta?: unknown
+)
+ * output (object)
+ */
+function buildLogEntry(
+  level: "INFO" | "WARN" | "ERROR" | "DEBUG",
+  message: string,
+  meta?: unknown
+) {
   // Use crypto.randomUUID if available for correlation ID fallback
   let correlationId = "N/A";
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     correlationId = crypto.randomUUID();
   }
 
@@ -70,6 +109,12 @@ function buildLogEntry(level: "INFO" | "WARN" | "ERROR" | "DEBUG", message: stri
   return entry;
 }
 
+/**
+ * tr-Uygulama için merkezi günlükleyici.
+ * en-Centralized application logger.
+ * input (none)
+ * output (logger)
+ */
 export const logger = {
   info: (message: string, meta?: unknown) => {
     const entry = buildLogEntry("INFO", message, meta);

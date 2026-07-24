@@ -5,7 +5,11 @@ import { db } from "../db";
 import { rateLimit } from "../rate-limiter";
 import { getUserSession } from "./auth";
 import { hasAccess } from "../entitlement";
-import { grantTrial, resolveEntitlement, createDemoSignupToken } from "../entitlement.server";
+import {
+  grantTrial,
+  resolveEntitlement,
+  createDemoSignupToken,
+} from "../entitlement.server";
 import { logger } from "@/app/lib/logger";
 
 export type DemoRequestKind = "DEMO" | "CONTACT";
@@ -15,44 +19,33 @@ export interface DemoRequestInput {
   email: string;
   company?: string | undefined;
   message?: string | undefined;
-  /** "DEMO" for "Request a Demo" CTAs, "CONTACT" for a plain contact message. */
   type?: DemoRequestKind | undefined;
 }
 
 export interface DemoRequestResult {
   success?: boolean;
   error?: string;
-  /**
-   * Only set for `type: "DEMO"` submissions: a short-lived signed token
-   * proving this email just filed a demo request, so the self-serve signup
-   * shortcut can grant an instant trial without waiting for manual approval.
-   */
   demoToken?: string;
 }
 
-// Basic RFC-5322-ish email check — good enough for a public lead form.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Public lead-capture action for the landing "Request a Demo" form.
- *
- * Intentionally unauthenticated: anonymous visitors submit before any tenant
- * exists. `DemoRequest` is not a tenant model, so the tenant-guard extension
- * leaves it untouched and no companyId is injected.
+ * tr-landing sayfasındaki demo talep formunu işler ve veritabanına kaydeder
+ * en-processes the demo request form from the landing page and saves it to the database
+ * input (input: DemoRequestInput)
+ * output (Promise<DemoRequestResult>)
  */
 export async function submitDemoRequest(
   input: DemoRequestInput
 ): Promise<DemoRequestResult> {
   try {
-    // Derive the rate-limit key from the request headers, never from client
-    // arguments, so a caller can't pick its own bucket.
     const headerStore = await headers();
     const ip =
       headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       headerStore.get("x-real-ip") ||
       "127.0.0.1";
 
-    // Max 5 demo requests per hour per IP.
     const ipLimit = await rateLimit(ip, 5, 3600, "rate-limit:demo-request:");
     if (!ipLimit.success) {
       return {
@@ -81,8 +74,6 @@ export async function submitDemoRequest(
       },
     });
 
-    // Only demo requests unlock the self-serve trial shortcut — a plain
-    // contact message shouldn't let someone skip approval.
     if (type === "DEMO") {
       const demoToken = await createDemoSignupToken(email);
       return { success: true, demoToken };
@@ -96,10 +87,10 @@ export async function submitDemoRequest(
 }
 
 /**
- * CTA gating for the landing page: true when the signed-in user currently has
- * dashboard access (active plan or a live trial). Anonymous visitors and users
- * without access get `false` — they see "Sign In" + "Request a Demo" instead of
- * the "enter dashboard / create company" CTA.
+ * tr-kullanıcının aktif bir aboneliği veya deneme sürümü olup olmadığını kontrol eder
+ * en-checks if the user has an active subscription or trial
+ * input ()
+ * output (Promise<boolean>)
  */
 export async function hasDashboardAccess(): Promise<boolean> {
   try {
@@ -113,14 +104,10 @@ export async function hasDashboardAccess(): Promise<boolean> {
 }
 
 /**
- * Fresh, DB-backed access check for the pending-access screen's poll.
- *
- * Unlike {@link hasDashboardAccess}, which reads the (possibly stale) JWT
- * summary, this re-resolves entitlement straight from the Subscription row. So
- * the instant a trial is granted (approval, or a retry of a failed signup
- * grant), the poll sees it — without waiting up to an hour for the token to
- * refresh. When it returns true the client does a full-page navigation, letting
- * the proxy's refresh flow mint a token that carries the new entitlement.
+ * tr-bekleme ekranındayken kullanıcının erişim hakkının onaylanıp onaylanmadığını kontrol eder
+ * en-polls to check if the user's access has been approved while on the pending screen
+ * input ()
+ * output (Promise<boolean>)
  */
 export async function pollDashboardAccess(): Promise<boolean> {
   try {
@@ -135,11 +122,10 @@ export async function pollDashboardAccess(): Promise<boolean> {
 }
 
 /**
- * Approve a demo request and grant the requester a 7-day trial. Managed by hand
- * for now (no admin UI): call it from a script / server context with the
- * DemoRequest id. Matches the demo request's email to a User and upserts their
- * Subscription to TRIAL. The user sees the new access after their token
- * refreshes (≤1h) or on next sign-in.
+ * tr-yapılan bir demo talebini onaylar ve kullanıcıya 7 günlük deneme süresi tanımlar
+ * en-approves a demo request and grants the user a 7-day trial
+ * input (demoRequestId: string)
+ * output (Promise<{ success?: boolean; error?: string }>)
  */
 export async function approveDemoRequest(
   demoRequestId: string
@@ -156,9 +142,6 @@ export async function approveDemoRequest(
       select: { id: true },
     });
 
-    // No account yet? The approval still stands; the trial is granted the moment
-    // they sign up with that email (createSession resolves entitlement fresh).
-    // For now we only grant when the account already exists.
     if (!account) {
       return { success: true };
     }

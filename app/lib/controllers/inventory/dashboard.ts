@@ -18,6 +18,12 @@ import {
 import { getExchangeRates } from "../../services/exchangeRate";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 
+/**
+ * tr-stok listesini (filtreleme, sayfalama ve sıralama ile) ve stok istatistiklerini getirir
+ * en-retrieves the inventory list (with filtering, pagination, and sorting) and inventory statistics
+ * input (user: AuthenticatedUser, page?: number, pageSize?: number, warehouseId?: string, search?: string, sortBy?: string, sortOrder?: "asc" | "desc", status?: string[])
+ * output (Promise<{ items: any[], totalCount: number, stats: object, lowStockItems: object[] }>)
+ */
 export const getInventoryWithDashboardData = authenticatedAction(
   async (
     user,

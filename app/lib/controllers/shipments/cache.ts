@@ -6,7 +6,12 @@ import { createCacheManager } from "../utils/cacheFactory";
 // Shared cache manager instance for all shipment submodules.
 export const shipmentCache = createCacheManager("shipments", SHIPMENT_CACHE_TTL);
 
-// Backward-compatible function for existing callers
+/**
+ * tr-şirkete ve (varsa) sevkiyata ait önbelleği temizler
+ * en-clears the cache for the company and (if provided) the specified shipment
+ * input (companyId: string, shipmentId?: string)
+ * output (Promise<void>)
+ */
 export async function invalidateShipmentCache(
   companyId: string,
   shipmentId?: string

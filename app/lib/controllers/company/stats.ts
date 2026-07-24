@@ -13,6 +13,12 @@ import {
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-şirket profilini, istatistiklerini ve üyelerini getirir
+ * en-retrieves the company profile, statistics, and members
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ profile: object, stats: object, members: object[] }>)
+ */
 export const getCompanyProfile = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
@@ -74,6 +80,12 @@ export const getCompanyProfile = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirketin temel sayım istatistiklerini getirir (kullanıcı, araç, depo vb.)
+ * en-retrieves basic count statistics for the company (users, vehicles, warehouses, etc.)
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ users: number, vehicles: number, drivers: number, warehouses: number, customers: number, shipments: number }>)
+ */
 export const getCompanyStats = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
@@ -107,6 +119,12 @@ export const getCompanyStats = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-şirket profili, takım üyeleri ve gösterge paneli istatistiklerini (sayfalama ve arama ile) getirir
+ * en-retrieves company profile, team members, and dashboard statistics with pagination and search
+ * input (user: AuthenticatedUser, filters: { page: number, pageSize: number, search?: string })
+ * output (Promise<{ profile: object, members: object[], totalCount: number, meta: object, stats: object, statsTrends: object }>)
+ */
 export const getCompanyWithDashboardData = authenticatedAction(
   async (user, filters: { page: number; pageSize: number; search?: string | undefined }) => {
     const companyId = user?.companyId || "";

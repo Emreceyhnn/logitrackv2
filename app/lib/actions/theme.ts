@@ -10,6 +10,12 @@ const THEME_COOKIE = "logitrack-theme";
 const VALID_THEMES = ["light", "dark", "system"] as const;
 export type ThemeValue = (typeof VALID_THEMES)[number];
 
+/**
+ * tr-verilen değerin geçerli bir tema olup olmadığını kontrol eder
+ * en-checks if the given value is a valid theme
+ * input (value: string)
+ * output (value is ThemeValue)
+ */
 function isValidTheme(value: string): value is ThemeValue {
   return (VALID_THEMES as readonly string[]).includes(value);
 }
@@ -19,6 +25,11 @@ function isValidTheme(value: string): value is ThemeValue {
  * - Sets an HTTP cookie immediately (fast, read on next SSR request without
  *   any network call).
  * - Syncs to Redis in the background for cross-device persistence.
+ * 
+ * tr-kullanıcının tema tercihini kaydeder
+ * en-saves the user's theme preference
+ * input (mode: string)
+ * output (Promise<{ success: boolean; error?: string }>)
  */
 export async function saveUserTheme(mode: string) {
   try {
@@ -57,6 +68,11 @@ export async function saveUserTheme(mode: string) {
 /**
  * Reads the user's stored theme preference.
  * Priority: HTTP cookie (zero-latency) → Redis fallback (first visit / cross-device).
+ * 
+ * tr-kullanıcının kaydedilmiş tema tercihini okur
+ * en-reads the user's stored theme preference
+ * input ()
+ * output (Promise<ThemeValue | null>)
  */
 export async function getUserTheme(): Promise<ThemeValue | null> {
   try {

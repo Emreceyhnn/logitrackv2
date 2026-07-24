@@ -1,5 +1,3 @@
-// Centralised dayjs setup (locales + utc/timezone/customParseFormat/
-// localizedFormat plugins + English `formats` patch).
 import dayjs from "@/app/lib/utils/dayjsConfig";
 
 export interface DateSettings {

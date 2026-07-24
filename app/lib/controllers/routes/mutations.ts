@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { type Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
@@ -18,6 +18,12 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { NotFoundError } from "../../errors";
 import { isValidBufferMeters } from "../../type/routeDeviation";
 
+/**
+ * tr-yeni bir rota oluşturur ve atanmışsa araç/sürücü/sevkiyat işlemlerini yapar
+ * en-creates a new route and processes vehicle/driver/shipment assignments if provided
+ * input (user: AuthenticatedUser, name: string, date: Date, startTime: Date, endTime: Date, distanceKm: number, durationMin: number, driverId: string, vehicleId: string, shipmentId?: string, stops?: object[], shape?: string, bufferMeters?: number)
+ * output (Promise<{ route: object }>)
+ */
 export const createRoute = authenticatedAction(
   async (
     user,
@@ -170,9 +176,9 @@ export const createRoute = authenticatedAction(
       await createNotification(
         { companyId },
         {
-          title: "Yeni Rota PlanlandÄ± ğŸ“",
-          message: `${finalName} numaralÄ± yeni bir rota planlandÄ±. SÃ¼rÃ¼cÃ¼: ${driverId ? 'AtandÄ±' : 'Bekleniyor'}.`,
-          type: "INFO",
+          title: "Yeni Rota Planlandı 📋",
+          message: `${finalName} numaralı yeni bir rota planlandı. Sürücü: ${driverId ? 'Atandı' : 'Bekleniyor'}.`,
+          type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
           link: `/dashboard/routes/${newRoute.id}`,
         }
@@ -183,6 +189,12 @@ export const createRoute = authenticatedAction(
   }
 );
 
+/**
+ * tr-mevcut bir rotanın bilgilerini günceller
+ * en-updates the information of an existing route
+ * input (user: AuthenticatedUser, routeId: string, data: RouteUpdateData)
+ * output (Promise<Route>)
+ */
 export const updateRoute = authenticatedAction(
   async (user, routeId: string, data: RouteUpdateData) => {
     return controllerGuard("updateRoute", async () => {
@@ -245,6 +257,12 @@ export const updateRoute = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen rotayı siler
+ * en-deletes the specified route
+ * input (user: AuthenticatedUser, routeId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteRoute = authenticatedAction(
   async (user, routeId: string) => {
     return controllerGuard("deleteRoute", async () => {

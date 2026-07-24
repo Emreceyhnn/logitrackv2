@@ -7,6 +7,12 @@ import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-belirtilen araca bir sürücü atar ve önceki sürücü/araç eşleşmelerini günceller
+ * en-assigns a driver to the specified vehicle and updates previous driver/vehicle mappings
+ * input (user: AuthenticatedUser, vehicleId: string, driverId: string | null)
+ * output (Promise<{ success: boolean }>)
+ */
 export const assignDriverToVehicle = authenticatedAction(
   async (user, vehicleId: string, driverId: string | null) => {
     const companyId = user?.companyId || "";
@@ -99,6 +105,12 @@ export const assignDriverToVehicle = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen araca atanmış olan mevcut sürücünün atamasını kaldırır
+ * en-unassigns the currently assigned driver from the specified vehicle
+ * input (user: AuthenticatedUser, vehicleId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const unassignDriverFromVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
     const companyId = user?.companyId || "";
@@ -135,6 +147,12 @@ export const unassignDriverFromVehicle = authenticatedAction(
   }
 );
 
+/**
+ * tr-şu anda herhangi bir araca atanmamış ve durumu ON_JOB olan müsait sürücüleri listeler
+ * en-lists available drivers whose status is ON_JOB and who are not currently assigned to any vehicle
+ * input (user: AuthenticatedUser)
+ * output (Promise<Array<{ id: string, rating: number, status: string, user: { name: string, surname: string, avatarUrl: string | null } }>>)
+ */
 export const getAvailableDrivers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
   return controllerGuard("getAvailableDrivers", async () => {

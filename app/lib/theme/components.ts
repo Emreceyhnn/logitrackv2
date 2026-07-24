@@ -5,10 +5,14 @@ import { getScrollbarStyles } from "@/app/components/scrollbar";
 export type ThemeMode = "light" | "dark";
 
 /**
- * MUI component styleOverrides, extracted from ./theme to keep each file under
- * ~400 lines. All colours are resolved from the mode-specific palette.
+ * tr-MUI bileşen stilleri, her dosyanın yaklaşık 400 satır tutması için ./theme'den çıkarıldı. Tüm renkler mod-spesifik paletten çözülür.
+ * en-MUI component styleOverrides, extracted from ./theme to keep each file under ~400 lines. All colours are resolved from the mode-specific palette.
+ * input (mode: ThemeMode)
+ * output (ThemeOptions["components"])
  */
-export const getThemeComponents = (mode: ThemeMode): ThemeOptions["components"] => ({
+export const getThemeComponents = (
+  mode: ThemeMode
+): ThemeOptions["components"] => ({
   MuiPaper: {
     styleOverrides: {
       root: {
@@ -169,14 +173,13 @@ export const getThemeComponents = (mode: ThemeMode): ThemeOptions["components"] 
         minHeight: "52px",
         borderRadius: 12,
         backgroundColor:
-          mode === "dark"
-            ? "rgba(255, 255, 255, 0.03)"
-            : "rgba(0, 0, 0, 0.01)",
+          mode === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.01)",
         transition: "all 0.2s ease-in-out",
         "& fieldset": {
           borderColor: palettes[mode].divider,
           borderWidth: "1px",
-          transition: "border-color 0.2s ease-in-out, border-width 0.2s ease-in-out",
+          transition:
+            "border-color 0.2s ease-in-out, border-width 0.2s ease-in-out",
         },
         "&:hover fieldset": {
           borderColor:
@@ -310,8 +313,7 @@ export const getThemeComponents = (mode: ThemeMode): ThemeOptions["components"] 
         },
         "&.Mui-selected": {
           backgroundColor:
-            palettes[mode].primary._alpha.main_15 ||
-            "rgba(255, 255, 255, 0.1)",
+            palettes[mode].primary._alpha.main_15 || "rgba(255, 255, 255, 0.1)",
           "&:hover": {
             backgroundColor:
               palettes[mode].primary._alpha.main_20 ||

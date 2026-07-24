@@ -13,17 +13,10 @@ import { logger } from "@/app/lib/logger";
 
 
 /**
- * Wraps a controller operation with:
- *  1. Structured error logging with operation name
- *  2. ZodError → ValidationError conversion
- *  3. Next.js DYNAMIC_SERVER_USAGE re-throw
- *  4. Unknown errors preserved (not swallowed)
- *
- * Graceful-degradation callers (dashboard widgets that should render empty
- * rather than crash the page) pass `{ fallback }`. When supplied, any error
- * other than the Next.js dynamic-usage digest is logged and the fallback value
- * is returned instead of propagating — mirroring the pre-guard
- * `catch { return X }` contract those read paths relied on.
+ * tr-denetleyici (controller) işlemlerini sarar, hataları yakalar ve yapılandırılmış log/hata fırlatma işlemlerini yönetir
+ * en-wraps a controller operation, catching errors, and handling structured logging/error throwing
+ * input (operationName: string, fn: () => Promise<T>, options?: { fallback: T })
+ * output (Promise<T>)
  */
 export async function controllerGuard<T>(
   operationName: string,

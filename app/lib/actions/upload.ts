@@ -54,6 +54,12 @@ const ALLOWED_MIME_PREFIXES = [
   "data:application/pdf",
 ] as const;
 
+/**
+ * tr-base64 formatındaki görüntü verisinin geçerliliğini ve boyutunu kontrol eder
+ * en-validates the validity and size of the base64-encoded image data
+ * input (fileData: string)
+ * output (void)
+ */
 function validateBase64Image(fileData: string): void {
   if (!fileData?.trim()) {
     throw new Error("File data is required.");
@@ -79,6 +85,12 @@ function validateBase64Image(fileData: string): void {
   }
 }
 
+/**
+ * tr-verilen dosya URL'sinin geçerli bir URL olup olmadığını doğrular
+ * en-validates whether the given file URL is a valid URL
+ * input (fileUrl: string)
+ * output (void)
+ */
 function validateFileUrl(fileUrl: string): void {
   if (!fileUrl?.trim()) {
     throw new Error("File URL is required.");
@@ -90,6 +102,12 @@ function validateFileUrl(fileUrl: string): void {
   }
 }
 
+/**
+ * tr-dosyayı Cloudinary'ye yükler
+ * en-uploads the file to Cloudinary
+ * input (fileData: string, bucket: UploadBucket = "general", folder?: string)
+ * output (Promise<UploadImageResult>)
+ */
 export const uploadImageAction = maybeAuthenticatedAction(
   async (
     _user,
@@ -189,6 +207,11 @@ interface ParsedAssetRef {
  * resource_type is read from the path rather than inferred from the file
  * extension: a signature is only valid for the resource_type the asset was
  * actually stored under, and the URL is the one authoritative record of that.
+ * 
+ * tr-bir teslimat URL'sinden Cloudinary public_id ve resource_type değerlerini çıkarır
+ * en-extracts the Cloudinary public_id and resource_type from a delivery URL
+ * input (fileUrl: string)
+ * output (ParsedAssetRef | null)
  */
 function parseAssetRef(fileUrl: string): ParsedAssetRef | null {
   try {
@@ -229,6 +252,12 @@ function parseAssetRef(fileUrl: string): ParsedAssetRef | null {
   }
 }
 
+/**
+ * tr-gizli dosyalara erişim için imzalı ve süreli bir URL oluşturur
+ * en-generates a signed and time-limited URL for accessing private files
+ * input (fileUrl: string, bucket: UploadBucket = "documents")
+ * output (Promise<SignedUrlResult>)
+ */
 export const getSignedUrlAction = authenticatedAction(
   async (
     user,

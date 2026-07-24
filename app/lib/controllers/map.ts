@@ -8,6 +8,12 @@ import { logger } from "@/app/lib/logger";
 
 export type DirectionPoint = string | { lat: number; lng: number };
 
+/**
+ * tr-belirtilen noktalar arasında Google Maps ile yol tarifi alır
+ * en-gets directions between specified points using Google Maps
+ * input (user: AuthenticatedUser, origin: DirectionPoint, destination: DirectionPoint, waypoints?: array)
+ * output (Promise<any>)
+ */
 export const getDirections = authenticatedAction(
   async (
     user,

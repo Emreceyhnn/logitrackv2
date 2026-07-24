@@ -30,9 +30,10 @@ const dictionaryLoaders: Record<Locale, () => Promise<Dictionary>> = {
 };
 
 /**
- * getDictionary is wrapped with React's `cache()` so that within a single
- * request, calling it multiple times (e.g. once in generateMetadata and once
- * in the layout body) returns the same promise — the JSON is only parsed once.
+ * tr-belirtilen dil kodu için dil sözlüğünü (JSON) yükler ve sonucu istek bazında önbelleğe (cache) alır
+ * en-loads the language dictionary (JSON) for the specified language code and caches the result per request
+ * input (lang: string)
+ * output (Promise<Dictionary>)
  */
 export const getDictionary = cache(async (lang: string): Promise<Dictionary> => {
   const resolved: Locale = (SUPPORTED_LOCALES as readonly string[]).includes(lang)
@@ -46,7 +47,10 @@ export const getDictionary = cache(async (lang: string): Promise<Dictionary> => 
 /* -------------------------------------------------------------------------- */
 
 /**
- * Simple `{key}` template interpolation.
+ * tr-metin şablonundaki {anahtar} yer tutucularını, sağlanan değerlerle değiştirerek (interpolate) formatlanmış bir mesaj döndürür
+ * en-interpolates a text template by replacing {key} placeholders with the provided values, returning the formatted message
+ * input (template: string, values: Record<string, string | number | boolean>)
+ * output (string)
  */
 export function formatMessage(
   template: string,

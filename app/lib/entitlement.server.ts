@@ -16,12 +16,27 @@ export const TRIAL_DAYS = 7;
 // the token to the exact email that filed the demo request.
 const DEMO_TOKEN_TTL = "30m";
 
+/**
+ * tr-JWT secret'ini döndürür.
+ * en-Returns the JWT secret.
+ * input (none)
+ * output (string)
+ */
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error("JWT_SECRET environment variable is not defined");
+  if (!secret)
+    throw new Error("JWT_SECRET environment variable is not defined");
   return secret;
 }
 
+/**
+ * tr-Demo kayıt tokeni oluşturur.
+ * en-Creates a demo signup token.
+ * input (
+  email: string
+)
+ * output (string)
+ */
 export async function createDemoSignupToken(email: string): Promise<string> {
   const secret = new TextEncoder().encode(getJwtSecret());
   return new SignJWT({ email: email.toLowerCase(), purpose: "demo-signup" })
@@ -31,11 +46,13 @@ export async function createDemoSignupToken(email: string): Promise<string> {
 }
 
 /**
- * Verifies a demo-signup token and returns the email it was issued for, or
- * null if missing/expired/tampered/for a different email than expected.
- * Callers MUST compare the returned email against the email being
- * registered — the token only proves "this email filed a demo request
- * recently," not "this request is that person."
+ * tr-Demo kayıt tokenini doğrular.
+ * en-Verifies a demo signup token.
+ * input (
+  token: string | undefined | null,
+  expectedEmail: string
+)
+ * output (boolean)
  */
 export async function verifyDemoSignupToken(
   token: string | undefined | null,
@@ -56,15 +73,16 @@ export async function verifyDemoSignupToken(
 }
 
 /**
- * Grants (or renews) a user's self-serve trial by upserting their Subscription
- * to TRIAL with a fresh {@link TRIAL_DAYS}-day expiry. Idempotent: calling it
- * again just pushes the expiry out.
- *
- * Callers that mint a token immediately afterwards (e.g. signup) get a token
- * whose entitlement already reflects the trial, so access is instant with no
- * refresh wait. Returns the trial expiry so callers can surface it if needed.
+ * tr-Bir kullanıcıya deneme süresi verir veya yeniler.
+ * en-Grants (or renews) a user's self-serve trial.
+ * input (
+  userId: string
+)
+ * output ({ trialEndsAt: Date })
  */
-export async function grantTrial(userId: string): Promise<{ trialEndsAt: Date }> {
+export async function grantTrial(
+  userId: string
+): Promise<{ trialEndsAt: Date }> {
   const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
   await db.subscription.upsert({
     where: { userId },
@@ -75,27 +93,58 @@ export async function grantTrial(userId: string): Promise<{ trialEndsAt: Date }>
 }
 
 /**
- * Reads a user's Subscription and produces the compact {@link AccessSummary}
- * that gets baked into the access token. A TRIAL whose `trialEndsAt` has passed
- * is reported as EXPIRED so a freshly minted token already reflects the lapse.
- *
- * No subscription row → NONE (the default for a brand-new signup: they must
- * request a demo and be approved before they get a trial).
+ * tr-Kullanıcının aboneliğini okur ve erişim özetini döndürür.
+ * en-Reads a user's subscription and returns the access summary.
+ * input (
+  userId: string
+)
+ * output (AccessSummary)
  */
 export async function resolveEntitlement(
   userId: string
 ): Promise<AccessSummary> {
-  const sub = await db.subscription.findUnique({
-    where: { userId },
-    select: { status: true, trialEndsAt: true },
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { companyId: true, subscription: { select: { status: true, trialEndsAt: true } } },
   });
+
+  if (!user) return { accessStatus: "NONE", trialEndsAt: null };
+
+  let sub = user.subscription;
+
+  if (!sub && user.companyId) {
+    // Inherit the subscription from the company (usually the admin who created it)
+    const companySub = await db.subscription.findFirst({
+      where: {
+        user: { companyId: user.companyId },
+        status: { in: ["ACTIVE", "TRIAL"] }
+      },
+      orderBy: { createdAt: "asc" },
+      select: { status: true, trialEndsAt: true }
+    });
+    
+    if (companySub) {
+      sub = companySub;
+    } else {
+      // Fallback to any subscription if no ACTIVE/TRIAL is found
+      const anySub = await db.subscription.findFirst({
+        where: { user: { companyId: user.companyId } },
+        orderBy: { createdAt: "asc" },
+        select: { status: true, trialEndsAt: true }
+      });
+      if (anySub) sub = anySub;
+    }
+  }
 
   if (!sub) return { accessStatus: "NONE", trialEndsAt: null };
 
   const trialEndsAt = sub.trialEndsAt ? sub.trialEndsAt.getTime() : null;
 
   let status: AccessStatus = sub.status;
-  if (status === "TRIAL" && (trialEndsAt === null || Date.now() >= trialEndsAt)) {
+  if (
+    status === "TRIAL" &&
+    (trialEndsAt === null || Date.now() >= trialEndsAt)
+  ) {
     status = "EXPIRED";
   }
 

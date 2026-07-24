@@ -6,8 +6,16 @@ import { authenticatedAction } from "../../auth-middleware";
 import { UserStatus } from "@prisma/client";
 import { invalidatePattern, driverCacheKeys } from "../../redis";
 import { invalidateCompanyCache, ensureStandardRoles } from "./shared";
+import { invalidateWarehouseCache } from "../warehouse/cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { revokeAllUserSessions, invalidateUserSessionCache } from "../session/manage";
 
+/**
+ * tr-belirtilen kullanıcıyı şirketten çıkarır
+ * en-removes the specified user from the company
+ * input (user: AuthenticatedUser, targetUserId: string)
+ * output (Promise<User>)
+ */
 export const removeCompanyUser = authenticatedAction(
   async (user, targetUserId: string) => {
     const companyId = user?.companyId || "";
@@ -27,11 +35,18 @@ export const removeCompanyUser = authenticatedAction(
         },
       });
       await invalidateCompanyCache(companyId);
+      await revokeAllUserSessions(targetUserId);
       return updatedUser;
     });
   }
 );
 
+/**
+ * tr-belirtilen kullanıcıyı şirkete ekler ve rol atar
+ * en-adds the specified user to the company and assigns a role
+ * input (user: AuthenticatedUser, targetUserId: string, roleName: string, driverData?: object)
+ * output (Promise<User>)
+ */
 export const addCompanyUser = authenticatedAction(
   async (
     user,
@@ -43,9 +58,14 @@ export const addCompanyUser = authenticatedAction(
       licenseType?: string;
       licenseNumber?: string;
       licenseExpiry?: string;
-    }
+    },
+    warehouseId?: string
   ) => {
     const companyId = user?.companyId || "";
+
+    // tr-Depo ataması gerektiren roller: operatör (çalışan) ve depo yöneticisi
+    // en-Roles that require a warehouse assignment: operator (staff) and warehouse manager
+    const isWarehouseRole = roleName === "role_warehouse" || roleName === "role_manager";
 
     return controllerGuard("addCompanyUser", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
@@ -60,7 +80,41 @@ export const addCompanyUser = authenticatedAction(
 
       let updatedUser;
 
-      if (roleName === "role_driver" && driverData) {
+      if (isWarehouseRole && warehouseId) {
+        // tr-Deponun bu şirkete ait olduğunu doğrula, sonra atamaları tek transaction'da yap
+        // en-Verify the warehouse belongs to this company, then apply assignments in one transaction
+        const warehouse = await db.warehouse.findFirst({
+          where: { id: warehouseId, companyId },
+          select: { id: true },
+        });
+        if (!warehouse) {
+          throw new Error("Warehouse not found or not in your company");
+        }
+
+        updatedUser = await db.$transaction(async (tx) => {
+          const userUpdate = await tx.user.update({
+            where: { id: targetUserId },
+            data: {
+              companyId,
+              roleId: roleName,
+              assignedWarehouseId: warehouseId,
+            },
+          });
+
+          // tr-Depo yöneticisi ise aynı zamanda deponun manager'ı olarak bağla
+          // en-If the user is a warehouse manager, also set them as the warehouse's manager
+          if (roleName === "role_manager") {
+            await tx.warehouse.update({
+              where: { id: warehouseId },
+              data: { managerId: targetUserId },
+            });
+          }
+
+          return userUpdate;
+        });
+
+        await invalidateWarehouseCache(companyId, warehouseId);
+      } else if (roleName === "role_driver" && driverData) {
         // Run as a transaction to ensure both user update and driver creation succeed
         updatedUser = await db.$transaction(async (tx) => {
           // Check if employeeId is already taken
@@ -124,11 +178,24 @@ export const addCompanyUser = authenticatedAction(
       }
 
       await invalidateCompanyCache(companyId);
+      // Do NOT revoke the target's sessions here: their access token now holds a
+      // stale companyId (null), but revoking would kill their refresh token too
+      // and trap them on /onboarding with a valid-but-dead cookie. Instead drop
+      // the cached session so validateSession re-reads from the DB; their next
+      // request (the onboarding page's checkAndSyncCompany → refreshSession)
+      // re-mints the JWT with the new companyId and lands them on the dashboard.
+      await invalidateUserSessionCache(targetUserId);
       return updatedUser;
     });
   }
 );
 
+/**
+ * tr-şirket üyesinin bilgilerini günceller
+ * en-updates the information of a company member
+ * input (user: AuthenticatedUser, targetUserId: string, data: { name: string, surname: string, roleId: string, status: UserStatus })
+ * output (Promise<User>)
+ */
 export const updateCompanyMember = authenticatedAction(
   async (
     user,

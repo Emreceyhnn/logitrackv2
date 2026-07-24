@@ -65,9 +65,23 @@ export type DeviationOutcome =
   /** Outside, already alerted for this excursion — stay silent. */
   | { status: "muted"; distanceMeters: number };
 
+/**
+ * tr-Rastgele bir rota kimliği ve araç kimliği için durum anahtarını döndürür. Anahtar biçimi: route-deviation:{routeId}:{vehicleId}
+ * en-Returns the state key for a random route ID and vehicle ID. The key format is route-deviation:{routeId}:{vehicleId}
+ * input (routeId: string, vehicleId: string)
+ * output (string)
+ *
+ */
 const stateKey = (routeId: string, vehicleId: string): string =>
   `route-deviation:${routeId}:${vehicleId}`;
 
+/**
+ * tr-Redis'ten bir anahtar için durum nesnesini okur. Anahtar yoksa veya okuma başarısız olursa varsayılan bir durum nesnesi döndürülür.
+ * en-Reads the state object for a key from Redis. Returns a default state object if the key does not exist or reading fails.
+ * input (key: string)
+ * output (Promise<DeviationState>)
+ *
+ */
 async function readState(key: string): Promise<DeviationState> {
   try {
     const raw = await redis.get(key);
@@ -84,14 +98,30 @@ async function readState(key: string): Promise<DeviationState> {
   }
 }
 
+/**
+ * tr-Belirtilen durum nesnesini bir anahtar için Redis'e yazar. Redis hatası olursa günlüğe kaydeder ancak durmaz.
+ * en-Writes the specified state object for a key to Redis. Logs if Redis fails but does not fail the caller.
+ * input (key: string, state: DeviationState)
+ * output (Promise<void>)
+ *
+ */
 async function writeState(key: string, state: DeviationState): Promise<void> {
   try {
-    await redis.set(key, JSON.stringify(state), { ex: DEVIATION_STATE_TTL_SECONDS });
+    await redis.set(key, JSON.stringify(state), {
+      ex: DEVIATION_STATE_TTL_SECONDS,
+    });
   } catch (error) {
     logger.warn("[routeDeviation] Failed to persist state:", error);
   }
 }
 
+/**
+ * tr-Rota kimliği ve araç kimliği için durum nesnesini Redis'ten temizler.
+ * en-Clears the state object for a route ID and vehicle ID from Redis.
+ * input (routeId: string, vehicleId: string)
+ * output (Promise<void>)
+ *
+ */
 export async function clearDeviationState(
   routeId: string,
   vehicleId: string
@@ -104,8 +134,11 @@ export async function clearDeviationState(
 }
 
 /**
- * Measures a ping against a route corridor and advances the excursion state
- * machine. Returns what the caller should do; sends no notification itself.
+ * tr-Bir ping'i bir rota koridoruyla ölçer ve sapma durum makinesini ilerletir. Çağrıcının ne yapması gerektiğini döndürür; bildirimi kendisi göndermez.
+ * en-Measures a ping against a route corridor and advances the excursion state machine. Returns what the caller should do; sends no notification itself.
+ * input (params: { routeId: string; vehicleId: string; shape: string | null; bufferMeters: number | null; point: LatLon; })
+ * output (Promise<DeviationOutcome>)
+ *
  */
 export async function evaluateDeviation(params: {
   routeId: string;
@@ -128,7 +161,10 @@ export async function evaluateDeviation(params: {
   try {
     polyline = decodeShape(shape);
   } catch (error) {
-    logger.warn(`[routeDeviation] Undecodable shape on route ${routeId}:`, error);
+    logger.warn(
+      `[routeDeviation] Undecodable shape on route ${routeId}:`,
+      error
+    );
     return { status: "skipped", reason: "shape could not be decoded" };
   }
 
@@ -143,11 +179,16 @@ export async function evaluateDeviation(params: {
     logger.warn(
       `[routeDeviation] Route ${routeId} shape decoded to out-of-range coordinates; skipping.`
     );
-    return { status: "skipped", reason: "shape decoded to invalid coordinates" };
+    return {
+      status: "skipped",
+      reason: "shape decoded to invalid coordinates",
+    };
   }
 
   const buffer =
-    bufferMeters && bufferMeters > 0 ? bufferMeters : DEFAULT_ROUTE_BUFFER_METERS;
+    bufferMeters && bufferMeters > 0
+      ? bufferMeters
+      : DEFAULT_ROUTE_BUFFER_METERS;
   const distanceMeters = distanceToPolylineMeters(point, polyline);
   const key = stateKey(routeId, vehicleId);
 

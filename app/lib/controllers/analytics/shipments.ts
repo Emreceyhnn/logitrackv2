@@ -8,6 +8,12 @@ import { checkPermission } from "../utils/checkPermission";
 import { RouteStatus } from "@prisma/client";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-sevkiyat durumlarının istatistiklerini getirir
+ * en-retrieves statistics of shipment statuses
+ * input (user: AuthenticatedUser)
+ * output (Promise<ShipmentStatus[]>)
+ */
 export const getShipmentStatusStats = authenticatedAction(async (user) => {
   return controllerGuard("getShipmentStatusStats", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -25,6 +31,12 @@ export const getShipmentStatusStats = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-son 7 güne ait sevkiyat hacmi geçmişini getirir
+ * en-retrieves shipment volume history for the last 7 days
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ date: string, count: number }[]>)
+ */
 export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
   return controllerGuard("getShipmentVolumeHistory", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -69,6 +81,12 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
 });
 
 // Keep for backward compat (on-time trends replaced by shipment volume)
+/**
+ * tr-zamanında teslimat eğilimlerini (son 30 gün) getirir
+ * en-retrieves on-time delivery trends (last 30 days)
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ date: string, value: number }[]>)
+ */
 export const getOnTimeTrends = authenticatedAction(async (user) => {
   return controllerGuard("getOnTimeTrends", async () => {
     await checkPermission(user, user.companyId, [], {

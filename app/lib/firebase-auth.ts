@@ -5,7 +5,10 @@ import { auth } from "./firebase";
 import { getFirebaseCustomTokenAction } from "./actions/firebaseToken";
 
 /**
- * Ensures the Firebase client SDK is signed in with a custom token carrying the
+ * tr-Firebase istemci SDK'sının, herhangi bir Gerçek Zamanlı Veritabanı aboneliği
+ * çalışmadan önce, arayanın `companyId` claimini taşıyan özel bir token ile
+ * oturum açmasını sağlar.
+ * en-Ensures the Firebase client SDK is signed in with a custom token carrying the
  * caller's `companyId` claim before any Realtime Database subscription runs.
  *
  * RTDB security rules deny all reads/writes to unauthenticated clients and scope
@@ -15,6 +18,14 @@ import { getFirebaseCustomTokenAction } from "./actions/firebaseToken";
  */
 let authPromise: Promise<void> | null = null;
 
+/**
+ * tr-Firebase istemci SDK'sını, arayanın `companyId` claimini taşıyan özel
+ * bir token ile oturum açmasını sağlar.
+ * en-Ensures the Firebase client SDK is signed in with a custom token carrying the
+ * caller's `companyId` claim.
+ * input (none)
+ * output (Promise<void>)
+ */
 export function ensureFirebaseAuth(): Promise<void> {
   if (auth.currentUser) return Promise.resolve();
   if (authPromise) return authPromise;

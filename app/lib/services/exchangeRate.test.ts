@@ -1,4 +1,3 @@
- 
 import { describe, it, mock, before, beforeEach } from "node:test";
 import { expect } from "expect";
 
@@ -108,7 +107,9 @@ describe("exchangeRate service", () => {
   // ─── getExchangeRates ──────────────────────────────────────────────────────
   describe("getExchangeRates", () => {
     it("should return rates from DB cache when a fresh record exists", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       const result = await getExchangeRates();
 
@@ -170,7 +171,9 @@ describe("exchangeRate service", () => {
         makeFetchResponse({}, false, 500)
       );
 
-      await expect(getExchangeRates()).rejects.toThrow("ExchangeRate-API error");
+      await expect(getExchangeRates()).rejects.toThrow(
+        "ExchangeRate-API error"
+      );
     });
 
     it("should throw when API returns result !== 'success'", async () => {
@@ -247,21 +250,27 @@ describe("exchangeRate service", () => {
     });
 
     it("should return the correct rate for EUR", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       const result = await getExchangeRate("EUR");
       expect(result).toBe(0.92);
     });
 
     it("should return the correct rate for TRY", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       const result = await getExchangeRate("TRY");
       expect(result).toBe(32.5);
     });
 
     it("should return the correct rate for GBP", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       const result = await getExchangeRate("GBP");
       expect(result).toBe(0.79);
@@ -294,7 +303,9 @@ describe("exchangeRate service", () => {
     });
 
     it("should convert USD to EUR using the correct rate", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       // 1000 USD * 0.92 = 920 EUR
       const result = await convertFromUSD(1000, "EUR");
@@ -302,7 +313,9 @@ describe("exchangeRate service", () => {
     });
 
     it("should convert USD to TRY using the correct rate", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       // 100 USD * 32.5 = 3250 TRY
       const result = await convertFromUSD(100, "TRY");
@@ -310,7 +323,9 @@ describe("exchangeRate service", () => {
     });
 
     it("should convert 0 USD to any currency as 0", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       const result = await convertFromUSD(0, "EUR");
       expect(result).toBe(0);
@@ -328,7 +343,9 @@ describe("exchangeRate service", () => {
     });
 
     it("should convert EUR to TRY correctly", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       // 100 EUR → USD: 100 / 0.92 = 108.695... USD → TRY: 108.695 * 32.5 = 3532.6...
       const result = await convertCurrency(100, "EUR", "TRY");
@@ -337,7 +354,9 @@ describe("exchangeRate service", () => {
     });
 
     it("should convert GBP to EUR correctly", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       const result = await convertCurrency(50, "GBP", "EUR");
       const expected = (50 / MOCK_RATES.GBP) * MOCK_RATES.EUR;
@@ -345,7 +364,9 @@ describe("exchangeRate service", () => {
     });
 
     it("should default to rate 1 for any currencies", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       // Unknown → Unknown: (100 / 1) * 1 = 100
       const result = await convertCurrency(100, "XYZ", "ABC");
@@ -353,7 +374,9 @@ describe("exchangeRate service", () => {
     });
 
     it("should convert USD to EUR (USD rate is 1)", async () => {
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       // 200 USD / 1 * 0.92 = 184 EUR
       const result = await convertCurrency(200, "USD", "EUR");
@@ -365,17 +388,23 @@ describe("exchangeRate service", () => {
   describe("refreshExchangeRates", () => {
     it("should delete the Redis cache key before fetching fresh data", async () => {
       redisMock.del.mock.mockImplementation(async () => {});
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       await refreshExchangeRates();
 
       expect(redisMock.del.mock.calls.length).toBe(1);
-      expect(redisMock.del.mock.calls[0].arguments[0]).toBe("exchange_rate:USD");
+      expect(redisMock.del.mock.calls[0].arguments[0]).toBe(
+        "exchange_rate:USD"
+      );
     });
 
     it("should return fresh exchange rates after clearing cache", async () => {
       redisMock.del.mock.mockImplementation(async () => {});
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       const result = await refreshExchangeRates();
 
@@ -387,7 +416,9 @@ describe("exchangeRate service", () => {
       redisMock.del.mock.mockImplementation(async () => {
         throw new Error("Redis unavailable");
       });
-      dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
+      dbMock.exchangeRate.findFirst.mock.mockImplementation(
+        async () => MOCK_DB_ROW
+      );
 
       // Should not throw — error is swallowed
       const result = await refreshExchangeRates();

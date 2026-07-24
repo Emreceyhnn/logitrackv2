@@ -16,9 +16,14 @@ export interface AccessSummary {
 }
 
 /**
- * Effective access decision, computed purely from the JWT summary. A TRIAL is
- * only "live" while now < trialEndsAt, so trial expiry takes effect the instant
- * the clock passes it — no token refresh required for the *downgrade*.
+ * tr-Etkili erişim kararı, yalnızca JWT özetinden hesaplanır.
+ * en-Effective access decision, computed purely from the JWT summary.
+ * input (
+  accessStatus: AccessStatus | null | undefined,
+  trialEndsAt: number | null | undefined,
+  now: number = Date.now()
+)
+ * output (boolean)
  */
 export function hasAccess(
   accessStatus: AccessStatus | null | undefined,

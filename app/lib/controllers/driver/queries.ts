@@ -14,6 +14,12 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { NotFoundError } from "../../errors";
 import { driverCache } from "./shared";
 
+/**
+ * tr-sürücü olarak atanmaya uygun olan, henüz sürücü rolü olmayan kullanıcıları getirir
+ * en-retrieves users eligible to be assigned as drivers, who do not yet have the driver role
+ * input (user: AuthenticatedUser)
+ * output (Promise<User[]>)
+ */
 export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
   return controllerGuard("getEligibleUsersForDriver", async () => {
     const companyId = user?.companyId || "";
@@ -40,6 +46,12 @@ export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-belirtilen sürücünün geçmiş aktivitelerini, tamamladığı rotaları ve sevkiyatları getirir
+ * en-retrieves past activities, completed routes, and shipments of the specified driver
+ * input (user: AuthenticatedUser, driverId: string)
+ * output (Promise<DriverHistory>)
+ */
 export const getDriverHistory = authenticatedAction(
   async (user, driverId: string): Promise<DriverHistory> => {
     return controllerGuard("getDriverHistory", async () => {
@@ -127,6 +139,12 @@ export const getDriverHistory = authenticatedAction(
   }
 );
 
+/**
+ * tr-sürücüleri (sayfalama, arama ve filtreleme ile) getirir
+ * en-retrieves drivers with pagination, search, and filtering
+ * input (user: AuthenticatedUser, page?: number, limit?: number, search?: string, status?: DriverStatus[], hasVehicle?: boolean, sortField?: string, sortOrder?: "asc" | "desc")
+ * output (Promise<PaginatedResponse<DriverWithRelations>>)
+ */
 export const getDrivers = authenticatedAction(
   async (
     user,

@@ -1,7 +1,6 @@
 import { redis } from "./redis";
 import { logger } from "@/app/lib/logger";
 
-
 interface RateLimitResult {
   success: boolean;
   limit: number;
@@ -9,17 +8,23 @@ interface RateLimitResult {
   reset: number;
 }
 
-// In-memory fallback store to prevent cascading failures if Redis goes down
 const fallbackStore = new Map<string, { count: number; expiresAt: number }>();
 
 /**
- * Basic fixed-window rate limiter using Upstash Redis.
- * Includes an in-memory fallback circuit breaker.
- * 
- * @param ip Client IP address
- * @param limit Maximum number of requests allowed in the window
- * @param windowSeconds Window duration in seconds
- * @param keyPrefix Redis key prefix for namespaces (e.g. "rate-limit:auth:")
+ * tr-Upstash Redis kullanarak temel sabit pencereli oran sınırlayıcı.
+ * en-Basic fixed-window rate limiter using Upstash Redis.
+ * input (
+  ip: string,
+  limit?: number,
+  windowSeconds?: number,
+  keyPrefix?: string
+)
+ * output (Promise<{
+  success: boolean;
+  limit: number;
+  remaining: number;
+  reset: number;
+}>)
  */
 export async function rateLimit(
   ip: string,
@@ -48,8 +53,11 @@ export async function rateLimit(
       reset,
     };
   } catch (error) {
-    logger.error("Rate limiting redis error, switching to in-memory fallback:", error);
-    
+    logger.error(
+      "Rate limiting redis error, switching to in-memory fallback:",
+      error
+    );
+
     // In-memory Fallback Rate Limiting (Circuit Breaker equivalent)
     // Clean up expired keys occasionally (10% chance) to avoid memory leaks
     if (Math.random() < 0.1) {
@@ -60,7 +68,10 @@ export async function rateLimit(
       }
     }
 
-    const record = fallbackStore.get(key) || { count: 0, expiresAt: now + windowSeconds };
+    const record = fallbackStore.get(key) || {
+      count: 0,
+      expiresAt: now + windowSeconds,
+    };
     record.count += 1;
     fallbackStore.set(key, record);
 

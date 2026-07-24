@@ -16,11 +16,17 @@ import {
 import { invalidateWarehouseCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-sisteme yeni bir depo ekler ve oluşturulduğuna dair bildirim gönderir
+ * en-adds a new warehouse to the system and dispatches a creation notification
+ * input (user: AuthenticatedUser, name: string, code: string, type: WarehouseType, address: string, city: string, country: string, lat?: number, lng?: number, managerId?: string, capacityPallets?: number, capacityVolumeM3?: number, operatingHours?: string, timezone?: string, specifications?: string[])
+ * output (Promise<{ warehouse: Warehouse }>)
+ */
 export const createWarehouse = authenticatedAction(
   async (
     user,
     name: string,
-    code: string,
+    code: string | undefined,
     type: WarehouseType,
     address: string,
     city: string,
@@ -39,10 +45,10 @@ export const createWarehouse = authenticatedAction(
 
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      if (!code) {
-        throw new Error("Warehouse code is required");
+      let warehouseCode = code;
+      if (!warehouseCode || warehouseCode.trim() === "") {
+        warehouseCode = `WH-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       }
-      const warehouseCode = code;
 
       const existingWarehouse = await db.warehouse.findFirst({
         where: { companyId, code: warehouseCode },
@@ -78,8 +84,8 @@ export const createWarehouse = authenticatedAction(
       await createNotification(
         { companyId: companyId! },
         {
-          title: "Yeni Depo OluÅŸturuldu ğŸ—ï¸",
-          message: `${name} (${warehouseCode}) isimli yeni depo sisteme tanÄ±mlandÄ±.`,
+          title: "Yeni Depo Oluşturuldu 🏗️",
+          message: `${name} (${warehouseCode}) isimli yeni depo sisteme tanımlandı.`,
           type: "SUCCESS",
           link: `/dashboard/warehouses/${newWarehouse.id}`,
         }
@@ -90,6 +96,12 @@ export const createWarehouse = authenticatedAction(
   }
 );
 
+/**
+ * tr-kullanıcının şirketine ait tüm depoları yönetici bilgileri ve özet sayılarla birlikte getirir
+ * en-retrieves all warehouses belonging to the user's company along with manager info and summary counts
+ * input (user: AuthenticatedUser)
+ * output (Promise<Warehouse[]>)
+ */
 export const getWarehouses = authenticatedAction(async (user) => {
   return controllerGuard("getWarehouses", async () => {
     await checkPermission(user, user.companyId);
@@ -125,6 +137,12 @@ export const getWarehouses = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-belirtilen depo kimliğine (id) göre depo detaylarını, yöneticisini ve envanterini getirir
+ * en-retrieves warehouse details, manager, and inventory based on the specified warehouse ID
+ * input (user: AuthenticatedUser, warehouseId: string)
+ * output (Promise<Warehouse>)
+ */
 export const getWarehouseById = authenticatedAction(
   async (user, warehouseId: string) => {
     return controllerGuard("getWarehouseById", async () => {
@@ -162,6 +180,12 @@ export const getWarehouseById = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen deponun bilgilerini günceller ve yönetici (manager) atama işlemlerini yönetir
+ * en-updates the specified warehouse's information and handles manager assignment operations
+ * input (user: AuthenticatedUser, warehouseId: string, data: Record<string, unknown>)
+ * output (Promise<Warehouse>)
+ */
 export const updateWarehouse = authenticatedAction(
   async (user, warehouseId: string, data: Record<string, unknown>) => {
     return controllerGuard("updateWarehouse", async () => {
@@ -205,6 +229,12 @@ export const updateWarehouse = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen depoyu sistemden kalıcı olarak siler
+ * en-permanently deletes the specified warehouse from the system
+ * input (user: AuthenticatedUser, warehouseId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteWarehouse = authenticatedAction(
   async (user, warehouseId: string) => {
     return controllerGuard("deleteWarehouse", async () => {
@@ -229,6 +259,12 @@ export const deleteWarehouse = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen depoya bir yönetici atar ve yöneticiye bildirim gönderir
+ * en-assigns a manager to the specified warehouse and sends a notification to the manager
+ * input (user: AuthenticatedUser, warehouseId: string, managerId: string)
+ * output (Promise<Warehouse>)
+ */
 export const assignManagerToWarehouse = authenticatedAction(
   async (user, warehouseId: string, managerId: string) => {
     return controllerGuard("assignManagerToWarehouse", async () => {
@@ -256,8 +292,8 @@ export const assignManagerToWarehouse = authenticatedAction(
       await createNotification(
         { companyId: user.companyId!, userId: managerId },
         {
-          title: "Depo YÃ¶neticisi AtandÄ±nÄ±z ğŸ‘¤",
-          message: `${updatedWarehouse.name} deposu iÃ§in yÃ¶netici olarak gÃ¶revlendirildiniz.`,
+          title: "Depo Yöneticisi Atandınız 👤",
+          message: `${updatedWarehouse.name} deposu için yönetici olarak görevlendirildiniz.`,
           type: "INFO",
           link: `/dashboard/warehouses/${updatedWarehouse.id}`,
         }

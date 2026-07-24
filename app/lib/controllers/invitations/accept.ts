@@ -20,8 +20,12 @@ interface InvitationDriverData {
   licenseExpiry: string | null;
 }
 
-/** Read-only lookup used by the accept-invite page to show the invited email
- * before any form is submitted. Public, unauthenticated. */
+/**
+ * tr-belirtilen token'a sahip davetiyenin detaylarını getirir (kayıt öncesi doğrulama için)
+ * en-retrieves the details of the invitation with the specified token (for pre-registration validation)
+ * input (rawToken: string)
+ * output (Promise<{ email: string, companyName: string } | { error: string }>)
+ */
 export async function getInvitationByToken(
   rawToken: string
 ): Promise<{ email: string; companyName: string } | { error: string }> {
@@ -36,6 +40,12 @@ export async function getInvitationByToken(
   return { email: invitation.email, companyName: invitation.company.name };
 }
 
+/**
+ * tr-yeni bir kullanıcının sürücü davetini kabul etmesini sağlar ve hesabını oluşturur
+ * en-allows a new user to accept a driver invitation and creates their account
+ * input (user: unknown, rawToken: string, name: string, surname: string, password: string)
+ * output (Promise<{ user?: object, error?: string, field?: string }>)
+ */
 export const acceptDriverInvitation = maybeAuthenticatedAction(
   async (_user, rawToken: string, name: string, surname: string, password: string) => {
     try {

@@ -9,6 +9,12 @@ import { isValidLatLon, type LatLon } from "../../utils/geo";
 import type { DriverConsoleDashboard, DCShipmentSummary } from "../../type/driverConsole";
 import { DC_ROLES, getDriverForUser, computeDocumentStatus, startOfToday, endOfToday } from "./shared";
 
+/**
+ * tr-sürücü konsolu için genel durum, rota, sevkiyat ve kpi verilerini getirir
+ * en-retrieves overall status, route, shipment, and kpi data for the driver console
+ * input (user: AuthenticatedUser)
+ * output (Promise<DriverConsoleDashboard>)
+ */
 export const getDriverConsoleDashboard = authenticatedAction(
   async (user): Promise<DriverConsoleDashboard> => {
     const companyId = user?.companyId || "";

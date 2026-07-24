@@ -1,5 +1,11 @@
 import { VehicleDashboardProps } from "../../type/vehicle";
 
+/**
+ * tr-araç verilerinden genel durum göstergelerini (KPI) (toplam, müsait, serviste, yolda vs.) hesaplar
+ * en-calculates general key performance indicators (KPIs) (total, available, in service, on trip, etc.) from vehicle data
+ * input (props: VehicleDashboardProps[])
+ * output ({ totalVehicles: number, available: number, inService: number, onTrip: number, openIssues: number, docsDueSoon: number })
+ */
 export const VehicleKpiConverter = (props: VehicleDashboardProps[]) => {
   const totalVehicles = props.length;
 
@@ -23,6 +29,12 @@ export const VehicleKpiConverter = (props: VehicleDashboardProps[]) => {
   };
 };
 
+/**
+ * tr-araç verilerinden sadece ID, plaka ve maksimum yük kapasitesi bilgilerini döndürür
+ * en-extracts only the ID, plate, and maximum load capacity information from vehicle data
+ * input (props: VehicleDashboardProps[])
+ * output (Array<{ id: string, plate: string, maxLoadKg: number }>)
+ */
 export const VehicleCapacityConverter = (props: VehicleDashboardProps[]) => {
   return props.map((v) => ({
     id: v.id,
@@ -31,6 +43,12 @@ export const VehicleCapacityConverter = (props: VehicleDashboardProps[]) => {
   }));
 };
 
+/**
+ * tr-araçlara ait belgeleri düzleştirerek (flatten) listeler
+ * en-flattens and lists documents belonging to vehicles
+ * input (props: VehicleDashboardProps[])
+ * output (Array<{ id: string, plate: string, documentType: string, expiryDate: Date }>)
+ */
 export const VehicleDocumentConverter = (props: VehicleDashboardProps[]) => {
   return props.flatMap((v) =>
     v.documents.map((d) => ({
@@ -42,6 +60,12 @@ export const VehicleDocumentConverter = (props: VehicleDashboardProps[]) => {
   );
 };
 
+/**
+ * tr-araçlara ait planlanmış bakım (servis) kayıtlarını düzleştirerek listeler
+ * en-flattens and lists scheduled maintenance (service) records for vehicles
+ * input (props: VehicleDashboardProps[])
+ * output (Array<{ id: string, plate: string, serviceType: string, serviceDate: Date }>)
+ */
 export const VehicleServiceConverter = (props: VehicleDashboardProps[]) => {
   return props.flatMap((v) =>
     (v.maintenanceRecords || [])

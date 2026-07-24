@@ -18,13 +18,20 @@ import { useOptionalUserContext } from "../context/UserContext";
 
 const THEME_STORAGE_KEY = "logitrack-theme-mode";
 const VALID_MODES = ["light", "dark", "system"] as const;
-type StoredMode = typeof VALID_MODES[number];
+type StoredMode = (typeof VALID_MODES)[number];
 
+/**
+ * tr-Kullanıcının tercih ettiği tema modunu (light/dark/system) alır.
+ * en-Retrieves the user's preferred theme mode (light/dark/system).
+ * input ()
+ * output (StoredMode)
+ */
 function getSavedStoredMode(): StoredMode {
   if (typeof window === "undefined") return "dark";
   try {
     const saved = localStorage.getItem(THEME_STORAGE_KEY) as StoredMode | null;
-    if (saved && (VALID_MODES as readonly string[]).includes(saved)) return saved;
+    if (saved && (VALID_MODES as readonly string[]).includes(saved))
+      return saved;
     // Fallback: the theme cookie is written by saveUserTheme with
     // httpOnly:false precisely so the client can read it. The server no
     // longer forwards it via initialMode (that read forced every route
@@ -33,7 +40,10 @@ function getSavedStoredMode(): StoredMode {
       .split("; ")
       .find((c) => c.startsWith("logitrack-theme="))
       ?.split("=")[1];
-    if (cookieTheme && (VALID_MODES as readonly string[]).includes(cookieTheme)) {
+    if (
+      cookieTheme &&
+      (VALID_MODES as readonly string[]).includes(cookieTheme)
+    ) {
       return cookieTheme as StoredMode;
     }
     return "dark";
@@ -42,10 +52,18 @@ function getSavedStoredMode(): StoredMode {
   }
 }
 
+/**
+ * tr-Sistemin aktif tema modunu (light/dark) belirler.
+ * en-Determines the system's active theme mode (light/dark).
+ * input (StoredMode)
+ * output (ThemeMode)
+ */
 function resolveMode(stored: StoredMode): ThemeMode {
   if (stored === "system") {
     if (typeof window === "undefined") return "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   }
   return stored;
 }
@@ -53,11 +71,19 @@ function resolveMode(stored: StoredMode): ThemeMode {
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import { logger } from "@/app/lib/logger";
 
-
-export default function Providers({ 
+/**
+ * tr-Uygulama genelindeki tüm bileşenleri sarmalar ve tema, locale, kullanıcı, query ve toast yönetimini sağlar.
+ * en-Wraps all application components and provides theme, locale, user, query, and toast management.
+ * input ({
+  children: React.ReactNode;
+  initialMode?: StoredMode;
+})
+ * output (JSX.Element)
+ */
+export default function Providers({
   children,
-  initialMode 
-}: { 
+  initialMode,
+}: {
   children: React.ReactNode;
   initialMode?: StoredMode;
 }) {
@@ -66,8 +92,12 @@ export default function Providers({
   // `mode` is the resolved value actually applied to the theme. Keeping the
   // preference in state lets a single effect own the OS-preference listener,
   // so switching to/from "system" adds and removes exactly one listener.
-  const [storedMode, setStoredMode] = useState<StoredMode>(initialMode || "dark");
-  const [mode, setModeState] = useState<ThemeMode>(() => resolveMode(initialMode || "dark"));
+  const [storedMode, setStoredMode] = useState<StoredMode>(
+    initialMode || "dark"
+  );
+  const [mode, setModeState] = useState<ThemeMode>(() =>
+    resolveMode(initialMode || "dark")
+  );
   const theme = useMemo(() => getTheme(mode), [mode]);
   const params = useParams();
   const lang = (params?.lang as string) || "en";
@@ -95,7 +125,8 @@ export default function Providers({
   useEffect(() => {
     setModeState(resolveMode(storedMode));
 
-    if (storedMode !== "system" || typeof window === "undefined") return undefined;
+    if (storedMode !== "system" || typeof window === "undefined")
+      return undefined;
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e: MediaQueryListEvent) =>
@@ -144,7 +175,10 @@ export default function Providers({
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
       <ThemeContext.Provider value={{ mode, setMode }}>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={safeLang}>
+        <LocalizationProvider
+          dateAdapter={AdapterDayjs}
+          adapterLocale={safeLang}
+        >
           <QueryProvider>
             <ThemeProvider theme={theme}>
               <Toaster />

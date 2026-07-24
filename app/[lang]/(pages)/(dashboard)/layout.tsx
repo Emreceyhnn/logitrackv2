@@ -24,6 +24,9 @@ export default async function DashboardLayout({
   // Warehouse-only staff are confined to their own panel and must never reach
   // the main dashboard.
   const user = await getAuthenticatedUser();
+  if (!user) {
+    redirect(`/${lang}/auth/sign-in`);
+  }
   if (user && isWarehouseOnlyRole(user.roleName)) {
     redirect(`/${lang}/warehouse-worker`);
   }

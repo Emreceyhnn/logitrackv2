@@ -6,7 +6,12 @@ import { createCacheManager } from "../utils/cacheFactory";
 // Shared cache manager instance for all route submodules.
 export const routeCache = createCacheManager("routes", ROUTE_CACHE_TTL);
 
-// Backward-compatible function for existing callers
+/**
+ * tr-belirtilen şirketin ve (varsa) rotanın önbellek verilerini temizler
+ * en-clears the cache data of the specified company and (if applicable) route
+ * input (companyId: string, routeId?: string)
+ * output (Promise<void>)
+ */
 export async function invalidateRouteCache(
   companyId: string,
   routeId?: string

@@ -6,6 +6,12 @@ import crypto from "crypto";
 import { SignJWT, JWTPayload } from "jose";
 import type { AccessStatus } from "@/app/lib/entitlement";
 
+/**
+ * tr-JWT imzalamak için gereken gizli anahtarı ortam değişkenlerinden döndürür
+ * en-returns the secret key required for signing JWTs from environment variables
+ * input ()
+ * output (string)
+ */
 export const getJwtSecret = (): string => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -81,6 +87,12 @@ export interface SessionJWTPayload extends JWTPayload {
 
 // ─── Token Generation ───────────────────────────────────────────────────────
 
+/**
+ * tr-kullanıcı bilgileriyle yeni bir JWT erişim belirteci (access token) oluşturur
+ * en-generates a new JWT access token containing the user information
+ * input (user: object)
+ * output (Promise<string>)
+ */
 export async function generateAccessToken(user: {
   id: string;
   roleId?: string | null;
@@ -130,10 +142,22 @@ export async function generateAccessToken(user: {
     .sign(secret);
 }
 
+/**
+ * tr-rastgele ve güvenli bir yenileme belirteci (refresh token) oluşturur
+ * en-generates a random and secure refresh token
+ * input ()
+ * output (string)
+ */
 export function generateRefreshToken(): string {
   return crypto.randomBytes(48).toString("hex");
 }
 
+/**
+ * tr-verilen belirteci SHA-256 algoritmasıyla hashleyerek döndürür
+ * en-hashes the given token using the SHA-256 algorithm and returns it
+ * input (token: string)
+ * output (string)
+ */
 export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
@@ -146,6 +170,12 @@ export function hashToken(token: string): string {
 // the max token lifetime, and the hot path checks it with a single GET. The
 // entry auto-expires exactly when the token could no longer be valid anyway, so
 // the denylist never grows unbounded.
+/**
+ * tr-iptal edilen bir belirteç (token) için önbellekte kullanılacak anahtarı oluşturur
+ * en-generates the cache key to be used for a revoked token
+ * input (tokenHash: string)
+ * output (string)
+ */
 export const revokedTokenKey = (tokenHash: string): string =>
   `revoked:token:${tokenHash}`;
 

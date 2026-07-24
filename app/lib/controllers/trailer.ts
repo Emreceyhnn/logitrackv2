@@ -35,6 +35,12 @@ interface TrailerInput {
   isColdChain?: boolean;
 }
 
+/**
+ * tr-yeni bir dorse oluşturur
+ * en-creates a new trailer
+ * input (user: AuthenticatedUser, trailerData: TrailerInput)
+ * output (Promise<Trailer>)
+ */
 export const createTrailer = authenticatedAction(
   async (user, trailerData: TrailerInput) => {
     const companyId = user?.companyId || "";
@@ -78,6 +84,12 @@ export const createTrailer = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirkete ait dorseleri filtreleme ve sayfalama ile getirir
+ * en-retrieves trailers belonging to the company with filtering and pagination
+ * input (user: AuthenticatedUser, filters?: TrailerFilters)
+ * output (Promise<{ trailers: any[], kpis: object, meta: object }>)
+ */
 export const getTrailers = authenticatedAction(
   async (user, filters: TrailerFilters = {}) => {
     const companyId = user?.companyId || "";
@@ -169,6 +181,12 @@ export const getTrailers = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen kimliğe sahip dorseyi getirir
+ * en-retrieves the trailer with the specified ID
+ * input (user: AuthenticatedUser, trailerId: string)
+ * output (Promise<Trailer>)
+ */
 export const getTrailerById = authenticatedAction(
   async (user, trailerId: string) => {
     const companyId = user?.companyId || "";
@@ -206,6 +224,12 @@ export const getTrailerById = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen dorsenin bilgilerini günceller
+ * en-updates the information of the specified trailer
+ * input (user: AuthenticatedUser, trailerId: string, data: Partial<Prisma.TrailerUpdateInput>)
+ * output (Promise<Trailer>)
+ */
 export const updateTrailer = authenticatedAction(
   async (user, trailerId: string, data: Partial<Prisma.TrailerUpdateInput>) => {
     const companyId = user?.companyId || "";
@@ -236,6 +260,12 @@ export const updateTrailer = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen dorseyi siler (yumuşak silme - soft delete)
+ * en-deletes the specified trailer (soft delete)
+ * input (user: AuthenticatedUser, trailerId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteTrailer = authenticatedAction(
   async (user, trailerId: string) => {
     const companyId = user?.companyId || "";
@@ -267,6 +297,12 @@ export const deleteTrailer = authenticatedAction(
   }
 );
 
+/**
+ * tr-dorseyi bir araca atar veya araçtan çıkarır
+ * en-assigns the trailer to a vehicle or detaches it
+ * input (user: AuthenticatedUser, trailerId: string, vehicleId: string | null)
+ * output (Promise<{ success: boolean }>)
+ */
 export const assignTrailerToVehicle = authenticatedAction(
   async (user, trailerId: string, vehicleId: string | null) => {
     const companyId = user?.companyId || "";

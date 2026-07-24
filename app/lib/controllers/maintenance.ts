@@ -24,6 +24,12 @@ function serializeRecord<T extends { cost: Prisma.Decimal; originalCost: Prisma.
   };
 }
 
+/**
+ * tr-yeni bir bakım kaydı oluşturur
+ * en-creates a new maintenance record
+ * input (user: AuthenticatedUser, vehicleId: string, type: MaintenanceType, date: Date, cost: number, description?: string, currency?: string, documentUrl?: string)
+ * output (Promise<{ maintenanceRecord: any }>)
+ */
 export const createMaintenanceRecord = authenticatedAction(
   async (
     user,
@@ -105,6 +111,12 @@ export const createMaintenanceRecord = authenticatedAction(
   }
 );
 
+/**
+ * tr-araca veya şirkete ait bakım kayıtlarını getirir
+ * en-retrieves maintenance records for a vehicle or the company
+ * input (user: AuthenticatedUser, vehicleId?: string)
+ * output (Promise<any[]>)
+ */
 export const getMaintenanceRecords = authenticatedAction(
   async (user, vehicleId?: string) => {
     return controllerGuard("getMaintenanceRecords", async () => {
@@ -130,6 +142,12 @@ export const getMaintenanceRecords = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen kimliğe sahip bakım kaydını getirir
+ * en-retrieves the maintenance record with the specified ID
+ * input (user: AuthenticatedUser, recordId: string)
+ * output (Promise<any>)
+ */
 export const getMaintenanceRecordById = authenticatedAction(
   async (user, recordId: string) => {
     return controllerGuard("getMaintenanceRecordById", async () => {
@@ -160,6 +178,12 @@ export interface MaintenanceRecordUpdateData {
   documentUrl?: string;
 }
 
+/**
+ * tr-belirtilen bakım kaydını günceller
+ * en-updates the specified maintenance record
+ * input (user: AuthenticatedUser, recordId: string, data: MaintenanceRecordUpdateData)
+ * output (Promise<any>)
+ */
 export const updateMaintenanceRecord = authenticatedAction(
   async (user, recordId: string, data: MaintenanceRecordUpdateData) => {
     return controllerGuard("updateMaintenanceRecord", async () => {
@@ -257,6 +281,12 @@ export const updateMaintenanceRecord = authenticatedAction(
   }
 );
 
+/**
+ * tr-belirtilen bakım kaydını siler
+ * en-deletes the specified maintenance record
+ * input (user: AuthenticatedUser, recordId: string)
+ * output (Promise<{ success: boolean }>)
+ */
 export const deleteMaintenanceRecord = authenticatedAction(
   async (user, recordId: string) => {
     return controllerGuard("deleteMaintenanceRecord", async () => {
@@ -295,6 +325,12 @@ export const deleteMaintenanceRecord = authenticatedAction(
   }
 );
 
+/**
+ * tr-şirketin yıllık bakım istatistiklerini getirir
+ * en-retrieves the company's annual maintenance statistics
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ totalCost: number, costByType: Record<string, number>, recordCount: number }>)
+ */
 export const getMaintenanceStats = authenticatedAction(async (user) => {
   return controllerGuard("getMaintenanceStats", async () => {
     const companyId = user?.companyId || "";
@@ -328,6 +364,12 @@ export const getMaintenanceStats = authenticatedAction(async (user) => {
   });
 });
 
+/**
+ * tr-yaklaşan bakım kayıtlarını kontrol eder ve bildirim oluşturur
+ * en-checks upcoming maintenance records and creates notifications
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ count: number }>)
+ */
 export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
   return controllerGuard("checkUpcomingMaintenance", async () => {
     const companyId = user?.companyId;

@@ -71,7 +71,8 @@ export class TmsError extends AppError {
     super(message, ErrorCode.INTERNAL, opts.status ?? 502);
     this.name = "TmsError";
     this.provider = opts.provider;
-    if (opts.upstreamStatus !== undefined) this.upstreamStatus = opts.upstreamStatus;
+    if (opts.upstreamStatus !== undefined)
+      this.upstreamStatus = opts.upstreamStatus;
     this.retryable = opts.retryable ?? false;
   }
 }
@@ -266,6 +267,13 @@ interface TmsRequestOptions {
 
 const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 
+/**
+ * tr-API isteği atar
+ * en-API isteği atar
+ * input (cfg: TmsHttpConfig, opts: TmsRequestOptions)
+ * output (Promise<T>)
+ *
+ */
 async function tmsFetch<T>(
   cfg: TmsHttpConfig,
   opts: TmsRequestOptions
@@ -335,12 +343,25 @@ async function tmsFetch<T>(
   );
 }
 
-/** Exponential backoff with full jitter: base 200ms, capped at 3s. */
+/**
+ * tr-Tam jitter ile üssel geri çekilme: taban 200ms, maksimum 3s.
+ * en-Exponential backoff with full jitter: base 200ms, capped at 3s.
+ * input (attempt: number)
+ * output (Promise<void>)
+ *
+ */
 function backoff(attempt: number): Promise<void> {
   const capped = Math.min(200 * 2 ** attempt, 3000);
   return new Promise((resolve) => setTimeout(resolve, Math.random() * capped));
 }
 
+/**
+ * tr-Aşağıdaki yanıt gövdesini güvenli bir şekilde okur (hataları yakalar ve ilk 500 karakterle sınırlı tutar)
+ * en-Safely reads the response body below (catches errors and limits to first 500 characters)
+ * input (response: Response)
+ * output (Promise<string>)
+ *
+ */
 async function safeReadText(response: Response): Promise<string> {
   try {
     return (await response.text()).slice(0, 500);
@@ -349,7 +370,13 @@ async function safeReadText(response: Response): Promise<string> {
   }
 }
 
-/** Constant-time HMAC-SHA256 signature check for webhooks. */
+/**
+ * tr-Sabit zamanlı HMAC-SHA256 imza kontrolü.
+ * en-Constant-time HMAC-SHA256 signature check for webhooks.
+ * input (rawBody: string, signature: string | undefined, secret: string)
+ * output (boolean)
+ *
+ */
 function verifyHmacSignature(
   rawBody: string,
   signature: string | undefined,
@@ -364,7 +391,13 @@ function verifyHmacSignature(
   return timingSafeEqual(a, b);
 }
 
-/** Stable hash of a rate request for cache keying. */
+/**
+ * tr-Sabit hash of a rate request for cache keying.
+ * en-Stable hash of a rate request for cache keying.
+ * input (req: TmsRateRequest)
+ * output (string)
+ *
+ */
 function hashRateRequest(req: TmsRateRequest): string {
   return Buffer.from(JSON.stringify(req)).toString("base64").slice(0, 64);
 }
@@ -395,6 +428,13 @@ class GenericRestTmsAdapter implements TmsAdapter {
     this.webhookSecret = env.webhookSecret;
   }
 
+  /**
+   * tr-Yükü harici TMS'ye gönderir.
+   * en-Dispatches a load to the external TMS.
+   * input (companyId: string, request: TmsLoadRequest)
+   * output (Promise<TmsLoadAck>)
+   *
+   */
   async dispatchLoad(
     companyId: string,
     request: TmsLoadRequest
@@ -418,6 +458,13 @@ class GenericRestTmsAdapter implements TmsAdapter {
     };
   }
 
+  /**
+   * tr-Yükü iptal eder.
+   * en-Cancels a load.
+   * input (companyId: string, externalRef: string, reason: string)
+   * output (Promise<void>)
+   *
+   */
   async cancelLoad(
     companyId: string,
     externalRef: string,
@@ -431,6 +478,13 @@ class GenericRestTmsAdapter implements TmsAdapter {
     });
   }
 
+  /**
+   * tr-Nakliye teklifi alır.
+   * en-Gets a rate quote.
+   * input (companyId: string, request: TmsRateRequest)
+   * output (Promise<TmsRateQuote[]>)
+   *
+   */
   async getRateQuotes(
     companyId: string,
     request: TmsRateRequest
@@ -453,6 +507,13 @@ class GenericRestTmsAdapter implements TmsAdapter {
     }));
   }
 
+  /**
+   * tr-Yükün durumunu getirir.
+   * en-Gets the status of a load.
+   * input (companyId: string, externalRef: string)
+   * output (Promise<TmsLoadStatus>)
+   *
+   */
   async getLoadStatus(
     companyId: string,
     externalRef: string
@@ -482,6 +543,13 @@ class GenericRestTmsAdapter implements TmsAdapter {
     };
   }
 
+  /**
+   * tr-Taşıyıcıyı harici TMS'ye gönderir.
+   * en-Pushes a carrier to the external TMS.
+   * input (companyId: string, carrier: TmsCarrier)
+   * output (Promise<void>)
+   *
+   */
   async pushCarrier(companyId: string, carrier: TmsCarrier): Promise<void> {
     await tmsFetch<void>(this.cfg, {
       method: "PUT",
@@ -492,6 +560,13 @@ class GenericRestTmsAdapter implements TmsAdapter {
     });
   }
 
+  /**
+   * tr-Durum webhook'unu ayrıştırır.
+   * en-Parses the status webhook.
+   * input (rawBody: string, headers: Record<string, string>)
+   * output (TmsStatusEvent[] | null)
+   *
+   */
   parseStatusWebhook(
     rawBody: string,
     headers: Record<string, string>
@@ -501,7 +576,9 @@ class GenericRestTmsAdapter implements TmsAdapter {
       headers["X-Tms-Signature"] ??
       headers["x-signature"];
     if (!verifyHmacSignature(rawBody, sig, this.webhookSecret)) {
-      logger.warn(`[tms:${this.provider}] webhook signature verification failed`);
+      logger.warn(
+        `[tms:${this.provider}] webhook signature verification failed`
+      );
       return null;
     }
 
@@ -552,7 +629,17 @@ interface TmsEnv {
   maxRetries: number;
 }
 
-function readTmsEnv(providerOverride?: string): { provider: string; env: TmsEnv } {
+/**
+ * tr-Ortamı okur
+ * en-Reads the environment
+ * input (providerOverride: string)
+ * output ({ provider: string; env: TmsEnv })
+ *
+ */
+function readTmsEnv(providerOverride?: string): {
+  provider: string;
+  env: TmsEnv;
+} {
   const provider = (
     providerOverride ??
     process.env.TMS_PROVIDER ??
@@ -585,9 +672,11 @@ function readTmsEnv(providerOverride?: string): { provider: string; env: TmsEnv 
 }
 
 /**
- * Resolve a company's TMS mode. Defaults to "internal" (LogiTrack's own
- * routing/shipment engine) unless `EXTERNAL_TMS_ENABLED=true`. Pass an explicit
- * mode to override per-company.
+ * tr-Bir şirketin TMS modunu çözer. Varsayılan olarak "internal" (LogiTrack'in kendi rota/gönderi motoru) kullanılır, `EXTERNAL_TMS_ENABLED=true` aksi belirtilmedikçe. Her şirket için geçersiz kılmak üzere açık bir mod geçersiz kılınabilir.
+ * en-Resolve a company's TMS mode. Defaults to "internal" (LogiTrack's own routing/shipment engine) unless `EXTERNAL_TMS_ENABLED=true`. Pass an explicit mode to override per-company.
+ * input (override: TmsMode)
+ * output (TmsMode)
+ *
  */
 export function resolveTmsMode(override?: TmsMode): TmsMode {
   if (override) return override;
@@ -595,8 +684,11 @@ export function resolveTmsMode(override?: TmsMode): TmsMode {
 }
 
 /**
- * Factory for the configured (or explicitly requested) TMS adapter.
- * Pass `provider` to target a specific TMS when a tenant uses more than one.
+ * tr-Ayarlanan (veya açıkça istenen) TMS adaptörü için factory. Bir tenant birden fazla TMS kullanıyorsa, belirli bir TMS'yi hedeflemek için `provider` geçersiz kılınabilir.
+ * en-Factory for the configured (or explicitly requested) TMS adapter. Pass `provider` to target a specific TMS when a tenant uses more than one.
+ * input (provider: string)
+ * output (TmsAdapter)
+ *
  */
 export function getTmsAdapter(provider?: string): TmsAdapter {
   const { provider: resolved, env } = readTmsEnv(provider);
@@ -614,6 +706,13 @@ export function getTmsAdapter(provider?: string): TmsAdapter {
 }
 
 // ─── Normalizers ────────────────────────────────────────────────────────────
+/**
+ * tr-Yük durumunu normalleştirir
+ * en-Normalizes the load state
+ * input (state: unknown)
+ * output (TmsLoadState)
+ *
+ */
 function normalizeLoadState(state: unknown): TmsLoadState {
   const s = String(state ?? "").toUpperCase();
   switch (s) {
@@ -648,6 +747,13 @@ function normalizeLoadState(state: unknown): TmsLoadState {
   }
 }
 
+/**
+ * tr-Bir değerin sayısal değerini kontrol eder, sayısal değilse null döner
+ * en-Checks a value for numeric value, returns null if not numeric
+ * input (v: unknown)
+ * output (number | null)
+ *
+ */
 function numOrNull(v: unknown): number | null {
   if (v === null || v === undefined || v === "") return null;
   const n = Number(v);
@@ -658,7 +764,13 @@ function numOrNull(v: unknown): number | null {
 // These are the functions callers usually reach for. Writes are idempotent;
 // reads are Redis-cached and degrade gracefully if Redis is unavailable.
 
-/** Dispatch a load to the active TMS. Idempotent on `referenceNumber`. */
+/**
+ * tr-Yükü aktif TMS'ye gönderir. `referenceNumber` üzerinden idempotent.
+ * en-Dispatch a load to the active TMS. Idempotent on `referenceNumber`.
+ * input (companyId: string, request: TmsLoadRequest, opts: { provider?: string })
+ * output (Promise<TmsLoadAck>)
+ *
+ */
 export async function dispatchLoadToTms(
   companyId: string,
   request: TmsLoadRequest,
@@ -677,14 +789,24 @@ export async function dispatchLoadToTms(
   return ack;
 }
 
-/** Cancel a dispatched load and drop its cached status. */
+/**
+ * tr-Gönderilen yükü iptal eder ve durumunu önbellekten siler.
+ * en-Cancel a dispatched load and drop its cached status.
+ * input (companyId: string, externalRef: string, reason: string, opts: { provider?: string })
+ * output (Promise<void>)
+ *
+ */
 export async function cancelTmsLoad(
   companyId: string,
   externalRef: string,
   reason?: string,
   opts?: { provider?: string }
 ): Promise<void> {
-  await getTmsAdapter(opts?.provider).cancelLoad(companyId, externalRef, reason);
+  await getTmsAdapter(opts?.provider).cancelLoad(
+    companyId,
+    externalRef,
+    reason
+  );
   try {
     await redis.del(tmsCacheKeys.loadStatus(companyId, externalRef));
   } catch {
@@ -692,7 +814,13 @@ export async function cancelTmsLoad(
   }
 }
 
-/** Shop carrier rates for a lane, cached briefly (quotes are short-lived). */
+/**
+ * tr-Nakliye için taşıyıcı tarifelerini alır, kısa süreliğine önbelleğe alınır (teklifler kısa ömürlüdür).
+ * en-Shop carrier rates for a lane, cached briefly (quotes are short-lived).
+ * input (companyId: string, request: TmsRateRequest, opts: { provider?: string; forceRefresh?: boolean })
+ * output (Promise<TmsRateQuote[]>)
+ *
+ */
 export async function getTmsRateQuotes(
   companyId: string,
   request: TmsRateRequest,
@@ -722,7 +850,13 @@ export async function getTmsRateQuotes(
   return quotes;
 }
 
-/** Poll a load's tracking status, cached briefly. */
+/**
+ * tr-Yükün durumunu kontrol eder, kısa süreliğine önbelleğe alınır.
+ * en-Poll a load's tracking status, cached briefly.
+ * input (companyId: string, externalRef: string, opts: { provider?: string; forceRefresh?: boolean })
+ * output (Promise<TmsLoadStatus>)
+ *
+ */
 export async function getTmsLoadStatus(
   companyId: string,
   externalRef: string,
@@ -752,7 +886,13 @@ export async function getTmsLoadStatus(
   return status;
 }
 
-/** Upsert carrier master data into the TMS. */
+/**
+ * tr-Taşıyıcı ana verilerini TMS'ye kaydeder.
+ * en-Upsert carrier master data into the TMS.
+ * input (companyId: string, carrier: TmsCarrier, opts: { provider?: string })
+ * output (Promise<void>)
+ *
+ */
 export async function syncCarrierToTms(
   companyId: string,
   carrier: TmsCarrier,
@@ -763,12 +903,11 @@ export async function syncCarrierToTms(
 }
 
 /**
- * Verify + decode an inbound TMS status webhook.
+ * tr-Doğrula ve gelen TMS durum webhook'unu çöz. İmza geçersizse `null` döner — yönlendirme işleyicisi o zaman 401 yanıt vermelidir ve hiçbir şey almamalıdır. Başarılı olursa, normalize edilmiş durum olayları döndürür; çağıran, kendi sistemimize toplu işleme (dedupe by `eventId`) sorumluluğundadır.
+ * en-Verify + decode an inbound TMS status webhook. Returns `null` when the signature is invalid — the route handler MUST then respond 401 and ingest nothing. On success it returns normalized status events; the caller is responsible for idempotent persistence (dedupe by `eventId`) into our own system.
+ * input (rawBody: string, headers: Record<string, string>, opts: { provider?: string })
+ * output (TmsStatusEvent[] | null)
  *
- * Returns `null` when the signature is invalid — the route handler MUST then
- * respond 401 and ingest nothing. On success it returns normalized status
- * events; the caller is responsible for idempotent persistence (dedupe by
- * `eventId`) into our own system.
  */
 export function ingestTmsStatusWebhook(
   rawBody: string,

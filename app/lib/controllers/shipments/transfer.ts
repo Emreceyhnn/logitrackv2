@@ -30,9 +30,10 @@ export interface TrailerLinkedShipment {
 }
 
 /**
- * The active shipments currently riding on a trailer — the "what's affected"
- * list a dispatcher needs when the trailer's vehicle breaks down, so nothing is
- * missed. Ownership-scoped; newest first.
+ * tr-dorseye yüklenmiş olan aktif durumdaki sevkiyatları getirir (örn: araç arızalandığında etkilenenleri bulmak için)
+ * en-retrieves active shipments currently loaded on a trailer (e.g., to find affected shipments when a vehicle breaks down)
+ * input (user: AuthenticatedUser, trailerId: string)
+ * output (Promise<TrailerLinkedShipment[]>)
  */
 export const getShipmentsByTrailer = authenticatedAction(
   async (user, trailerId: string): Promise<TrailerLinkedShipment[]> => {
@@ -83,10 +84,10 @@ export interface VehicleLinkedShipments {
 }
 
 /**
- * Resolve a vehicle's current trailer and the active shipments on it. The
- * vehicle-detail dialog only knows the vehicle id, but shipments hang off the
- * trailer — so this walks vehicle → currentTrailer → shipments in one call.
- * Returns an empty list (not an error) when the vehicle has no trailer.
+ * tr-bir araca bağlı dorseyi ve o dorse üzerindeki aktif sevkiyatları döndürür
+ * en-returns the trailer linked to a vehicle and the active shipments on that trailer
+ * input (user: AuthenticatedUser, vehicleId: string)
+ * output (Promise<VehicleLinkedShipments>)
  */
 export const getVehicleLinkedShipments = authenticatedAction(
   async (user, vehicleId: string): Promise<VehicleLinkedShipments> => {
@@ -157,11 +158,10 @@ export interface EligibleTargetTrailer {
 }
 
 /**
- * Trailers that can *receive* a transfer: operational (AVAILABLE) and not
- * hitched to an out-of-service vehicle — so the broken vehicle's trailer (and
- * any other bad one) never appears as a target. `excludeTrailerId` drops the
- * source trailer itself. Each carries its current committed load so the UI can
- * show remaining capacity.
+ * tr-sevkiyatların aktarılabileceği uygun ve kullanılabilir dorseleri listeler
+ * en-lists eligible and available trailers to which shipments can be transferred
+ * input (user: AuthenticatedUser, excludeTrailerId?: string)
+ * output (Promise<EligibleTargetTrailer[]>)
  */
 export const getEligibleTargetTrailers = authenticatedAction(
   async (user, excludeTrailerId?: string): Promise<EligibleTargetTrailer[]> => {
@@ -235,10 +235,10 @@ export const getEligibleTargetTrailers = authenticatedAction(
 );
 
 /**
- * Move several shipments onto a new trailer in one action — the bulk transfer
- * used when a vehicle goes down. Validates the target trailer belongs to the
- * company, is not out of service, and has capacity for the combined load of the
- * shipments being moved (plus what it already carries). All-or-nothing.
+ * tr-birden fazla sevkiyatı (toplu olarak) hedef dorseye atar (örn: araç arızasında transfer için)
+ * en-reassigns multiple shipments to a target trailer in bulk (e.g., for transferring load during a vehicle breakdown)
+ * input (user: AuthenticatedUser, shipmentIds: string[], targetTrailerId: string)
+ * output (Promise<{ success: boolean, reassigned: number, movedFrom: number }>)
  */
 export const bulkReassignTrailer = authenticatedAction(
   async (user, shipmentIds: string[], targetTrailerId: string) => {

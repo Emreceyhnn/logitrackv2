@@ -8,6 +8,12 @@ import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-araca ait yeni bir belge yükler; belgenin süresi dolmuş veya yaklaşıyorsa bildirim gönderir
+ * en-uploads a new document for the vehicle; sends notifications if the document is expired or expiring soon
+ * input (user: AuthenticatedUser, vehicleId: string, documentData: object)
+ * output (Promise<Document>)
+ */
 export const uploadVehicleDocument = authenticatedAction(
   async (
     user,

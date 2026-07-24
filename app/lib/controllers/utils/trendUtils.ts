@@ -1,10 +1,8 @@
 /**
- * Calculates the period-over-period percentage change between two numeric values.
- *
- * @param current  - Value for the current period
- * @param previous - Value for the previous (reference) period
- * @returns An object with `value` (rounded integer %) and `isUp` (boolean direction)
- *          or `undefined` when there is no previous data to compare against.
+ * tr-iki sayısal değer arasındaki dönemsel yüzde değişimini (trend) hesaplar
+ * en-calculates the period-over-period percentage change between two numeric values
+ * input (current: number, previous: number)
+ * output ({ value: number; isUp: boolean } | undefined)
  */
 export function calcTrend(
   current: number,
@@ -21,7 +19,10 @@ export function calcTrend(
 }
 
 /**
- * Returns the start-of-day Date for N days ago.
+ * tr-bugünden N gün öncesine ait gün başlangıcı saatli (00:00:00) Date nesnesini döndürür
+ * en-returns a Date object for N days ago at the start of the day (00:00:00)
+ * input (n: number)
+ * output (Date)
  */
 export function daysAgo(n: number): Date {
   const d = new Date();

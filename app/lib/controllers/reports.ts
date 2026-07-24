@@ -5,6 +5,12 @@ import { ReportsData } from "../type/reports";
 import { authenticatedAction } from "../auth-middleware";
 import { controllerGuard } from "./utils/controllerGuard";
 
+/**
+ * tr-raporlar sayfası için gerekli tüm istatistik ve metrikleri getirir
+ * en-retrieves all statistics and metrics required for the reports page
+ * input (user: AuthenticatedUser)
+ * output (Promise<ReportsData | null>)
+ */
 export const getReportsDataAction = authenticatedAction(async (user): Promise<ReportsData | null> => {
   return controllerGuard("getReportsDataAction", async () => {
     if (!user.companyId) return null;

@@ -2,7 +2,6 @@ import { Redis } from "@upstash/redis";
 import { createCacheKeys } from "./controllers/utils/cacheFactory";
 import { logger } from "@/app/lib/logger";
 
-
 const redisUrl =
   process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const redisToken =
@@ -82,12 +81,27 @@ export const exchangeRateCacheKeys = {
   exchangeRate: () => `exchange_rates:usd:v1`,
 };
 
+/**
+ * tr-Filtreleri hashlemek için kullanılır
+ * en-Used to hash filters
+ * input (
+  filters: T
+)
+ * output (string)
+ */
 export function hashFilters<T>(filters: T) {
   if (!filters || Object.keys(filters).length === 0) return "all";
   return Buffer.from(JSON.stringify(filters)).toString("base64");
 }
 
-// Helper to determine the set key for key tracking
+/**
+ * tr-Redis anahtarı için izleme kümesi anahtarını belirler
+ * en-Determines the set key for the tracking set
+ * input (
+  key: string
+)
+ * output (string | null)
+ */
 function getTrackingSetKey(key: string): string | null {
   const parts = key.split(":");
   const categories = [
@@ -101,7 +115,11 @@ function getTrackingSetKey(key: string): string | null {
     "customers",
     "companies",
   ];
-  if (parts.length >= 3 && parts[0] !== undefined && categories.includes(parts[0])) {
+  if (
+    parts.length >= 3 &&
+    parts[0] !== undefined &&
+    categories.includes(parts[0])
+  ) {
     if (parts[1] !== "detail") {
       return `keysSet:${parts[0]}:${parts[1]}`;
     }
@@ -109,7 +127,14 @@ function getTrackingSetKey(key: string): string | null {
   return null;
 }
 
-// Helper to determine the set key from invalidation pattern
+/**
+ * tr-İnhalasyon deseninden izleme kümesi anahtarını belirler
+ * en-Determines the set key for the tracking set from an invalidation pattern
+ * input (
+  pattern: string
+)
+ * output (string | null)
+ */
 function getTrackingSetKeyFromPattern(pattern: string): string | null {
   const parts = pattern.split(":");
   if (parts.length >= 2) {
@@ -117,7 +142,16 @@ function getTrackingSetKeyFromPattern(pattern: string): string | null {
   }
   return null;
 }
-
+/**
+ * tr-Önbelleğe alınmış verileri almak veya önbellek isabeti yoksa fetcher'ı çağırmak için sarmalayıcı.
+ * en-Wrapper for fetching cached data or calling the fetcher if there is no cache hit.
+ * input (
+  key: string,
+  arg2: (() => Promise<T>) | number,
+  arg3?: (() => Promise<T>) | number
+)
+ * output (Promise<T>)
+ */
 export async function withCache<T>(
   key: string,
   arg2: (() => Promise<T>) | number,
@@ -212,6 +246,14 @@ export async function withCache<T>(
   }
 }
 
+/**
+ * tr-İnhalasyon deseniyle izleme kümesi anahtarını alır ve kümedeki tüm anahtarları siler.
+ * en-Invalidates cache entries matching a pattern by deleting all keys in the associated tracking set.
+ * input (
+  pattern: string
+)
+ * output (Promise<void>)
+ */
 export async function invalidatePattern(pattern: string) {
   const setKey = getTrackingSetKeyFromPattern(pattern);
   if (!setKey) {

@@ -4,10 +4,10 @@ import { TERMINAL_SHIPMENT_STATUSES } from "./shipmentTransitions";
 type DbClient = Db;
 
 /**
- * Validates that adding `extra` load to a route does not exceed the assigned
- * vehicle's (and attached trailer's) capacity. Counts every non-terminal
- * shipment already on the route. No-op when the route has no vehicle yet —
- * the same check runs again when a vehicle is assigned.
+ * tr-bir rotaya fazladan yük eklendiğinde atanan aracın (ve varsa dorsenin) kapasitesinin aşılmadığını doğrular
+ * en-asserts that adding extra load to a route does not exceed the capacity of the assigned vehicle (and trailer, if any)
+ * input (db: DbClient, routeId: string, companyId: string, extra?: { weightKg?: number | null, volumeM3?: number | null }, excludeShipmentId?: string)
+ * output (Promise<void>)
  */
 export async function assertRouteCapacity(
   db: DbClient,

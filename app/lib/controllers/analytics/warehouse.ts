@@ -5,6 +5,12 @@ import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-depo kapasite ve doluluk oranlarını getirir
+ * en-retrieves warehouse capacity and utilization rates
+ * input (user: AuthenticatedUser)
+ * output (Promise<any[]>)
+ */
 export const getWarehouseCapacity = authenticatedAction(async (user) => {
   return controllerGuard("getWarehouseCapacity", async () => {
     await checkPermission(user, user.companyId, [], {
@@ -61,6 +67,12 @@ export const getWarehouseCapacity = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-stok seviyesi minimumun altına düşen ürünleri getirir
+ * en-retrieves items whose stock level has fallen below the minimum
+ * input (user: AuthenticatedUser)
+ * output (Promise<any[]>)
+ */
 export const getLowStockItems = authenticatedAction(async (user) => {
   return controllerGuard("getLowStockItems", async () => {
     await checkPermission(user, user.companyId, [], {

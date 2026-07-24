@@ -72,7 +72,8 @@ export class WmsError extends AppError {
     super(message, ErrorCode.INTERNAL, opts.status ?? 502);
     this.name = "WmsError";
     this.provider = opts.provider;
-    if (opts.upstreamStatus !== undefined) this.upstreamStatus = opts.upstreamStatus;
+    if (opts.upstreamStatus !== undefined)
+      this.upstreamStatus = opts.upstreamStatus;
     this.retryable = opts.retryable ?? false;
   }
 }
@@ -265,6 +266,13 @@ interface WmsRequestOptions {
 /** HTTP statuses worth retrying — transient upstream/network conditions. */
 const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 
+/**
+ * tr-WMS için HTTP isteği gerçekleştirir
+ * en-Performs an HTTP request for WMS
+ * input (cfg: WmsHttpConfig, opts: WmsRequestOptions)
+ * output (Promise<T>)
+ *
+ */
 async function wmsFetch<T>(
   cfg: WmsHttpConfig,
   opts: WmsRequestOptions
@@ -337,13 +345,26 @@ async function wmsFetch<T>(
   );
 }
 
-/** Exponential backoff with full jitter: base 200ms, capped at 3s. */
+/**
+ * tr-Kademeli geri çekilme
+ * en-Exponential backoff with full jitter: base 200ms, capped at 3s.
+ * input (attempt: number)
+ * output (Promise<void>)
+ *
+ */
 function backoff(attempt: number): Promise<void> {
   const capped = Math.min(200 * 2 ** attempt, 3000);
   const delay = Math.random() * capped;
   return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
+/**
+ * tr-Güvenli metin okuma
+ * en-Safe text reading
+ * input (response: Response)
+ * output (Promise<string>)
+ *
+ */
 async function safeReadText(response: Response): Promise<string> {
   try {
     return (await response.text()).slice(0, 500);
@@ -352,7 +373,13 @@ async function safeReadText(response: Response): Promise<string> {
   }
 }
 
-/** Constant-time HMAC-SHA256 signature check for webhooks. */
+/**
+ * tr- Sabit zamanlı HMAC-SHA256 imza kontrolü
+ * en-Constant-time HMAC-SHA256 signature check for webhooks.
+ * input (rawBody: string, signature: string | undefined, secret: string)
+ * output (boolean)
+ *
+ */
 function verifyHmacSignature(
   rawBody: string,
   signature: string | undefined,
@@ -393,6 +420,13 @@ class GenericRestWmsAdapter implements WmsAdapter {
     this.webhookSecret = env.webhookSecret;
   }
 
+  /**
+   * tr-Envanteri çeker
+   * en-Pulls inventory
+   * input (companyId: string, warehouseCode: string)
+   * output (Promise<WmsInventorySnapshot>)
+   *
+   */
   async pullInventory(
     companyId: string,
     warehouseCode: string
@@ -416,6 +450,13 @@ class GenericRestWmsAdapter implements WmsAdapter {
     };
   }
 
+  /**
+   * tr-Envanter seviyelerini gönderir
+   * en-Sends inventory levels
+   * input (companyId: string, warehouseCode: string, updates: WmsInventoryLevelUpdate[])
+   * output (Promise<void>)
+   *
+   */
   async pushInventoryLevels(
     companyId: string,
     warehouseCode: string,
@@ -430,6 +471,13 @@ class GenericRestWmsAdapter implements WmsAdapter {
     });
   }
 
+  /**
+   * tr-Sevkiyat isteğini gönderir
+   * en-Sends shipment request
+   * input (companyId: string, request: WmsShipmentRequest)
+   * output (Promise<WmsShipmentAck>)
+   *
+   */
   async pushShipment(
     companyId: string,
     request: WmsShipmentRequest
@@ -452,6 +500,13 @@ class GenericRestWmsAdapter implements WmsAdapter {
     };
   }
 
+  /**
+   * tr-Sevkiyat durumunu alır
+   * en-Gets shipment status
+   * input (companyId: string, externalRef: string)
+   * output (Promise<WmsShipmentStatus>)
+   *
+   */
   async getShipmentStatus(
     companyId: string,
     externalRef: string
@@ -473,6 +528,13 @@ class GenericRestWmsAdapter implements WmsAdapter {
     };
   }
 
+  /**
+   * tr-Depo ana verilerini gönderir
+   * en-Sends warehouse master data
+   * input (companyId: string, warehouse: WmsWarehouseMasterData)
+   * output (Promise<void>)
+   *
+   */
   async pushWarehouse(
     companyId: string,
     warehouse: WmsWarehouseMasterData
@@ -486,6 +548,13 @@ class GenericRestWmsAdapter implements WmsAdapter {
     });
   }
 
+  /**
+   * tr-Hareket webhook'unu ayrıştırır
+   * en-Parses movement webhook
+   * input (rawBody: string, headers: Record<string, string>)
+   * output (WmsMovementEvent[] | null)
+   *
+   */
   parseMovementWebhook(
     rawBody: string,
     headers: Record<string, string>
@@ -495,7 +564,9 @@ class GenericRestWmsAdapter implements WmsAdapter {
       headers["X-Wms-Signature"] ??
       headers["x-signature"];
     if (!verifyHmacSignature(rawBody, sig, this.webhookSecret)) {
-      logger.warn(`[wms:${this.provider}] webhook signature verification failed`);
+      logger.warn(
+        `[wms:${this.provider}] webhook signature verification failed`
+      );
       return null;
     }
 
@@ -552,9 +623,11 @@ interface WmsEnv {
 }
 
 /**
- * Resolve env at call-time (not module load) so vars set after import — e.g.
- * in tests or serverless cold-start config — are respected. Mirrors the
- * pattern used by `exchangeRate.ts`.
+ * tr-ortam değişkenlerini çağrı zamanında çözer
+ * en-Resolve env at call-time (not module load) so vars set after import — e.g. in tests or serverless cold-start config — are respected. Mirrors the pattern used by `exchangeRate.ts`.
+ * input (providerOverride: string)
+ * output ({ provider: string; env: WmsEnv; })
+ *
  */
 function readWmsEnv(providerOverride?: string): {
   provider: string;
@@ -592,8 +665,11 @@ function readWmsEnv(providerOverride?: string): {
 }
 
 /**
- * Factory for the configured (or explicitly requested) WMS adapter.
- * Pass `provider` to target a specific WMS when a tenant uses more than one.
+ * tr-Ortam değişkenleri için factory
+ * en-Factory for the configured (or explicitly requested) WMS adapter. Pass `provider` to target a specific WMS when a tenant uses more than one.
+ * input (provider: string)
+ * output (WmsAdapter)
+ *
  */
 export function getWmsAdapter(provider?: string): WmsAdapter {
   const { provider: resolved, env } = readWmsEnv(provider);
@@ -611,6 +687,13 @@ export function getWmsAdapter(provider?: string): WmsAdapter {
 }
 
 // ─── Normalizers ────────────────────────────────────────────────────────────
+/**
+ * tr-Sevkiyat durumunu normalleştirir
+ * en-Normalizes shipment state
+ * input (state: unknown)
+ * output (WmsShipmentState)
+ *
+ */
 function normalizeShipmentState(state: unknown): WmsShipmentState {
   const s = String(state ?? "").toUpperCase();
   switch (s) {
@@ -638,6 +721,13 @@ function normalizeShipmentState(state: unknown): WmsShipmentState {
   }
 }
 
+/**
+ * tr-Hareket türünü normalleştirir
+ * en-Normalizes movement type
+ * input (type: unknown)
+ * output (WmsMovementType)
+ *
+ */
 function normalizeMovementType(type: unknown): WmsMovementType {
   const t = String(type ?? "").toUpperCase();
   switch (t) {
@@ -672,8 +762,11 @@ function normalizeMovementType(type: unknown): WmsMovementType {
 // they degrade gracefully if Redis is unavailable (fail-open on cache).
 
 /**
- * Pull a warehouse's stock levels from the active WMS, cached for
- * `WMS_INVENTORY_CACHE_TTL`. Callers map the snapshot onto their own models.
+ * tr-Bir deponun stok seviyelerini aktif WMS'ten çeker, `WMS_INVENTORY_CACHE_TTL` süresince önbelleğe alınır. Çağrılar anlık görüntüyü kendi modellerine eşler.
+ * en-Pull a warehouse's stock levels from the active WMS, cached for `WMS_INVENTORY_CACHE_TTL`. Callers map the snapshot onto their own models.
+ * input (companyId: string, warehouseCode: string, opts: { provider?: string; forceRefresh?: boolean })
+ * output (Promise<WmsInventorySnapshot>)
+ *
  */
 export async function getWmsInventory(
   companyId: string,
@@ -705,8 +798,11 @@ export async function getWmsInventory(
 }
 
 /**
- * Push authoritative stock levels (e.g. after a physical count) to the WMS and
- * drop the read cache so the next pull reflects the correction.
+ * tr-Envanter seviyelerini WMS'e gönderir ve okuma önbelleğini temizler.
+ * en-Push authoritative stock levels (e.g. after a physical count) to the WMS and drop the read cache so the next pull reflects the correction.
+ * input (companyId: string, warehouseCode: string, updates: WmsInventoryLevelUpdate[], opts: { provider?: string })
+ * output (Promise<void>)
+ *
  */
 export async function syncWmsInventoryLevels(
   companyId: string,
@@ -726,7 +822,13 @@ export async function syncWmsInventoryLevels(
   }
 }
 
-/** Create/dispatch an order in the WMS. Idempotent on `referenceNumber`. */
+/**
+ * tr-WMS'e bir sipariş oluşturur/gönderir. `referenceNumber` üzerinden idempotent.
+ * en-Create/dispatch an order in the WMS. Idempotent on `referenceNumber`.
+ * input (companyId: string, request: WmsShipmentRequest, opts: { provider?: string })
+ * output (Promise<WmsShipmentAck>)
+ *
+ */
 export async function pushShipmentToWms(
   companyId: string,
   request: WmsShipmentRequest,
@@ -745,7 +847,13 @@ export async function pushShipmentToWms(
   return ack;
 }
 
-/** Poll a pushed order's fulfilment status, cached briefly. */
+/**
+ * tr-WMS'teki siparişin durumunu alır, kısa süreli önbelleğe alınır.
+ * en-Poll a pushed order's fulfilment status, cached briefly.
+ * input (companyId: string, externalRef: string, opts: { provider?: string; forceRefresh?: boolean })
+ * output (Promise<WmsShipmentStatus>)
+ *
+ */
 export async function getWmsShipmentStatus(
   companyId: string,
   externalRef: string,
@@ -775,7 +883,13 @@ export async function getWmsShipmentStatus(
   return status;
 }
 
-/** Upsert warehouse master data into the WMS. */
+/**
+ * tr-Depo ana verilerini WMS'e gönderir
+ * en-Upsert warehouse master data into the WMS.
+ * input (companyId: string, warehouse: WmsWarehouseMasterData, opts: { provider?: string })
+ * output (Promise<void>)
+ *
+ */
 export async function syncWarehouseToWms(
   companyId: string,
   warehouse: WmsWarehouseMasterData,
@@ -789,12 +903,11 @@ export async function syncWarehouseToWms(
 }
 
 /**
- * Verify + decode an inbound WMS movement webhook.
+ * tr-WMS gelen hareket webhook'unu doğrular ve ayrıştırır. İmza geçersizse `null` döner — route handler 401 yanıtı vermeli ve hiçbir veri işlememeli. Başarılı olduğunda normalize edilmiş hareket olayları döndürülür; çağran, `eventId` bazlı idempotent kalıcılıktan sorumludur.
+ * en-Verify + decode an inbound WMS movement webhook. Returns `null` when the signature is invalid — the route handler MUST then respond 401 and ingest nothing. On success it returns normalized movement events; the caller is responsible for idempotent persistence (dedupe by `eventId`) into our own system.
+ * input (rawBody: string, headers: Record<string, string>, opts: { provider?: string })
+ * output (WmsMovementEvent[] | null)
  *
- * Returns `null` when the signature is invalid — the route handler MUST then
- * respond 401 and ingest nothing. On success it returns normalized movement
- * events; the caller is responsible for idempotent persistence (dedupe by
- * `eventId`) into our own system.
  */
 export function ingestWmsMovementWebhook(
   rawBody: string,

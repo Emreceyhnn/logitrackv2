@@ -78,7 +78,8 @@ export class TrackingError extends AppError {
     super(message, ErrorCode.INTERNAL, opts.status ?? 502);
     this.name = "TrackingError";
     this.provider = opts.provider;
-    if (opts.upstreamStatus !== undefined) this.upstreamStatus = opts.upstreamStatus;
+    if (opts.upstreamStatus !== undefined)
+      this.upstreamStatus = opts.upstreamStatus;
     this.retryable = opts.retryable ?? false;
   }
 }
@@ -114,6 +115,13 @@ interface TrackingHttpConfig {
 
 const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 
+/**
+ * tr-Araç takip API'si için HTTP isteği gerçekleştirir
+ * en-Performs an HTTP request for the vehicle tracking API
+ * input (cfg: TrackingHttpConfig, path: string)
+ * output (Promise<T>)
+ *
+ */
 async function trackingFetch<T>(
   cfg: TrackingHttpConfig,
   path: string
@@ -173,7 +181,13 @@ async function trackingFetch<T>(
   );
 }
 
-/** Exponential backoff with full jitter: base 200ms, capped at 3s. */
+/**
+ * tr-Kademeli geri çekilme
+ * en-Exponential backoff with full jitter: base 200ms, capped at 3s.
+ * input (attempt: number)
+ * output (Promise<void>)
+ *
+ */
 function backoff(attempt: number): Promise<void> {
   const capped = Math.min(200 * 2 ** attempt, 3000);
   return new Promise((resolve) => setTimeout(resolve, Math.random() * capped));
@@ -208,6 +222,13 @@ class GenericTelematicsAdapter implements VehicleTrackingAdapter {
     this.apiKey = env.apiKey;
   }
 
+  /**
+   * tr-Araç konumunu alır
+   * en-Gets vehicle location
+   * input (plate: string)
+   * output (Promise<VehicleLocation>)
+   *
+   */
   async getVehicleLocation(plate: string): Promise<VehicleLocation> {
     const data = await trackingFetch<Partial<VehicleLocation>>(
       this.cfg,
@@ -222,6 +243,13 @@ class GenericTelematicsAdapter implements VehicleTrackingAdapter {
     };
   }
 
+  /**
+   * tr-Araç telemetrisini alır
+   * en-Gets vehicle telemetry
+   * input (plate: string)
+   * output (Promise<VehicleTelemetry>)
+   *
+   */
   async getVehicleTelemetry(plate: string): Promise<VehicleTelemetry> {
     const data = await trackingFetch<Record<string, unknown>>(
       this.cfg,
@@ -239,6 +267,13 @@ class GenericTelematicsAdapter implements VehicleTrackingAdapter {
     };
   }
 
+  /**
+   * tr-Acil durum olaylarına abone olur
+   * en-Subscribes to emergency events
+   * input (onEmergency: (event: EmergencyEvent) => void, onError: (error: Error) => void)
+   * output (() => void)
+   *
+   */
   subscribeToEmergencies(
     onEmergency: (event: EmergencyEvent) => void,
     onError?: (error: Error) => void
@@ -281,7 +316,10 @@ class GenericTelematicsAdapter implements VehicleTrackingAdapter {
       });
 
       ws.on("error", (error) => {
-        logger.error(`[tracking:${this.provider}] emergency stream error`, error);
+        logger.error(
+          `[tracking:${this.provider}] emergency stream error`,
+          error
+        );
         onError?.(error);
       });
 
@@ -308,6 +346,13 @@ class GenericTelematicsAdapter implements VehicleTrackingAdapter {
   }
 }
 
+/**
+ * tr-Sayısal değerleri kontrol eder
+ * en-Checks a value for numeric value
+ * input (v: unknown)
+ * output (number | null)
+ *
+ */
 function numOrNull(v: unknown): number | null {
   if (v === null || v === undefined || v === "") return null;
   const n = Number(v);
@@ -323,6 +368,13 @@ interface TrackingEnv {
   maxRetries: number;
 }
 
+/**
+ * tr-Ortamı okur
+ * en-Reads the environment
+ * input ()
+ * output ({ provider: string; env: TrackingEnv })
+ *
+ */
 function readTrackingEnv(): { provider: string; env: TrackingEnv } {
   const provider = (
     process.env.EXTERNAL_TRACKING_PROVIDER ?? "generic-telematics"
@@ -354,9 +406,11 @@ function readTrackingEnv(): { provider: string; env: TrackingEnv } {
 }
 
 /**
- * Resolve a company's tracking mode. Defaults to "internal" (LogiTrack's own
- * Firebase pipeline) unless `EXTERNAL_TRACKING_ENABLED=true`. Pass an explicit
- * mode to override per-company.
+ * tr-Bir şirketin takip modunu çözer. Varsayılan olarak "internal" (LogiTrack'in kendi Firebase işlem hattı) kullanılır, `EXTERNAL_TRACKING_ENABLED=true` aksi belirtilmedikçe. Her şirket için geçersiz kılmak üzere açık bir mod geçersiz kılınabilir.
+ * en-Resolve a company's tracking mode. Defaults to "internal" (LogiTrack's own Firebase pipeline) unless `EXTERNAL_TRACKING_ENABLED=true`. Pass an explicit mode to override per-company.
+ * input (override: VehicleTrackingMode)
+ * output (VehicleTrackingMode)
+ *
  */
 export function resolveTrackingMode(
   override?: VehicleTrackingMode
@@ -368,8 +422,11 @@ export function resolveTrackingMode(
 }
 
 /**
- * Factory for the external tracking adapter. Only relevant in "external" mode;
- * "internal" mode is served by `app/lib/vehicleTracking.ts` on the client.
+ * tr-Harici takip bağdaştırıcısı için factory. Yalnızca "external" modda geçerlidir; "internal" mod istemcide `app/lib/vehicleTracking.ts` tarafından sağlanır.
+ * en-Factory for the external tracking adapter. Only relevant in "external" mode; "internal" mode is served by `app/lib/vehicleTracking.ts` on the client.
+ * input ()
+ * output (VehicleTrackingAdapter)
+ *
  */
 export function getVehicleTrackingAdapter(): VehicleTrackingAdapter {
   const { provider, env } = readTrackingEnv();
@@ -387,12 +444,26 @@ export function getVehicleTrackingAdapter(): VehicleTrackingAdapter {
 // ─── High-level convenience wrappers ────────────────────────────────────────
 // Thin, typed entry points for callers that have opted into external tracking.
 
+/**
+ * tr-Araç konumunu harici sağlayıcıdan alır
+ * en-Gets vehicle location from external provider
+ * input (plate: string)
+ * output (Promise<VehicleLocation>)
+ *
+ */
 export async function getExternalVehicleLocation(
   plate: string
 ): Promise<VehicleLocation> {
   return getVehicleTrackingAdapter().getVehicleLocation(plate);
 }
 
+/**
+ * tr-Araç telemetrisini harici sağlayıcıdan alır
+ * en-Gets vehicle telemetry from external provider
+ * input (plate: string)
+ * output (Promise<VehicleTelemetry>)
+ *
+ */
 export async function getExternalVehicleTelemetry(
   plate: string
 ): Promise<VehicleTelemetry> {
@@ -400,8 +471,11 @@ export async function getExternalVehicleTelemetry(
 }
 
 /**
- * Subscribe to the external provider's emergency notifications.
- * Returns an unsubscribe function. Auto-reconnects on drop.
+ * tr-Harici sağlayıcının acil durum bildirimlerine abone olur. Ayrılma fonksiyonu döndürür. Bağlantı koptuğunda otomatik yeniden bağlanır.
+ * en-Subscribes to the external provider's emergency notifications. Returns an unsubscribe function. Auto-reconnects on drop.
+ * input (onEmergency: (event: EmergencyEvent) => void, onError: (error: Error) => void)
+ * output (() => void)
+ *
  */
 export function subscribeToExternalEmergencies(
   onEmergency: (event: EmergencyEvent) => void,

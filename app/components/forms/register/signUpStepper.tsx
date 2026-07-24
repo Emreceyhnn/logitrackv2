@@ -22,10 +22,12 @@ import Step3Profile from "./step3Profile";
 import { RegisterUser, LoginWithGoogle } from "@/app/lib/controllers/users";
 import AuthButton from "../../ui/AuthButton";
 import { signUpValidationSchema } from "@/app/lib/validationSchema";
-import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import {
+  useDictionary,
+  useLanguage,
+} from "@/app/lib/language/DictionaryContext";
 import { logger } from "@/app/lib/logger";
 import GoogleSignInButton from "../../ui/GoogleSignInButton";
-
 
 /* --------------------------------- STYLES --------------------------------- */
 
@@ -200,7 +202,10 @@ export default function SignUpStepper() {
           let errorMsg = res.error;
           if (res.error === "Email already exists") {
             errorMsg = dict.auth.emailExists;
-          } else if (res.error === "Too many registration attempts from this IP. Please try again in an hour.") {
+          } else if (
+            res.error ===
+            "Too many registration attempts from this IP. Please try again in an hour."
+          ) {
             errorMsg = dict.auth.tooManyRegistrationAttempts;
           }
 
@@ -284,7 +289,14 @@ export default function SignUpStepper() {
                   disabled={googleLoading}
                 />
                 {googleError && (
-                  <Typography sx={{ color: "#f87171", fontSize: "13px", textAlign: "center", mt: 1.5 }}>
+                  <Typography
+                    sx={{
+                      color: "#f87171",
+                      fontSize: "13px",
+                      textAlign: "center",
+                      mt: 1.5,
+                    }}
+                  >
                     {googleError}
                   </Typography>
                 )}
@@ -318,6 +330,7 @@ export default function SignUpStepper() {
                   isLastStep ? dict.auth.registering : dict.auth.continuing
                 }
                 sx={{
+                  px: 3,
                   bgcolor: "#38bdf8",
                   color: "#000",
                   "&:hover": {

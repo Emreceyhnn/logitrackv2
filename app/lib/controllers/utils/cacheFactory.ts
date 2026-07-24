@@ -20,6 +20,12 @@ export interface CacheKeys {
   kpis: (companyId: string) => string;
 }
 
+/**
+ * tr-önbellek anahtarlarını (cache keys) standart bir önek ile üretir
+ * en-generates cache keys with a standardized prefix
+ * input (prefix: string)
+ * output (CacheKeys)
+ */
 export function createCacheKeys(prefix: string): CacheKeys {
   return {
     companyPattern: (companyId: string) => `${prefix}:${companyId}:*`,
@@ -58,6 +64,12 @@ export interface CacheManager {
   hashFilters: typeof hashFilters;
 }
 
+/**
+ * tr-önbellek yönetimi (cache manager) nesnesini oluşturur, önbelleğe alma ve temizleme işlemlerini kapsar
+ * en-creates a cache manager object that encapsulates caching and invalidation operations
+ * input (prefix: string, ttl: number)
+ * output (CacheManager)
+ */
 export function createCacheManager(
   prefix: string,
   ttl: number

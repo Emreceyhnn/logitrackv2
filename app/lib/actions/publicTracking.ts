@@ -92,6 +92,11 @@ const TRACKING_ID_RE = /^[A-Za-z0-9][A-Za-z0-9\-_]{2,63}$/;
  * stored as free text (often "Street, District, City"); we surface only the
  * last comma-separated segment so a stranger with a token can't read the exact
  * delivery street address.
+ * 
+ * tr-tam hedef adresini kabaca bir bölgeye indirger
+ * en-reduces a full destination string to a coarse locality
+ * input (destination: string | null)
+ * output (string | null)
  */
 function coarseDestination(destination: string | null): string | null {
   if (!destination) return null;
@@ -105,6 +110,11 @@ function coarseDestination(destination: string | null): string | null {
 /**
  * Rounds a lat/lng pair to {@link COORD_PRECISION} decimals, yielding an area
  * rather than a point. Returns null if either coordinate is missing.
+ * 
+ * tr-enlem/boylam koordinatlarını belirli bir ondalık hassasiyete yuvarlar
+ * en-rounds a lat/lng pair to a specific decimal precision
+ * input (lat: number | null | undefined, lng: number | null | undefined)
+ * output (PublicCoord | null)
  */
 function coarseCoord(
   lat: number | null | undefined,
@@ -118,6 +128,12 @@ function coarseCoord(
   };
 }
 
+/**
+ * tr-verilen takip kimliği ile gönderi durumunu herkese açık olarak sorgular
+ * en-publicly queries the shipment status with the given tracking ID
+ * input (rawTrackingId: string)
+ * output (Promise<TrackingLookup>)
+ */
 export async function trackShipment(
   rawTrackingId: string
 ): Promise<TrackingLookup> {

@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
@@ -13,6 +13,12 @@ import {
 } from "../../redis";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-şirkete ait sevkiyatları sayfalama ve arama filtreleriyle birlikte getirir
+ * en-retrieves company shipments along with pagination and search filters
+ * input (user: AuthenticatedUser, filters?: object)
+ * output (Promise<ShipmentWithRelations[] | { shipments: ShipmentWithRelations[], totalCount: number }>)
+ */
 export const getShipments = authenticatedAction(
   async (
     user,
@@ -149,6 +155,12 @@ export const getShipments = authenticatedAction(
   }
 );
 
+/**
+ * tr-verilen kimlik numarasına (id) göre sevkiyatın detaylarını (ilişkili verilerle birlikte) getirir
+ * en-retrieves the details of a shipment by its id (including related data)
+ * input (user: AuthenticatedUser, shipmentId: string)
+ * output (Promise<Shipment>)
+ */
 export const getShipmentById = authenticatedAction(
   async (user, shipmentId: string) => {
     const companyId = user?.companyId;
@@ -195,6 +207,12 @@ export const getShipmentById = authenticatedAction(
   }
 );
 
+/**
+ * tr-takip numarasına (trackingId) göre sevkiyatı ve geçmiş hareketlerini getirir
+ * en-retrieves a shipment and its history by its tracking number (trackingId)
+ * input (user: AuthenticatedUser, trackingId: string)
+ * output (Promise<Shipment>)
+ */
 export const getShipmentByTrackingId = authenticatedAction(
   async (user, trackingId: string) => {
     const companyId = user?.companyId;

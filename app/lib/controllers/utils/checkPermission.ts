@@ -15,6 +15,12 @@ export interface CheckPermissionUser {
   role?: { name: string } | null;
 }
 
+/**
+ * tr-kullanıcının bir şirkete erişim yetkisini ve belirtilen rollere sahip olup olmadığını doğrular
+ * en-verifies the user's permission to access a company and checks if they hold the required roles
+ * input (userOrUserId: CheckPermissionUser | string, companyId: string | null, requiredRoles?: string[], options?: { allowNoCompany?: boolean })
+ * output (Promise<{ id: string, companyId: string | null, roleName: string | null }>)
+ */
 export async function checkPermission(
   userOrUserId: CheckPermissionUser | string,
   companyId: string | null,

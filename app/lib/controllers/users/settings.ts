@@ -6,6 +6,12 @@ import { logAuditEvent } from "../session";
 import { headers } from "next/headers";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-kullanıcının bölgesel ayarlarını (saat dilimi, dil, formatlar vb.) günceller
+ * en-updates user's regional settings (timezone, language, formats, etc.)
+ * input (user: AuthenticatedUser, settings: object)
+ * output (Promise<{ success: boolean, user: User }>)
+ */
 export const updateUserRegionalSettings = authenticatedAction(
   async (
     user,
@@ -47,6 +53,12 @@ export const updateUserRegionalSettings = authenticatedAction(
   }
 );
 
+/**
+ * tr-kullanıcının bildirim tercihlerini (e-posta, anlık bildirim vb.) günceller
+ * en-updates user's notification preferences (email, push, etc.)
+ * input (user: AuthenticatedUser, settings: object)
+ * output (Promise<{ success: boolean, user: User }>)
+ */
 export const updateUserNotificationSettings = authenticatedAction(
   async (
     user,

@@ -13,6 +13,12 @@ import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 
+/**
+ * tr-belirtilen araç için yeni bir sorun/arıza kaydı oluşturur ve bildirim gönderir
+ * en-creates a new issue/defect record for the specified vehicle and sends a notification
+ * input (user: AuthenticatedUser, vehicleId: string, issueData: object)
+ * output (Promise<Issue>)
+ */
 export const createVehicleIssue = authenticatedAction(
   async (
     user,
@@ -82,6 +88,12 @@ export const createVehicleIssue = authenticatedAction(
   }
 );
 
+/**
+ * tr-kullanıcının şirketine ait tüm açık veya devam eden araç sorunlarını listeler
+ * en-lists all open or in-progress vehicle issues belonging to the user's company
+ * input (user: AuthenticatedUser)
+ * output (Promise<Issue[]>)
+ */
 export const getOpenIssuesForUser = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
   return controllerGuard("getOpenIssuesForUser", async () => {
@@ -125,6 +137,12 @@ export const getOpenIssuesForUser = authenticatedAction(async (user) => {
   }, { fallback: [] });
 });
 
+/**
+ * tr-mevcut bir araç sorununun durumunu veya önceliğini günceller ve değişikliklere göre bildirim gönderir
+ * en-updates the status or priority of an existing vehicle issue and sends notifications based on changes
+ * input (user: AuthenticatedUser, issueId: string, data: object)
+ * output (Promise<Issue>)
+ */
 export const updateIssue = authenticatedAction(
   async (
     user,

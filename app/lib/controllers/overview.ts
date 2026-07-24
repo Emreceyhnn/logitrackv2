@@ -37,6 +37,11 @@ import {
 /**
  * Aggregates all data required for the Overview Dashboard in a single server-side pass.
  * This replaces 10 separate server actions to minimize network overhead and database connections.
+ * 
+ * tr-genel bakış paneli için gerekli tüm verileri tek bir sunucu tarafı işleminde toplar
+ * en-aggregates all data required for the Overview Dashboard in a single server-side pass
+ * input (user: AuthenticatedUser)
+ * output (Promise<DashboardData & { alerts: ActionRequiredItems[] }>)
  */
 export const getOverviewDashboardData = authenticatedAction(async (user): Promise<DashboardData & { alerts: ActionRequiredItems[] }> => {
   return controllerGuard("getOverviewDashboardData", async () => {

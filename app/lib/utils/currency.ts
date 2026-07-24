@@ -16,6 +16,12 @@ const CURRENCY_LOCALES: Record<SupportedCurrency, string> = {
   GBP: "en-GB",
 };
 
+/**
+ * TR: Verilen miktarı (amount) istenen para birimi ve kura göre formatlar.
+ * EN: Formats the given amount according to the target currency and exchange rate.
+ * Input: amount (number), currency (string), rate (number), decimals (number), isDirectAmount (boolean)
+ * Output: string (Örn/Ex: "$1,234.00")
+ */
 export function formatCurrency(
   amount: number,
   currency: SupportedCurrency = "USD",
@@ -37,6 +43,12 @@ export function formatCurrency(
   }
 }
 
+/**
+ * TR: Büyük sayıları (M, K) kısaltarak para birimi formatına çevirir.
+ * EN: Formats large numbers into a compact currency string (e.g., M for millions, K for thousands).
+ * Input: usdAmount (number), currency (string), rate (number)
+ * Output: string (Örn/Ex: "$1.2M")
+ */
 export function formatCurrencyCompact(
   usdAmount: number,
   currency: SupportedCurrency = "USD",

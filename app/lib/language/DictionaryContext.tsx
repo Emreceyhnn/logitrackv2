@@ -1,10 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useMemo, useCallback } from "react";
 import {
-  getCanonicalPath,
-  buildLocalizedHref,
-} from "./navigation";
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
+import { getCanonicalPath, buildLocalizedHref } from "./navigation";
 import type { Dictionary } from "./language";
 
 /* -------------------------------------------------------------------------- */
@@ -34,14 +37,25 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 // bundle — the active language's dict arrives from the server as a prop, and
 // the other locale is only downloaded if the user actually switches language.
 const enLoader = () =>
-  import("./dictionaries/en.json").then((m) => m.default as unknown as Dictionary);
+  import("./dictionaries/en.json").then(
+    (m) => m.default as unknown as Dictionary
+  );
 const dictionaryLoaders: Record<string, () => Promise<Dictionary>> = {
   en: enLoader,
-  tr: () => import("./dictionaries/tr.json").then((m) => m.default as unknown as Dictionary),
+  tr: () =>
+    import("./dictionaries/tr.json").then(
+      (m) => m.default as unknown as Dictionary
+    ),
 };
 
 const dictionaryCache = new Map<string, Dictionary>();
 
+/**
+ * tr-belirtilen dil koduna ait sözlüğü (JSON) yükler ve bellekte (cache) tutar
+ * en-loads the dictionary (JSON) for the specified language code and caches it in memory
+ * input (lang: string)
+ * output (Promise<Dictionary>)
+ */
 async function loadDictionary(lang: string): Promise<Dictionary> {
   const cached = dictionaryCache.get(lang);
   if (cached) return cached;
@@ -55,6 +69,12 @@ async function loadDictionary(lang: string): Promise<Dictionary> {
 /*  Helper: persist language preference                                         */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * tr-kullanıcının dil tercihini çerez (cookie) ve yerel depolama (localStorage) üzerine kaydeder
+ * en-persists the user's language preference to a cookie and localStorage
+ * input (lang: string)
+ * output (void)
+ */
 function persistLanguage(lang: string) {
   // Cookie — needed by middleware (proxy.ts) for locale detection
   document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
@@ -71,7 +91,17 @@ function persistLanguage(lang: string) {
 /*  Helper: update URL without triggering full Next.js navigation                */
 /* -------------------------------------------------------------------------- */
 
-function updateUrlForLanguage(currentPathname: string, oldLang: string, newLang: string) {
+/**
+ * tr-sayfayı tamamen yeniden yüklemeden (history.replaceState) URL'i yeni dile uygun şekilde günceller
+ * en-updates the URL for the new language using history.replaceState without triggering a full page reload
+ * input (currentPathname: string, oldLang: string, newLang: string)
+ * output (void)
+ */
+function updateUrlForLanguage(
+  currentPathname: string,
+  oldLang: string,
+  newLang: string
+) {
   const segments = currentPathname.split("/");
   const pathWithoutLang = "/" + segments.slice(2).join("/");
 
@@ -92,11 +122,10 @@ function updateUrlForLanguage(currentPathname: string, oldLang: string, newLang:
 /* -------------------------------------------------------------------------- */
 
 /**
- * `DictionaryProvider` provides reactive `lang`, `dict`, and `changeLanguage()`.
- *
- * The active dictionary always comes from the server as a prop; switching
- * language lazy-loads the other locale's chunk on demand, so no dictionary
- * JSON is part of the initial bundle.
+ * tr-dil (lang), sözlük (dict) ve dil değiştirme (changeLanguage) işlevlerini sağlayan React Provider bileşeni
+ * en-React Provider component that supplies reactive lang, dict, and changeLanguage capabilities
+ * input ({ dict: Dictionary, lang: string, children: React.ReactNode })
+ * output (JSX.Element)
  */
 export function DictionaryProvider({
   dict: serverDict,
@@ -153,18 +182,23 @@ export function DictionaryProvider({
 /* -------------------------------------------------------------------------- */
 
 /**
- * Returns the full `{ lang, dict, changeLanguage }` context.
- * Use `changeLanguage(newLang)` for instant language switching.
+ * tr-tam dil bağlamını ({ lang, dict, changeLanguage }) döndürür
+ * en-returns the full LanguageContextValue ({ lang, dict, changeLanguage })
+ * input ()
+ * output (LanguageContextValue)
  */
 export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error("useLanguage must be used within a DictionaryProvider");
+  if (!ctx)
+    throw new Error("useLanguage must be used within a DictionaryProvider");
   return ctx;
 }
 
 /**
- * Legacy hook — returns the full Dictionary object for `dict.section.key` access.
- * All existing consumer components use this hook and require zero changes.
+ * tr-eski uyumluluk için sadece Dictionary nesnesini döndürür, doğrudan 'dict.section.key' erişimi sağlar
+ * en-legacy hook that returns only the Dictionary object, providing direct 'dict.section.key' access
+ * input ()
+ * output (Dictionary)
  */
 export function useDictionary(): Dictionary {
   const ctx = useContext(LanguageContext);
