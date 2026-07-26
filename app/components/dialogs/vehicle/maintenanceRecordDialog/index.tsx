@@ -2,7 +2,7 @@ import { Dialog, DialogContent, Button, Stack, Alert, CircularProgress, IconButt
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useRef } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus } from "@/app/lib/type/enums";
@@ -44,6 +44,7 @@ export default function MaintenanceRecordDialog({ open, onClose, vehicleId, onSu
   const theme = useTheme();
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addMaintenanceRecord } = useVehicleMutations();
 
   const [formData, setFormData] = useState<MaintenanceFormData>({ type: "", date: dayjs() as Dayjs, cost: "", status: MaintenanceStatus.SCHEDULED, description: "", documentUrl: "" });
   const [loading, setLoading] = useState(false);
@@ -84,7 +85,10 @@ export default function MaintenanceRecordDialog({ open, onClose, vehicleId, onSu
     setLoading(true);
     setError(null);
     try {
-      await addMaintenanceRecord(vehicleId, { type: formData.type as import("@/app/lib/type/enums").MaintenanceType, date: formData.date.toDate(), cost: parseFloat(formData.cost), currency: userCurrency, status: formData.status, description: formData.description, documentUrl: formData.documentUrl });
+      await addMaintenanceRecord.mutateAsync({
+        vehicleId,
+        data: { type: formData.type as import("@/app/lib/type/enums").MaintenanceType, date: formData.date.toDate(), cost: parseFloat(formData.cost), currency: userCurrency, status: formData.status, description: formData.description, documentUrl: formData.documentUrl },
+      });
       onSuccess();
       handleClose();
     } catch (err) {

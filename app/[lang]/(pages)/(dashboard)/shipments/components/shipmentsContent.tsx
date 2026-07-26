@@ -90,23 +90,21 @@ export default function ShipmentContent() {
   const { deleteShipment: deleteMutation } = useShipmentMutations();
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
+  const noop = useCallback(async () => {}, []);
 
   const actions: ShipmentPageActions = useMemo(
     () => ({
       fetchShipments: async () => {},
       fetchStats: async () => {},
       fetchCharts: async () => {},
-      refreshAll,
+      refreshAll: noop,
       selectShipment: (id: string | null) => setSelectedShipmentId(id),
       updateFilters: (newFilters: Partial<ShipmentPageState["filters"]>) => {
         setFilters((prev) => ({ ...prev, ...newFilters }));
         setPagination((prev) => ({ ...prev, page: 1 }));
       },
     }),
-    [refreshAll]
+    [noop]
   );
 
   /* -------------------------- COMPATIBILITY LAYER --------------------------- */
@@ -267,13 +265,13 @@ export default function ShipmentContent() {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         shipment={actionShipment}
-        onSuccess={refreshAll}
+        onSuccess={noop}
       />
 
       <AddShipmentDialog
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
-        onSuccess={refreshAll}
+        onSuccess={noop}
       />
 
       <DeleteConfirmationDialog

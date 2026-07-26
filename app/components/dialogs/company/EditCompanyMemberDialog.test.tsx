@@ -45,9 +45,11 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 const updateCompanyMemberMock = mock.fn(async () => ({}));
-mock.module("../../../lib/controllers/company.ts", {
-  namedExports: { 
-    updateCompanyMember: updateCompanyMemberMock
+mock.module("../../../hooks/useCompany.ts", {
+  namedExports: {
+    useCompanyMutations: mock.fn(() => ({
+      updateMember: { mutateAsync: updateCompanyMemberMock, isPending: false },
+    })),
   },
 });
 
@@ -137,7 +139,7 @@ describe("EditCompanyMemberDialog RTL Component", () => {
 
       await waitFor(() => {
         expect(updateCompanyMemberMock.mock.calls.length).toBe(1);
-        expect(updateCompanyMemberMock.mock.calls[0].arguments[0]).toBe("member-1");
+        expect(updateCompanyMemberMock.mock.calls[0].arguments[0].id).toBe("member-1");
       });
     });
   });

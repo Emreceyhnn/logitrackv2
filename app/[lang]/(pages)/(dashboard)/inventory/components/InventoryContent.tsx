@@ -95,14 +95,12 @@ export default function InventoryContent() {
     useInventoryMutations();
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
+  const noop = useCallback(async () => {}, []);
 
   const actions: InventoryPageActions = useMemo(() => ({
     fetchInventory: async () => {},
     fetchLowStock: async () => {},
-    refreshAll,
+    refreshAll: noop,
 
     openDetails: (id) => {
       setSelectedItemId(id);
@@ -130,7 +128,7 @@ export default function InventoryContent() {
         setFilter("status", newFilters.status);
       }
     },
-  }), [refreshAll, updateMutation, setFilter]);
+  }), [noop, updateMutation, setFilter]);
 
   const items = dashboardData?.items || [];
   const stats = dashboardData?.stats;
@@ -262,7 +260,7 @@ export default function InventoryContent() {
       <AddInventoryDialog
         open={isAddOpen}
         onClose={() => setIsAddOpen(false)}
-        onSuccess={refreshAll}
+        onSuccess={() => setIsAddOpen(false)}
       />
 
       <DeleteConfirmationDialog

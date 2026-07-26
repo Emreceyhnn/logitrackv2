@@ -36,6 +36,8 @@ const sonnerMock = {
 
 const companyControllerMock = {
   getCompanyProfile: mock.fn(),
+  addCompanyUser: mock.fn(),
+  updateCompanyMember: mock.fn(),
   removeCompanyUser: mock.fn(),
 };
 

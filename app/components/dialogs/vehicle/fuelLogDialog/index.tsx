@@ -21,7 +21,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { createFuelLog } from "@/app/lib/controllers/fuel";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
@@ -49,6 +49,7 @@ export default function AddFuelLogDialog({
   const { user } = useUserContext();
   const userCurrency = user?.currency || "USD";
   const theme = useTheme();
+  const { addFuelLog } = useVehicleMutations();
 
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState({
@@ -79,7 +80,7 @@ export default function AddFuelLogDialog({
     setError(null);
 
     try {
-      await createFuelLog({
+      await addFuelLog.mutateAsync({
         vehicleId,
         driverId: formData.driverId,
         date: formData.date.toDate(),

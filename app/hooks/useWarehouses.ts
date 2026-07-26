@@ -140,12 +140,188 @@ export function useWarehousesWithDashboard(
   return query;
 }
 
+function patchCachedWarehouses(
+  queryClient: ReturnType<typeof useQueryClient>,
+  warehouseId: string,
+  patch: Partial<WarehouseWithRelations>
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  const patchOne = (warehouse: WarehouseWithRelations) =>
+    warehouse.id === warehouseId ? { ...warehouse, ...patch } : warehouse;
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: warehouseKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | WarehouseWithRelations[]
+        | { warehouses: WarehouseWithRelations[] }
+        | WarehouseWithRelations
+        | null
+        | undefined;
+      if (!data) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      if (Array.isArray(data)) {
+        queryClient.setQueryData(query.queryKey, data.map(patchOne));
+      } else if (Array.isArray((data as { warehouses: WarehouseWithRelations[] }).warehouses)) {
+        const withWarehouses = data as { warehouses: WarehouseWithRelations[] };
+        queryClient.setQueryData(query.queryKey, {
+          ...withWarehouses,
+          warehouses: withWarehouses.warehouses.map(patchOne),
+        });
+      } else if ((data as WarehouseWithRelations).id === warehouseId) {
+        queryClient.setQueryData(query.queryKey, patchOne(data as WarehouseWithRelations));
+      }
+    });
+
+  return previous;
+}
+
+function rollbackCachedWarehouses(
+  queryClient: ReturnType<typeof useQueryClient>,
+  previous: Array<{ queryKey: readonly unknown[]; data: unknown }>
+) {
+  previous.forEach(({ queryKey, data }) => {
+    queryClient.setQueryData(queryKey, data);
+  });
+}
+
+function removeCachedWarehouse(
+  queryClient: ReturnType<typeof useQueryClient>,
+  warehouseId: string
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: warehouseKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | WarehouseWithRelations[]
+        | { warehouses: WarehouseWithRelations[]; totalCount: number }
+        | undefined;
+      if (!data) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      if (Array.isArray(data)) {
+        queryClient.setQueryData(query.queryKey, data.filter((w) => w.id !== warehouseId));
+      } else if (Array.isArray((data as { warehouses: WarehouseWithRelations[] }).warehouses)) {
+        const withWarehouses = data as { warehouses: WarehouseWithRelations[]; totalCount: number };
+        queryClient.setQueryData(query.queryKey, {
+          ...withWarehouses,
+          warehouses: withWarehouses.warehouses.filter((w) => w.id !== warehouseId),
+          totalCount: Math.max(0, withWarehouses.totalCount - 1),
+        });
+      }
+    });
+
+  return previous;
+}
+
+function insertCachedWarehouse(
+  queryClient: ReturnType<typeof useQueryClient>,
+  warehouse: WarehouseWithRelations
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: warehouseKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | WarehouseWithRelations[]
+        | { warehouses: WarehouseWithRelations[]; totalCount: number }
+        | undefined;
+      if (!data) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      if (Array.isArray(data)) {
+        queryClient.setQueryData(query.queryKey, [warehouse, ...data]);
+      } else if (Array.isArray((data as { warehouses: WarehouseWithRelations[] }).warehouses)) {
+        const withWarehouses = data as { warehouses: WarehouseWithRelations[]; totalCount: number };
+        queryClient.setQueryData(query.queryKey, {
+          ...withWarehouses,
+          warehouses: [warehouse, ...withWarehouses.warehouses],
+          totalCount: withWarehouses.totalCount + 1,
+        });
+      }
+    });
+
+  return previous;
+}
+
+function buildOptimisticWarehouse(
+  tempId: string,
+  data: {
+    name: string;
+    code: string;
+    type: import("@prisma/client").WarehouseType;
+    address: string;
+    city: string;
+    country: string;
+    lat?: number | undefined;
+    lng?: number | undefined;
+    managerId?: string | undefined;
+    capacityPallets: number;
+    capacityVolumeM3: number;
+    operatingHours?: string | undefined;
+    timezone?: string | undefined;
+    specifications?: string[] | undefined;
+  }
+): WarehouseWithRelations {
+  return {
+    id: tempId,
+    code: data.code,
+    name: data.name,
+    type: data.type,
+    address: data.address,
+    city: data.city,
+    country: data.country,
+    lat: data.lat ?? null,
+    lng: data.lng ?? null,
+    capacityPallets: data.capacityPallets,
+    capacityVolumeM3: data.capacityVolumeM3,
+    operatingHours: data.operatingHours ?? null,
+    timezone: data.timezone ?? "UTC",
+    specifications: data.specifications ?? [],
+    managerId: data.managerId ?? null,
+    manager: null,
+    inventory: [],
+    drivers: [],
+  };
+}
+
+// Warehouse CRUD/manager mutations affect list, detail, dashboard, and stats
+// (capacity/count aggregates) but never the "recent stock movements" feed,
+// which is driven by inventory activity, not warehouse records themselves.
+//
+// refetchType: "none" — onMutate already patched the cache optimistically, so
+// we only need to mark these queries stale for the NEXT natural refetch
+// (tab refocus, remount, manual retry). Using the default ("active") would
+// force every mounted dashboard/list query to refetch immediately, which
+// flashes a loading state right on top of the optimistic update we just
+// applied — defeating the point of doing it optimistically.
+const invalidateWarehouseCrudQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  options?: { refetchType?: "active" | "none" }
+) => {
+  const refetchType = options?.refetchType ?? "none";
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.lists(), refetchType });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.detailsAll(), refetchType });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.dashboard(), refetchType });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.stats(), refetchType });
+};
+
 export function useWarehouseMutations() {
   const queryClient = useQueryClient();
   const dict = useDictionary();
 
   const handleSuccess = (message: string) => {
-    queryClient.invalidateQueries({ queryKey: warehouseKeys.all });
     toast.success(message);
   };
 
@@ -162,14 +338,14 @@ export function useWarehouseMutations() {
       address: string;
       city: string;
       country: string;
-      lat?: number;
-      lng?: number;
+      lat?: number | undefined;
+      lng?: number | undefined;
       managerId: string;
       capacityPallets: number;
       capacityVolumeM3: number;
-      operatingHours?: string;
-      timezone?: string;
-      specifications?: string[];
+      operatingHours?: string | undefined;
+      timezone?: string | undefined;
+      specifications?: string[] | undefined;
     }) =>
       createWarehouse(
         data.name,
@@ -187,28 +363,77 @@ export function useWarehouseMutations() {
         data.timezone,
         data.specifications
       ),
-    onSuccess: () => handleSuccess(dict.toasts.successAdd),
-    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: warehouseKeys.all });
+      const tempId = `temp-${Date.now()}`;
+      const optimisticWarehouse = buildOptimisticWarehouse(tempId, data);
+      const previous = insertCachedWarehouse(queryClient, optimisticWarehouse);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedWarehouses(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      invalidateWarehouseCrudQueries(queryClient, { refetchType: "active" });
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successAdd);
+      invalidateWarehouseCrudQueries(queryClient);
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Warehouse> }) =>
       updateWarehouse(id, data),
-    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
-    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: warehouseKeys.all });
+      const previous = patchCachedWarehouses(queryClient, id, data as Partial<WarehouseWithRelations>);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedWarehouses(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      invalidateWarehouseCrudQueries(queryClient, { refetchType: "active" });
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successUpdate);
+      invalidateWarehouseCrudQueries(queryClient);
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteWarehouse(id),
-    onSuccess: () => handleSuccess(dict.toasts.successDelete),
-    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: warehouseKeys.all });
+      const previous = removeCachedWarehouse(queryClient, id);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedWarehouses(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      invalidateWarehouseCrudQueries(queryClient, { refetchType: "active" });
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successDelete);
+      invalidateWarehouseCrudQueries(queryClient);
+    },
   });
 
   const assignManagerMutation = useMutation({
     mutationFn: ({ warehouseId, userId }: { warehouseId: string; userId: string }) => assignManagerToWarehouse(warehouseId, userId),
-    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
-    onError: (error: Error) =>
-      handleError(dict.toasts.errorGeneric, error),
+    onMutate: async ({ warehouseId, userId }) => {
+      await queryClient.cancelQueries({ queryKey: warehouseKeys.all });
+      const previous = patchCachedWarehouses(queryClient, warehouseId, { managerId: userId });
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedWarehouses(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      invalidateWarehouseCrudQueries(queryClient, { refetchType: "active" });
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successUpdate);
+      invalidateWarehouseCrudQueries(queryClient);
+    },
   });
 
   return {

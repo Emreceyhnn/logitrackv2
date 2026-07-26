@@ -71,9 +71,12 @@ mock.module("../../../lib/controllers/users.ts", {
   },
 });
 
-mock.module("../../../lib/controllers/company.ts", {
-  namedExports: { 
-    addCompanyUser: mock.fn(async () => ({}))
+const mockAddMemberMutate = mock.fn(async () => ({}));
+mock.module("../../../hooks/useCompany.ts", {
+  namedExports: {
+    useCompanyMutations: mock.fn(() => ({
+      addMember: { mutateAsync: mockAddMemberMutate, isPending: false },
+    })),
   },
 });
 

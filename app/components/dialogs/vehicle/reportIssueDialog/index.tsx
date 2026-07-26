@@ -18,7 +18,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import { useState, useEffect } from "react";
-import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { ValidationError } from "yup";
@@ -51,6 +51,7 @@ const ReportIssueDialog = ({
   /* ---------------------------------- theme --------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
+  const { reportIssue } = useVehicleMutations();
 
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<IssueFormData>({
@@ -112,11 +113,14 @@ const ReportIssueDialog = ({
       setLoading(true);
       setError(null);
 
-      await createVehicleIssue(vehicleId, {
-        title: formData.title,
-        type: "VEHICLE",
-        priority: formData.priority,
-        description: formData.description || undefined,
+      await reportIssue.mutateAsync({
+        vehicleId,
+        data: {
+          title: formData.title,
+          type: "VEHICLE",
+          priority: formData.priority,
+          description: formData.description || undefined,
+        },
       });
 
       setSuccess(true);

@@ -23,7 +23,7 @@ import {
 import { Formik } from "formik";
 import { CompanyMember } from "@/app/lib/type/company";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { updateCompanyMember } from "@/app/lib/controllers/company";
+import { useCompanyMutations } from "@/app/hooks/useCompany";
 import { UserStatus } from "@/app/lib/type/enums";
 import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 import { logger } from "@/app/lib/logger";
@@ -66,6 +66,7 @@ export default function EditCompanyMemberDialog({
 }: EditCompanyMemberDialogProps) {
   const theme = useTheme();
   const dict = useDictionary();
+  const { updateMember } = useCompanyMutations();
 
   const initialValues = useMemo(() => {
     if (member) {
@@ -89,11 +90,14 @@ export default function EditCompanyMemberDialog({
   const handleSubmitForm = async (values: FormData) => {
     if (!member) return;
     try {
-      await updateCompanyMember(member.id, {
-        name: values.name,
-        surname: values.surname,
-        roleId: values.roleId,
-        status: values.status as UserStatus,
+      await updateMember.mutateAsync({
+        id: member.id,
+        data: {
+          name: values.name,
+          surname: values.surname,
+          roleId: values.roleId,
+          status: values.status as UserStatus,
+        },
       });
       onSuccess();
       onClose();

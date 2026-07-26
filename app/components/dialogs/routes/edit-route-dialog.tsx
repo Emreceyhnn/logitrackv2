@@ -18,7 +18,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { updateRoute } from "@/app/lib/controllers/routes";
+import { useRouteMutations } from "@/app/hooks/useRoutes";
 import { useUser } from "@/app/hooks/useUser";
 import FirstRouteDialogStep from "./addRouteDialog/firstStep";
 import SecondRouteDialogStep from "./addRouteDialog/secondStep";
@@ -48,6 +48,7 @@ const EditRouteDialog = ({
   const theme = useTheme();
   const { user } = useUser();
   const dict = useDictionary();
+  const { updateRoute } = useRouteMutations();
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -134,8 +135,11 @@ const EditRouteDialog = ({
     const endUTC = values.endTime ? toUTC(values.endTime, userTz) : undefined;
 
     try {
-      await toast.promise(
-        updateRoute(route.id, {
+      // useRouteMutations() already toasts success/error and applies the
+      // optimistic cache update; just await the submission.
+      await updateRoute.mutateAsync({
+        id: route.id,
+        data: {
           name: values.name,
           startTime: startUTC,
           endTime: endUTC,
@@ -147,14 +151,8 @@ const EditRouteDialog = ({
           shape: values.shape || null,
           // null clears the override, restoring the default corridor.
           bufferMeters: values.bufferMeters ?? null,
-        }),
-        {
-          loading: dict.toasts.loading,
-          success: dict.toasts.successUpdate,
-          error: (err: unknown) =>
-            err instanceof Error ? err.message : dict.toasts.errorGeneric,
-        }
-      );
+        },
+      });
 
       onSuccess?.();
       onClose();

@@ -70,16 +70,14 @@ export default function WarehouseContent() {
   const { deleteWarehouse: deleteMutation } = useWarehouseMutations();
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
+  const noop = useCallback(async () => {}, []);
 
   const actions: WarehousePageActions = useMemo(
     () => ({
       fetchWarehouses: async () => {},
       fetchStats: async () => {},
       fetchRecentMovements: async () => {},
-      refreshAll,
+      refreshAll: noop,
       selectWarehouse: (id: string | null) => {
         setSelectedWarehouseId(id);
         if (id) {
@@ -95,7 +93,7 @@ export default function WarehouseContent() {
         setDeleteDialogOpen(true);
       },
     }),
-    [refreshAll]
+    [noop]
   );
 
   /* -------------------------------- HANDLERS -------------------------------- */
@@ -226,7 +224,6 @@ export default function WarehouseContent() {
       <AddWarehouseDialog
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
-        onSuccess={refreshAll}
       />
 
       <WarehouseDetailsDialog
@@ -235,7 +232,6 @@ export default function WarehouseContent() {
           setDetailsDialogOpen(false);
           actions.selectWarehouse(null);
         }}
-        onEditSuccess={refreshAll}
         warehouseData={
           warehouses.find(
             (w: WarehouseWithRelations) => w.id === selectedWarehouseId
@@ -252,7 +248,6 @@ export default function WarehouseContent() {
         onSuccess={() => {
           setEditDialogOpen(false);
           setWarehouseToEditId(null);
-          actions.refreshAll();
         }}
         warehouseData={
           warehouses.find(

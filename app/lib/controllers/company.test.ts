@@ -51,6 +51,7 @@ const cacheUtilsMock = {
     companyPattern: mock.fn(() => "driver-company-pattern"),
   },
   COMPANY_CACHE_TTL: 3600,
+  WAREHOUSE_CACHE_TTL: 3600,
 };
 
 const authMiddlewareMock = {

@@ -43,7 +43,6 @@ export default function CompanyContent() {
     data: result,
     isLoading: loading,
     error,
-    refetch,
   } = useCompanyWithDashboard({
     ...filters,
     ...pagination,
@@ -75,12 +74,8 @@ export default function CompanyContent() {
 
   const actions: CompanyPageActions = useMemo(
     () => ({
-      fetchData: async () => {
-        await refetch();
-      },
-      refreshAll: async () => {
-        await refetch();
-      },
+      fetchData: async () => {},
+      refreshAll: async () => {},
       deleteMember: async (memberId: string) => {
         await deleteMutation.mutateAsync(memberId);
       },
@@ -94,7 +89,7 @@ export default function CompanyContent() {
         setPagination((prev) => ({ ...prev, ...newPagination }));
       },
     }),
-    [refetch, deleteMutation]
+    [deleteMutation]
   );
 
   /* --------------------------------- KPI --------------------------------- */

@@ -66,9 +66,12 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("../../../../lib/controllers/customer.ts", {
-  namedExports: { 
-    createCustomer: mock.fn(async () => ({}))
+const mockCreateCustomerMutate = mock.fn(async () => ({}));
+mock.module("../../../../hooks/useCustomers.ts", {
+  namedExports: {
+    useCustomerMutations: mock.fn(() => ({
+      createCustomer: { mutateAsync: mockCreateCustomerMutate, isPending: false },
+    })),
   },
 });
 

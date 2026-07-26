@@ -88,6 +88,80 @@ mock.module("../../../hooks/useUser.ts", {
   namedExports: { useUser: () => stableUserResult },
 });
 
+mock.module("../../../lib/controllers/shipments.ts", {
+  namedExports: {
+    getShipmentById: mock.fn(async () => null),
+    getShipmentStats: mock.fn(async () => null),
+    getShipmentVolumeHistory: mock.fn(async () => []),
+    getShipmentStatusDistribution: mock.fn(async () => []),
+    createShipment: mock.fn(async () => ({})),
+    updateShipment: mock.fn(async () => ({})),
+    deleteShipment: mock.fn(async () => ({})),
+    updateShipmentStatus: mock.fn(async () => ({})),
+  },
+});
+mock.module("../../../lib/controllers/warehouse.ts", {
+  namedExports: { getWarehouses: mock.fn(async () => []) },
+});
+mock.module("../../../lib/controllers/customer.ts", {
+  namedExports: { getCustomers: mock.fn(async () => []) },
+});
+mock.module("../../../lib/controllers/inventory.ts", {
+  namedExports: { getInventory: mock.fn(async () => []) },
+});
+mock.module("../../../lib/controllers/trailer.ts", {
+  namedExports: { getTrailers: mock.fn(async () => ({ trailers: [] })) },
+});
+
+mock.module("sonner", {
+  namedExports: {
+    toast: {
+      success: mock.fn(),
+      error: mock.fn(),
+      loading: mock.fn(),
+      dismiss: mock.fn(),
+      promise: mock.fn(async (promise) => await promise),
+    },
+  },
+});
+
+const editShipmentQueryClientMock = { invalidateQueries: mock.fn(), cancelQueries: mock.fn(async () => {}), getQueryCache: mock.fn(() => ({ findAll: () => [] })), setQueryData: mock.fn() };
+mock.module("@tanstack/react-query", {
+  namedExports: {
+    useQuery: mock.fn(() => ({ data: null })),
+    useMutation: mock.fn((options: Record<string, unknown>) => ({
+      mutate: (variables: Record<string, unknown>) => {
+        Promise.resolve().then(async () => {
+          const context = await (options.onMutate as ((v: unknown) => unknown) | undefined)?.(variables);
+          try {
+            const res = await (options.mutationFn as (v: unknown) => Promise<unknown>)(variables);
+            await (options.onSuccess as ((r: unknown, v: unknown, c: unknown) => void) | undefined)?.(res, variables, context);
+          } catch (e) {
+            (options.onError as ((e: unknown, v: unknown, c: unknown) => void) | undefined)?.(e, variables, context);
+          } finally {
+            (options.onSettled as (() => void) | undefined)?.();
+          }
+        });
+      },
+      mutateAsync: async (variables: Record<string, unknown>) => {
+        const context = await (options.onMutate as ((v: unknown) => unknown) | undefined)?.(variables);
+        try {
+          const res = await (options.mutationFn as (v: unknown) => Promise<unknown>)(variables);
+          await (options.onSuccess as ((r: unknown, v: unknown, c: unknown) => void) | undefined)?.(res, variables, context);
+          return res;
+        } catch (e) {
+          (options.onError as ((e: unknown, v: unknown, c: unknown) => void) | undefined)?.(e, variables, context);
+          throw e;
+        } finally {
+          (options.onSettled as (() => void) | undefined)?.();
+        }
+      },
+    })),
+    useQueryClient: mock.fn(() => editShipmentQueryClientMock),
+    keepPreviousData: "keepPreviousData",
+  },
+});
+
 mock.module("./addShipmentDialog/sections/BasicInfoSection.tsx", { defaultExport: () => <div data-testid="basic-info-section" /> });
 mock.module("./addShipmentDialog/sections/LogisticsSection.tsx", { defaultExport: () => <div data-testid="logistics-section" /> });
 mock.module("./addShipmentDialog/sections/CargoSection.tsx", { defaultExport: () => <div data-testid="cargo-section" /> });

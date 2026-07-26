@@ -34,8 +34,14 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
+const useLanguageMock = mock.fn(() => ({
+  lang: "en",
+  dict: useDictionaryMock(),
+  changeLanguage: mock.fn(),
+}));
+
 mock.module("../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
+  namedExports: { useDictionary: useDictionaryMock, useLanguage: useLanguageMock },
 });
 
 const toastMock = {

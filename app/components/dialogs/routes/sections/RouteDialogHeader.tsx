@@ -34,7 +34,7 @@ interface RouteDialogHeaderProps {
   route: RouteWithRelations;
   dict: Dictionary;
   theme: Theme;
-  handleStatusChange: (status: RouteStatus) => Promise<void>;
+  handleStatusChange: (status: RouteStatus) => void;
   statusLoading: boolean;
   onClose: () => void;
   statusMeta: StatusMeta;

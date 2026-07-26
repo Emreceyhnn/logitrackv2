@@ -24,10 +24,14 @@ const dbMock = {
     findUnique: mock.fn(async () => ({ name: "Admin" })),
   },
   // createSession/refreshSession bake the caller's entitlement into the
-  // token via resolveEntitlement() (entitlement.server.ts) — default to no
-  // subscription row (NONE access), matching a session test's default user.
+  // token via resolveEntitlement() (entitlement.server.ts), which first
+  // looks up the user's own subscription via db.user.findUnique — default
+  // to no subscription (NONE access), matching a session test's default user.
+  user: {
+    findUnique: mock.fn(async () => ({ companyId: "company-1", subscription: null })),
+  },
   subscription: {
-    findUnique: mock.fn(async () => null),
+    findFirst: mock.fn(async () => null),
   },
 };
 
@@ -104,8 +108,13 @@ describe("Session Controller", () => {
     dbMock.session.findMany.mock.resetCalls();
     dbMock.session.updateMany.mock.resetCalls();
     dbMock.auditLog.create.mock.resetCalls();
-    dbMock.subscription.findUnique.mock.resetCalls();
-    dbMock.subscription.findUnique.mock.mockImplementation(async () => null);
+    dbMock.user.findUnique.mock.resetCalls();
+    dbMock.user.findUnique.mock.mockImplementation(async () => ({
+      companyId: "company-1",
+      subscription: null,
+    }));
+    dbMock.subscription.findFirst.mock.resetCalls();
+    dbMock.subscription.findFirst.mock.mockImplementation(async () => null);
     
     redisMock.get.mock.resetCalls();
     redisMock.set.mock.resetCalls();

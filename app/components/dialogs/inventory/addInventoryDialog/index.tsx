@@ -23,7 +23,7 @@ import {
   AddInventoryStorageLevels,
 } from "@/app/lib/type/add-inventory";
 import { toast } from "sonner";
-import { addInventoryItem } from "@/app/lib/controllers/warehouse";
+import { useInventoryMutations } from "@/app/hooks/useInventory";
 import { useUser } from "@/app/hooks/useUser";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import ItemDetailsSection from "./sections/ItemDetailsSection";
@@ -52,6 +52,7 @@ const AddInventoryDialog = ({
   const theme = useTheme();
   const { user } = useUser();
   const dict = useDictionary();
+  const { addWarehouseItem } = useInventoryMutations();
 
   /* --------------------------------- states --------------------------------- */
   const [itemDetails, setItemDetails] =
@@ -81,43 +82,42 @@ const AddInventoryDialog = ({
     // 1. Close dialog immediately
     closeDialog();
 
-    // 2. Run add request behind a toast promise
-    await toast.promise(
-      (async () => {
-        let finalImageUrl = itemDetails.imageUrl || "";
+    // 2. Upload image (if needed), then add the item optimistically via
+    // useInventoryMutations() — it toasts success/error itself.
+    const loadingToastId = toast.loading(dict.toasts?.loading || "Adding item...");
+    try {
+      let finalImageUrl = itemDetails.imageUrl || "";
 
-        // If it's a base64 string (starts with data:), upload it first
-        if (finalImageUrl.startsWith("data:")) {
-          const uploadResult = await uploadImageAction(
-            finalImageUrl,
-            "general"
-          );
-          finalImageUrl = uploadResult.url;
-        }
-
-        await addInventoryItem(
-          storageLevels.warehouseId,
-          itemDetails.sku,
-          itemDetails.name,
-          storageLevels.initialQuantity,
-          storageLevels.minStockLevel,
-          itemDetails.weightKg || 0,
-          itemDetails.volumeM3 || 0,
-          itemDetails.palletCount || 0,
-          itemDetails.cargoType || "General Cargo",
-          finalImageUrl,
-          itemDetails.unitValue || 0,
-          user.currency || "USD"
-        );
-        onSuccess?.();
-      })(),
-      {
-        loading: dict.toasts?.loading || "Adding item...",
-        success: dict.toasts.successAdd,
-        error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.common.errorOccurred,
+      // If it's a base64 string (starts with data:), upload it first
+      if (finalImageUrl.startsWith("data:")) {
+        const uploadResult = await uploadImageAction(finalImageUrl, "general");
+        finalImageUrl = uploadResult.url;
       }
-    );
+
+      try {
+        await addWarehouseItem.mutateAsync({
+          warehouseId: storageLevels.warehouseId,
+          sku: itemDetails.sku,
+          name: itemDetails.name,
+          quantity: storageLevels.initialQuantity,
+          minStock: storageLevels.minStockLevel,
+          weightKg: itemDetails.weightKg || 0,
+          volumeM3: itemDetails.volumeM3 || 0,
+          palletCount: itemDetails.palletCount || 0,
+          cargoType: itemDetails.cargoType || "General Cargo",
+          imageUrl: finalImageUrl,
+          unitValue: itemDetails.unitValue || 0,
+          currency: user.currency || "USD",
+        });
+        onSuccess?.();
+      } catch {
+        // useInventoryMutations() already toasts the error
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : dict.common.errorOccurred);
+    } finally {
+      toast.dismiss(loadingToastId);
+    }
   };
 
   const resetForm = () => {

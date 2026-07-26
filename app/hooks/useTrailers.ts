@@ -95,13 +95,151 @@ export function useTrailer(id: string) {
   });
 }
 
+function patchCachedTrailers(
+  queryClient: ReturnType<typeof useQueryClient>,
+  trailerId: string,
+  patch: Partial<import("@/app/lib/type/trailer").TrailerWithRelations>
+) {
+  type TrailerWithRelations = import("@/app/lib/type/trailer").TrailerWithRelations;
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  const patchOne = (trailer: TrailerWithRelations) =>
+    trailer.id === trailerId ? { ...trailer, ...patch } : trailer;
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: trailerKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { trailers: TrailerWithRelations[] }
+        | TrailerWithRelations
+        | undefined;
+      if (!data) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      if (Array.isArray((data as { trailers: TrailerWithRelations[] }).trailers)) {
+        const withTrailers = data as { trailers: TrailerWithRelations[] };
+        queryClient.setQueryData(query.queryKey, {
+          ...withTrailers,
+          trailers: withTrailers.trailers.map(patchOne),
+        });
+      } else if ((data as TrailerWithRelations).id === trailerId) {
+        queryClient.setQueryData(query.queryKey, patchOne(data as TrailerWithRelations));
+      }
+    });
+
+  return previous;
+}
+
+function rollbackCachedTrailers(
+  queryClient: ReturnType<typeof useQueryClient>,
+  previous: Array<{ queryKey: readonly unknown[]; data: unknown }>
+) {
+  previous.forEach(({ queryKey, data }) => {
+    queryClient.setQueryData(queryKey, data);
+  });
+}
+
+function removeCachedTrailer(
+  queryClient: ReturnType<typeof useQueryClient>,
+  trailerId: string
+) {
+  type TrailerWithRelations = import("@/app/lib/type/trailer").TrailerWithRelations;
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: trailerKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { trailers: TrailerWithRelations[]; kpis: unknown; meta: { total: number } }
+        | undefined;
+      if (!data) return;
+      if (!Array.isArray(data.trailers)) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      queryClient.setQueryData(query.queryKey, {
+        ...data,
+        trailers: data.trailers.filter((t) => t.id !== trailerId),
+        meta: { ...data.meta, total: Math.max(0, data.meta.total - 1) },
+      });
+    });
+
+  return previous;
+}
+
+function insertCachedTrailer(
+  queryClient: ReturnType<typeof useQueryClient>,
+  trailer: import("@/app/lib/type/trailer").TrailerWithRelations
+) {
+  type TrailerWithRelations = import("@/app/lib/type/trailer").TrailerWithRelations;
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: trailerKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { trailers: TrailerWithRelations[]; kpis: unknown; meta: { total: number } }
+        | undefined;
+      if (!data) return;
+      if (!Array.isArray(data.trailers)) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      queryClient.setQueryData(query.queryKey, {
+        ...data,
+        trailers: [trailer, ...data.trailers],
+        meta: { ...data.meta, total: data.meta.total + 1 },
+      });
+    });
+
+  return previous;
+}
+
+function buildOptimisticTrailer(
+  tempId: string,
+  data: Partial<Trailer>
+): import("@/app/lib/type/trailer").TrailerWithRelations {
+  return {
+    id: tempId,
+    fleetNo: data.fleetNo || "",
+    plate: data.plate || "",
+    type: data.type!,
+    capacityVolumeM3: data.capacityVolumeM3 ?? 0,
+    maxLoadKg: data.maxLoadKg ?? 0,
+    isColdChain: data.isColdChain ?? false,
+    status: data.status || ("AVAILABLE" as Trailer["status"]),
+    currentVehicleId: null,
+    currentVehicle: null,
+    assignments: [],
+  };
+}
+
+function findCachedVehicleSummary(
+  queryClient: ReturnType<typeof useQueryClient>,
+  vehicleId: string
+): { id: string; plate: string; fleetNo: string } | null {
+  for (const query of queryClient.getQueryCache().findAll({ queryKey: vehicleKeys.all })) {
+    const data = query.state.data as
+      | import("@/app/lib/type/vehicle").VehicleWithRelations[]
+      | { vehicles: import("@/app/lib/type/vehicle").VehicleWithRelations[] }
+      | undefined;
+    if (!data) continue;
+    const list = Array.isArray(data) ? data : data.vehicles;
+    const found = list?.find((v) => v.id === vehicleId);
+    if (found) return { id: found.id, plate: found.plate, fleetNo: found.fleetNo };
+  }
+  return null;
+}
+
 export function useTrailerMutations() {
   const dict = useDictionary();
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
-    queryClient.invalidateQueries({ queryKey: trailerKeys.all });
-    queryClient.invalidateQueries({ queryKey: vehicleKeys.all });
     toast.success(message);
   };
 
@@ -110,29 +248,96 @@ export function useTrailerMutations() {
     toast.error(error instanceof Error ? error.message : message);
   };
 
+  const settleSuccess = () =>
+    queryClient.invalidateQueries({ queryKey: trailerKeys.all, refetchType: "none" });
+  const settleError = () =>
+    queryClient.invalidateQueries({ queryKey: trailerKeys.all, refetchType: "active" });
+  const settleSuccessWithVehicles = () => {
+    queryClient.invalidateQueries({ queryKey: trailerKeys.all, refetchType: "none" });
+    queryClient.invalidateQueries({ queryKey: vehicleKeys.all, refetchType: "none" });
+  };
+  const settleErrorWithVehicles = () => {
+    queryClient.invalidateQueries({ queryKey: trailerKeys.all, refetchType: "active" });
+    queryClient.invalidateQueries({ queryKey: vehicleKeys.all, refetchType: "active" });
+  };
+
   const createMut = useMutation({
     mutationFn: (data: Partial<Trailer>) => createTrailer(data),
-    onSuccess: () => handleSuccess(dict.toasts.successAdd),
-    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: trailerKeys.all });
+      const tempId = `temp-${Date.now()}`;
+      const optimisticTrailer = buildOptimisticTrailer(tempId, data);
+      const previous = insertCachedTrailer(queryClient, optimisticTrailer);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedTrailers(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successAdd);
+      settleSuccess();
+    },
   });
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Trailer> }) => updateTrailer(id, data),
-    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
-    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: trailerKeys.all });
+      const previous = patchCachedTrailers(queryClient, id, data as Partial<import("@/app/lib/type/trailer").TrailerWithRelations>);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedTrailers(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successUpdate);
+      settleSuccess();
+    },
   });
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => deleteTrailer(id),
-    onSuccess: () => handleSuccess(dict.toasts.successDelete),
-    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: trailerKeys.all });
+      const previous = removeCachedTrailer(queryClient, id);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedTrailers(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successDelete);
+      settleSuccess();
+    },
   });
 
   const assignMut = useMutation({
     mutationFn: ({ trailerId, vehicleId }: { trailerId: string; vehicleId: string | null }) =>
       assignTrailerToVehicle(trailerId, vehicleId),
-    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
-    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async ({ trailerId, vehicleId }) => {
+      await queryClient.cancelQueries({ queryKey: trailerKeys.all });
+      const currentVehicle = vehicleId ? findCachedVehicleSummary(queryClient, vehicleId) : null;
+      const previous = patchCachedTrailers(queryClient, trailerId, {
+        currentVehicle,
+        currentVehicleId: vehicleId,
+      });
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedTrailers(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      settleErrorWithVehicles();
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successUpdate);
+      settleSuccessWithVehicles();
+    },
   });
 
   return {

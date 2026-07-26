@@ -35,7 +35,6 @@ interface WarehouseDialogParams {
   open: boolean;
   onClose: () => void;
   warehouseData?: WarehouseWithRelations | undefined;
-  onEditSuccess?: () => void;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -74,7 +73,6 @@ const WarehouseDetailsDialog = ({
   open,
   onClose,
   warehouseData,
-  onEditSuccess,
 }: WarehouseDialogParams) => {
   /* --------------------------------- states --------------------------------- */
   const dict = useDictionary();
@@ -215,10 +213,7 @@ const WarehouseDetailsDialog = ({
       <EditWarehouseDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        onSuccess={() => {
-          setEditDialogOpen(false);
-          onEditSuccess?.();
-        }}
+        onSuccess={() => setEditDialogOpen(false)}
         warehouseData={warehouseData}
       />
     </Dialog>

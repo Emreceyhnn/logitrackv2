@@ -11,7 +11,10 @@ import {
   getRouteStats,
   getRouteEfficiencyStats,
   getActiveRoutesLocations,
+  createRoute,
+  updateRoute,
   deleteRoute,
+  updateRouteStatus,
 } from "@/app/lib/controllers/routes";
 import { toast } from "sonner";
 
@@ -21,6 +24,7 @@ import {
   RouteEfficiencyStats,
   MapRouteData,
 } from "@/app/lib/type/routes";
+import { RouteStatus } from "@/app/lib/type/enums";
 
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -154,12 +158,84 @@ export function useRoutesWithDashboard(
   return query;
 }
 
+function patchCachedRoutes(
+  queryClient: ReturnType<typeof useQueryClient>,
+  routeId: string,
+  patch: Partial<RouteWithRelations>
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  const patchOne = (route: RouteWithRelations) =>
+    route.id === routeId ? { ...route, ...patch } : route;
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: routeKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { routes: RouteWithRelations[]; totalCount: number }
+        | RouteWithRelations
+        | undefined;
+      if (!data) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      if (Array.isArray((data as { routes: RouteWithRelations[] }).routes)) {
+        const withRoutes = data as { routes: RouteWithRelations[] };
+        queryClient.setQueryData(query.queryKey, {
+          ...withRoutes,
+          routes: withRoutes.routes.map(patchOne),
+        });
+      } else if ((data as RouteWithRelations).id === routeId) {
+        queryClient.setQueryData(query.queryKey, patchOne(data as RouteWithRelations));
+      }
+    });
+
+  return previous;
+}
+
+function rollbackCachedRoutes(
+  queryClient: ReturnType<typeof useQueryClient>,
+  previous: Array<{ queryKey: readonly unknown[]; data: unknown }>
+) {
+  previous.forEach(({ queryKey, data }) => {
+    queryClient.setQueryData(queryKey, data);
+  });
+}
+
+function removeCachedRoute(
+  queryClient: ReturnType<typeof useQueryClient>,
+  routeId: string
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: routeKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { routes: RouteWithRelations[]; totalCount: number }
+        | undefined;
+      if (!data) return;
+      if (!Array.isArray(data.routes)) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      queryClient.setQueryData(query.queryKey, {
+        ...data,
+        routes: data.routes.filter((r) => r.id !== routeId),
+        totalCount: Math.max(0, data.totalCount - 1),
+      });
+    });
+
+  return previous;
+}
+
 export function useRouteMutations() {
   const dict = useDictionary();
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
-    queryClient.invalidateQueries({ queryKey: routeKeys.all });
     toast.success(message);
   };
 
@@ -168,13 +244,93 @@ export function useRouteMutations() {
     toast.error(error instanceof Error ? error.message : message);
   };
 
+  // onMutate already patches the cache optimistically (where present), so on
+  // success we only mark queries stale (refetchType: "none") instead of
+  // forcing an immediate refetch of every mounted query — that would flash a
+  // loading state right on top of the optimistic update. On error we force a
+  // real refetch of active queries to resync with the server after rollback.
+  const settleSuccess = () =>
+    queryClient.invalidateQueries({ queryKey: routeKeys.all, refetchType: "none" });
+  const settleError = () =>
+    queryClient.invalidateQueries({ queryKey: routeKeys.all, refetchType: "active" });
+
+  const createMutation = useMutation({
+    mutationFn: (data: Parameters<typeof createRoute>) => createRoute(...data),
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successAdd);
+      settleSuccess();
+    },
+    onError: (error: Error) => {
+      handleError(dict.toasts.errorGeneric, error);
+      settleError();
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteRoute(id),
-    onSuccess: () => handleSuccess(dict.toasts.successDelete),
-    onError: (error) => handleError(dict.toasts.errorGeneric, error),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: routeKeys.all });
+      const previous = removeCachedRoute(queryClient, id);
+      return { previous };
+    },
+    onError: (error, _vars, context) => {
+      if (context?.previous) rollbackCachedRoutes(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successDelete);
+      settleSuccess();
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: RouteStatus }) =>
+      updateRouteStatus(id, status),
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: routeKeys.all });
+      const previous = patchCachedRoutes(queryClient, id, { status });
+      return { previous };
+    },
+    onError: (error, _vars, context) => {
+      if (context?.previous) rollbackCachedRoutes(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successUpdate);
+      settleSuccess();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof updateRoute>[1];
+    }) => updateRoute(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: routeKeys.all });
+      const previous = patchCachedRoutes(queryClient, id, data as Partial<RouteWithRelations>);
+      return { previous };
+    },
+    onError: (error, _vars, context) => {
+      if (context?.previous) rollbackCachedRoutes(queryClient, context.previous);
+      handleError(dict.toasts.errorGeneric, error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successUpdate);
+      settleSuccess();
+    },
   });
 
   return {
+    createRoute: createMutation,
+    updateRoute: updateMutation,
     deleteRoute: deleteMutation,
+    updateRouteStatus: updateStatusMutation,
   };
 }

@@ -9,7 +9,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { AddMemberDialogProps, DriverStateData } from "@/app/lib/type/add-company-member";
 import { toast } from "sonner";
 import { searchPlatformUsers } from "@/app/lib/controllers/users";
-import { addCompanyUser } from "@/app/lib/controllers/company";
+import { useCompanyMutations } from "@/app/hooks/useCompany";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { createDriverInvitation } from "@/app/lib/controllers/invitations";
 import { addCompanyMemberDriverValidationSchema } from "@/app/lib/validationSchema";
@@ -57,6 +57,7 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
   const theme = useTheme();
   const dict = useDictionary();
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
+  const { addMember } = useCompanyMutations();
 
   const roles = useMemo(() => [
     { id: "role_admin", label: dict.company.roles.Administrator || "Admin" },
@@ -124,6 +125,9 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
     if (!selectedUserId) return;
     setError(null); setValidationErrors({});
 
+    const selectedUser = results.find((r) => r.id === selectedUserId);
+    if (!selectedUser) return;
+
     try {
       if (selectedRole === "role_driver") {
         const schema = addCompanyMemberDriverValidationSchema(dict);
@@ -131,16 +135,29 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
       }
       onClose();
       resetDialog();
-      await toast.promise(
-        addCompanyUser(
-          selectedUserId,
-          selectedRole,
-          selectedRole === "role_driver" ? driverData : undefined,
-          isWarehouseRole(selectedRole) ? selectedWarehouseId : undefined
-        ),
-        { loading: dict.toasts?.loading || "Adding member...", success: dict.toasts.successAdd, error: (err: unknown) => err instanceof Error ? err.message : dict.toasts.errorGeneric }
-      );
-      onSuccess?.();
+      const roleLabel = roles.find((r) => r.id === selectedRole)?.label ?? null;
+      try {
+        await addMember.mutateAsync({
+          userId: selectedUserId,
+          roleName: selectedRole,
+          driverData: selectedRole === "role_driver" ? driverData : undefined,
+          warehouseId: isWarehouseRole(selectedRole) ? selectedWarehouseId : undefined,
+          optimisticMember: {
+            id: selectedUser.id,
+            name: selectedUser.name,
+            surname: "",
+            email: selectedUser.email,
+            avatarUrl: selectedUser.avatar,
+            status: "ACTIVE",
+            roleId: selectedRole,
+            roleName: roleLabel,
+            createdAt: new Date().toISOString(),
+          },
+        });
+        onSuccess?.();
+      } catch {
+        // useCompanyMutations() already toasted the error
+      }
     } catch (err: unknown) {
       if (err instanceof ValidationError) {
         const errors: Record<string, string> = {};

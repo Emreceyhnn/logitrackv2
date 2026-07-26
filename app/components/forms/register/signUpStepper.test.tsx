@@ -12,13 +12,28 @@ const useDictionaryMock = mock.fn(() => ({
 }));
 
 mock.module("next/navigation", {
-  namedExports: { useRouter: mock.fn(() => ({ push: mock.fn(), refresh: mock.fn() })), useParams: mock.fn(() => ({ lang: "en" })) }
+  namedExports: {
+    useRouter: mock.fn(() => ({ push: mock.fn(), refresh: mock.fn() })),
+    useParams: mock.fn(() => ({ lang: "en" })),
+    useSearchParams: mock.fn(() => new URLSearchParams()),
+  }
 });
 
-mock.module("../../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("../../../lib/controllers/users.ts", { namedExports: { RegisterUser: mock.fn() } });
+const useLanguageMock = mock.fn(() => ({
+  lang: "en",
+  dict: useDictionaryMock(),
+  changeLanguage: mock.fn(),
+}));
+mock.module("../../../lib/language/DictionaryContext.tsx", {
+  namedExports: { useDictionary: useDictionaryMock, useLanguage: useLanguageMock },
+});
+mock.module("../../../lib/controllers/users.ts", { namedExports: { RegisterUser: mock.fn(), LoginWithGoogle: mock.fn() } });
 mock.module("../../../lib/validationSchema.ts", { namedExports: { signUpValidationSchema: mock.fn(() => [{}, {}, {}]) } });
 mock.module("../../ui/AuthButton.tsx", { defaultExport: ({ children  }: Record<string, unknown>) => <button data-testid="AuthButton">{children}</button> });
+
+// GoogleSignInButton renders the real @react-oauth/google <GoogleLogin>,
+// which throws outside a GoogleOAuthProvider — stub it like the step components.
+mock.module("../../ui/GoogleSignInButton.tsx", { defaultExport: () => <div data-testid="GoogleSignInButton" /> });
 
 mock.module("./step1PersonalInfo.tsx", { defaultExport: () => <div data-testid="Step1PersonalInfo" /> });
 mock.module("./step2Security.tsx", { defaultExport: () => <div data-testid="Step2Security" /> });
@@ -42,7 +57,9 @@ mock.module("@mui/material", {
     Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>,
     styled: () => () => function StyledMock({ children  }: Record<string, unknown>) { return <div data-testid="Styled">{children}</div>; },
     StepConnector: function StepConnectorMock() { return <div data-testid="StepConnector" />; },
-    stepConnectorClasses: { alternativeLabel: "", active: "", completed: "", line: "" }
+    stepConnectorClasses: { alternativeLabel: "", active: "", completed: "", line: "" },
+    CircularProgress: () => <div data-testid="CircularProgress" />,
+    Divider: ({ children }: Record<string, unknown>) => <div data-testid="Divider">{children}</div>,
   }
 });
 

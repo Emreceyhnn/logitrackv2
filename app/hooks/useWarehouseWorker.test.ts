@@ -12,14 +12,44 @@ interface CapturedQueryOptions {
 
 let capturedOptions: CapturedQueryOptions | null = null;
 
+const queryClientMock = {
+  cancelQueries: mock.fn(),
+  invalidateQueries: mock.fn(),
+  getQueryCache: mock.fn(() => ({ findAll: mock.fn(() => []) })),
+  setQueryData: mock.fn(),
+};
+
 const reactQueryMock = {
   useQuery: mock.fn((options: CapturedQueryOptions) => {
     capturedOptions = options;
     return { data: undefined, isLoading: false };
   }),
+  useMutation: mock.fn((options: Record<string, unknown>) => ({
+    mutateAsync: async (variables: Record<string, unknown>) => {
+      try {
+        const res = await (options.mutationFn as (v: unknown) => Promise<unknown>)(variables);
+        await (options.onMutate as ((v: unknown) => Promise<unknown>) | undefined)?.(variables);
+        (options.onSuccess as ((r: unknown) => void) | undefined)?.(res);
+        return res;
+      } catch (e) {
+        (options.onError as ((e: unknown, v: unknown, ctx: unknown) => void) | undefined)?.(e, variables, undefined);
+        throw e;
+      }
+    },
+  })),
+  useQueryClient: mock.fn(() => queryClientMock),
 };
 
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
+
+const warehouseWorkerControllerMock = {
+  logWarehouseMovement: mock.fn(),
+  adjustWarehouseStock: mock.fn(),
+  advanceWarehouseTask: mock.fn(),
+  requestRestock: mock.fn(),
+  reportWarehouseIssue: mock.fn(),
+};
+mock.module("../lib/controllers/warehouseWorker.ts", { namedExports: warehouseWorkerControllerMock });
 
 const fetchMock = mock.fn();
 (globalThis as { fetch: unknown }).fetch = fetchMock;

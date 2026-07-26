@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { assignDriverToVehicle, getAvailableDrivers, unassignDriverFromVehicle } from "@/app/lib/controllers/vehicle";
+import { getAvailableDrivers } from "@/app/lib/controllers/vehicle";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { DriverWithUser } from "@/app/lib/type/vehicle";
 import { logger } from "@/app/lib/logger";
 import { Dictionary } from "@/app/lib/language/language";
@@ -8,8 +9,8 @@ export const useAssignDriver = (vehicleId: string, open: boolean, onClose: () =>
   const [drivers, setDrivers] = useState<DriverWithUser[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { assignDriver, unassignDriver } = useVehicleMutations();
 
   const fetchDrivers = useCallback(async () => {
     setLoading(true);
@@ -34,32 +35,30 @@ export const useAssignDriver = (vehicleId: string, open: boolean, onClose: () =>
 
   const handleAssign = async () => {
     if (!selectedDriverId) return;
-    setActionLoading(true);
+    const driver = drivers.find((d) => d.id === selectedDriverId);
+    if (!driver) return;
     try {
-      await assignDriverToVehicle(vehicleId, selectedDriverId);
+      await assignDriver.mutateAsync({ vehicleId, driver });
       onSuccess();
       onClose();
     } catch (err) {
       logger.error(err);
       setError(dict.vehicles.dialogs.failedToAssign);
-    } finally {
-      setActionLoading(false);
     }
   };
 
   const handleUnassign = async () => {
-    setActionLoading(true);
     try {
-      await unassignDriverFromVehicle(vehicleId);
+      await unassignDriver.mutateAsync(vehicleId);
       onSuccess();
       onClose();
     } catch (err) {
       logger.error(err);
       setError(dict.vehicles.dialogs.failedToUnassign);
-    } finally {
-      setActionLoading(false);
     }
   };
+
+  const actionLoading = assignDriver.isPending || unassignDriver.isPending;
 
   return { drivers, selectedDriverId, setSelectedDriverId, loading, actionLoading, error, handleAssign, handleUnassign };
 };

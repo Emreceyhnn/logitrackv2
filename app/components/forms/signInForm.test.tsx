@@ -16,11 +16,21 @@ mock.module("next/navigation", {
 
 mock.module("next/link", { defaultExport: ({ children  }: Record<string, unknown>) => <a data-testid="Link">{children}</a> });
 
-mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("../../lib/controllers/users.ts", { namedExports: { LoginUser: mock.fn() } });
+const useLanguageMock = mock.fn(() => ({
+  lang: "en",
+  dict: useDictionaryMock(),
+  changeLanguage: mock.fn(),
+}));
+mock.module("../../lib/language/DictionaryContext.tsx", {
+  namedExports: { useDictionary: useDictionaryMock, useLanguage: useLanguageMock },
+});
+mock.module("../../lib/controllers/users.ts", { namedExports: { LoginUser: mock.fn(), LoginWithGoogle: mock.fn() } });
 mock.module("../../lib/validationSchema.ts", { namedExports: { loginValidationSchema: mock.fn() } });
 mock.module("../../lib/styled/styledFieldBox.ts", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
 mock.module("../ui/AuthButton.tsx", { defaultExport: ({ children  }: Record<string, unknown>) => <button data-testid="AuthButton">{children}</button> });
+// GoogleSignInButton renders the real @react-oauth/google <GoogleLogin>,
+// which throws outside a GoogleOAuthProvider — stub it out.
+mock.module("../ui/GoogleSignInButton.tsx", { defaultExport: () => <div data-testid="GoogleSignInButton" /> });
 
 mock.module("formik", {
   namedExports: {
@@ -36,7 +46,9 @@ mock.module("@mui/material", {
     Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
     Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>,
     InputAdornment: ({ children  }: Record<string, unknown>) => <div data-testid="InputAdornment">{children}</div>,
-    IconButton: ({ children  }: Record<string, unknown>) => <button data-testid="IconButton">{children}</button>
+    IconButton: ({ children  }: Record<string, unknown>) => <button data-testid="IconButton">{children}</button>,
+    CircularProgress: () => <div data-testid="CircularProgress" />,
+    Divider: ({ children }: Record<string, unknown>) => <div data-testid="Divider">{children}</div>,
   }
 });
 

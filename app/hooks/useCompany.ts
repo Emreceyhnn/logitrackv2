@@ -6,6 +6,8 @@ import {
 } from "@tanstack/react-query";
 import {
   getCompanyProfile,
+  addCompanyUser,
+  updateCompanyMember,
   removeCompanyUser,
 } from "@/app/lib/controllers/company";
 import {
@@ -17,6 +19,7 @@ import { toast } from "sonner";
 
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
 import { logger } from "@/app/lib/logger";
+import type { CompanyMember } from "@/app/lib/type/company";
 
 
 async function fetchCompanyDashboard(filters: {
@@ -66,11 +69,106 @@ export function useCompanyProfile() {
   });
 }
 
+function removeCachedCompanyMember(
+  queryClient: ReturnType<typeof useQueryClient>,
+  memberId: string
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: companyKeys.dashboard() })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { members: CompanyMember[]; totalCount: number }
+        | undefined;
+      if (!data) return;
+      if (!Array.isArray(data.members)) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      queryClient.setQueryData(query.queryKey, {
+        ...data,
+        members: data.members.filter((m) => m.id !== memberId),
+        totalCount: Math.max(0, data.totalCount - 1),
+      });
+    });
+
+  return previous;
+}
+
+function rollbackCachedCompany(
+  queryClient: ReturnType<typeof useQueryClient>,
+  previous: Array<{ queryKey: readonly unknown[]; data: unknown }>
+) {
+  previous.forEach(({ queryKey, data }) => {
+    queryClient.setQueryData(queryKey, data);
+  });
+}
+
+function insertCachedCompanyMember(
+  queryClient: ReturnType<typeof useQueryClient>,
+  member: CompanyMember
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: companyKeys.dashboard() })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { members: CompanyMember[]; totalCount: number }
+        | undefined;
+      if (!data) return;
+      if (!Array.isArray(data.members)) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      queryClient.setQueryData(query.queryKey, {
+        ...data,
+        members: [member, ...data.members],
+        totalCount: data.totalCount + 1,
+      });
+    });
+
+  return previous;
+}
+
+function patchCachedCompanyMember(
+  queryClient: ReturnType<typeof useQueryClient>,
+  memberId: string,
+  patch: Partial<CompanyMember>
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  const patchOne = (member: CompanyMember) =>
+    member.id === memberId ? { ...member, ...patch } : member;
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: companyKeys.dashboard() })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { members: CompanyMember[]; totalCount: number }
+        | undefined;
+      if (!data) return;
+      if (!Array.isArray(data.members)) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      queryClient.setQueryData(query.queryKey, {
+        ...data,
+        members: data.members.map(patchOne),
+      });
+    });
+
+  return previous;
+}
+
 export function useCompanyMutations() {
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
-    queryClient.invalidateQueries({ queryKey: companyKeys.all });
     toast.success(message);
   };
 
@@ -79,13 +177,95 @@ export function useCompanyMutations() {
     toast.error((error as Error)?.message || message);
   };
 
+  // onMutate already patches the cache optimistically, so on success we only
+  // mark the dashboard query stale (refetchType: "none") instead of forcing
+  // an immediate refetch — that would flash a loading state right on top of
+  // the optimistic update. On error we force a real refetch of active
+  // queries to resync with the server after rollback. Removing a member only
+  // changes the dashboard's member list/count — the company profile and
+  // pending join requests are untouched.
+  const settleSuccess = () =>
+    queryClient.invalidateQueries({ queryKey: companyKeys.dashboard(), refetchType: "none" });
+  const settleError = () =>
+    queryClient.invalidateQueries({ queryKey: companyKeys.dashboard(), refetchType: "active" });
+
+  const addMemberMutation = useMutation({
+    mutationFn: (data: {
+      userId: string;
+      roleName: string;
+      driverData?:
+        | {
+            employeeId: string;
+            phone: string;
+            licenseType?: string;
+            licenseNumber?: string;
+            licenseExpiry?: string;
+          }
+        | undefined;
+      warehouseId?: string | undefined;
+      optimisticMember: CompanyMember;
+    }) => addCompanyUser(data.userId, data.roleName, data.driverData, data.warehouseId),
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: companyKeys.dashboard() });
+      const previous = insertCachedCompanyMember(queryClient, data.optimisticMember);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedCompany(queryClient, context.previous);
+      handleError("Failed to add member", error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess("Member added to company successfully");
+      settleSuccess();
+    },
+  });
+
+  const updateMemberMutation = useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof updateCompanyMember>[1];
+    }) => updateCompanyMember(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: companyKeys.dashboard() });
+      const previous = patchCachedCompanyMember(queryClient, id, data as Partial<CompanyMember>);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedCompany(queryClient, context.previous);
+      handleError("Failed to update member", error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess("Member updated successfully");
+      settleSuccess();
+    },
+  });
+
   const deleteMemberMutation = useMutation({
     mutationFn: (memberId: string) => removeCompanyUser(memberId),
-    onSuccess: () => handleSuccess("Member removed from company successfully"),
-    onError: (error: Error) => handleError("Failed to remove member", error),
+    onMutate: async (memberId) => {
+      await queryClient.cancelQueries({ queryKey: companyKeys.dashboard() });
+      const previous = removeCachedCompanyMember(queryClient, memberId);
+      return { previous };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedCompany(queryClient, context.previous);
+      handleError("Failed to remove member", error);
+      settleError();
+    },
+    onSuccess: () => {
+      handleSuccess("Member removed from company successfully");
+      settleSuccess();
+    },
   });
 
   return {
+    addMember: addMemberMutation,
+    updateMember: updateMemberMutation,
     deleteMember: deleteMemberMutation,
   };
 }
@@ -98,11 +278,34 @@ export function usePendingJoinRequests() {
   });
 }
 
+function removeCachedJoinRequest(
+  queryClient: ReturnType<typeof useQueryClient>,
+  requestId: string
+) {
+  const previousData = queryClient.getQueryData(companyKeys.joinRequests()) as
+    | { id: string }[]
+    | undefined;
+  if (!Array.isArray(previousData)) return undefined;
+
+  queryClient.setQueryData(
+    companyKeys.joinRequests(),
+    previousData.filter((r) => r.id !== requestId)
+  );
+  return previousData;
+}
+
 export function useJoinRequestMutations() {
   const queryClient = useQueryClient();
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: companyKeys.joinRequests() });
+  // onMutate already patches the cache optimistically, so on success we only
+  // mark queries stale (refetchType: "none") instead of forcing an immediate
+  // refetch — that would flash a loading state right on top of the
+  // optimistic update. On error we force a real refetch of active queries to
+  // resync with the server after rollback.
+  const settleSuccess = () =>
+    queryClient.invalidateQueries({ queryKey: companyKeys.joinRequests(), refetchType: "none" });
+  const settleError = () =>
+    queryClient.invalidateQueries({ queryKey: companyKeys.joinRequests(), refetchType: "active" });
 
   const accept = useMutation({
     mutationFn: (params: {
@@ -116,15 +319,36 @@ export function useJoinRequestMutations() {
         licenseExpiry?: string;
       };
     }) => acceptJoinRequest(params.id, params.roleName, params.driverData),
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: companyKeys.joinRequests() });
+      const previous = removeCachedJoinRequest(queryClient, id);
+      return { previous };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(companyKeys.joinRequests(), context.previous);
+      settleError();
+      queryClient.invalidateQueries({ queryKey: companyKeys.dashboard(), refetchType: "active" });
+    },
     onSuccess: () => {
-      invalidate();
-      queryClient.invalidateQueries({ queryKey: companyKeys.all });
+      settleSuccess();
+      // Accepting adds a new company member — only the dashboard's member
+      // list/count is affected, not the profile.
+      queryClient.invalidateQueries({ queryKey: companyKeys.dashboard(), refetchType: "none" });
     },
   });
 
   const reject = useMutation({
     mutationFn: (id: string) => rejectJoinRequest(id),
-    onSuccess: invalidate,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: companyKeys.joinRequests() });
+      const previous = removeCachedJoinRequest(queryClient, id);
+      return { previous };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(companyKeys.joinRequests(), context.previous);
+      settleError();
+    },
+    onSuccess: settleSuccess,
   });
 
   return { accept, reject };

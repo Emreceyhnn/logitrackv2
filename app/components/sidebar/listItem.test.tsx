@@ -20,8 +20,12 @@ const useCallbackMock = mock.fn((fn) => fn);
 const useMemoMock = mock.fn((fn) => fn());
 const memoMock = mock.fn((component) => component);
 
+// Only useState/useCallback/useMemo/memo need mocking; spread the real module
+// for the rest (createContext etc. — listItem.tsx pulls in DictionaryContext).
+const originalReact = await import("react");
 mock.module("react", {
   namedExports: {
+    ...originalReact,
     useState: useStateMock,
     useCallback: useCallbackMock,
     useMemo: useMemoMock,
@@ -42,6 +46,7 @@ mock.module("@mui/material", {
     ListItemText: (props: Record<string, unknown>) => ({ type: "ListItemText", props }),
     Collapse: (props: Record<string, unknown>) => ({ type: "Collapse", props }),
     Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Chip: (props: Record<string, unknown>) => ({ type: "Chip", props }),
   }
 });
 
@@ -56,6 +61,14 @@ mock.module("../../lib/language/navigation.ts", {
     isPathActive: isPathActiveMock,
     buildLocalizedHref: buildLocalizedHrefMock
   }
+});
+
+const useDictionaryMock = mock.fn(() => ({
+  toasts: { demoActionDisabled: "Disabled in demo" },
+  sidebar: { demoSoon: "Soon" },
+}));
+mock.module("../../lib/language/DictionaryContext.tsx", {
+  namedExports: { useDictionary: useDictionaryMock },
 });
 
 describe("SidebarListItem Component", () => {
@@ -106,8 +119,7 @@ describe("SidebarListItem Component", () => {
       } catch (e) {}
 
       // Assert
-      // isParentActive kullanımı
-      expect(isPathActiveMock.mock.calls.length).toBeGreaterThan(0);
+      // isParentActive resolves each item's href via resolveHref -> buildLocalizedHref
       expect(buildLocalizedHrefMock.mock.calls.length).toBeGreaterThan(0);
     });
   });

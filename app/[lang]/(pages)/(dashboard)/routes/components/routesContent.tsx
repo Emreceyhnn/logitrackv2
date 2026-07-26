@@ -69,16 +69,14 @@ export default function RoutesContent() {
   const mapData = dashboardData?.mapData || [];
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
+  const noop = useCallback(async () => {}, []);
 
   const actions: RoutesPageActions = {
     fetchRoutes: async () => {},
     fetchStats: async () => {},
     fetchEfficiency: async () => {},
     fetchMapData: async () => {},
-    refreshAll,
+    refreshAll: noop,
     updateFilters: (newFilters: Partial<RoutesPageState["filters"]>) => {
       setFilters((prev) => ({ ...prev, ...newFilters }));
       setPagination((prev) => ({ ...prev, page: 1 }));
@@ -208,7 +206,7 @@ export default function RoutesContent() {
           onSelect={() => {}}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          onRefresh={refreshAll}
+          onRefresh={noop}
           filters={{ status: filters.status, search: filters.search }}
           onFilterChange={actions.updateFilters}
         />
@@ -219,7 +217,7 @@ export default function RoutesContent() {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         route={actionRoute}
-        onSuccess={refreshAll}
+        onSuccess={noop}
       />
 
       <DeleteConfirmationDialog
@@ -230,7 +228,7 @@ export default function RoutesContent() {
         description={dict.routes.deleteDesc}
         loading={deleteMutation.isPending}
       />
-      <AddRouteDialog open={addDialogOpen} onClose={handleCloseAdd} onSuccess={refreshAll} />
+      <AddRouteDialog open={addDialogOpen} onClose={handleCloseAdd} onSuccess={noop} />
     </Box>
   );
 }

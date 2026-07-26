@@ -36,7 +36,10 @@ const routesControllerMock = {
   getRouteStats: mock.fn(),
   getRouteEfficiencyStats: mock.fn(),
   getActiveRoutesLocations: mock.fn(),
+  createRoute: mock.fn(),
+  updateRoute: mock.fn(),
   deleteRoute: mock.fn(),
+  updateRouteStatus: mock.fn(),
 };
 
 

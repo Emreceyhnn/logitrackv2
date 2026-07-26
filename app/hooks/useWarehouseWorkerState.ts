@@ -1,14 +1,5 @@
 import { useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useWarehouseWorker } from "@/app/hooks/useWarehouseWorker";
-import { warehouseWorkerKeys } from "@/app/lib/query-keys/warehouseWorker.keys";
-import {
-  logWarehouseMovement,
-  adjustWarehouseStock,
-  advanceWarehouseTask,
-  requestRestock,
-  reportWarehouseIssue,
-} from "@/app/lib/controllers/warehouseWorker";
+import { useWarehouseWorker, useWarehouseWorkerMutations } from "@/app/hooks/useWarehouseWorker";
 import type { WWCatalogItem } from "@/app/lib/type/warehouseWorker";
 import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { useGuidedTour } from "@/app/lib/context/GuidedTourContext";
@@ -20,10 +11,15 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   const { dict } = useLanguage();
   const ww = dict.warehouseWorker;
   const { startTour } = useGuidedTour();
-  const queryClient = useQueryClient();
 
   const { data } = useWarehouseWorker(selectedWarehouseId);
-  const refresh = () => queryClient.invalidateQueries({ queryKey: warehouseWorkerKeys.all });
+  const {
+    logMovement,
+    adjustStock,
+    advanceTask: advanceTaskMutation,
+    requestRestock: requestRestockMutation,
+    reportIssue: reportIssueMutation,
+  } = useWarehouseWorkerMutations();
 
   const warehouseId = data?.warehouse?.id ?? "";
   const warehouse = data?.warehouse
@@ -162,11 +158,10 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanResult(null);
     setScanQty(1);
     try {
-      await logWarehouseMovement(warehouseId, result.sku, qty, kind);
+      await logMovement.mutateAsync({ warehouseId, sku: result.sku, quantity: qty, kind });
       const label = (ww.ui[kind] || kind).toLocaleLowerCase("en-US");
       // PICK removes stock (warning tone); everything else adds/settles (success).
       showToast(`${ww.logged} ${label} · ${qty} × ${result.sku}`, kind === "PICK" ? "warning" : "success");
-      await refresh();
     } catch {
       showToast(ww.couldNotLog, "error");
     }
@@ -181,14 +176,13 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanResult(null);
     setScanQty(1);
     try {
-      const res = await adjustWarehouseStock(warehouseId, result.sku, counted, reason, expected);
+      const res = await adjustStock.mutateAsync({ warehouseId, sku: result.sku, counted, reason, expected });
       if (res.delta === 0) {
         showToast(`${ww.adjustNoChange} · ${result.sku}`, "info");
       } else {
         const sign = res.delta > 0 ? "+" : "";
         showToast(`${ww.adjusted} ${sign}${res.delta} · ${result.sku}`, res.delta < 0 ? "warning" : "success");
       }
-      await refresh();
     } catch {
       showToast(ww.couldNotAdjust, "error");
     }
@@ -199,9 +193,8 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   // the Next-task card's single-tap "Start" still works.
   const advanceTask = async (id: string, delta?: number) => {
     try {
-      const res = await advanceWarehouseTask(id, delta);
+      const res = await advanceTaskMutation.mutateAsync({ taskId: id, delta });
       if (res.complete) showToast(ww.taskComplete, "success");
-      await refresh();
     } catch {
       showToast(ww.couldNotUpdateTask, "error");
     }
@@ -217,14 +210,18 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     if (!warehouseId) return;
     try {
       if (item) {
-        await requestRestock(warehouseId, item.zone, item.sku, item.suggestedQty);
+        await requestRestockMutation.mutateAsync({
+          warehouseId,
+          zone: item.zone,
+          sku: item.sku,
+          quantity: item.suggestedQty,
+        });
         const qtyPart = item.suggestedQty ? ` × ${item.suggestedQty}` : "";
         showToast(`${ww.restockRequested} · ${item.sku}${qtyPart}`, "info");
       } else {
-        await requestRestock(warehouseId, currentZone);
+        await requestRestockMutation.mutateAsync({ warehouseId, zone: currentZone });
         showToast(`${ww.restockRequested} · Zone ${currentZone}`, "info");
       }
-      await refresh();
     } catch {
       showToast(ww.couldNotRequestRestock, "error");
     }
@@ -233,9 +230,11 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   const onReport = async () => {
     if (!warehouseId) return;
     try {
-      await reportWarehouseIssue(warehouseId, `Floor issue — Zone ${currentZone}`);
+      await reportIssueMutation.mutateAsync({
+        warehouseId,
+        title: `Floor issue — Zone ${currentZone}`,
+      });
       showToast(ww.issueReported, "error");
-      await refresh();
     } catch {
       showToast(ww.couldNotReportIssue, "error");
     }

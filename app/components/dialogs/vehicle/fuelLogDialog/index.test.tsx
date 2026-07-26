@@ -56,8 +56,12 @@ mock.module("../../../../lib/context/UserContext.tsx", {
   namedExports: { useUserContext: useUserContextMock },
 });
 
-mock.module("../../../../lib/controllers/fuel.ts", {
-  namedExports: { createFuelLog: createFuelLogMock },
+mock.module("../../../../hooks/useVehicles.ts", {
+  namedExports: {
+    useVehicleMutations: mock.fn(() => ({
+      addFuelLog: { mutateAsync: createFuelLogMock, isPending: false },
+    })),
+  },
 });
 
 import * as originalMui from "@mui/material";

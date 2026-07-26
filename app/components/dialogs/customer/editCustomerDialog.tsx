@@ -19,9 +19,8 @@ import {
   CustomerWithRelations,
   CustomerFormValues,
 } from "@/app/lib/type/customer";
-import { updateCustomer } from "@/app/lib/controllers/customer";
+import { useCustomerMutations } from "@/app/hooks/useCustomers";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 import { useUser } from "@/app/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
 import ContactSection from "./addCustomerDialog/sections/ContactSection";
@@ -47,6 +46,7 @@ export default function EditCustomerDialog({
   const { user } = useUser();
   const theme = useTheme();
   const dict = useDictionary();
+  const { updateCustomer } = useCustomerMutations();
 
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -57,28 +57,25 @@ export default function EditCustomerDialog({
     onClose();
     setCurrentStep(1);
 
-    // 2. Run update within toast.promise
-    await toast.promise(
-      updateCustomer(customer.id, {
-        name: values.name,
-        code: values.code,
-        industry: values.industry,
-        taxId: values.taxId,
-        email: values.email,
-        phone: values.phone,
-        locations: values.locations.filter((l) => l.address.trim() !== ""),
-      }),
-      {
-        loading: dict.toasts?.loading || "Updating...",
-        success: dict.customers.dialogs.successUpdate,
-        error: (err: unknown) =>
-          err instanceof Error
-            ? err.message
-            : dict.customers.dialogs.errorUpdate,
-      }
-    );
-
-    onSuccess();
+    // 2. useCustomerMutations() already toasts success/error and applies the
+    // optimistic cache update; just await the submission.
+    try {
+      await updateCustomer.mutateAsync({
+        id: customer.id,
+        data: {
+          name: values.name,
+          code: values.code,
+          industry: values.industry,
+          taxId: values.taxId,
+          email: values.email,
+          phone: values.phone,
+          locations: values.locations.filter((l) => l.address.trim() !== ""),
+        },
+      });
+      onSuccess();
+    } catch {
+      // useCustomerMutations() already toasted the error
+    }
   };
 
   const validationSchema = useMemo(

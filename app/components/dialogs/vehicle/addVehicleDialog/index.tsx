@@ -24,10 +24,8 @@ import TechSpecsStep from "./techSpecsStep";
 import DocumentsStep from "./documentsStep";
 import { AddVehiclePageProps, VehicleFormValues } from "@/app/lib/type/vehicle";
 import { VehicleType } from "@/app/lib/type/enums";
-import {
-  createVehicle,
-  uploadVehicleDocument,
-} from "@/app/lib/controllers/vehicle";
+import { uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { fileToBase64 } from "@/app/lib/utils/fileUtils";
 import { toast } from "sonner";
@@ -92,6 +90,7 @@ const AddVehicleDialog = ({
   const dict = useDictionary();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
+  const { createVehicle } = useVehicleMutations();
 
   const closeDialog = () => {
     onClose();
@@ -118,79 +117,84 @@ const AddVehicleDialog = ({
     closeDialog();
     resetForm();
 
-    // 2. Run the full create+upload flow behind a loading toast
-    await toast.promise(
-      (async () => {
-        let photoUrl = values.photo;
-        if (values.photo instanceof File) {
-          const base64 = await fileToBase64(values.photo);
-          const uploadResult = await uploadImageAction(base64, "vehicles");
-          photoUrl = uploadResult.url;
-        }
+    // 2. Run the full create+upload flow. The create step itself is optimistic
+    // and toasts via useVehicleMutations(); only document-upload failures need
+    // their own toast here.
+    const loadingToastId = toast.loading(dict.toasts.loading);
+    let vehicleCreated = false;
+    try {
+      let photoUrl = values.photo;
+      if (values.photo instanceof File) {
+        const base64 = await fileToBase64(values.photo);
+        const uploadResult = await uploadImageAction(base64, "vehicles");
+        photoUrl = uploadResult.url;
+      }
 
-        const payload: VehicleCreateInput = stripUndefined({
-          fleetNo: values.fleetNo || undefined,
-          plate: values.plate,
-          type: values.type as VehicleType,
-          brand: values.brand,
-          model: values.model,
-          year: Number(values.year),
-          odometerKm: Number(values.odometerKm),
-          photo: (photoUrl as string) || undefined,
-          maxLoadKg: Number(values.maxLoadKg),
-          fuelType: values.fuelType,
-          avgFuelConsumption: Number(values.avgFuelConsumption),
-          fuelLevel: Number(values.fuelLevel),
-          fuelCapacity: Number(values.fuelCapacity),
-          engineSize: values.engineSize,
-          transmission: values.transmission,
-          techNotes: values.techNotes,
-          registrationExpiry: values.registrationExpiry
-            ? values.registrationExpiry.toDate()
-            : undefined,
-          inspectionExpiry: values.inspectionExpiry
-            ? values.inspectionExpiry.toDate()
-            : undefined,
-          nextServiceKm:
-            Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
-          enableAlerts: values.enableExpiryAlerts,
+      const payload: VehicleCreateInput = stripUndefined({
+        fleetNo: values.fleetNo || undefined,
+        plate: values.plate,
+        type: values.type as VehicleType,
+        brand: values.brand,
+        model: values.model,
+        year: Number(values.year),
+        odometerKm: Number(values.odometerKm),
+        photo: (photoUrl as string) || undefined,
+        maxLoadKg: Number(values.maxLoadKg),
+        fuelType: values.fuelType,
+        avgFuelConsumption: Number(values.avgFuelConsumption),
+        fuelLevel: Number(values.fuelLevel),
+        fuelCapacity: Number(values.fuelCapacity),
+        engineSize: values.engineSize,
+        transmission: values.transmission,
+        techNotes: values.techNotes,
+        registrationExpiry: values.registrationExpiry
+          ? values.registrationExpiry.toDate()
+          : undefined,
+        inspectionExpiry: values.inspectionExpiry
+          ? values.inspectionExpiry.toDate()
+          : undefined,
+        nextServiceKm:
+          Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
+        enableAlerts: values.enableExpiryAlerts,
+      });
+
+      const createdVehicle = await createVehicle.mutateAsync(payload);
+      vehicleCreated = true;
+
+      const docPromises = values.documents
+        .filter((doc) => doc.file)
+        .map(async (doc) => {
+          const base64 = await fileToBase64(doc.file!);
+          const uploadResult = await uploadImageAction(
+            base64,
+            "documents",
+            `vehicles/${createdVehicle.id}`
+          );
+          return uploadVehicleDocument(createdVehicle.id, {
+            type: (doc.type || "OTHER") as import("@/app/lib/type/enums").DocumentType,
+            name: doc.name,
+            url: uploadResult.url,
+            status: "ACTIVE",
+            expiryDate: values.registrationExpiry
+              ? values.registrationExpiry.toDate()
+              : undefined,
+          });
         });
 
-        const createdVehicle = await createVehicle(payload);
-
-        const docPromises = values.documents
-          .filter((doc) => doc.file)
-          .map(async (doc) => {
-            const base64 = await fileToBase64(doc.file!);
-            const uploadResult = await uploadImageAction(
-              base64,
-              "documents",
-              `vehicles/${createdVehicle.id}`
-            );
-            return uploadVehicleDocument(createdVehicle.id, {
-              type: (doc.type || "OTHER") as import("@/app/lib/type/enums").DocumentType,
-              name: doc.name,
-              url: uploadResult.url,
-              status: "ACTIVE",
-              expiryDate: values.registrationExpiry
-                ? values.registrationExpiry.toDate()
-                : undefined,
-            });
-          });
-
-        if (docPromises.length > 0) {
-          await Promise.all(docPromises);
-        }
-
-        onSuccess?.();
-      })(),
-      {
-        loading: dict.toasts.loading,
-        success: dict.toasts.successAdd,
-        error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.toasts.errorGeneric,
+      if (docPromises.length > 0) {
+        await Promise.all(docPromises);
       }
-    );
+
+      onSuccess?.();
+    } catch (err) {
+      // The create step already toasts its own error via useVehicleMutations();
+      // only surface a toast here for failures after a successful create (doc uploads).
+      if (vehicleCreated) {
+        toast.error(err instanceof Error ? err.message : dict.toasts.errorGeneric);
+      }
+    } finally {
+      toast.dismiss(loadingToastId);
+    }
   };
 
   const steps = [

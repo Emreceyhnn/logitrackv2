@@ -258,14 +258,14 @@ export default function CustomerContent() {
       <EditCustomerDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
-        onSuccess={() => refetch()}
+        onSuccess={() => {}}
         customer={actionCustomer}
       />
 
       <AddCustomerDialog
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        onSuccess={() => refetch()}
+        onSuccess={() => {}}
       />
 
       <DeleteConfirmationDialog

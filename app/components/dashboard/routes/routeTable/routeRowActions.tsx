@@ -16,10 +16,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useState } from "react";
-import { updateRouteStatus } from "@/app/lib/controllers/routes";
+import { useRouteMutations } from "@/app/hooks/useRoutes";
 import { RouteStatus } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { toast } from "sonner";
 
 interface RouteRowActionsProps {
   id: string;
@@ -27,7 +26,6 @@ interface RouteRowActionsProps {
   handleOpenDetails: (id: string) => void;
   handleEdit?: (id: string) => void;
   handleDelete?: (id: string) => void;
-  onRefresh?: () => void;
 }
 
 const RouteRowActions = ({
@@ -36,28 +34,16 @@ const RouteRowActions = ({
   handleOpenDetails,
   handleEdit,
   handleDelete,
-  onRefresh,
 }: RouteRowActionsProps) => {
   const dict = useDictionary();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [loading, setLoading] = useState(false);
+  const { updateRouteStatus } = useRouteMutations();
   const open = Boolean(anchorEl);
 
-  const handleStatusChange = async (newStatus: RouteStatus) => {
+  const handleStatusChange = (newStatus: RouteStatus) => {
     setAnchorEl(null);
-    setLoading(true);
-    try {
-      await updateRouteStatus(id, newStatus);
-      toast.success(dict.routes.toasts.statusSuccess);
-      onRefresh?.();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : dict.routes.toasts.updateError;
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
+    updateRouteStatus.mutate({ id, status: newStatus });
   };
 
   return (
@@ -65,9 +51,9 @@ const RouteRowActions = ({
       <IconButton
         size="small"
         onClick={(e) => setAnchorEl(e.currentTarget)}
-        disabled={loading}
+        disabled={updateRouteStatus.isPending}
       >
-        {loading ? (
+        {updateRouteStatus.isPending ? (
           <CircularProgress size={20} color="inherit" />
         ) : (
           <MoreVertIcon fontSize="small" />

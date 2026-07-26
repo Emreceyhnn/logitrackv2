@@ -37,6 +37,15 @@ const vehicleControllerMock = {
   updateVehicle: mock.fn(),
   deleteVehicle: mock.fn(),
   updateVehicleStatus: mock.fn(),
+  assignDriverToVehicle: mock.fn(),
+  unassignDriverFromVehicle: mock.fn(),
+  uploadVehicleDocument: mock.fn(),
+  addMaintenanceRecord: mock.fn(),
+  createVehicleIssue: mock.fn(),
+};
+
+const fuelControllerMock = {
+  createFuelLog: mock.fn(),
 };
 
 
@@ -55,6 +64,7 @@ mock.module("../lib/language/DictionaryContext.tsx", { namedExports: dictContext
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 mock.module("sonner", { namedExports: sonnerMock });
 mock.module("../lib/controllers/vehicle.ts", { namedExports: vehicleControllerMock });
+mock.module("../lib/controllers/fuel.ts", { namedExports: fuelControllerMock });
 
 const globalFetchMock = mock.fn();
 (globalThis as unknown).fetch = globalFetchMock;

@@ -1,16 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import { toast } from "sonner";
-import { updateRouteStatus } from "@/app/lib/controllers/routes";
+import { useRouteMutations } from "@/app/hooks/useRoutes";
 import { polylineHelper } from "@/app/components/valhalla/polylineHelper";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import { RouteStatus } from "@/app/lib/type/enums";
-import { Dictionary } from "@/app/lib/language/language";
 
-export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, onSuccess?: () => void, dict?: Dictionary) => {
+export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, onSuccess?: () => void) => {
   const [liveMetrics, setLiveMetrics] = useState<{ distanceKm: number; durationMin: number; } | null>(null);
   const [vehicleToDestMetrics, setVehicleToDestMetrics] = useState<{ distanceKm: number; durationMin: number; } | null>(null);
   const [vehicleTraveledMetrics, setVehicleTraveledMetrics] = useState<{ distanceKm: number; } | null>(null);
-  const [statusLoading, setStatusLoading] = useState(false);
+  const { updateRouteStatus } = useRouteMutations();
 
   const { mapOrigin, mapDestination, intermediateStops } = useMemo(() => {
     if (!route) return { mapOrigin: undefined, mapDestination: undefined, intermediateStops: [] };
@@ -51,20 +49,13 @@ export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, 
     return () => { cancelled = true; };
   }, [open, route?.vehicle?.currentLat, route?.vehicle?.currentLng, mapOrigin, mapDestination]);
 
-  const handleStatusChange = async (newStatus: RouteStatus) => {
+  const handleStatusChange = (newStatus: RouteStatus) => {
     if (!route) return;
-    setStatusLoading(true);
-    try {
-      await updateRouteStatus(route.id, newStatus);
-      toast.success(dict?.toasts.successUpdate || "Successfully updated!");
-      onSuccess?.();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : (dict?.toasts.errorGeneric || "Error");
-      toast.error(message);
-    } finally {
-      setStatusLoading(false);
-    }
+    updateRouteStatus.mutate(
+      { id: route.id, status: newStatus },
+      { onSuccess: () => onSuccess?.() }
+    );
   };
 
-  return { liveMetrics, setLiveMetrics, vehicleToDestMetrics, vehicleTraveledMetrics, statusLoading, mapOrigin, mapDestination, intermediateStops, handleStatusChange };
+  return { liveMetrics, setLiveMetrics, vehicleToDestMetrics, vehicleTraveledMetrics, statusLoading: updateRouteStatus.isPending, mapOrigin, mapDestination, intermediateStops, handleStatusChange };
 };

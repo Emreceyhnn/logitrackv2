@@ -23,7 +23,7 @@ import {
   EditWarehousePageActions,
   EditWarehousePageState,
 } from "@/app/lib/type/edit-warehouse";
-import { updateWarehouse } from "@/app/lib/controllers/warehouse";
+import { useWarehouseMutations } from "@/app/hooks/useWarehouses";
 import { useUser } from "@/app/hooks/useUser";
 
 import BasicInfoSection from "../shared/sections/BasicInfoSection";
@@ -66,6 +66,7 @@ const EditWarehouseDialog = ({
   const { user } = useUser();
   const dict = useDictionary();
   const isInitialized = useRef<string | null>(null);
+  const { updateWarehouse } = useWarehouseMutations();
 
   const [state, setState] = useState<EditWarehousePageState>({
     data: {
@@ -156,23 +157,26 @@ const EditWarehouseDialog = ({
 
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        await updateWarehouse(warehouseData.id, {
-          name: state.data.basicInfo.name,
-          code: state.data.basicInfo.code,
-          type: state.data.basicInfo.type,
-          address: state.data.location.address,
-          city: state.data.location.city,
-          country: state.data.location.country,
-          lat: state.data.location.lat,
-          lng: state.data.location.lng,
-          managerId: state.data.location.managerId || null,
-          capacityPallets: state.data.capacity.capacityPallets,
-          capacityVolumeM3: state.data.capacity.capacityVolumeM3,
-          operatingHours: state.data.basicInfo.is247
-            ? "24/7"
-            : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
-          timezone: state.data.basicInfo.timezone,
-          specifications: state.data.capacity.specifications,
+        await updateWarehouse.mutateAsync({
+          id: warehouseData.id,
+          data: {
+            name: state.data.basicInfo.name,
+            code: state.data.basicInfo.code,
+            type: state.data.basicInfo.type,
+            address: state.data.location.address,
+            city: state.data.location.city,
+            country: state.data.location.country,
+            lat: state.data.location.lat ?? null,
+            lng: state.data.location.lng ?? null,
+            managerId: state.data.location.managerId || null,
+            capacityPallets: state.data.capacity.capacityPallets,
+            capacityVolumeM3: state.data.capacity.capacityVolumeM3,
+            operatingHours: state.data.basicInfo.is247
+              ? "24/7"
+              : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
+            timezone: state.data.basicInfo.timezone,
+            specifications: state.data.capacity.specifications,
+          },
         });
 
         onSuccess?.();

@@ -58,8 +58,12 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle.ts", {
-  namedExports: { addMaintenanceRecord: addMaintenanceRecordMock },
+mock.module("../../../../hooks/useVehicles.ts", {
+  namedExports: {
+    useVehicleMutations: mock.fn(() => ({
+      addMaintenanceRecord: { mutateAsync: addMaintenanceRecordMock, isPending: false },
+    })),
+  },
 });
 
 mock.module("../../../../lib/context/UserContext.tsx", {

@@ -278,12 +278,10 @@ describe("Inventory Controller", () => {
 
     it("should_ThrowWithoutUpdate_WhenItemBelongsToAnotherCompany", async () => {
       // Arrange
-      dbMock.inventory.findFirst.mock.mockImplementation(async () => ({
-        sku: "SKU-1",
-        warehouseId: "w-1",
-        companyId: "company-2", // different tenant
-        quantity: 100,
-      }));
+      // adjustInventoryStock scopes the lookup itself via `where: { id, companyId }`
+      // (mutations.ts) — a row from another tenant simply doesn't match that
+      // filter and Prisma returns null, exactly like an unknown id.
+      dbMock.inventory.findFirst.mock.mockImplementation(async () => null);
       const consoleMock = mock.method(console, "error", () => {});
 
       // Act & Assert

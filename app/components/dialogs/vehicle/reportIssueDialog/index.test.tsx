@@ -47,8 +47,12 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle.ts", {
-  namedExports: { createVehicleIssue: createVehicleIssueMock },
+mock.module("../../../../hooks/useVehicles.ts", {
+  namedExports: {
+    useVehicleMutations: mock.fn(() => ({
+      reportIssue: { mutateAsync: createVehicleIssueMock, isPending: false },
+    })),
+  },
 });
 
 mock.module("../../../../lib/validationSchema.ts", {

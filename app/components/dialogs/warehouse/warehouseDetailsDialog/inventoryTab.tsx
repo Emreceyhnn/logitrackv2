@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Box, useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
@@ -62,7 +62,6 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
   const {
     data: dashboardData,
     isLoading,
-    refetch,
   } = useInventoryWithDashboard(
     pagination.page,
     pagination.pageSize,
@@ -87,11 +86,6 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
     useInventoryMutations();
 
   const loading = isLoading;
-
-  /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
 
   const items = dashboardData?.items || [];
   const stats = dashboardData?.stats;
@@ -257,7 +251,7 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
         <AddInventoryDialog
           open={isAddOpen}
           onClose={() => setIsAddOpen(false)}
-          onSuccess={refreshAll}
+          onSuccess={() => setIsAddOpen(false)}
           initialWarehouseId={warehouse.id}
         />
       )}

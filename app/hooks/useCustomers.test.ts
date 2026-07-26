@@ -33,6 +33,8 @@ const sonnerMock = {
 };
 
 const customerControllerMock = {
+  createCustomer: mock.fn(),
+  updateCustomer: mock.fn(),
   deleteCustomer: mock.fn(),
 };
 

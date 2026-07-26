@@ -15,14 +15,13 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { toast } from "sonner";
 import { useState } from "react";
 import {
   AddWarehouseDialogProps,
   AddWarehousePageActions,
   AddWarehousePageState,
 } from "@/app/lib/type/add-warehouse";
-import { createWarehouse } from "@/app/lib/controllers/warehouse";
+import { useWarehouseMutations } from "@/app/hooks/useWarehouses";
 import { useUser } from "@/app/hooks/useUser";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { logger } from "@/app/lib/logger";
@@ -65,6 +64,7 @@ const AddWarehouseDialog = ({
   const theme = useTheme();
   const { user } = useUser();
   const dict = useDictionary();
+  const { createWarehouse } = useWarehouseMutations();
 
   /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<AddWarehousePageState>({
@@ -101,32 +101,24 @@ const AddWarehouseDialog = ({
       if (!user || !user.companyId) return;
 
       try {
-        await toast.promise(
-          createWarehouse(
-            state.data.basicInfo.name,
-            state.data.basicInfo.code,
-            state.data.basicInfo.type,
-            state.data.location.address,
-            state.data.location.city,
-            state.data.location.country,
-            state.data.location.lat,
-            state.data.location.lng,
-            state.data.location.managerId || undefined,
-            state.data.capacity.capacityPallets,
-            state.data.capacity.capacityVolumeM3,
-            state.data.basicInfo.is247
-              ? "24/7"
-              : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
-            state.data.basicInfo.timezone,
-            state.data.capacity.specifications
-          ),
-          {
-            loading: dict.toasts.loading,
-            success: dict.toasts.successAdd,
-            error: (err: unknown) =>
-              err instanceof Error ? err.message : dict.toasts.errorGeneric,
-          }
-        );
+        await createWarehouse.mutateAsync({
+          name: state.data.basicInfo.name,
+          code: state.data.basicInfo.code,
+          type: state.data.basicInfo.type,
+          address: state.data.location.address,
+          city: state.data.location.city,
+          country: state.data.location.country,
+          lat: state.data.location.lat,
+          lng: state.data.location.lng,
+          managerId: state.data.location.managerId || "",
+          capacityPallets: state.data.capacity.capacityPallets,
+          capacityVolumeM3: state.data.capacity.capacityVolumeM3,
+          operatingHours: state.data.basicInfo.is247
+            ? "24/7"
+            : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
+          timezone: state.data.basicInfo.timezone,
+          specifications: state.data.capacity.specifications,
+        });
 
         onSuccess?.();
         actions.closeDialog();

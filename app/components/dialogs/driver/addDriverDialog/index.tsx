@@ -25,10 +25,8 @@ import {
 } from "@/app/lib/type/driver";
 import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
-import {
-  createDriver,
-  getEligibleUsersForDriver,
-} from "@/app/lib/controllers/driver";
+import { getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
+import { useDriverMutations } from "@/app/hooks/useDrivers";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { addDriverValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -63,6 +61,7 @@ const AddDriverDialog = ({
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
   const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([]);
+  const { createDriver } = useDriverMutations();
 
   /* ------------------------------- lifecycles ------------------------------- */
   useEffect(() => {
@@ -98,71 +97,74 @@ const AddDriverDialog = ({
       });
     };
 
-    // 2. Run upload and create behind a loading toast
-    await toast.promise(
-      (async () => {
-        let licensePhotoUrl = "";
-        if (values.licencePhoto) {
-          const base64 = await fileToBase64(values.licencePhoto);
-          const uploadResult = await uploadImageAction(
-            base64,
-            "documents",
-            `drivers/${values.userId}/license`
-          );
-          licensePhotoUrl = uploadResult.url;
-        }
-
-        const uploadedDocs = await Promise.all(
-          values.documents.map(async (doc) => {
-            if (doc.file) {
-              const base64 = await fileToBase64(doc.file);
-              const uploadResult = await uploadImageAction(
-                base64,
-                "documents",
-                `drivers/${values.userId}/docs`
-              );
-              return {
-                name: doc.name,
-                type: doc.type,
-                url: uploadResult.url,
-                expiryDate: doc.expiryDate || undefined,
-              };
-            }
-            return null;
-          })
+    // 2. Upload documents, then create (optimistic + toasts via useDriverMutations())
+    const loadingToastId = toast.loading(dict.toasts?.loading || "Saving...");
+    try {
+      let licensePhotoUrl = "";
+      if (values.licencePhoto) {
+        const base64 = await fileToBase64(values.licencePhoto);
+        const uploadResult = await uploadImageAction(
+          base64,
+          "documents",
+          `drivers/${values.userId}/license`
         );
-
-        const payload = {
-          userId: values.userId,
-          phone: values.phone,
-          employeeId: values.employeeId,
-          licenseNumber: values.licenseNumber,
-          licenseExpiry: values.licenseExpiry,
-          licenseType: values.licenseType,
-          status: values.status as DriverStatus,
-          currentVehicleId: values.currentVehicleId || null,
-          homeBaseWarehouseId: values.homeWareHouseId || null,
-          languages: values.languages,
-          hazmatCertified: values.hazmatCertified,
-          licensePhotoUrl,
-          documents: uploadedDocs.filter((d) => d !== null) as {
-            name: string;
-            type: string;
-            url: string;
-            expiryDate?: Date;
-          }[],
-        };
-
-        await createDriver(payload);
-        onSuccess?.();
-      })(),
-      {
-        loading: dict.toasts?.loading || "Saving...",
-        success: dict.common.saveSuccess,
-        error: (err: unknown) =>
-          (err as Error).message || dict.common.errorOccurred,
+        licensePhotoUrl = uploadResult.url;
       }
-    );
+
+      const uploadedDocs = await Promise.all(
+        values.documents.map(async (doc) => {
+          if (doc.file) {
+            const base64 = await fileToBase64(doc.file);
+            const uploadResult = await uploadImageAction(
+              base64,
+              "documents",
+              `drivers/${values.userId}/docs`
+            );
+            return {
+              name: doc.name,
+              type: doc.type,
+              url: uploadResult.url,
+              expiryDate: doc.expiryDate || undefined,
+            };
+          }
+          return null;
+        })
+      );
+
+      const payload = {
+        userId: values.userId,
+        phone: values.phone,
+        employeeId: values.employeeId,
+        licenseNumber: values.licenseNumber,
+        licenseExpiry: values.licenseExpiry,
+        licenseType: values.licenseType,
+        status: values.status as DriverStatus,
+        currentVehicleId: values.currentVehicleId || null,
+        homeBaseWarehouseId: values.homeWareHouseId || null,
+        languages: values.languages,
+        hazmatCertified: values.hazmatCertified,
+        licensePhotoUrl,
+        documents: uploadedDocs.filter((d) => d !== null) as {
+          name: string;
+          type: string;
+          url: string;
+          expiryDate?: Date;
+        }[],
+      };
+
+      const eligibleUser = eligibleUsers.find((u) => u.id === values.userId);
+
+      try {
+        await createDriver.mutateAsync({ data: payload, eligibleUser });
+        onSuccess?.();
+      } catch {
+        // useDriverMutations() already toasts the error
+      }
+    } catch (err) {
+      toast.error((err as Error).message || dict.common.errorOccurred);
+    } finally {
+      toast.dismiss(loadingToastId);
+    }
   };
 
   const steps = [

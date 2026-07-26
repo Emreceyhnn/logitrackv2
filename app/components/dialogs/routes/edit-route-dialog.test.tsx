@@ -79,6 +79,14 @@ mock.module("../../../hooks/useUser.ts", {
   namedExports: { useUser: () => stableUserResult },
 });
 
+mock.module("../../../hooks/useRoutes.ts", {
+  namedExports: {
+    useRouteMutations: () => ({
+      updateRoute: { mutateAsync: mock.fn(async () => ({})), isPending: false },
+    }),
+  },
+});
+
 mock.module("./addRouteDialog/firstStep.tsx", {
   defaultExport: () => <div data-testid="first-step">First Step</div>,
 });

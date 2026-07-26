@@ -34,6 +34,7 @@ export const useVehicleContent = () => {
   const [actionTrailer, setActionTrailer] = useState<TrailerWithRelations | null>(null);
 
   const { data: dashboardData, isLoading: isVehiclesLoading, isFetching: isVehiclesFetching, isError: isVehiclesError, refetch: refetchVehicleWithDashboard } = useVehicleWithDashboard(state.filters);
+  const noop = useCallback(async () => {}, []);
   const { data: trailerData, isLoading: isTrailersLoading, isFetching: isTrailersFetching, isError: isTrailersError, refetch: refetchTrailers } = useTrailers(trailerFilters);
 
   const trailers = trailerData?.trailers || [];
@@ -43,10 +44,6 @@ export const useVehicleContent = () => {
 
   const { deleteVehicle: deleteMutation } = useVehicleMutations();
   const { deleteTrailer: deleteTrailerMut, assignTrailer: detachTrailerMut } = useTrailerMutations();
-
-  const refreshAll = useCallback(async () => {
-    await Promise.all([refetchVehicleWithDashboard()]);
-  }, [refetchVehicleWithDashboard]);
 
   const selectVehicle = useCallback((id: string | null) => {
     setState((prev) => ({ ...prev, selectedVehicleId: id }));
@@ -60,7 +57,7 @@ export const useVehicleContent = () => {
     setTrailerFilters((prev) => ({ ...prev, ...newFilters, ...(newFilters.page === undefined ? { page: 1 } : {}) }));
   }, []);
 
-  const actions: VehiclePageActions = useMemo(() => ({ fetchVehicles: async () => {}, fetchDashboardData: async () => {}, refreshAll, selectVehicle, updateFilters }), [refreshAll, selectVehicle, updateFilters]);
+  const actions: VehiclePageActions = useMemo(() => ({ fetchVehicles: async () => {}, fetchDashboardData: async () => {}, refreshAll: noop, selectVehicle, updateFilters }), [noop, selectVehicle, updateFilters]);
 
   useEffect(() => {
     if (vehicleIdFromUrl) {
@@ -68,7 +65,7 @@ export const useVehicleContent = () => {
     }
   }, [vehicleIdFromUrl, actions]);
 
-  const handleAddSuccess = () => actions.refreshAll();
+  const handleAddSuccess = () => {};
 
   const handleEdit = useCallback((id: string) => {
     const v = vehicles?.find((v) => v.id === id);
@@ -82,7 +79,6 @@ export const useVehicleContent = () => {
 
   const handleEditFormSuccess = () => {
     setEditDialogOpen(false);
-    actions.refreshAll();
   };
 
   const handleDeleteConfirm = async () => {
@@ -152,6 +148,6 @@ export const useVehicleContent = () => {
     trailers, trailerMeta, vehicles, kpiLoading, deleteMutation, deleteTrailerMut, detachTrailerMut,
     actions, handleAddSuccess, handleEdit, handleDelete, handleEditFormSuccess, handleDeleteConfirm, handleDialogDeleteSuccess,
     handleTrailerEdit, handleTrailerDelete, handleTrailerAssign, handleTrailerDetach, selectedVehicle, kpiItems,
-    updateTrailerFilters, refreshAll
+    updateTrailerFilters, refreshAll: noop
   };
 };

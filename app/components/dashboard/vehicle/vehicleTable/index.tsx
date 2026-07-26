@@ -22,11 +22,9 @@ import type {
 import BuildIcon from "@mui/icons-material/Build";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useState } from "react";
-import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
-import { toast } from "sonner";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { logger } from "@/app/lib/logger";
 
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
@@ -42,7 +40,6 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
     onEdit,
     onDelete,
     updateFilters,
-    onUpdateSuccess,
     setPage,
     setLimit,
   } = actions;
@@ -50,31 +47,13 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
 
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { updateVehicleStatus: updateStatusMutation } = useVehicleMutations();
 
   const handleStatusUpdate = useCallback(
-    async (vehicleId: string, newStatus: VehicleStatus) => {
-      try {
-        setActionLoading(vehicleId);
-        await updateVehicleStatus(vehicleId, newStatus);
-        const statusLabel =
-          dict.vehicles.statuses[
-            newStatus as keyof typeof dict.vehicles.statuses
-          ] || newStatus.replace(/_/g, " ");
-        toast.success(
-          `${dict.toasts.successUpdate || "Updated"} - ${statusLabel}`
-        );
-        onUpdateSuccess?.();
-      } catch (error) {
-        toast.error(
-          dict.toasts.errorGeneric || "Failed to update vehicle status"
-        );
-        logger.error(error);
-      } finally {
-        setActionLoading(null);
-      }
+    (vehicleId: string, newStatus: VehicleStatus) => {
+      updateStatusMutation.mutate({ id: vehicleId, status: newStatus });
     },
-    [onUpdateSuccess, dict]
+    [updateStatusMutation]
   );
 
   /* ---------------------------------- data ---------------------------------- */
@@ -326,7 +305,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       <DataTable<VehicleWithRelations>
         rows={paginatedVehicles}
         columns={columns}
-        loading={loading || !!actionLoading}
+        loading={loading}
         emptyMessage={dict.vehicles.table.emptyMessage}
         searchValue={filters.search ?? ""}
         searchPlaceholder={dict.vehicles.table.searchPlaceholder}

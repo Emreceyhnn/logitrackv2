@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { toast } from "sonner";
-import { updateVehicle } from "@/app/lib/controllers/vehicle";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { VehicleWithRelations, VehicleFormValues } from "@/app/lib/type/vehicle";
 import { VehicleType } from "@/app/lib/type/enums";
@@ -14,6 +14,7 @@ export const useEditVehicle = (vehicle: VehicleWithRelations, open: boolean, onC
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const isInitialized = useRef<string | null>(null);
+  const { updateVehicle } = useVehicleMutations();
 
   const [initialValues, setInitialValues] = useState<VehicleFormValues>({
     fleetNo: "", plate: "", type: "", brand: "", model: "", year: "", odometerKm: "", nextServiceKm: "",
@@ -50,29 +51,31 @@ export const useEditVehicle = (vehicle: VehicleWithRelations, open: boolean, onC
       reader.onload = () => resolve(reader.result as string); reader.onerror = (err) => reject(err);
     });
 
-    await toast.promise(
-      (async () => {
-        let photoUrl = values.photo;
-        if (values.photo instanceof File) {
-          const base64 = await fileToBase64(values.photo);
-          const uploadResult = await uploadImageAction(base64, "vehicles");
-          photoUrl = uploadResult.url;
-        }
+    let photoUrl = values.photo;
+    if (values.photo instanceof File) {
+      const base64 = await fileToBase64(values.photo);
+      const uploadResult = await uploadImageAction(base64, "vehicles");
+      photoUrl = uploadResult.url;
+    }
 
-        const updateData = {
-          fleetNo: values.fleetNo || undefined, plate: values.plate, type: values.type as VehicleType,
-          brand: values.brand, model: values.model, year: Number(values.year), odometerKm: values.odometerKm ? Number(values.odometerKm) : null,
-          maxLoadKg: values.maxLoadKg ? Number(values.maxLoadKg) : 0, fuelType: values.fuelType, avgFuelConsumption: values.avgFuelConsumption ? Number(values.avgFuelConsumption) : null,
-          fuelLevel: values.fuelLevel ? Number(values.fuelLevel) : null, fuelCapacity: values.fuelCapacity ? Number(values.fuelCapacity) : null,
-          nextServiceKm: values.nextServiceKm ? Number(values.nextServiceKm) : null, status: values.status, engineSize: values.engineSize,
-          transmission: values.transmission, techNotes: values.techNotes, photo: (photoUrl as string) || null,
-        };
+    const updateData = {
+      fleetNo: values.fleetNo || undefined, plate: values.plate, type: values.type as VehicleType,
+      brand: values.brand, model: values.model, year: Number(values.year), odometerKm: values.odometerKm ? Number(values.odometerKm) : null,
+      maxLoadKg: values.maxLoadKg ? Number(values.maxLoadKg) : 0, fuelType: values.fuelType, avgFuelConsumption: values.avgFuelConsumption ? Number(values.avgFuelConsumption) : null,
+      fuelLevel: values.fuelLevel ? Number(values.fuelLevel) : null, fuelCapacity: values.fuelCapacity ? Number(values.fuelCapacity) : null,
+      nextServiceKm: values.nextServiceKm ? Number(values.nextServiceKm) : null, status: values.status, engineSize: values.engineSize,
+      transmission: values.transmission, techNotes: values.techNotes, photo: (photoUrl as string) || null,
+    };
 
-        await updateVehicle(vehicle.id, updateData as Parameters<typeof updateVehicle>[1]);
-        onSuccess?.();
-      })(),
-      { loading: dict?.toasts.loading, success: dict?.toasts.successUpdate, error: (err: unknown) => err instanceof Error ? err.message : dict?.toasts.errorGeneric }
-    );
+    try {
+      await updateVehicle.mutateAsync({
+        id: vehicle.id,
+        data: updateData as Parameters<typeof updateVehicle.mutateAsync>[0]["data"],
+      });
+      onSuccess?.();
+    } catch {
+      // useVehicleMutations() already toasts the error
+    }
   };
 
   return { initialValues, validationSchema, currentStep, setCurrentStep, error, setError, closeDialog, handleSubmit };

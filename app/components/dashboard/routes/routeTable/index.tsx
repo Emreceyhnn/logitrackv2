@@ -19,9 +19,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { updateRouteStatus } from "@/app/lib/controllers/routes";
+import { useRouteMutations } from "@/app/hooks/useRoutes";
 import { RouteStatus } from "@/app/lib/type/enums";
-import { toast } from "sonner";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -63,7 +62,7 @@ const RouteTable = ({
     null
   );
 
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { updateRouteStatus } = useRouteMutations();
 
   // Local Pagination Fallback
   const [localPage, setLocalPage] = useState(1);
@@ -175,26 +174,10 @@ const RouteTable = ({
   );
 
   const handleStatusChange = useCallback(
-    async (id: string, newStatus: RouteStatus) => {
-      setActionLoading(id);
-      try {
-        await updateRouteStatus(id, newStatus);
-        const statusLabel = getStatusMeta(newStatus, dict).label || "";
-        const successMsg =
-          dict.routes.toasts.updateSuccess || "Route updated to {status}";
-        toast.success(successMsg.replace("{status}", statusLabel));
-        onRefresh?.();
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : dict.routes.toasts.updateError;
-        toast.error(message);
-      } finally {
-        setActionLoading(null);
-      }
+    (id: string, newStatus: RouteStatus) => {
+      updateRouteStatus.mutate({ id, status: newStatus });
     },
-    [onRefresh, dict]
+    [updateRouteStatus]
   );
 
   const columns: DataTableColumn<RouteWithRelations>[] = useMemo(
@@ -293,7 +276,7 @@ const RouteTable = ({
         rows={paginatedRoutes}
         columns={columns}
         rowActions={rowActions}
-        loading={loading || !!actionLoading}
+        loading={loading || updateRouteStatus.isPending}
         emptyMessage={dict.routes.table.noRoutes}
         searchValue={filters?.search ?? ""}
         searchPlaceholder={dict.routes.table.searchPlaceholder || dict.common.search}

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { toast } from "sonner";
-import { updateShipment } from "@/app/lib/controllers/shipments";
+import { useShipmentMutations } from "@/app/hooks/useShipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
@@ -24,6 +23,7 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
   const { user } = useUser();
   const dict = useDictionary();
   const validationSchema = useMemo(() => editShipmentValidationSchema(dict), [dict]);
+  const { updateShipment } = useShipmentMutations();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
@@ -108,8 +108,9 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
     const sanitize = (val: string | null | undefined) => val && val.trim() !== "" ? val : null;
 
     try {
-      await toast.promise(
-        updateShipment(shipment.id, stripUndefined({
+      await updateShipment.mutateAsync({
+        id: shipment.id,
+        data: stripUndefined({
           customerId: sanitize(values.customerId), customerLocationId: sanitize(values.customerLocationId),
           originWarehouseId: sanitize(values.originWarehouseId) ?? undefined, routeId: sanitize(values.assignedRouteId),
           trailerId: sanitize(values.trailerId), origin: originName, destination: values.destination,
@@ -120,9 +121,8 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
           type: values.type as import("@/app/lib/type/enums").ShipmentServiceType, slaDeadline: values.slaDeadline,
           contactEmail: sanitize(values.contactEmail) ?? undefined, billingAccount: values.billingAccount,
           inventoryItems: values.inventoryItems, stops: values.stops,
-        })),
-        { loading: dict.toasts.loading, success: dict.toasts.successUpdate, error: (err: unknown) => err instanceof Error ? err.message : dict.toasts.errorGeneric }
-      );
+        }),
+      });
       onSuccess?.();
       onClose();
       setCurrentStep(1);

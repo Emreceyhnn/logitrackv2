@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { toast } from "sonner";
-import { createShipment } from "@/app/lib/controllers/shipments";
+import { useShipmentMutations } from "@/app/hooks/useShipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
@@ -33,6 +32,7 @@ export const useAddShipment = (open: boolean, onClose: () => void, onSuccess?: (
   const { user } = useUser();
   const dict = useDictionary();
   const validationSchema = useMemo(() => addShipmentValidationSchema(dict), [dict]);
+  const { createShipment } = useShipmentMutations();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
@@ -75,20 +75,17 @@ export const useAddShipment = (open: boolean, onClose: () => void, onSuccess?: (
     const selectedWarehouse = warehouses.find((w) => w.id === values.originWarehouseId);
     const originName = selectedWarehouse?.name || values.originWarehouseId;
     try {
-      await toast.promise(
-        createShipment({
-          customerId: values.customerId, origin: originName, originWarehouseId: values.originWarehouseId,
-          destination: values.destination, status: ShipmentStatus.PENDING, itemsCount: values.inventoryItems.length || 1,
-          weightKg: values.weightKg, volumeM3: values.volumeM3, palletCount: values.palletCount,
-          cargoType: values.cargoType, destinationLat: values.destinationLat, destinationLng: values.destinationLng,
-          originLat: values.originLat, originLng: values.originLng, trackingId: values.trackingId,
-          referenceNumber: values.referenceNumber, customerLocationId: values.customerLocationId,
-          priority: values.priority, type: values.type as import("@/app/lib/type/enums").ShipmentServiceType,
-          slaDeadline: values.slaDeadline, contactEmail: values.contactEmail, billingAccount: values.billingAccount,
-          inventoryItems: values.inventoryItems, trailerId: values.trailerId, driverId: values.driverId, stops: values.stops,
-        }),
-        { loading: dict.toasts.loading, success: dict.toasts.successAdd, error: (err: unknown) => err instanceof Error ? err.message : dict.toasts.errorGeneric }
-      );
+      await createShipment.mutateAsync({
+        customerId: values.customerId, origin: originName, originWarehouseId: values.originWarehouseId,
+        destination: values.destination, status: ShipmentStatus.PENDING, itemsCount: values.inventoryItems.length || 1,
+        weightKg: values.weightKg, volumeM3: values.volumeM3, palletCount: values.palletCount,
+        cargoType: values.cargoType, destinationLat: values.destinationLat, destinationLng: values.destinationLng,
+        originLat: values.originLat, originLng: values.originLng, trackingId: values.trackingId,
+        referenceNumber: values.referenceNumber, customerLocationId: values.customerLocationId,
+        priority: values.priority, type: values.type as import("@/app/lib/type/enums").ShipmentServiceType,
+        slaDeadline: values.slaDeadline, contactEmail: values.contactEmail, billingAccount: values.billingAccount,
+        inventoryItems: values.inventoryItems, trailerId: values.trailerId, driverId: values.driverId, stops: values.stops,
+      });
       onSuccess?.();
       onClose();
       setCurrentStep(1);

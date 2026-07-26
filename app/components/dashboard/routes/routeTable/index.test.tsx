@@ -42,9 +42,13 @@ mock.module("../../../../lib/type/enums.ts", {
   namedExports: { RouteStatus: { PLANNED: "PLANNED", ACTIVE: "ACTIVE", COMPLETED: "COMPLETED" } }
 });
 
-const mockUpdateRouteStatus = mock.fn(async () => {});
-mock.module("../../../../lib/controllers/routes.ts", {
-  namedExports: { updateRouteStatus: mockUpdateRouteStatus }
+const mockUpdateRouteStatus = mock.fn();
+mock.module("../../../../hooks/useRoutes.ts", {
+  namedExports: {
+    useRouteMutations: mock.fn(() => ({
+      updateRouteStatus: { mutate: mockUpdateRouteStatus, isPending: false },
+    })),
+  }
 });
 
 mock.module("../../../../lib/priorityColor.ts", {
@@ -228,8 +232,7 @@ describe("RouteTable RTL Component", () => {
 
       await waitFor(() => {
         expect(mockUpdateRouteStatus.mock.calls.length).toBe(1);
-        expect(mockUpdateRouteStatus.mock.calls[0].arguments[0]).toBe("rt-1");
-        expect(mockUpdateRouteStatus.mock.calls[0].arguments[1]).toBe("ACTIVE");
+        expect(mockUpdateRouteStatus.mock.calls[0].arguments[0]).toEqual({ id: "rt-1", status: "ACTIVE" });
       });
     });
 

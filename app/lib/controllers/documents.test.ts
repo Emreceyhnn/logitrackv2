@@ -66,7 +66,7 @@ describe("Documents Controller", () => {
     dbMock.document.findUnique.mock.resetCalls();
     dbMock.document.delete.mock.resetCalls();
     dbMock.driver.findFirst.mock.resetCalls();
-    dbMock.vehicle.findUnique.mock.resetCalls();
+    dbMock.vehicle.findFirst.mock.resetCalls();
     
     checkPermissionMock.checkPermission.mock.resetCalls();
     notificationsMock.sendNotificationAction.mock.resetCalls();

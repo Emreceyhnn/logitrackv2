@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { createRoute } from "@/app/lib/controllers/routes";
+import { useRouteMutations } from "@/app/hooks/useRoutes";
 import { getShipments } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@/app/lib/type/enums";
@@ -24,6 +24,7 @@ export const useAddRoute = (open: boolean, onClose: () => void, onSuccess?: () =
   const { user } = useUser();
   const dict = useDictionary();
   const validationSchema = useMemo(() => addRouteValidationSchema(dict), [dict]);
+  const { createRoute } = useRouteMutations();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [shipments, setShipments] = useState<ShipmentWithRelations[]>([]);
@@ -51,16 +52,22 @@ export const useAddRoute = (open: boolean, onClose: () => void, onSuccess?: () =
     const userTz = user.timezone || "UTC";
     const startUTC = values.startTime ? toUTC(values.startTime, userTz) : new Date();
     const endUTC = values.endTime ? toUTC(values.endTime, userTz) : new Date();
+    const loadingToastId = toast.loading(dict.toasts.loading);
     try {
-      await toast.promise(
-        createRoute(values.name, startUTC, startUTC, endUTC, values.distanceKm, values.durationMin, values.driverId, values.vehicleId, selectedShipmentId || undefined, values.stops, values.shape || undefined, values.bufferMeters),
-        { loading: dict.toasts.loading, success: dict.toasts.successAdd, error: (err: unknown) => err instanceof Error ? err.message : dict.toasts.errorGeneric }
-      );
+      await createRoute.mutateAsync([
+        values.name, startUTC, startUTC, endUTC, values.distanceKm, values.durationMin,
+        values.driverId, values.vehicleId, selectedShipmentId || undefined, values.stops,
+        values.shape || undefined, values.bufferMeters,
+      ]);
       onSuccess?.();
       onClose();
       setCurrentStep(1);
       setSelectedShipmentId(null);
-    } catch (error) { logger.error(error); }
+    } catch (error) {
+      logger.error(error);
+    } finally {
+      toast.dismiss(loadingToastId);
+    }
   };
 
   const closeDialog = () => {

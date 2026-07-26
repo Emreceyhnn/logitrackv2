@@ -7,7 +7,10 @@ global.React = React;
 
 // MOCKLAR
 const useDictionaryMock = mock.fn(() => ({
-  auth: { security: "Sec", securityDescription: "Desc", password: "Pass", repeatPassword: "Rep" }
+  auth: {
+    security: "Sec", securityDescription: "Desc", password: "Pass", repeatPassword: "Rep",
+    passwordRules: { minLength: "At least 8 characters", lowercase: "Lowercase letter", uppercase: "Uppercase letter", number: "Number" },
+  }
 }));
 
 mock.module("../../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
@@ -15,7 +18,8 @@ mock.module("../../../lib/styled/styledFieldBox.ts", { namedExports: { StyledTex
 
 mock.module("formik", {
   namedExports: {
-    Field: ({ children, name  }: Record<string, unknown>) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>
+    Field: ({ children, name  }: Record<string, unknown>) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>,
+    useFormikContext: mock.fn(() => ({ values: { password: "" } })),
   }
 });
 

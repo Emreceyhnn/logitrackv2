@@ -18,14 +18,11 @@ import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import { useState } from "react";
 import DriverHistoryDialog from "./DriverHistoryDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { updateDriverStatus } from "@/app/lib/controllers/driver";
+import { useDriverMutations } from "@/app/hooks/useDrivers";
 import { MenuItem, Select, FormControl } from "@mui/material";
 import { DriverStatus } from "@prisma/client";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
-import { logger } from "@/app/lib/logger";
 
 
 interface OverviewTabProps {
@@ -110,24 +107,13 @@ const KPICard = ({
 const OverviewTab = ({ driver }: OverviewTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
-  const router = useRouter();
   const dateSettings = useDateSettings();
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const { updateDriverStatus } = useDriverMutations();
 
-  const handleStatusChange = async (newStatus: DriverStatus) => {
+  const handleStatusChange = (newStatus: DriverStatus) => {
     if (!driver) return;
-    setIsUpdating(true);
-    try {
-      await updateDriverStatus(driver.id, newStatus);
-      toast.success(dict.common.success || "Status updated");
-      router.refresh();
-    } catch (error) {
-      logger.error("Failed to update status:", error);
-      toast.error(dict.common.error || "Failed to update status");
-    } finally {
-      setIsUpdating(false);
-    }
+    updateDriverStatus.mutate({ id: driver.id, status: newStatus });
   };
 
   if (!driver) {
@@ -279,7 +265,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 onChange={(e) =>
                   handleStatusChange(e.target.value as DriverStatus)
                 }
-                disabled={isUpdating}
+                disabled={updateDriverStatus.isPending}
                 sx={{
                   color: "text.primary",
                   fontSize: "1.1rem",

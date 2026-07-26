@@ -118,9 +118,7 @@ function DriverContent() {
   const dashboardData = combinedData;
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refreshAllData();
-  }, [refreshAllData]);
+  const noop = useCallback(async () => {}, []);
 
   const actions: DriverPageActions = useMemo(
     () => ({
@@ -138,9 +136,9 @@ function DriverContent() {
         }));
       },
       changePage: async () => {}, // Handled by state
-      refreshAll,
+      refreshAll: noop,
     }),
-    [refreshAll]
+    [noop]
   );
 
   /* -------------------------------- LIFECYCLE --------------------------------- */
@@ -301,7 +299,7 @@ function DriverContent() {
           onDriverSelect={actions.selectDriver}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          onRefresh={refreshAll}
+          onRefresh={noop}
           onPageChange={handlePageChange}
           onLimitChange={handleLimitChange}
           sortField={state.sort.field}
@@ -319,7 +317,7 @@ function DriverContent() {
       <AddDriverDialog
         open={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
-        onSuccess={refreshAll}
+        onSuccess={() => setIsAddDialogOpen(false)}
       />
 
       <EditDriverDialog
@@ -327,7 +325,7 @@ function DriverContent() {
         open={isEditOpen}
         driver={driverToEdit}
         onClose={() => setIsEditOpen(false)}
-        onSuccess={refreshAll}
+        onSuccess={() => setIsEditOpen(false)}
       />
 
       <DeleteConfirmationDialog

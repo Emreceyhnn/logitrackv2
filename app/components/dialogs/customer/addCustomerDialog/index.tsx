@@ -21,7 +21,7 @@ import { useMemo, useState } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AddCustomerDialogProps } from "@/app/lib/type/add-customer";
 import { toast } from "sonner";
-import { createCustomer } from "@/app/lib/controllers/customer";
+import { useCustomerMutations } from "@/app/hooks/useCustomers";
 import { useUser } from "@/app/hooks/useUser";
 import IdentitySection from "./sections/IdentitySection";
 import ContactSection from "./sections/ContactSection";
@@ -59,6 +59,7 @@ const AddCustomerDialog = ({
   const theme = useTheme();
   const { user } = useUser();
   const dict = useDictionary();
+  const { createCustomer } = useCustomerMutations();
 
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -84,26 +85,22 @@ const AddCustomerDialog = ({
     closeDialog();
     resetForm();
 
-    // 2. Run async work behind a loading toast
-    await toast.promise(
-      createCustomer(
-        values.name,
-        values.code,
-        values.industry || undefined,
-        values.taxId || undefined,
-        values.email || undefined,
-        values.phone || undefined,
-        values.locations.filter((l) => l.address.trim() !== "")
-      ),
-      {
-        loading: dict.toasts?.loading || "Creating...",
-        success: dict.customers.dialogs.successAdd,
-        error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.customers.dialogs.errorAdd,
-      }
-    );
-
-    onSuccess?.();
+    // 2. useCustomerMutations() already toasts success/error and applies the
+    // optimistic cache update; just await the submission.
+    try {
+      await createCustomer.mutateAsync({
+        name: values.name,
+        code: values.code,
+        industry: values.industry || undefined,
+        taxId: values.taxId || undefined,
+        email: values.email || undefined,
+        phone: values.phone || undefined,
+        locations: values.locations.filter((l) => l.address.trim() !== ""),
+      });
+      onSuccess?.();
+    } catch {
+      // useCustomerMutations() already toasted the error
+    }
   };
 
   const steps = [

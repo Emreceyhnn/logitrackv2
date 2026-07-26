@@ -131,9 +131,10 @@ describe("Maintenance Controller", () => {
 
     it("should_ThrowError_WhenVehicleBelongsToAnotherCompany", async () => {
       // Arrange
-      dbMock.vehicle.findFirst.mock.mockImplementation(async () => ({
-        companyId: "company-2", // different company
-      }));
+      // createMaintenanceRecord scopes the lookup itself via
+      // `where: { id, companyId }` (maintenance.ts) — a vehicle from another
+      // tenant simply doesn't match that filter and Prisma returns null.
+      dbMock.vehicle.findFirst.mock.mockImplementation(async () => null);
 
       // Act & Assert
       await expect(

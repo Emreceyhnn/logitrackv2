@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
+import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { Dayjs } from "dayjs";
 import { logger } from "@/app/lib/logger";
@@ -11,8 +11,8 @@ export const useUploadDocument = (vehicleId: string, onSuccess: () => void, onCl
   const [expiryDate, setExpiryDate] = useState<Dayjs | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { uploadDocument } = useVehicleMutations();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -36,7 +36,7 @@ export const useUploadDocument = (vehicleId: string, onSuccess: () => void, onCl
 
   const handleSubmit = async () => {
     if (!type || !name || !file) { setError(dict.common.fillAllFields); return; }
-    setLoading(true); setError(null);
+    setError(null);
     try {
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -45,18 +45,19 @@ export const useUploadDocument = (vehicleId: string, onSuccess: () => void, onCl
         reader.readAsDataURL(file);
       });
       const uploadResult = await uploadImageAction(base64, "documents", `vehicles/${vehicleId}`);
-      await uploadVehicleDocument(vehicleId, {
-        type: type as import("@/app/lib/type/enums").DocumentType,
-        name, url: uploadResult.url, expiryDate: expiryDate?.toDate(), status: "ACTIVE",
+      await uploadDocument.mutateAsync({
+        vehicleId,
+        data: {
+          type: type as import("@/app/lib/type/enums").DocumentType,
+          name, url: uploadResult.url, expiryDate: expiryDate?.toDate(), status: "ACTIVE",
+        },
       });
       onSuccess(); handleClose();
     } catch (err: unknown) {
       logger.error(err);
       setError(err instanceof Error ? err.message : dict.vehicles.dialogs.failedToUploadDocument || "Failed to upload document");
-    } finally {
-      setLoading(false);
     }
   };
 
-  return { type, setType, name, setName, expiryDate, setExpiryDate, file, setFile, filePreview, loading, error, handleFileChange, handleSubmit, handleClose };
+  return { type, setType, name, setName, expiryDate, setExpiryDate, file, setFile, filePreview, loading: uploadDocument.isPending, error, handleFileChange, handleSubmit, handleClose };
 };

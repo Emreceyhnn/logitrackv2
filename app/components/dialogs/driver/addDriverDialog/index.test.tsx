@@ -36,6 +36,8 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 const toastMock = {
   success: mock.fn(),
   error: mock.fn(),
+  loading: mock.fn(),
+  dismiss: mock.fn(),
   promise: mock.fn(async (promise) => await promise),
 };
 
@@ -44,9 +46,51 @@ mock.module("sonner", {
 });
 
 mock.module("../../../../lib/controllers/driver.ts", {
-  namedExports: { 
+  namedExports: {
     createDriver: mock.fn(async () => ({})),
+    updateDriver: mock.fn(async () => ({})),
+    deleteDriver: mock.fn(async () => ({})),
+    updateDriverStatus: mock.fn(async () => ({})),
+    assignVehicleToDriver: mock.fn(async () => ({})),
+    unassignVehicleFromDriver: mock.fn(async () => ({})),
     getEligibleUsersForDriver: mock.fn(async () => [])
+  },
+});
+
+const driverQueryClientMock = { invalidateQueries: mock.fn(), cancelQueries: mock.fn(async () => {}), getQueryCache: mock.fn(() => ({ findAll: () => [] })), setQueryData: mock.fn() };
+mock.module("@tanstack/react-query", {
+  namedExports: {
+    useQuery: mock.fn(() => ({ data: null })),
+    useMutation: mock.fn((options: Record<string, unknown>) => ({
+      mutate: (variables: Record<string, unknown>) => {
+        Promise.resolve().then(async () => {
+          const context = await (options.onMutate as ((v: unknown) => unknown) | undefined)?.(variables);
+          try {
+            const res = await (options.mutationFn as (v: unknown) => Promise<unknown>)(variables);
+            await (options.onSuccess as ((r: unknown, v: unknown, c: unknown) => void) | undefined)?.(res, variables, context);
+          } catch (e) {
+            (options.onError as ((e: unknown, v: unknown, c: unknown) => void) | undefined)?.(e, variables, context);
+          } finally {
+            (options.onSettled as (() => void) | undefined)?.();
+          }
+        });
+      },
+      mutateAsync: async (variables: Record<string, unknown>) => {
+        const context = await (options.onMutate as ((v: unknown) => unknown) | undefined)?.(variables);
+        try {
+          const res = await (options.mutationFn as (v: unknown) => Promise<unknown>)(variables);
+          await (options.onSuccess as ((r: unknown, v: unknown, c: unknown) => void) | undefined)?.(res, variables, context);
+          return res;
+        } catch (e) {
+          (options.onError as ((e: unknown, v: unknown, c: unknown) => void) | undefined)?.(e, variables, context);
+          throw e;
+        } finally {
+          (options.onSettled as (() => void) | undefined)?.();
+        }
+      },
+    })),
+    useQueryClient: mock.fn(() => driverQueryClientMock),
+    keepPreviousData: "keepPreviousData",
   },
 });
 

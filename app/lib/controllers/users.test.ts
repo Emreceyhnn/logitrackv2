@@ -51,6 +51,7 @@ const checkPermissionMock = {
 // session. Spied here so the guest-signup test can assert it fired.
 const entitlementServerMock = {
   grantTrial: mock.fn(async () => ({ trialEndsAt: new Date() })),
+  verifyDemoSignupToken: mock.fn(async () => false),
 };
 
 // Next.js Headers Mock
@@ -148,6 +149,8 @@ describe("Users Controller", () => {
     checkPermissionMock.checkPermission.mock.resetCalls();
     bcryptMock.hash.mock.resetCalls();
     entitlementServerMock.grantTrial.mock.resetCalls();
+    entitlementServerMock.verifyDemoSignupToken.mock.resetCalls();
+    entitlementServerMock.verifyDemoSignupToken.mock.mockImplementation(async () => false);
   });
 
   describe("RegisterUser() metodu", () => {
@@ -179,6 +182,35 @@ describe("Users Controller", () => {
       expect(sessionMock.createSession.mock.calls.length).toBe(1);
       expect(sessionMock.logAuditEvent.mock.calls.length).toBe(1);
       expect(rateLimiterMock.rateLimit.mock.calls.length).toBe(1);
+
+      // A trial is a demo-request perk, not a default — a plain signup with
+      // no verified demoToken gets no trial and lands on pending-access.
+      expect(entitlementServerMock.grantTrial.mock.calls.length).toBe(0);
+    });
+
+    it("should_GrantTrial_WhenDemoSignupTokenIsValid", async () => {
+      // Arrange
+      dbMock.user.findFirst.mock.mockImplementation(async () => null); // Email doesn't exist
+      dbMock.user.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
+        id: "user-1",
+        ...args.data,
+      }));
+      rateLimiterMock.rateLimit.mock.mockImplementation(async () => ({ success: true }));
+      entitlementServerMock.verifyDemoSignupToken.mock.mockImplementation(
+        async () => true
+      );
+
+      // Act
+      const result = await usersController.RegisterUser(
+        null, // No authenticated user (guest registration)
+        "John",
+        "Doe",
+        "Secret-Passw0rd",
+        "john.doe@example.com"
+      );
+
+      // Assert
+      expect(result.error).toBeUndefined();
 
       // Self-serve trial granted for the new user before the session is minted,
       // so the access token carries TRIAL entitlement from the first request.

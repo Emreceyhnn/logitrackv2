@@ -65,9 +65,12 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../lib/controllers/customer.ts", {
-  namedExports: { 
-    updateCustomer: mock.fn(async () => ({}))
+const mockUpdateCustomerMutate = mock.fn(async () => ({}));
+mock.module("../../../hooks/useCustomers.ts", {
+  namedExports: {
+    useCustomerMutations: mock.fn(() => ({
+      updateCustomer: { mutateAsync: mockUpdateCustomerMutate, isPending: false },
+    })),
   },
 });
 
