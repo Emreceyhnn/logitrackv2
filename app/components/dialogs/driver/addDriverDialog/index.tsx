@@ -320,7 +320,15 @@ const AddDriverDialog = ({
                   }
                   sx={{
                     color: "text.secondary",
-                    "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 },
+                    borderRadius: 2,
+                    px: 3,
+                    textTransform: "none",
+                    fontWeight: 600,
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      bgcolor: theme.palette.divider_alpha.main_05,
+                      color: "text.primary",
+                    },
                   }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
@@ -334,7 +342,13 @@ const AddDriverDialog = ({
                     borderRadius: 2,
                     px: 4,
                     fontWeight: 600,
+                    textTransform: "none",
                     boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      boxShadow: `0 10px 20px ${theme.palette.primary._alpha.main_30}`,
+                      transform: "translateY(-1px)",
+                    },
                   }}
                 >
                   {currentStep === 1

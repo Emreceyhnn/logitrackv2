@@ -253,10 +253,14 @@ export default function LoginForm() {
                 loadingText={dict.auth.loggingIn}
                 sx={{
                   mt: 2,
-                  bgcolor: "#38bdf8",
-                  color: "#000",
+                  backgroundImage:
+                    "linear-gradient(95deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
+                  color: "#fff",
+                  boxShadow: "0 8px 20px rgba(14, 165, 233, 0.35)",
                   "&:hover": {
-                    bgcolor: "#0ea5e9",
+                    backgroundImage:
+                      "linear-gradient(95deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%)",
+                    boxShadow: "0 10px 24px rgba(14, 165, 233, 0.45)",
                   },
                 }}
               >

@@ -73,10 +73,10 @@ export default function GoogleSignInButton({
           width: "100%",
           display: "flex",
           justifyContent: "center",
+          py: 1,
           opacity: disabled || isLoading ? 0.5 : 1,
           pointerEvents: disabled || isLoading ? "none" : "auto",
-          "& > div": { width: "100% !important" },
-          "& iframe": { width: "100% !important" },
+          "& > div": { transform: "scale(1.15)" },
         }}
       >
         <GoogleLogin
@@ -84,7 +84,8 @@ export default function GoogleSignInButton({
           onError={handleError}
           theme="filled_black"
           shape="pill"
-          width={340}
+          size="medium"
+          width={240}
           text="continue_with"
         />
       </Box>
