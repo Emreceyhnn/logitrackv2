@@ -163,10 +163,22 @@ export const useNotifications = (user: UserContext | undefined) => {
   const markAsRead = useCallback(
     async (notification: Notification) => {
       if (!user?.id || !notification._sourcePath) return;
+      const wasRead = notification.isRead;
+      // Optimistic: flip isRead immediately — the RTDB listener will confirm
+      // (or, on failure below, we roll back) rather than waiting on the round trip.
+      setNotificationMap((prev) => {
+        const current = prev[notification.id];
+        return current ? { ...prev, [notification.id]: { ...current, isRead: true } } : prev;
+      });
       try {
-        await markAsReadAction(notification._sourcePath, notification.id);
+        const res = await markAsReadAction(notification._sourcePath, notification.id);
+        if (!res.success) throw new Error(res.error);
       } catch (err) {
         logger.error("Mark read failed:", err);
+        setNotificationMap((prev) => {
+          const current = prev[notification.id];
+          return current ? { ...prev, [notification.id]: { ...current, isRead: wasRead } } : prev;
+        });
       }
     },
     [user?.id]
@@ -174,26 +186,59 @@ export const useNotifications = (user: UserContext | undefined) => {
 
   const markAllAsRead = useCallback(async () => {
     if (!user?.id || notifications.length === 0) return;
+    const targets = notifications.filter((n) => !n.isRead && n._sourcePath);
+    if (targets.length === 0) return;
+
+    const patchIsRead = (
+      map: Record<string, Notification>,
+      ids: string[],
+      isRead: boolean
+    ) => {
+      const next = { ...map };
+      ids.forEach((id) => {
+        const current = next[id];
+        if (current) next[id] = { ...current, isRead };
+      });
+      return next;
+    };
+
+    setNotificationMap((prev) => patchIsRead(prev, targets.map((n) => n.id), true));
+
     try {
-      const promises = notifications
-        .filter((n) => !n.isRead && n._sourcePath)
-        .map((n) => markAsReadAction(n._sourcePath!, n.id));
-      await Promise.all(promises);
+      const results = await Promise.all(
+        targets.map((n) => markAsReadAction(n._sourcePath!, n.id))
+      );
+      const failedIds = targets
+        .filter((_, i) => !results[i]?.success)
+        .map((n) => n.id);
+      if (failedIds.length > 0) {
+        setNotificationMap((prev) => patchIsRead(prev, failedIds, false));
+      }
     } catch (err) {
       logger.error("Mark all read failed:", err);
+      setNotificationMap((prev) => patchIsRead(prev, targets.map((n) => n.id), false));
     }
   }, [user?.id, notifications]);
 
   const deleteNotification = useCallback(
     async (notification: Notification) => {
       if (!user?.id || !notification._sourcePath) return;
+      const previous = notification;
+      // Optimistic: remove from the list immediately, restore on failure.
+      setNotificationMap((prev) => {
+        const next = { ...prev };
+        delete next[notification.id];
+        return next;
+      });
       try {
-        await deleteNotificationAction(
+        const res = await deleteNotificationAction(
           notification._sourcePath,
           notification.id
         );
+        if (!res.success) throw new Error(res.error);
       } catch (err) {
         logger.error("Delete failed:", err);
+        setNotificationMap((prev) => ({ ...prev, [previous.id]: previous }));
       }
     },
     [user?.id]

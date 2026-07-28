@@ -58,7 +58,7 @@ describe("useNotifications Hook", () => {
 
   it("should_InitializeHookAndReturnHelpers", () => {
     const user = { id: "user-1", companyId: "comp-1" };
-    
+
     // Act
     const result = useNotificationsMod.useNotifications(user);
 
@@ -67,5 +67,30 @@ describe("useNotifications Hook", () => {
     expect(result.unreadCount).toBeDefined();
     expect(result.loading).toBeDefined();
     expect(typeof result.markAsRead).toBe("function");
+  });
+
+  it("should_CallMarkAsReadAction_WithNotificationPathAndId", async () => {
+    notificationsActionMock.markAsReadAction.mock.mockImplementation(
+      async () => ({ success: true })
+    );
+
+    const result = useNotificationsMod.useNotifications({ id: "user-1" });
+    const notification = {
+      id: "notif-1",
+      title: "T",
+      message: "M",
+      type: "GENERAL",
+      createdAt: Date.now(),
+      isRead: false,
+      _sourcePath: "notifications/inbox/user-1",
+    };
+
+    await result.markAsRead(notification);
+
+    expect(notificationsActionMock.markAsReadAction.mock.calls.length).toBe(1);
+    expect(notificationsActionMock.markAsReadAction.mock.calls[0]?.arguments).toEqual([
+      "notifications/inbox/user-1",
+      "notif-1",
+    ]);
   });
 });
