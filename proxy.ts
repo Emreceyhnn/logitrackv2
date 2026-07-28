@@ -99,9 +99,16 @@ function getLocaleFromPathname(pathname: string): {
 // layout can stay free of headers()/cookies() (see layout.tsx) and remain
 // statically rendered.
 function buildCsp(nonce: string, strict: boolean): string {
+  // Vercel auto-injects these on deployments: static.cloudflareinsights.com is
+  // the Web Analytics beacon, vercel.live is the preview/toolbar feedback
+  // widget. Neither is loaded by our own code, but Vercel adds them outside
+  // our control, so they need an allowlist entry or every page load throws a
+  // CSP violation.
+  const thirdPartyScripts =
+    "https://static.cloudflareinsights.com https://vercel.live";
   const scriptSrc = strict
-    ? `'self' 'nonce-${nonce}' https://maps.googleapis.com https://accounts.google.com/gsi/client`
-    : `'self' 'unsafe-inline' https://maps.googleapis.com https://accounts.google.com/gsi/client`;
+    ? `'self' 'nonce-${nonce}' https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`
+    : `'self' 'unsafe-inline' https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`;
 
   return [
     `script-src ${scriptSrc}`,

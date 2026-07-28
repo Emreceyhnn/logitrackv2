@@ -5,6 +5,9 @@ import { Notification, NotificationTarget } from "../type/notification";
 import { db } from "../db";
 import { Prisma } from "@prisma/client";
 import { logger } from "@/app/lib/logger";
+import { sendNotificationEmail } from "@/app/lib/services/email";
+
+const EMAIL_NOTIFICATION_CATEGORIES = new Set(["SHIPMENT_UPDATE", "MAINTENANCE_ALERT"]);
 
 /**
  * tr-belirtilen hedefe yeni bir bildirim gönderir
@@ -47,7 +50,7 @@ export async function sendNotificationAction(
 
       const users = await db.user.findMany({
         where: whereClause,
-        select: { id: true },
+        select: { id: true, email: true, language: true },
       });
 
       const promises = users.map(async (u) => {
@@ -63,6 +66,22 @@ export async function sendNotificationAction(
       });
 
       await Promise.all(promises);
+
+      if (notification.category && EMAIL_NOTIFICATION_CATEGORIES.has(notification.category)) {
+        await sendNotificationEmail(
+          users.map((u) => ({
+            email: u.email,
+            lang: u.language === "tr" ? "tr" : "en",
+          })),
+          {
+            title: notification.title,
+            message: notification.message,
+            type: notification.type,
+            link: notification.link,
+          }
+        );
+      }
+
       return { success: true };
     }
 

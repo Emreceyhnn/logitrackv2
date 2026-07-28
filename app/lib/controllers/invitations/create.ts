@@ -10,6 +10,7 @@ import { generateRefreshToken, hashToken } from "../session/internal";
 import { sendDriverInviteEmail } from "../../services/email";
 import { createDriverInvitationSchema } from "../../validation/serverSchemas";
 import { ConflictError, RateLimitError, ValidationError } from "../../errors";
+import { logger } from "../../logger";
 
 const INVITE_EXPIRY_DAYS = 7;
 
@@ -83,10 +84,31 @@ export const createDriverInvitation = authenticatedAction(
       });
 
       const company = await db.company.findUnique({ where: { id: companyId }, select: { name: true } });
-      const base = process.env.NEXT_PUBLIC_BASE_URL || "";
-      const inviteUrl = `${base}/en/auth/accept-invite?token=${rawToken}`;
 
-      await sendDriverInviteEmail(parsed.data.email, inviteUrl, company?.name || "Your company");
+      // Resolve the language: use the inviting user's language preference (tr or en).
+      // The accept-invite page is lang-prefixed, so the URL must match.
+      const lang: "en" | "tr" = user.language === "tr" ? "tr" : "en";
+      const base = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const inviteUrl = `${base}/${lang}/auth/accept-invite?token=${rawToken}`;
+
+      // Email failure must NOT abort the invitation — the DB record is already written.
+      // Log the error so it's visible in the terminal/monitoring, but continue.
+      try {
+        await sendDriverInviteEmail(
+          parsed.data.email,
+          inviteUrl,
+          company?.name || "Your company",
+          lang,
+          INVITE_EXPIRY_DAYS
+        );
+      } catch (emailError) {
+        const msg = emailError instanceof Error ? emailError.message : String(emailError);
+        logger.warn(
+          `[createDriverInvitation] Email delivery failed for ${parsed.data.email}. ` +
+          `The invitation was saved (id: ${invitation.id}) but the email was not sent. ` +
+          `Reason: ${msg}`
+        );
+      }
 
       return { id: invitation.id, email: invitation.email, expiresAt: invitation.expiresAt };
     });

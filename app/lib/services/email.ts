@@ -1,5 +1,8 @@
 import { Resend } from "resend";
 import { logger } from "@/app/lib/logger";
+import { buildDriverInviteEmail } from "@/app/lib/templates/driverInviteEmail";
+import { buildNotificationEmail, NotificationEmailKind } from "@/app/lib/templates/notificationEmail";
+import { buildWeeklyReportEmail, WeeklyReportEmailData } from "@/app/lib/templates/weeklyReportEmail";
 
 let resendClient: Resend | null = null;
 /**
@@ -65,39 +68,175 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
 }
 
 /**
- * tr-RESEND_API_KEY yapılandırılmamışsa (yerel/dev) bir sürücü davet e-postası gönderir, e-postayı göndermek yerine davet URL'sini günlüğe kaydeder, böylece test için asla gerçek bir Resend hesabı gerekmez.
- * en-Sends a driver invite email. If RESEND_API_KEY isn't configured (local/dev), logs the invite URL instead of failing, so testing never requires a real Resend account.
- * input (to: string, inviteUrl: string, companyName: string)
+ * tr-Belirtilen dile uygun güzel HTML şablonuyla sürücüye davet e-postası gönderir.
+ *    RESEND_API_KEY tanımlı değilse (yerel/dev ortam) e-posta göndermez, sadece günlüğe kaydeder.
+ * en-Sends a driver invite email using a rich bilingual HTML template (TR/EN).
+ *    If RESEND_API_KEY is not set (local/dev), logs the invite URL instead of sending.
+ * input (to: string, inviteUrl: string, companyName: string, lang?: "en" | "tr", expiryDays?: number)
  * output (Promise<void>)
  *
  */
 export async function sendDriverInviteEmail(
   to: string,
   inviteUrl: string,
-  companyName: string
+  companyName: string,
+  lang: "en" | "tr" = "en",
+  expiryDays: number = 7
 ): Promise<void> {
   if (!process.env.RESEND_API_KEY) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — invite URL for ${to}: ${inviteUrl}`
+      `[email] RESEND_API_KEY not set — invite URL for ${to} (lang:${lang}): ${inviteUrl}`
     );
     return;
   }
   try {
+    const { subject, html, text } = buildDriverInviteEmail({
+      companyName,
+      inviteUrl,
+      lang,
+      expiryDays,
+    });
+
     const resend = getResendClient();
-    const { error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from:
         process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
       to,
-      subject: `You've been invited to join ${companyName} on LogiTrack`,
-      html: `<p>You've been invited to join <strong>${companyName}</strong> as a driver.</p><p><a href="${inviteUrl}">Accept your invitation</a></p><p>This link expires in 7 days.</p>`,
+      subject,
+      html,
+      text,
     });
 
     if (error) {
-      logger.error("[email] Resend API error:", error);
-      throw new Error(error.message);
+      // Log the full Resend error object so the terminal shows the real cause
+      logger.error("[email] Resend rejected the request:", {
+        name: error.name,
+        message: error.message,
+        from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev (default)",
+        to,
+      });
+      throw new Error(`[Resend] ${error.name}: ${error.message}`);
     }
+
+    logger.info(`[email] Driver invite sent → ${to} (id: ${data?.id})`);
   } catch (error) {
-    logger.error("[email] Failed to send driver invite email:", error);
-    throw new Error("Failed to send invitation email");
+    // Re-throw with the original message so callers can see the real cause
+    const msg = error instanceof Error ? error.message : String(error);
+    logger.error("[email] sendDriverInviteEmail failed:", msg);
+    throw new Error(msg);
   }
 }
+
+/**
+ * tr-Sevkiyat/bakım gibi olay tabanlı bildirimler için toplu e-posta gönderir. Her alıcı e-postası ayrı bir gönderim
+ *    olarak işlenir; bir alıcının başarısız olması diğerlerini etkilemez. RESEND_API_KEY tanımlı değilse günlüğe kaydeder.
+ * en-Sends event-driven notification emails (shipment/maintenance) to a batch of recipients. Each recipient is sent
+ *    independently so one failure doesn't block the rest. If RESEND_API_KEY is not set, logs instead of sending.
+ * input (recipients: { email: string; lang?: "en" | "tr" }[], notification: { title: string; message: string; type: NotificationEmailKind; link?: string })
+ * output (Promise<void>)
+ */
+export async function sendNotificationEmail(
+  recipients: { email: string; lang?: "en" | "tr" | undefined }[],
+  notification: { title: string; message: string; type: NotificationEmailKind; link?: string | undefined }
+): Promise<void> {
+  if (recipients.length === 0) return;
+
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn(
+      `[email] RESEND_API_KEY not set — notification email "${notification.title}" not sent to ${recipients.length} recipient(s)`
+    );
+    return;
+  }
+
+  const resend = getResendClient();
+  const from = process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>";
+
+  await Promise.all(
+    recipients.map(async (recipient) => {
+      try {
+        const { subject, html, text } = buildNotificationEmail({
+          title: notification.title,
+          message: notification.message,
+          type: notification.type,
+          link: notification.link,
+          lang: recipient.lang,
+        });
+
+        const { error } = await resend.emails.send({
+          from,
+          to: recipient.email,
+          subject,
+          html,
+          text,
+        });
+
+        if (error) {
+          logger.error("[email] Resend rejected notification email:", {
+            name: error.name,
+            message: error.message,
+            to: recipient.email,
+          });
+        }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        logger.error(`[email] sendNotificationEmail failed for ${recipient.email}:`, msg);
+      }
+    })
+  );
+}
+
+/**
+ * tr-Haftalık özet raporunu bir alıcı grubuna gönderir. Her alıcı e-postası ayrı bir gönderim olarak işlenir;
+ *    bir alıcının başarısız olması diğerlerini etkilemez. RESEND_API_KEY tanımlı değilse günlüğe kaydeder.
+ * en-Sends the weekly summary report to a batch of recipients. Each recipient is sent independently so one
+ *    failure doesn't block the rest. If RESEND_API_KEY is not set, logs instead of sending.
+ * input (recipients: { email: string; lang?: "en" | "tr" }[], report: Omit<WeeklyReportEmailData, "lang">)
+ * output (Promise<void>)
+ */
+export async function sendWeeklyReportEmail(
+  recipients: { email: string; lang?: "en" | "tr" | undefined }[],
+  report: Omit<WeeklyReportEmailData, "lang">
+): Promise<void> {
+  if (recipients.length === 0) return;
+
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn(
+      `[email] RESEND_API_KEY not set — weekly report for "${report.companyName}" not sent to ${recipients.length} recipient(s)`
+    );
+    return;
+  }
+
+  const resend = getResendClient();
+  const from = process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>";
+
+  await Promise.all(
+    recipients.map(async (recipient) => {
+      try {
+        const { subject, html, text } = buildWeeklyReportEmail({
+          ...report,
+          lang: recipient.lang,
+        });
+
+        const { error } = await resend.emails.send({
+          from,
+          to: recipient.email,
+          subject,
+          html,
+          text,
+        });
+
+        if (error) {
+          logger.error("[email] Resend rejected weekly report email:", {
+            name: error.name,
+            message: error.message,
+            to: recipient.email,
+          });
+        }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        logger.error(`[email] sendWeeklyReportEmail failed for ${recipient.email}:`, msg);
+      }
+    })
+  );
+}
+
