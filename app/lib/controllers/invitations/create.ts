@@ -8,6 +8,7 @@ import { ensureStandardRoles } from "../company/shared";
 import { rateLimit } from "../../rate-limiter";
 import { generateRefreshToken, hashToken } from "../session/internal";
 import { sendDriverInviteEmail } from "../../services/email";
+import { getBaseUrl } from "../../utils/baseUrl";
 import { createDriverInvitationSchema } from "../../validation/serverSchemas";
 import { ConflictError, RateLimitError, ValidationError } from "../../errors";
 import { logger } from "../../logger";
@@ -88,7 +89,7 @@ export const createDriverInvitation = authenticatedAction(
       // Resolve the language: use the inviting user's language preference (tr or en).
       // The accept-invite page is lang-prefixed, so the URL must match.
       const lang: "en" | "tr" = user.language === "tr" ? "tr" : "en";
-      const base = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const base = getBaseUrl();
       const inviteUrl = `${base}/${lang}/auth/accept-invite?token=${rawToken}`;
 
       // Email failure must NOT abort the invitation — the DB record is already written.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   db,
   ref,
@@ -41,6 +41,12 @@ export const useNotifications = (user: UserContext | undefined) => {
   >({});
   const [loading, setLoading] = useState(true);
   const [prevUserId, setPrevUserId] = useState(user?.id);
+  // IDs with an optimistic delete in flight. The RTDB listener still fires
+  // mid-delete with the pre-delete snapshot (Firebase resync, sibling write,
+  // etc.); without this guard that snapshot resurrects the row a moment
+  // after the optimistic removal, then it vanishes again once the real
+  // delete commits — the "gidiyor geri geliyor" flicker.
+  const pendingDeletesRef = useRef<Set<string>>(new Set());
 
   if (user?.id !== prevUserId) {
     setPrevUserId(user?.id);
@@ -112,11 +118,14 @@ export const useNotifications = (user: UserContext | undefined) => {
           const next = { ...prev };
 
           Object.keys(next).forEach((id) => {
-            if (next[id]?._sourcePath === path) delete next[id];
+            if (next[id]?._sourcePath === path && !pendingDeletesRef.current.has(id)) {
+              delete next[id];
+            }
           });
 
           if (data) {
             Object.entries(data).forEach(([id, val]) => {
+              if (pendingDeletesRef.current.has(id)) return;
               next[id] = { ...val, id, _sourcePath: path } as Notification;
             });
           }
@@ -225,6 +234,10 @@ export const useNotifications = (user: UserContext | undefined) => {
       if (!user?.id || !notification._sourcePath) return;
       const previous = notification;
       // Optimistic: remove from the list immediately, restore on failure.
+      // The id stays in pendingDeletesRef until the server call settles so an
+      // in-flight RTDB snapshot (still showing the pre-delete data) can't
+      // resurrect it in the meantime.
+      pendingDeletesRef.current.add(notification.id);
       setNotificationMap((prev) => {
         const next = { ...prev };
         delete next[notification.id];
@@ -239,6 +252,8 @@ export const useNotifications = (user: UserContext | undefined) => {
       } catch (err) {
         logger.error("Delete failed:", err);
         setNotificationMap((prev) => ({ ...prev, [previous.id]: previous }));
+      } finally {
+        pendingDeletesRef.current.delete(notification.id);
       }
     },
     [user?.id]

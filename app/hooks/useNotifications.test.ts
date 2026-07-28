@@ -8,6 +8,7 @@ const reactMock = {
   useState: mock.fn((init) => [init, mock.fn()]),
   useMemo: mock.fn((cb) => cb()),
   useCallback: mock.fn((cb) => cb),
+  useRef: mock.fn((init) => ({ current: init })),
 };
 
 const firebaseMock = {

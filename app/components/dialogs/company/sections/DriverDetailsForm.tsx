@@ -28,31 +28,35 @@ export default function DriverDetailsForm({ driverData, handleDriverDataChange, 
       <Typography variant="caption" sx={{ color: "warning.main", fontWeight: 700, mb: 2, display: "block" }}>
         {dict.company.dialogs.driverDetailsRequired}
       </Typography>
-      <Stack spacing={2}>
+      <Stack spacing={5}>
         <TextField
           fullWidth size="small" label={dict.drivers.fields.employeeId + " *"} placeholder="e.g. EMP-10023"
           value={driverData.employeeId} onChange={(e) => handleDriverDataChange("employeeId", e.target.value)}
           error={!!validationErrors.employeeId} helperText={validationErrors.employeeId || dict.company.dialogs.employeeIdHelper} required
+          InputLabelProps={{ shrink: true }}
         />
         <TextField
           fullWidth size="small" label={dict.drivers.fields.phone + " *"} placeholder="e.g. +90 555 123 4567"
           value={driverData.phone} onChange={(e) => handleDriverDataChange("phone", e.target.value)}
           error={!!validationErrors.phone} helperText={validationErrors.phone || dict.company.dialogs.phoneHelper} required
+          InputLabelProps={{ shrink: true }}
         />
         <TextField
           fullWidth size="small" label={dict.drivers.fields.licenseType} placeholder="e.g. B, C, CE, CDL-A"
           value={driverData.licenseType} onChange={(e) => handleDriverDataChange("licenseType", e.target.value)}
+          InputLabelProps={{ shrink: true }}
         />
         <TextField
           fullWidth size="small" label={dict.drivers.fields.licenseNumber} placeholder="e.g. 123456789"
           value={driverData.licenseNumber} onChange={(e) => handleDriverDataChange("licenseNumber", e.target.value)}
+          InputLabelProps={{ shrink: true }}
         />
         <DatePicker
           label={dict.drivers.fields.licenseExpiry}
           value={driverData.licenseExpiry ? dayjs(driverData.licenseExpiry) : null}
           onChange={(val) => handleDriverDataChange("licenseExpiry", val ? val.toISOString().split("T")[0] ?? "" : "")}
           format="DD/MM/YYYY"
-          slotProps={{ textField: { fullWidth: true, size: "small", error: !!validationErrors.licenseExpiry, helperText: validationErrors.licenseExpiry } }}
+          slotProps={{ textField: { fullWidth: true, size: "small", error: !!validationErrors.licenseExpiry, helperText: validationErrors.licenseExpiry, InputLabelProps: { shrink: true } } }}
         />
       </Stack>
     </Box>

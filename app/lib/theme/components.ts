@@ -172,6 +172,9 @@ export const getThemeComponents = (
       root: {
         minHeight: "52px",
         borderRadius: 12,
+        "&.MuiInputBase-sizeSmall": {
+          minHeight: "40px",
+        },
         backgroundColor:
           mode === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.01)",
         transition: "all 0.2s ease-in-out",
