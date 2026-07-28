@@ -16,11 +16,27 @@ describe("Robots Generate", () => {
     expect(result.rules[0].userAgent).toBe("*");
     expect(result.rules[0].allow).toBe("/");
     expect(result.rules[0].disallow).toEqual([
-      "/dashboard",
-      "/auth",
       "/api",
       "/_next",
       "/static",
+      "/dashboard",
+      "/*/dashboard",
+      "/auth",
+      "/*/auth",
+      "/giris",
+      "/*/giris",
+      "/demo",
+      "/*/demo",
+      "/onboarding",
+      "/*/onboarding",
+      "/pending-access",
+      "/*/pending-access",
+      "/playground",
+      "/*/playground",
+      "/driver-console",
+      "/*/driver-console",
+      "/warehouse-worker",
+      "/*/warehouse-worker",
     ]);
     expect(result.sitemap).toContain("/sitemap.xml");
   });
@@ -36,6 +52,7 @@ describe("Robots Generate", () => {
     expect(gptBot).toBeDefined();
     expect(gptBot.allow).toBe("/");
     expect(gptBot.disallow).toContain("/dashboard");
+    expect(gptBot.disallow).toContain("/*/dashboard");
     expect(gptBot.disallow).toContain("/api");
     expect(gptBot.disallow).not.toContain("/");
   });

@@ -1,16 +1,35 @@
 import { MetadataRoute } from "next";
+import { getBaseUrl } from "@/app/lib/utils/baseUrl";
 
 export default function robots(): MetadataRoute.Robots {
-  const envUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://logitrack.emreceyhan.xyz");
-  
-  const baseUrl = envUrl.replace(/\/$/, "").replace(/\/sitemap\.xml$/, "");
+  const baseUrl = getBaseUrl();
 
   // Marketing/landing content is meant to be crawled and cited by both
   // traditional search engines and AI answer engines/agents (ChatGPT,
   // Perplexity, Claude, Google AI Overview). Only login-gated app surfaces
-  // (dashboard/auth/api) are off-limits — same disallow list for every bot.
-  const disallow = ["/dashboard", "/auth", "/api", "/_next", "/static"];
+  // are off-limits — same disallow list for every bot. All app routes live
+  // under a /{lang}/ prefix (e.g. /en/dashboard, /tr/giris), so every gated
+  // segment needs a `/*/` wildcard variant in addition to the bare path.
+  const gatedSegments = [
+    "dashboard",
+    "auth",
+    "giris",
+    "demo",
+    "onboarding",
+    "pending-access",
+    "playground",
+    "driver-console",
+    "warehouse-worker",
+  ];
+  const disallow = [
+    "/api",
+    "/_next",
+    "/static",
+    ...gatedSegments.flatMap((segment) => [
+      `/${segment}`,
+      `/*/${segment}`,
+    ]),
+  ];
   const aiCrawlers = [
     "GPTBot",
     "ChatGPT-User",
