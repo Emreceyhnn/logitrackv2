@@ -11,5 +11,9 @@ export function getBaseUrl(): string {
       ? `https://${process.env.VERCEL_URL}`
       : "https://logitrack.emreceyhan.xyz";
 
-  return envUrl.replace(/\/$/, "");
+  // Guard against the env var accidentally being set to a specific route
+  // (e.g. ".../sitemap.xml" or ".../robots.txt") instead of the bare origin.
+  return envUrl
+    .replace(/\/(sitemap\.xml|robots\.txt)$/, "")
+    .replace(/\/$/, "");
 }
