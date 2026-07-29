@@ -1,24 +1,20 @@
- 
+
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
-
-// 1. Mock Server-Side Data Fetching
-const mockGetAnalyticsDashboardData = mock.fn(async () => ({
-  performance: {},
-}));
-
-mock.module("../../../../lib/controllers/analytics.ts", {
-  namedExports: { getAnalyticsDashboardData: mockGetAnalyticsDashboardData },
+const mockGetAuthenticatedUser = mock.fn(async () => ({ id: "user-1" }));
+const mockRedirect = mock.fn((url: string) => {
+  throw new Error(`REDIRECT:${url}`);
 });
 
-// 2. Mock Components
-mock.module("./components/AnalyticsContent.tsx", {
-  defaultExport: () => <div data-testid="analytics-content">Analytics Content</div>,
+mock.module("@/app/lib/auth-middleware", {
+  namedExports: { getAuthenticatedUser: mockGetAuthenticatedUser },
+});
+
+mock.module("next/navigation", {
+  namedExports: { redirect: mockRedirect },
 });
 
 describe("AnalyticsPage Component", () => {
@@ -31,26 +27,28 @@ describe("AnalyticsPage Component", () => {
 
   afterEach(() => {
     cleanup();
-    mockGetAnalyticsDashboardData.mock.resetCalls();
+    mockGetAuthenticatedUser.mock.resetCalls();
+    mockRedirect.mock.resetCalls();
   });
 
   describe("AnalyticsPage() Render Testleri", () => {
-    it("should_RenderAnalyticsContent_WithHydratedState", async () => {
-      // Act
-      const PageComponent = await AnalyticsPage();
-      render(
-        <QueryClientProvider client={queryClient}>
-          {PageComponent}
-        </QueryClientProvider>
-      );
+    it("should_RenderComingSoon_WhenAuthenticated", async () => {
+      const PageComponent = await (
+        AnalyticsPage as (props: unknown) => Promise<React.ReactElement>
+      )({ params: Promise.resolve({ lang: "en" }) });
+      render(PageComponent);
 
-      // Assert basic renders
-      await waitFor(() => {
-        expect(screen.getByTestId("analytics-content")).toBeTruthy();
-      });
+      expect(screen.getByText("Coming Soon")).toBeTruthy();
+    });
 
-      // Verify server side prefetching was called
-      expect(mockGetAnalyticsDashboardData.mock.calls.length).toBe(1);
+    it("should_Redirect_WhenNotAuthenticated", async () => {
+      mockGetAuthenticatedUser.mock.mockImplementationOnce(async () => null);
+
+      await expect(
+        (AnalyticsPage as (props: unknown) => Promise<React.ReactElement>)({
+          params: Promise.resolve({ lang: "en" }),
+        })
+      ).rejects.toThrow("REDIRECT:/en/auth/sign-in");
     });
   });
 });

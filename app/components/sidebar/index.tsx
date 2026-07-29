@@ -133,8 +133,8 @@ const SideBar = ({
           />
         ),
         subTitles: [
-          { title: dict.sidebar.reports, href: "/reports", live: true },
-          { title: dict.sidebar.analytics, href: "/analytics", live: true },
+          { title: dict.sidebar.reports, href: "/reports", live: true, disabled: true },
+          { title: dict.sidebar.analytics, href: "/analytics", live: true, disabled: true },
         ],
       },
       {

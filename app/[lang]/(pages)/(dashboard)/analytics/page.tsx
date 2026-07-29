@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getDictionary } from "@/app/lib/language/language";
-import { Suspense } from "react";
-import { Box, CircularProgress } from "@mui/material";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
-import { analyticsKeys } from "@/app/lib/query-keys/analytics.keys";
-import AnalyticsContent from "./components/AnalyticsContent";
-import { logger } from "@/app/lib/logger";
-
+import { Box, Typography, Container, Card, CardContent } from "@mui/material";
+import { InsightsOutlined } from "@mui/icons-material";
 
 export async function generateMetadata({
   params,
@@ -26,47 +18,44 @@ export async function generateMetadata({
   };
 }
 
-function AnalyticsPageSkeleton() {
-  return (
-    <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      width="100%"
-      minHeight="60vh"
-    >
-      <CircularProgress size={36} />
-    </Box>
-  );
-}
+export default async function AnalyticsPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const user = await getAuthenticatedUser();
 
-export default async function AnalyticsPage() {
-
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60 * 10,
-      },
-    },
-  });
-
-  try {
-    await queryClient.prefetchQuery({
-      queryKey: analyticsKeys.dashboard(),
-      queryFn: () => getAnalyticsDashboardData(),
-      staleTime: 1000 * 60 * 10,
-    });
-  } catch (error) {
-    logger.error("[AnalyticsPage SSR] prefetch failed:", error);
+  if (!user) {
+    redirect("/en/auth/sign-in");
   }
 
-  const dehydratedState = dehydrate(queryClient);
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
 
   return (
-    <HydrationBoundary state={dehydratedState}>
-      <Suspense fallback={<AnalyticsPageSkeleton />}>
-        <AnalyticsContent />
-      </Suspense>
-    </HydrationBoundary>
+    <Box p={4} width="100%">
+      <Container maxWidth="lg">
+        <Box mb={4}>
+          <Typography variant="h4" component="h1" fontWeight={800} color="text.primary" gutterBottom>
+            {dict.analytics.title}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {dict.analytics.subtitle}
+          </Typography>
+        </Box>
+
+        <Card sx={{ borderRadius: 4, boxShadow: 2 }}>
+          <CardContent sx={{ textAlign: "center", py: 10 }}>
+            <InsightsOutlined sx={{ fontSize: 64, color: "text.secondary", mb: 2, opacity: 0.5 }} />
+            <Typography variant="h5" fontWeight={600} gutterBottom>
+              {dict.common?.comingSoon || "Coming Soon"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" maxWidth="sm" mx="auto">
+              {dict.analytics.comingSoonDescription}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
   );
 }

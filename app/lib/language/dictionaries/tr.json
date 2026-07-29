@@ -3076,6 +3076,7 @@
     "errorNoPermission": "Dosya erişim yetkisi alınamadı.",
     "errorUpload": "Dosya yüklenirken bir hata oluştu.",
     "demoActionDisabled": "Bu işlem canlı demoda devre dışıdır.",
+    "featureComingSoon": "Bu özellik yakında kullanıma sunulacak.",
     "successInvite": "Davet gönderildi!",
     "successJoinRequestSent": "İstek gönderildi! Onay bekleniyor.",
     "successJoinRequestAccepted": "Katılma isteği kabul edildi!",
@@ -3360,6 +3361,7 @@
   "reports": {
     "title": "Operasyonel Raporlar",
     "subtitle": "Sevkiyat, filo ve envanter için veriye dayalı içgörüler",
+    "comingSoonDescription": "Operasyonel Raporlar modülü şu anda geliştirilme aşamasındadır. Yakında sevkiyatlar, filo verimliliği ve envanter değerlemesi için veriye dayalı içgörüleri inceleyebileceksiniz.",
     "tabs": {
       "shipment": "Sevkiyat Analitiği",
       "fleet": "Filo Verimliliği",
@@ -3419,6 +3421,7 @@
   "analytics": {
     "title": "İş Analitiği",
     "subtitle": "Operasyonel performans ve finansal trendlerin yönetici özeti",
+    "comingSoonDescription": "İş Analitiği modülü şu anda geliştirilme aşamasındadır. Yakında filonuz için yönetici panolarını, maliyet trendlerini ve performans tahminlemesini inceleyebileceksiniz.",
     "periods": {
       "last7Days": "Son 7 Gün",
       "last30Days": "Son 30 Gün",
