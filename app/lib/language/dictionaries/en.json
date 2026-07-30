@@ -3075,6 +3075,7 @@
     "errorNoPermission": "File access permission could not be obtained.",
     "errorUpload": "An error occurred while uploading the file.",
     "demoActionDisabled": "This action is disabled in the live demo.",
+    "featureComingSoon": "This feature is coming soon.",
     "successInvite": "Invitation sent!",
     "successJoinRequestSent": "Request sent! Waiting for approval.",
     "successJoinRequestAccepted": "Join request accepted!",
@@ -3359,6 +3360,7 @@
   "reports": {
     "title": "Operational Reports",
     "subtitle": "Data-driven insights for shipments, fleet, and inventory",
+    "comingSoonDescription": "The Operational Reports module is currently under development. Soon you will be able to explore data-driven insights for shipments, fleet efficiency, and inventory valuation.",
     "tabs": {
       "shipment": "Shipment Analytics",
       "fleet": "Fleet Efficiency",
@@ -3418,6 +3420,7 @@
   "analytics": {
     "title": "Business Analytics",
     "subtitle": "Executive overview of operational performance and financial trends",
+    "comingSoonDescription": "The Business Analytics module is currently under development. Soon you will be able to explore executive dashboards, cost trends, and performance forecasting for your fleet.",
     "periods": {
       "last7Days": "Last 7 Days",
       "last30Days": "Last 30 Days",

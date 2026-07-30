@@ -162,10 +162,10 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       };
     });
 
-    const used = zones.reduce((a, z) => a + z.usedPallets, 0);
-    const total =
-      zones.reduce((a, z) => a + z.capacityPallets, 0) ||
-      warehouse.capacityPallets;
+    const used = Math.round(
+      inventoryRaw.reduce((a, it) => a + (it.palletCount ?? 0), 0)
+    );
+    const total = warehouse.capacityPallets || 5000;
 
     const tasks: WWTask[] = tasksRaw.map((t) => ({
       id: t.id,

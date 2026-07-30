@@ -1,20 +1,20 @@
- 
+
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
-// 1. Mock Server-Side Data Fetching
-const mockGetReportsDataAction = mock.fn(async () => ({}));
-
-mock.module("../../../../lib/controllers/reports.ts", {
-  namedExports: { getReportsDataAction: mockGetReportsDataAction },
+const mockGetAuthenticatedUser = mock.fn(async () => ({ id: "user-1" }));
+const mockRedirect = mock.fn((url: string) => {
+  throw new Error(`REDIRECT:${url}`);
 });
 
-// 2. Mock Components
-mock.module("./components/ReportsContent.tsx", {
-  defaultExport: () => <div data-testid="reports-content">Reports Content</div>,
+mock.module("@/app/lib/auth-middleware", {
+  namedExports: { getAuthenticatedUser: mockGetAuthenticatedUser },
+});
+
+mock.module("next/navigation", {
+  namedExports: { redirect: mockRedirect },
 });
 
 describe("ReportsPage Component", () => {
@@ -27,26 +27,28 @@ describe("ReportsPage Component", () => {
 
   afterEach(() => {
     cleanup();
-    mockGetReportsDataAction.mock.resetCalls();
+    mockGetAuthenticatedUser.mock.resetCalls();
+    mockRedirect.mock.resetCalls();
   });
 
   describe("ReportsPage() Render Testleri", () => {
-    it("should_RenderReportsContent_WithHydratedState", async () => {
-      // Act
-      const PageComponent = await ReportsPage();
-      render(
-        <QueryClientProvider client={new QueryClient()}>
-          {PageComponent}
-        </QueryClientProvider>
-      );
+    it("should_RenderComingSoon_WhenAuthenticated", async () => {
+      const PageComponent = await (
+        ReportsPage as (props: unknown) => Promise<React.ReactElement>
+      )({ params: Promise.resolve({ lang: "en" }) });
+      render(PageComponent);
 
-      // Assert basic renders
-      await waitFor(() => {
-        expect(screen.getByTestId("reports-content")).toBeTruthy();
-      });
+      expect(screen.getByText("Coming Soon")).toBeTruthy();
+    });
 
-      // Verify server side prefetching was called
-      expect(mockGetReportsDataAction.mock.calls.length).toBe(1);
+    it("should_Redirect_WhenNotAuthenticated", async () => {
+      mockGetAuthenticatedUser.mock.mockImplementationOnce(async () => null);
+
+      await expect(
+        (ReportsPage as (props: unknown) => Promise<React.ReactElement>)({
+          params: Promise.resolve({ lang: "en" }),
+        })
+      ).rejects.toThrow("REDIRECT:/en/auth/sign-in");
     });
   });
 });

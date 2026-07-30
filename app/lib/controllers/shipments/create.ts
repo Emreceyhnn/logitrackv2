@@ -15,6 +15,7 @@ import { invalidateInventoryCache } from "../inventory";
 import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import type { CustomerWithLocations, ShipmentStopInput } from "./types";
+import { toBaseUnitQuantity } from "./types";
 import { createShipmentSchema } from "../../validation/serverSchemas";
 import { NotFoundError } from "../../errors";
 
@@ -301,10 +302,12 @@ export const createShipment = authenticatedAction(
                 });
 
                 if (invItem) {
+                  const baseUnitQuantity = toBaseUnitQuantity(item);
+
                   await tx.inventory.update({
                     where: { id: invItem.id },
                     data: {
-                      allocatedQuantity: { increment: item.quantity },
+                      allocatedQuantity: { increment: baseUnitQuantity },
                     },
                   });
 
@@ -312,7 +315,7 @@ export const createShipment = authenticatedAction(
                     data: {
                       warehouseId: finalWarehouseId,
                       sku: item.sku,
-                      quantity: -item.quantity,
+                      quantity: -baseUnitQuantity,
                       type: "ALLOCATION",
                       userId,
                       companyId,

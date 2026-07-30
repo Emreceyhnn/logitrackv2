@@ -1,10 +1,12 @@
-import { Box, Typography, Switch } from "@mui/material";
+import { Box, Typography, Switch, Chip, Stack } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface NotifRowProps {
   label: string;
   description: string;
   checked: boolean;
   onChange: (v: boolean) => void;
+  disabled?: boolean;
 }
 
 export default function NotificationRow({
@@ -12,7 +14,10 @@ export default function NotificationRow({
   description,
   checked,
   onChange,
+  disabled,
 }: NotifRowProps) {
+  const dict = useDictionary();
+
   return (
     <Box
       sx={{
@@ -28,6 +33,7 @@ export default function NotificationRow({
           checked
             ? theme.palette.primary._alpha.main_05
             : theme.palette.common.white_alpha.main_02,
+        opacity: disabled ? 0.55 : 1,
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
           bgcolor: (theme) =>
@@ -42,14 +48,24 @@ export default function NotificationRow({
       }}
     >
       <Box>
-        <Typography
-          variant="body2"
-          fontWeight={750}
-          color="white"
-          sx={{ mb: 0.25 }}
-        >
-          {label}
-        </Typography>
+        <Stack direction="row" alignItems="center" gap={1} mb={0.25}>
+          <Typography variant="body2" fontWeight={750} color="white">
+            {label}
+          </Typography>
+          {disabled && (
+            <Chip
+              label={dict.common.comingSoon}
+              size="small"
+              sx={{
+                height: 18,
+                fontSize: "0.6rem",
+                fontWeight: 800,
+                bgcolor: (theme) => theme.palette.common.white_alpha.main_10,
+                color: (theme) => theme.palette.common.white_alpha.main_60,
+              }}
+            />
+          )}
+        </Stack>
         <Typography
           variant="caption"
           sx={{
@@ -61,8 +77,9 @@ export default function NotificationRow({
         </Typography>
       </Box>
       <Switch
-        checked={checked}
+        checked={disabled ? false : checked}
         onChange={(e) => onChange(e.target.checked)}
+        disabled={disabled}
         size="small"
         sx={{
           "& .MuiSwitch-switchBase.Mui-checked": {

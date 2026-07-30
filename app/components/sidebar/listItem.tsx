@@ -30,7 +30,11 @@ export type SidebarItem = {
    * demo page. Items without this flag still render (for visual fidelity)
    * but are visually disabled and non-navigating. Ignored outside demo mode. */
   live?: boolean;
-  subTitles?: { title: string; href: string; live?: boolean }[];
+  /** Disables this item in the real (non-demo) dashboard too — reduced
+   * opacity, "Soon" chip, no navigation. Use for features that are not yet
+   * built and shouldn't be reachable by real users. */
+  disabled?: boolean;
+  subTitles?: { title: string; href: string; live?: boolean; disabled?: boolean }[];
 };
 
 export type Params = {
@@ -94,9 +98,13 @@ export const SidebarList = memo(function SidebarList({
   );
 
   const handleDisabledClick = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent, reason: "demo" | "notBuilt") => {
       e.preventDefault();
-      toast.info(dict.toasts.demoActionDisabled);
+      toast.info(
+        reason === "demo"
+          ? dict.toasts.demoActionDisabled
+          : dict.toasts.featureComingSoon
+      );
     },
     [dict]
   );
@@ -162,7 +170,9 @@ export const SidebarList = memo(function SidebarList({
         // A parent with children is never itself a nav target (it just
         // toggles the collapse), so it's never "disabled" — only leaf items
         // (no children) can be live/soon in demo mode.
-        const parentDisabled = isDemo && !hasChildren && item.live !== true;
+        const parentDisabled =
+          (isDemo && !hasChildren && item.live !== true) ||
+          (!hasChildren && item.disabled === true);
 
         return (
           <Box key={item.href} sx={{ width: "100%" }}>
@@ -176,7 +186,8 @@ export const SidebarList = memo(function SidebarList({
                 hasChildren
                   ? () => handleToggle(item.href)
                   : parentDisabled
-                  ? handleDisabledClick
+                  ? (e: React.MouseEvent) =>
+                      handleDisabledClick(e, item.disabled ? "notBuilt" : "demo")
                   : onMobileClose
               }
               selected={parentActive}
@@ -270,7 +281,8 @@ export const SidebarList = memo(function SidebarList({
                   {item.subTitles?.map((sub) => {
                     const subActive = isSubActive(sub.href);
                     const subResolvedHref = resolveHref(sub.href);
-                    const subDisabled = isDemo && sub.live !== true;
+                    const subDisabled =
+                      (isDemo && sub.live !== true) || sub.disabled === true;
 
                     return (
                       <ListItemButton
@@ -281,7 +293,8 @@ export const SidebarList = memo(function SidebarList({
                           : { href: subResolvedHref, prefetch: true })}
                         onClick={
                           subDisabled
-                            ? handleDisabledClick
+                            ? (e: React.MouseEvent) =>
+                                handleDisabledClick(e, sub.disabled ? "notBuilt" : "demo")
                             : onMobileClose ?? (() => {})
                         }
                         selected={subActive}

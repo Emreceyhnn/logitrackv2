@@ -45,6 +45,12 @@ const CustomerDetailDialog = ({
 
   useEffect(() => {
     if (open && customerId) {
+      if (customerId.startsWith("temp-")) {
+        setCustomer(null);
+        setError(null);
+        setLoading(true);
+        return;
+      }
       const fetchData = async () => {
         setLoading(true);
         setError(null);

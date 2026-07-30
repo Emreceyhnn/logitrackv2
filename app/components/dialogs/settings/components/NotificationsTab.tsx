@@ -79,6 +79,7 @@ export default function NotificationsTab({
             onChange={(v) =>
               actions.updateNotifications({ emailWeeklyReports: v })
             }
+            disabled
           />
         </Stack>
       </Box>

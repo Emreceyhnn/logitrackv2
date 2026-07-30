@@ -1,21 +1,9 @@
-/**
- * Reports Page — Hybrid SSR + CSR
- */
-
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getDictionary } from "@/app/lib/language/language";
-import { Suspense } from "react";
-import { Box, CircularProgress } from "@mui/material";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import { getReportsDataAction } from "@/app/lib/controllers/reports";
-import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
-import ReportsContent from "./components/ReportsContent";
-import { logger } from "@/app/lib/logger";
-
+import { Box, Typography, Container, Card, CardContent } from "@mui/material";
+import { AssessmentOutlined } from "@mui/icons-material";
 
 export async function generateMetadata({
   params,
@@ -30,47 +18,44 @@ export async function generateMetadata({
   };
 }
 
-function ReportsPageSkeleton() {
-  return (
-    <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      width="100%"
-      minHeight="60vh"
-    >
-      <CircularProgress size={36} />
-    </Box>
-  );
-}
+export default async function ReportsPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const user = await getAuthenticatedUser();
 
-export default async function ReportsPage() {
-
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60 * 15,
-      },
-    },
-  });
-
-  try {
-    await queryClient.prefetchQuery({
-      queryKey: reportsKeys.dashboard(),
-      queryFn: () => getReportsDataAction(),
-      staleTime: 1000 * 60 * 15,
-    });
-  } catch (error) {
-    logger.error("[ReportsPage SSR] prefetch failed:", error);
+  if (!user) {
+    redirect("/en/auth/sign-in");
   }
 
-  const dehydratedState = dehydrate(queryClient);
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
 
   return (
-    <HydrationBoundary state={dehydratedState}>
-      <Suspense fallback={<ReportsPageSkeleton />}>
-        <ReportsContent />
-      </Suspense>
-    </HydrationBoundary>
+    <Box p={4} width="100%">
+      <Container maxWidth="lg">
+        <Box mb={4}>
+          <Typography variant="h4" component="h1" fontWeight={800} color="text.primary" gutterBottom>
+            {dict.reports.title}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {dict.reports.subtitle}
+          </Typography>
+        </Box>
+
+        <Card sx={{ borderRadius: 4, boxShadow: 2 }}>
+          <CardContent sx={{ textAlign: "center", py: 10 }}>
+            <AssessmentOutlined sx={{ fontSize: 64, color: "text.secondary", mb: 2, opacity: 0.5 }} />
+            <Typography variant="h5" fontWeight={600} gutterBottom>
+              {dict.common?.comingSoon || "Coming Soon"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" maxWidth="sm" mx="auto">
+              {dict.reports.comingSoonDescription}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
   );
 }

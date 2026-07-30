@@ -56,10 +56,13 @@ const CapacityUtilization = ({
         }}
       >
         {warehouses.map((warehouse) => {
-          // Calculation logic stays as provided
-          const usedPallets = (warehouse._count?.inventory || 0) * 10;
+          const usedPallets =
+            warehouse.usedPallets ?? (warehouse._count?.inventory || 0) * 10;
           const totalPallets = warehouse.capacityPallets || 5000;
-          const capacityPct = Math.round((usedPallets / totalPallets) * 100);
+          const capacityPct = Math.min(
+            100,
+            Math.round((usedPallets / totalPallets) * 100)
+          );
 
           const isCritical = capacityPct > 85;
           const mainColor = isCritical ? theme.palette.error.main : theme.palette.primary.main;

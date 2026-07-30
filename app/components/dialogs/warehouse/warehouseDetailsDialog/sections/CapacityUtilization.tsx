@@ -27,13 +27,15 @@ export default function CapacityUtilization({ warehouse }: CapacityUtilizationPr
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
   const t = dict.warehouses.dialogs.details;
 
-  const mockUsedPallets = (warehouse._count?.inventory || 0) * 10;
+  const usedPallets =
+    warehouse.usedPallets ?? (warehouse._count?.inventory || 0) * 10;
   const totalPallets = warehouse.capacityPallets || 5000;
-  const mockUsedVolume = (warehouse._count?.inventory || 0) * 5;
+  const usedVolume =
+    warehouse.usedVolume ?? (warehouse._count?.inventory || 0) * 5;
   const totalVolume = warehouse.capacityVolumeM3 || 100000;
 
-  const palletPct = Math.min((mockUsedPallets / totalPallets) * 100, 100);
-  const volumePct = Math.min((mockUsedVolume / totalVolume) * 100, 100);
+  const palletPct = Math.min((usedPallets / totalPallets) * 100, 100);
+  const volumePct = Math.min((usedVolume / totalVolume) * 100, 100);
 
   return (
     <>
@@ -59,7 +61,7 @@ export default function CapacityUtilization({ warehouse }: CapacityUtilizationPr
             <LinearProgress variant="determinate" value={palletPct} sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 8, borderRadius: 4, bgcolor: "transparent", "& .MuiLinearProgress-bar": { borderRadius: 4, bgcolor: theme.palette.primary.main } }} />
           </Box>
           <Stack direction="row" justifyContent="space-between">
-            <Typography variant="caption" color="text.primary" fontWeight={600} sx={{ fontSize: "0.7rem" }}>{mockUsedPallets.toLocaleString("en-US")} {t.used}</Typography>
+            <Typography variant="caption" color="text.primary" fontWeight={600} sx={{ fontSize: "0.7rem" }}>{usedPallets.toLocaleString("en-US")} {t.used}</Typography>
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>{totalPallets.toLocaleString("en-US")} {t.totalCapacity}</Typography>
           </Stack>
         </CustomCard>
@@ -81,7 +83,7 @@ export default function CapacityUtilization({ warehouse }: CapacityUtilizationPr
             <LinearProgress variant="determinate" value={volumePct} color="success" sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 8, borderRadius: 4, bgcolor: "transparent", "& .MuiLinearProgress-bar": { borderRadius: 4, bgcolor: theme.palette.success.main } }} />
           </Box>
           <Stack direction="row" justifyContent="space-between">
-            <Typography variant="caption" color="text.primary" fontWeight={600} sx={{ fontSize: "0.7rem" }}>{mockUsedVolume.toLocaleString("en-US")} {t.m3Used}</Typography>
+            <Typography variant="caption" color="text.primary" fontWeight={600} sx={{ fontSize: "0.7rem" }}>{usedVolume.toLocaleString("en-US")} {t.m3Used}</Typography>
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>{totalVolume.toLocaleString("en-US")} {t.m3TotalCapacity}</Typography>
           </Stack>
         </CustomCard>

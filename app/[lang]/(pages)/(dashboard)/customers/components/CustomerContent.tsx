@@ -108,7 +108,7 @@ export default function CustomerContent() {
     () => ({
       fetchCustomers: async () => {},
       selectCustomer: (id: string) => {
-        if (!id) return;
+        if (!id || id.startsWith("temp-")) return;
         setSelectedCustomerId(id);
         setDetailOpen(true);
       },

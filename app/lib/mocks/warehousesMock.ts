@@ -41,6 +41,12 @@ function buildWarehouse(index: number): WarehouseWithRelations {
   const w = WAREHOUSES[index % WAREHOUSES.length]!;
   const manager = MANAGERS[index % MANAGERS.length]!;
   const createdAt = new Date(Date.now() - (60 - index * 5) * 24 * 60 * 60 * 1000);
+  const capacityPallets = 5000 + index * 800;
+  const capacityVolumeM3 = 12000 + index * 1500;
+  const occupancyRates = [0.73, 0.64, 0.82, 0.55, 0.89, 0.61, 0.77, 0.68];
+  const rate = occupancyRates[index % occupancyRates.length] ?? 0.7;
+  const usedPallets = Math.round(capacityPallets * rate);
+  const usedVolume = Math.round(capacityVolumeM3 * rate);
 
   return {
     id: `demo-warehouse-${index}`,
@@ -52,8 +58,10 @@ function buildWarehouse(index: number): WarehouseWithRelations {
     country: "Türkiye",
     lat: w.lat,
     lng: w.lng,
-    capacityPallets: 5000 + index * 800,
-    capacityVolumeM3: 12000 + index * 1500,
+    capacityPallets,
+    capacityVolumeM3,
+    usedPallets,
+    usedVolume,
     operatingHours: "08:00 - 20:00",
     timezone: "Europe/Istanbul",
     specifications:

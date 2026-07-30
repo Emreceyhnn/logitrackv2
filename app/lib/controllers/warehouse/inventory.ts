@@ -6,6 +6,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { invalidateWarehouseCache } from "./cache";
+import { invalidateInventoryCache } from "../inventory/cache";
 import { controllerGuard } from "../utils/controllerGuard";
 
 /**
@@ -97,6 +98,9 @@ export const addInventoryItem = authenticatedAction(
 
         return newItem;
       });
+
+      await invalidateWarehouseCache(user.companyId!, warehouseId);
+      await invalidateInventoryCache(user.companyId!, result.id);
 
       // Notification check for initial stock
       if (result.quantity <= result.minStock) {
