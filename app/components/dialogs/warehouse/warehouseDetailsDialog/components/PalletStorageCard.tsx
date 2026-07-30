@@ -4,13 +4,13 @@ import CustomCard from "@/app/components/cards/card";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface PalletStorageCardProps {
-  mockUsedPallets: number;
+  usedPallets: number;
   totalPallets: number;
   palletPct: number;
 }
 
 export const PalletStorageCard = ({
-  mockUsedPallets,
+  usedPallets,
   totalPallets,
   palletPct,
 }: PalletStorageCardProps) => {
@@ -101,7 +101,7 @@ export const PalletStorageCard = ({
           fontWeight={600}
           sx={{ fontSize: "0.7rem" }}
         >
-          {mockUsedPallets.toLocaleString("en-US")} {t.used}
+          {usedPallets.toLocaleString("en-US")} {t.used}
         </Typography>
         <Typography
           variant="caption"

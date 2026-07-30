@@ -131,9 +131,13 @@ const WarehouseListTable = ({
         label: dict.dashboard.warehouse.capacityPallets,
         width: "20%",
         render: (row) => {
-          const usedPallets = (row._count?.inventory || 0) * 10;
+          const usedPallets =
+            row.usedPallets ?? (row._count?.inventory || 0) * 10;
           const totalPallets = row.capacityPallets || 5000;
-          const palletPct = Math.min((usedPallets / totalPallets) * 100, 100);
+          const palletPct = Math.min(
+            100,
+            Math.round((usedPallets / totalPallets) * 100)
+          );
           return (
             <Stack spacing={1}>
               <Stack
@@ -182,9 +186,13 @@ const WarehouseListTable = ({
         label: dict.dashboard.warehouse.capacityVolume,
         width: "20%",
         render: (row) => {
-          const usedVolume = (row._count?.inventory || 0) * 5;
+          const usedVolume =
+            row.usedVolume ?? (row._count?.inventory || 0) * 5;
           const totalVolume = row.capacityVolumeM3 || 100000;
-          const volumePct = Math.min((usedVolume / totalVolume) * 100, 100);
+          const volumePct = Math.min(
+            100,
+            Math.round((usedVolume / totalVolume) * 100)
+          );
           return (
             <Stack spacing={1}>
               <Stack

@@ -13,6 +13,7 @@ import {
 import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import type { ShipmentStopInput } from "./types";
+import { toBaseUnitQuantity } from "./types";
 import { logger } from "@/app/lib/logger";
 import { NotFoundError } from "../../errors";
 
@@ -195,10 +196,12 @@ export const updateShipment = authenticatedAction(
                   });
 
                   if (invItem) {
+                    const baseUnitQuantity = toBaseUnitQuantity(oldItem);
+
                     await tx.inventory.update({
                       where: { id: invItem.id },
                       data: {
-                        allocatedQuantity: { decrement: oldItem.quantity },
+                        allocatedQuantity: { decrement: baseUnitQuantity },
                       },
                     });
 
@@ -206,7 +209,7 @@ export const updateShipment = authenticatedAction(
                       data: {
                         warehouseId: oldWarehouseId,
                         sku: oldItem.sku,
-                        quantity: oldItem.quantity,
+                        quantity: baseUnitQuantity,
                         type: "ALLOCATION_REVERT",
                         userId,
                         companyId: companyId!,
@@ -276,11 +279,13 @@ export const updateShipment = authenticatedAction(
                 });
 
                 if (invItem) {
+                  const baseUnitQuantity = toBaseUnitQuantity(item);
+
                   await tx.inventory.update({
                     where: { id: invItem.id },
                     data: {
                       allocatedQuantity: {
-                        increment: item.quantity,
+                        increment: baseUnitQuantity,
                       },
                     },
                   });
@@ -289,7 +294,7 @@ export const updateShipment = authenticatedAction(
                     data: {
                       warehouseId: newWarehouseId,
                       sku: item.sku,
-                      quantity: -item.quantity,
+                      quantity: -baseUnitQuantity,
                       type: "ALLOCATION",
                       userId,
                       companyId: companyId!,
@@ -394,11 +399,13 @@ export const deleteShipment = authenticatedAction(
             });
 
             if (invItem) {
+              const baseUnitQuantity = toBaseUnitQuantity(item);
+
               await tx.inventory.update({
                 where: { id: invItem.id },
                 data: {
                   allocatedQuantity: {
-                    decrement: item.quantity,
+                    decrement: baseUnitQuantity,
                   },
                 },
               });
@@ -407,7 +414,7 @@ export const deleteShipment = authenticatedAction(
                 data: {
                   warehouseId,
                   sku: item.sku,
-                  quantity: item.quantity,
+                  quantity: baseUnitQuantity,
                   type: "ALLOCATION_CANCEL",
                   userId,
                   companyId: companyId!,

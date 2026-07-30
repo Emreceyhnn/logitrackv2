@@ -132,7 +132,34 @@ export const getWarehouses = authenticatedAction(async (user) => {
         },
         orderBy: { createdAt: "desc" },
       });
-      return warehouses;
+
+      const warehouseIds = warehouses.map((w) => w.id);
+      const palletSums = warehouseIds.length
+        ? await db.inventory.groupBy({
+            by: ["warehouseId"],
+            where: { warehouseId: { in: warehouseIds } },
+            _sum: { palletCount: true, volumeM3: true },
+          })
+        : [];
+
+      const palletMap = new Map(
+        palletSums.map((p) => [
+          p.warehouseId,
+          {
+            pallets: p._sum.palletCount ?? 0,
+            volume: p._sum.volumeM3 ?? 0,
+          },
+        ])
+      );
+
+      return warehouses.map((w) => {
+        const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };
+        return {
+          ...w,
+          usedPallets: Math.round(used.pallets),
+          usedVolume: Math.round(used.volume),
+        };
+      });
     });
   });
 });
@@ -175,7 +202,18 @@ export const getWarehouseById = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      return warehouse;
+      const usedPallets = Math.round(
+        warehouse.inventory.reduce((acc, i) => acc + (i.palletCount ?? 0), 0)
+      );
+      const usedVolume = Math.round(
+        warehouse.inventory.reduce((acc, i) => acc + (i.volumeM3 ?? 0), 0)
+      );
+
+      return {
+        ...warehouse,
+        usedPallets,
+        usedVolume,
+      };
     });
   }
 );

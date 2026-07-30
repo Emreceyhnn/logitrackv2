@@ -32,6 +32,9 @@ export interface WarehouseWithRelations extends Omit<Warehouse, "specifications"
     inventory: number;
     drivers: number;
   };
+
+  usedPallets?: number;
+  usedVolume?: number;
 }
 
 export interface InventoryMovementWithRelations {

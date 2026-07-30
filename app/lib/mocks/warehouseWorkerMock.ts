@@ -6,19 +6,84 @@ import type { WarehouseWorkerDashboard } from "@/app/lib/type/warehouseWorker";
  * /api/warehouse-worker/dashboard route returns), so the shared WW client and
  * demo state hook render unchanged. No DB, no auth — pure data.
  */
-export function getWarehouseWorkerDashboardMock(): WarehouseWorkerDashboard {
-  return {
-    warehouse: {
-      id: "demo-wh-1",
-      name: "İstanbul Merkez Depo",
-      code: "IST-01",
+export function getWarehouseWorkerDashboardMock(
+  warehouseId?: string
+): WarehouseWorkerDashboard {
+  const allWarehouses = [
+    {
+      id: "demo-warehouse-0",
+      name: "İstanbul Ana Dağıtım Merkezi",
+      code: "IST-DC",
       city: "İstanbul",
     },
-    warehouses: [
-      { id: "demo-wh-1", name: "İstanbul Merkez Depo", code: "IST-01" },
-      { id: "demo-wh-2", name: "Ankara Depo", code: "ANK-01" },
-      { id: "demo-wh-3", name: "İzmir Liman Depo", code: "IZM-01" },
-    ],
+    {
+      id: "demo-warehouse-1",
+      name: "Ankara Bölge Deposu",
+      code: "ANK-WH",
+      city: "Ankara",
+    },
+    {
+      id: "demo-warehouse-2",
+      name: "İzmir Liman Deposu",
+      code: "IZM-WH",
+      city: "İzmir",
+    },
+  ];
+  const selectedWh =
+    allWarehouses.find((w) => w.id === warehouseId) ?? allWarehouses[0]!;
+
+  const configMap: Record<
+    string,
+    {
+      capacity: { used: number; total: number; pct: number; free: number };
+      zones: Array<{
+        code: string;
+        capacityPallets: number;
+        usedPallets: number;
+        pct: number;
+      }>;
+    }
+  > = {
+    "demo-warehouse-0": {
+      capacity: { used: 3650, total: 5000, pct: 73, free: 1350 },
+      zones: [
+        { code: "A", capacityPallets: 1500, usedPallets: 1365, pct: 91 },
+        { code: "B", capacityPallets: 1500, usedPallets: 960, pct: 64 },
+        { code: "C", capacityPallets: 1000, usedPallets: 470, pct: 47 },
+        { code: "D", capacityPallets: 1000, usedPallets: 855, pct: 86 },
+      ],
+    },
+    "demo-warehouse-1": {
+      capacity: { used: 3712, total: 5800, pct: 64, free: 2088 },
+      zones: [
+        { code: "A", capacityPallets: 1800, usedPallets: 1440, pct: 80 },
+        { code: "B", capacityPallets: 1500, usedPallets: 900, pct: 60 },
+        { code: "C", capacityPallets: 1500, usedPallets: 750, pct: 50 },
+        { code: "D", capacityPallets: 1000, usedPallets: 622, pct: 62 },
+      ],
+    },
+    "demo-warehouse-2": {
+      capacity: { used: 5412, total: 6600, pct: 82, free: 1188 },
+      zones: [
+        { code: "A", capacityPallets: 2000, usedPallets: 1820, pct: 91 },
+        { code: "B", capacityPallets: 2000, usedPallets: 1600, pct: 80 },
+        { code: "C", capacityPallets: 1400, usedPallets: 1120, pct: 80 },
+        { code: "D", capacityPallets: 1200, usedPallets: 872, pct: 73 },
+      ],
+    },
+  };
+
+  const currentConfig =
+    configMap[selectedWh.id] ?? configMap["demo-warehouse-0"]!;
+
+  return {
+    warehouse: {
+      id: selectedWh.id,
+      name: selectedWh.name,
+      code: selectedWh.code,
+      city: selectedWh.city,
+    },
+    warehouses: allWarehouses.map(({ id, name, code }) => ({ id, name, code })),
     worker: {
       name: "Demo Depo Görevlisi",
       initials: "DG",
@@ -88,12 +153,7 @@ export function getWarehouseWorkerDashboardMock(): WarehouseWorkerDashboard {
         complete: false,
       },
     ],
-    zones: [
-      { code: "A", capacityPallets: 250, usedPallets: 228, pct: 91 },
-      { code: "B", capacityPallets: 250, usedPallets: 160, pct: 64 },
-      { code: "C", capacityPallets: 200, usedPallets: 94, pct: 47 },
-      { code: "D", capacityPallets: 200, usedPallets: 176, pct: 88 },
-    ],
+    zones: currentConfig.zones,
     feed: [
       {
         id: "demo-mv-1",
@@ -213,6 +273,6 @@ export function getWarehouseWorkerDashboardMock(): WarehouseWorkerDashboard {
         suggestedQty: 32,
       },
     ],
-    capacity: { used: 658, total: 900, pct: 73, free: 242 },
+    capacity: currentConfig.capacity,
   };
 }

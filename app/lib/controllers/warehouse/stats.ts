@@ -152,6 +152,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           inventoryStats,
           movements,
           prevTotalWarehouses,
+          palletSums,
         ] = await Promise.all([
           checkPermission(user, companyId, ["role_admin", "role_manager"]),
           db.warehouse.findMany({
@@ -198,6 +199,11 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           db.warehouse.count({
             where: { companyId, createdAt: { lt: daysAgo(30) } },
           }),
+          db.inventory.groupBy({
+            by: ["warehouseId"],
+            where: { companyId },
+            _sum: { palletCount: true, volumeM3: true },
+          }),
         ]);
 
         // Stats Calculation
@@ -229,7 +235,26 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           })
         );
 
-        const typedWarehouses: WarehouseWithRelations[] = warehouses;
+        const palletMap = new Map(
+          (Array.isArray(palletSums) ? palletSums : []).map((p) => [
+            p.warehouseId,
+            {
+              pallets: p._sum?.palletCount ?? 0,
+              volume: p._sum?.volumeM3 ?? 0,
+            },
+          ])
+        );
+
+        const typedWarehouses: WarehouseWithRelations[] = warehouses.map(
+          (w) => {
+            const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };
+            return {
+              ...w,
+              usedPallets: Math.round(used.pallets),
+              usedVolume: Math.round(used.volume),
+            };
+          }
+        );
 
         return {
           warehouses: typedWarehouses,

@@ -20,9 +20,9 @@ export function getDriverConsoleDashboardMock(): DriverConsoleDashboard {
       languages: ["Türkçe", "English"],
       licenseExpiry: iso(25 * 24 * 60 * 60 * 1000),
       homeBaseWarehouse: {
-        id: "demo-wh-1",
-        name: "İstanbul Anadolu Depo",
-        code: "IST-02",
+        id: "demo-warehouse-0",
+        name: "İstanbul Ana Dağıtım Merkezi",
+        code: "IST-DC",
         city: "İstanbul",
       },
     },
