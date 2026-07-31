@@ -41,84 +41,66 @@ export default function RouteMapPanel({ values, data, dict, isLoading = false, s
   const hasShape = Boolean(values.shape);
   const effectiveBuffer = values.bufferMeters || DEFAULT_ROUTE_BUFFER_METERS;
   return (
-    <Stack spacing={4} sx={{ height: "100%" }}>
-      <Stack direction="row" spacing={2}>
-        <Box sx={{ flex: 1, p: 2, borderRadius: 2, bgcolor: paletteTheme.divider_alpha?.main_05, border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
+    <Stack spacing={2} sx={{ height: "100%", minHeight: 0 }}>
+      {/* Metrics Row */}
+      <Stack direction="row" spacing={1.5}>
+        <Box sx={{ flex: 1, p: 1.5, borderRadius: 2, bgcolor: paletteTheme.divider_alpha?.main_05, border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
           <Typography variant="caption" color="text.secondary" display="block">{dict.routes.dialogs.distanceKmLabel}</Typography>
-          <Typography component="div" variant="h6" fontWeight={700} color="white">{values.distanceKm > 0 ? values.distanceKm.toFixed(1) : "--"}</Typography>
+          <Typography component="div" variant="body1" fontWeight={700} color="#3b82f6">{values.distanceKm > 0 ? `${values.distanceKm.toFixed(1)} km` : "--"}</Typography>
         </Box>
-        <Box sx={{ flex: 1, p: 2, borderRadius: 2, bgcolor: paletteTheme.divider_alpha?.main_05, border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
+        <Box sx={{ flex: 1, p: 1.5, borderRadius: 2, bgcolor: paletteTheme.divider_alpha?.main_05, border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
           <Typography variant="caption" color="text.secondary" display="block">{dict.routes.dialogs.durationMinLabel}</Typography>
-          <Typography component="div" variant="h6" fontWeight={700} color="white">{values.durationMin > 0 ? values.durationMin : "--"}</Typography>
+          <Typography component="div" variant="body1" fontWeight={700} color="#10b981">{values.durationMin > 0 ? `${values.durationMin} dk` : "--"}</Typography>
         </Box>
-        <Box sx={{ flex: 1, p: 2, borderRadius: 2, bgcolor: paletteTheme.divider_alpha?.main_05, border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
+        <Box sx={{ flex: 1, p: 1.5, borderRadius: 2, bgcolor: paletteTheme.divider_alpha?.main_05, border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
           <Typography variant="caption" color="text.secondary" display="block">Tahmini CO₂</Typography>
-          <Typography component="div" variant="h6" fontWeight={700} color="error.main">{values.distanceKm > 0 ? `${(values.distanceKm * 0.9).toFixed(1)} kg` : "--"}</Typography>
+          <Typography component="div" variant="body1" fontWeight={700} color="#f59e0b">{values.distanceKm > 0 ? `${(values.distanceKm * 0.9).toFixed(1)} kg` : "--"}</Typography>
         </Box>
       </Stack>
 
-      <Box sx={{ p: 2, borderRadius: 2, bgcolor: paletteTheme.info?._alpha?.main_05, border: `1px solid ${paletteTheme.info?._alpha?.main_10}`, display: "flex", gap: 1.5 }}>
-        <ElectricBoltIcon fontSize="small" sx={{ color: theme.palette.info.main, mt: 0.2 }} />
-        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.4 }}>
-          <Typography component="span" variant="caption" fontWeight={700} color="info.main">{dict.routes.dialogs.optimizationTip}</Typography> {dict.routes.dialogs.optimizationDesc}
-        </Typography>
-      </Box>
-
-      {setFieldValue && (
-        <Box sx={{ p: 2, borderRadius: 2, bgcolor: paletteTheme.warning?._alpha?.main_05, border: `1px solid ${paletteTheme.warning?._alpha?.main_10}` }}>
-          <Stack direction="row" spacing={1.5}>
-            <RadarIcon fontSize="small" sx={{ color: theme.palette.warning.main, mt: 0.2 }} />
-            <Stack spacing={1.5} sx={{ flex: 1 }}>
-              <Stack spacing={0.25}>
-                <Typography variant="caption" fontWeight={700} color="warning.main">
-                  {dict.routes.dialogs.deviationTitle}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.4 }}>
-                  {hasShape ? dict.routes.dialogs.deviationDesc : dict.routes.dialogs.deviationNoShape}
-                </Typography>
-              </Stack>
-
-              <TextField
-                type="number"
-                size="small"
-                disabled={!hasShape}
-                label={dict.routes.dialogs.bufferLabel}
-                value={values.bufferMeters ?? ""}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  // Empty clears the override so the route falls back to the
-                  // default, rather than persisting a 0m corridor.
-                  setFieldValue("bufferMeters", raw === "" ? undefined : Number(raw));
-                }}
-                placeholder={String(DEFAULT_ROUTE_BUFFER_METERS)}
-                error={Boolean(bufferError)}
-                helperText={
-                  bufferError ||
-                  dict.routes.dialogs.bufferHelper.replace("{default}", String(DEFAULT_ROUTE_BUFFER_METERS))
-                }
-                slotProps={{
-                  htmlInput: { min: MIN_ROUTE_BUFFER_METERS, max: MAX_ROUTE_BUFFER_METERS, step: 50 },
-                  input: {
-                    endAdornment: <InputAdornment position="end">m</InputAdornment>,
-                  },
-                }}
-                sx={{ maxWidth: 260 }}
-              />
-
-              {hasShape && !bufferError && (
-                <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.4, opacity: 0.75 }}>
-                  {dict.routes.dialogs.bufferHint}
-                </Typography>
-              )}
-            </Stack>
-          </Stack>
+      {/* Info & Deviation Bar */}
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+        <Box sx={{ flex: 1, p: 1.5, borderRadius: 2, bgcolor: paletteTheme.info?._alpha?.main_05, border: `1px solid ${paletteTheme.info?._alpha?.main_10}`, display: "flex", gap: 1, alignItems: "center" }}>
+          <ElectricBoltIcon fontSize="small" sx={{ color: theme.palette.info.main }} />
+          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>
+            <Typography component="span" variant="caption" fontWeight={700} color="info.main">{dict.routes.dialogs.optimizationTip}</Typography> {dict.routes.dialogs.optimizationDesc}
+          </Typography>
         </Box>
-      )}
 
-      <Box sx={{ height: "100%", minHeight: 350, borderRadius: 3, overflow: "hidden", border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
-        <Box sx={{ position: "relative", width: "100%", height: "100%", minHeight: 350 }}>
-          {/* Faded rather than unmounted so the map is released smoothly when
-              the route arrives; the hidden overlay must not catch map drags. */}
+        {setFieldValue && (
+          <Box sx={{ flex: 1, p: 1.5, borderRadius: 2, bgcolor: paletteTheme.warning?._alpha?.main_05, border: `1px solid ${paletteTheme.warning?._alpha?.main_10}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <RadarIcon fontSize="small" sx={{ color: theme.palette.warning.main }} />
+              <Typography variant="caption" fontWeight={700} color="warning.main">
+                {dict.routes.dialogs.deviationTitle}
+              </Typography>
+            </Stack>
+            <TextField
+              type="number"
+              size="small"
+              disabled={!hasShape}
+              value={values.bufferMeters ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setFieldValue("bufferMeters", raw === "" ? undefined : Number(raw));
+              }}
+              placeholder={String(DEFAULT_ROUTE_BUFFER_METERS)}
+              error={Boolean(bufferError)}
+              slotProps={{
+                htmlInput: { min: MIN_ROUTE_BUFFER_METERS, max: MAX_ROUTE_BUFFER_METERS, step: 50 },
+                input: {
+                  endAdornment: <InputAdornment position="end">m</InputAdornment>,
+                },
+              }}
+              sx={{ width: 110, "& .MuiOutlinedInput-input": { py: 0.5, px: 1, fontSize: "0.8rem" } }}
+            />
+          </Box>
+        )}
+      </Stack>
+
+      {/* Map Box */}
+      <Box sx={{ flex: 1, minHeight: 280, borderRadius: 3, overflow: "hidden", border: `1px solid ${paletteTheme.divider_alpha?.main_10}`, position: "relative" }}>
+        <Box sx={{ position: "relative", width: "100%", height: "100%", minHeight: 280 }}>
           <Box
             aria-hidden={!isLoading}
             aria-busy={isLoading}

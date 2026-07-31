@@ -8,7 +8,6 @@ import {
   DialogActions,
   Button,
   MenuItem,
-  TextField,
   Stack,
   Typography,
   Box,
@@ -18,6 +17,7 @@ import { ShipmentStatus } from "@/app/lib/type/enums";
 import { SHIPMENT_TRANSITIONS } from "@/app/lib/type/shipmentTransitions";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import CustomTextArea from "@/app/components/inputs/customTextArea";
 
 interface StatusUpdateDialogProps {
   open: boolean;
@@ -124,11 +124,10 @@ export default function StatusUpdateDialog({
             </Box>
           ) : (
             <>
-              <TextField
+              <CustomTextArea
                 select
-                fullWidth
-                size="small"
-                label={dict.shipments.dialogs.newStatus || "New status"}
+                name="nextStatus"
+                label={dict.shipments.dialogs.newStatus || "Yeni durum"}
                 value={nextStatus}
                 onChange={(e) =>
                   setNextStatus(e.target.value as ShipmentStatus)
@@ -139,20 +138,17 @@ export default function StatusUpdateDialog({
                     {statusLabel(s)}
                   </MenuItem>
                 ))}
-              </TextField>
+              </CustomTextArea>
 
-              <TextField
-                fullWidth
-                size="small"
-                multiline
-                minRows={2}
+              <CustomTextArea
+                name="description"
                 label={
-                  (dict.shipments.dialogs.statusNote || "Note") +
+                  (dict.shipments.dialogs.statusNote || "Not") +
                   (requiresReason ? " *" : "")
                 }
                 placeholder={
                   dict.shipments.dialogs.statusNotePlaceholder ||
-                  "Optional context for this change"
+                  "Açıklama / Not ekleyin..."
                 }
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -160,7 +156,7 @@ export default function StatusUpdateDialog({
                 helperText={
                   requiresReason && description.trim().length === 0
                     ? dict.shipments.dialogs.failureReasonRequired ||
-                      "A reason is required when marking as failed"
+                      "İşlem başarısız olarak işaretlendiğinde neden bildirilmesi zorunludur"
                     : undefined
                 }
               />

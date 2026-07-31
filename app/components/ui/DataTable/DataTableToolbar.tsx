@@ -170,14 +170,14 @@ export default function DataTableToolbar({
 
           return (
             <FormControl key={filter.key} size="small" sx={{ minWidth: 160 }}>
-              <InputLabel sx={{ fontSize: 14, top: 1 }}>
+              <InputLabel sx={{ fontSize: 14 }}>
                 {filter.label}
               </InputLabel>
               <Select
                 multiple={isMultiple}
                 value={selectValue}
                 onChange={(e) => handleFilterChange(filter.key, e, isMultiple)}
-                input={<OutlinedInput label={filter.label} />}
+                input={<OutlinedInput label={filter.label} size="small" />}
                 renderValue={(sel) => {
                   const arr = isMultiple
                     ? (sel as string[])
@@ -192,7 +192,7 @@ export default function DataTableToolbar({
                     );
                   }
                   return (
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap" alignItems="center">
                       {arr.slice(0, 2).map((v) => {
                         const opt = filter.options.find(o => o.value === v);
                         const label = opt ? opt.label : v.replace(/_/g, " ");
@@ -215,7 +215,14 @@ export default function DataTableToolbar({
                     </Stack>
                   );
                 }}
-                sx={commonInputStyles}
+                sx={{
+                  ...commonInputStyles,
+                  "& .MuiSelect-select": {
+                    py: 1,
+                    display: "flex",
+                    alignItems: "center",
+                  },
+                }}
               >
                 {!isMultiple && (
                   <MenuItem value="">

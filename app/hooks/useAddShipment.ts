@@ -74,6 +74,12 @@ export const useAddShipment = (open: boolean, onClose: () => void, onSuccess?: (
     if (!user) return;
     const selectedWarehouse = warehouses.find((w) => w.id === values.originWarehouseId);
     const originName = selectedWarehouse?.name || values.originWarehouseId;
+
+    // Close dialog immediately for instant UI feedback (optimistic update handles cache & UI)
+    onClose();
+    setCurrentStep(1);
+    onSuccess?.();
+
     try {
       await createShipment.mutateAsync({
         customerId: values.customerId, origin: originName, originWarehouseId: values.originWarehouseId,
@@ -86,10 +92,9 @@ export const useAddShipment = (open: boolean, onClose: () => void, onSuccess?: (
         slaDeadline: values.slaDeadline, contactEmail: values.contactEmail, billingAccount: values.billingAccount,
         inventoryItems: values.inventoryItems, trailerId: values.trailerId, driverId: values.driverId, stops: values.stops,
       });
-      onSuccess?.();
-      onClose();
-      setCurrentStep(1);
-    } catch (error) { logger.error(error); }
+    } catch (error) {
+      logger.error("Failed to create shipment:", error);
+    }
   };
 
   const closeDialog = () => { onClose(); setCurrentStep(1); };

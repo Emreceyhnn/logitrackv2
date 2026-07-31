@@ -48,7 +48,7 @@ export default function ShipmentItemsTab({ items }: ShipmentItemsTabProps) {
                 {items.reduce((s, i) => s + i.quantity, 0)}
               </Typography>
             </Stack>
-            {items.some((i) => i.weightKg) && (
+            {Boolean(items.some((i) => i.weightKg && i.weightKg > 0)) && (
               <>
                 <Divider
                   orientation="vertical"
@@ -220,7 +220,7 @@ export default function ShipmentItemsTab({ items }: ShipmentItemsTabProps) {
             </Stack>
 
             {/* Weight */}
-            {item.weightKg && (
+            {Boolean(item.weightKg && item.weightKg > 0) && (
               <Stack alignItems="flex-end" sx={{ flexShrink: 0 }}>
                 <Typography
                   variant="caption"
@@ -238,7 +238,7 @@ export default function ShipmentItemsTab({ items }: ShipmentItemsTabProps) {
                   fontWeight={700}
                   color="text.primary"
                 >
-                  {(item.weightKg * item.quantity).toFixed(1)}
+                  {(item.weightKg! * item.quantity).toFixed(1)}
                   <Typography
                     component="span"
                     variant="caption"

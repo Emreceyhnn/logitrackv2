@@ -314,7 +314,7 @@ export const ShipmentOverviewTab = ({
               </Typography>
             </Box>
 
-            {shipment.weightKg && (
+            {Boolean(shipment.weightKg && shipment.weightKg > 0) && (
               <Box
                 sx={{
                   p: 2,
@@ -337,7 +337,7 @@ export const ShipmentOverviewTab = ({
                   fontWeight={700}
                   color="text.primary"
                 >
-                  {shipment.weightKg.toFixed(2)}{" "}
+                  {(shipment.weightKg ?? 0).toFixed(2)}{" "}
                   <Typography
                     component="span"
                     variant="caption"

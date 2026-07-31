@@ -21,13 +21,8 @@ const VehicleCapacityChart = dynamic(
   { ssr: false, loading: () => <ChartSkeleton /> }
 );
 
-/**
- * Demo-only counterpart to VehicleContent — same tabs/table/chart layout,
- * backed by the fixed demo dataset. Add/Edit/Delete/Assign/Detach all route
- * through a "disabled in demo" toast (see useDemoVehicleContent); no
- * AddVehicleDialog / EditVehicleDialog / VehicleDetailsDialog / trailer
- * dialogs (VehicleDialogs) are ever mounted.
- */
+import VehicleDialogs from "@/app/[lang]/(pages)/(dashboard)/vehicle/components/VehicleDialogs";
+
 export default function DemoVehicleContent() {
   const contentState = useDemoVehicleContent();
   const {
@@ -36,7 +31,6 @@ export default function DemoVehicleContent() {
     setActiveTab,
     state,
     trailerFilters,
-    notifyDisabled,
     dashboardData,
     isVehiclesLoading,
     isVehiclesFetching,
@@ -58,6 +52,8 @@ export default function DemoVehicleContent() {
     handleTrailerDetach,
     kpiItems,
     updateTrailerFilters,
+    setAddDialogOpen,
+    setAddTrailerOpen,
   } = contentState;
 
   return (
@@ -78,7 +74,7 @@ export default function DemoVehicleContent() {
             data-tour="vehicle-add"
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={notifyDisabled}
+            onClick={() => activeTab === 0 ? setAddDialogOpen(true) : setAddTrailerOpen(true)}
             sx={{ textTransform: "none", borderRadius: 2 }}
           >
             {activeTab === 0 ? dict.vehicles.addVehicle : dict.trailers.addTrailer}
@@ -119,6 +115,8 @@ export default function DemoVehicleContent() {
           <VehicleCapacityChart data={dashboardData?.vehiclesCapacity || []} loading={isVehiclesLoading} />
         </Stack>
       )}
+
+      <VehicleDialogs contentState={contentState} />
     </Box>
   );
 }

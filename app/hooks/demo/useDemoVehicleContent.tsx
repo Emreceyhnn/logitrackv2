@@ -1,36 +1,41 @@
-"use client";
-
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { LocalShipping, CheckCircle, Build, DirectionsCar, ReportProblem, Description } from "@mui/icons-material";
 import { useTheme } from "@mui/material";
 import { toast } from "sonner";
 import { useDemoVehicleWithDashboard, useDemoTrailers } from "@/app/hooks/demo/useDemoVehicles";
-import { VehiclePageState, VehiclePageActions } from "@/app/lib/type/vehicle";
-import { TrailerFilters } from "@/app/lib/type/trailer";
+import { VehiclePageState, VehiclePageActions, VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { TrailerFilters, TrailerWithRelations } from "@/app/lib/type/trailer";
 
-/**
- * Demo-only fork of useVehicleContent (app/hooks/useVehicleContent.tsx).
- * Drops all real mutations (useVehicleMutations / useTrailerMutations) and
- * every add/edit/delete/assign/detach dialog-open state — every mutating
- * action instead fires a "disabled in demo" toast directly. Data comes from
- * the fixed demo dataset via useDemoVehicleWithDashboard / useDemoTrailers.
- */
 export const useDemoVehicleContent = () => {
   const theme = useTheme();
   const dict = useDictionary();
+  const searchParams = useSearchParams();
+  const vehicleIdFromUrl = searchParams?.get("id");
+  const tabFromUrl = searchParams?.get("tab");
 
   const [activeTab, setActiveTab] = useState(0);
   const [state, setState] = useState<{ filters: VehiclePageState["filters"]; selectedVehicleId: string | null; }>({ filters: {}, selectedVehicleId: null });
-  const [trailerFilters] = useState<TrailerFilters>({ page: 1, limit: 10, search: "" });
+  const [trailerFilters, setTrailerFilters] = useState<TrailerFilters>({ page: 1, limit: 10, search: "" });
+
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [actionVehicle, setActionVehicle] = useState<VehicleWithRelations | null>(null);
+
+  const [addTrailerOpen, setAddTrailerOpen] = useState(false);
+  const [editTrailerOpen, setEditTrailerOpen] = useState(false);
+  const [assignTrailerOpen, setAssignTrailerOpen] = useState(false);
+  const [actionTrailer, setActionTrailer] = useState<TrailerWithRelations | null>(null);
 
   const { data: dashboardData, isLoading: isVehiclesLoading, isFetching: isVehiclesFetching, isError: isVehiclesError, refetch: refetchVehicleWithDashboard } = useDemoVehicleWithDashboard();
   const { data: trailerData, isFetching: isTrailersFetching, isError: isTrailersError, refetch: refetchTrailers } = useDemoTrailers();
 
-  const trailers = trailerData?.trailers || [];
+  const trailers = useMemo(() => trailerData?.trailers || [], [trailerData?.trailers]);
   const trailerMeta = trailerData?.meta;
   const vehicles = dashboardData?.vehicles;
-  const kpiLoading = activeTab === 0 ? isVehiclesLoading : isVehiclesLoading;
+  const kpiLoading = isVehiclesLoading;
 
   const notifyDisabled = useCallback(() => {
     toast.info(dict.toasts.demoActionDisabled);
@@ -44,9 +49,12 @@ export const useDemoVehicleContent = () => {
     setState((prev) => ({ ...prev, selectedVehicleId: id }));
   }, []);
 
-  // Filters are inert in the demo — the dataset is fixed. Params are kept for
-  // signature parity (callers pass { page }/{ limit }) but ignored; `void`
-  // marks them consumed so eslint's no-unused-vars stays quiet.
+  useEffect(() => {
+    if (vehicleIdFromUrl) {
+      selectVehicle(vehicleIdFromUrl);
+    }
+  }, [vehicleIdFromUrl, selectVehicle]);
+
   const updateFilters = useCallback(
     (newFilters: Partial<VehiclePageState["filters"]>) => {
       void newFilters;
@@ -57,20 +65,75 @@ export const useDemoVehicleContent = () => {
 
   const updateTrailerFilters = useCallback(
     (newFilters: Partial<TrailerFilters>) => {
-      void newFilters;
-      notifyDisabled();
+      setTrailerFilters((prev) => ({ ...prev, ...newFilters }));
     },
-    [notifyDisabled]
+    []
   );
 
   const actions: VehiclePageActions = useMemo(() => ({ fetchVehicles: async () => {}, fetchDashboardData: async () => {}, refreshAll, selectVehicle, updateFilters }), [refreshAll, selectVehicle, updateFilters]);
 
-  const handleEdit = useCallback(() => notifyDisabled(), [notifyDisabled]);
-  const handleDelete = useCallback(() => notifyDisabled(), [notifyDisabled]);
-  const handleTrailerEdit = useCallback(() => notifyDisabled(), [notifyDisabled]);
-  const handleTrailerDelete = useCallback(() => notifyDisabled(), [notifyDisabled]);
-  const handleTrailerAssign = useCallback(() => notifyDisabled(), [notifyDisabled]);
-  const handleTrailerDetach = useCallback(async () => notifyDisabled(), [notifyDisabled]);
+  const handleEdit = useCallback((id: string) => {
+    const v = vehicles?.find((item) => item.id === id) || null;
+    setActionVehicle(v);
+    setEditDialogOpen(true);
+  }, [vehicles]);
+
+  const handleDelete = useCallback((id: string) => {
+    const v = vehicles?.find((item) => item.id === id) || null;
+    setActionVehicle(v);
+    setDeleteDialogOpen(true);
+  }, [vehicles]);
+
+  const handleTrailerEdit = useCallback((trailer: TrailerWithRelations) => {
+    setActionTrailer(trailer);
+    setEditTrailerOpen(true);
+  }, []);
+
+  const handleTrailerDelete = useCallback((trailer: TrailerWithRelations) => {
+    setActionTrailer(trailer);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const handleTrailerAssign = useCallback((trailer: TrailerWithRelations) => {
+    setActionTrailer(trailer);
+    setAssignTrailerOpen(true);
+  }, []);
+
+  const handleTrailerDetach = useCallback(async (trailer: TrailerWithRelations) => {
+    setActionTrailer(trailer);
+    setAssignTrailerOpen(true);
+  }, []);
+
+  const handleAddSuccess = useCallback(() => {
+    setAddDialogOpen(false);
+    notifyDisabled();
+  }, [notifyDisabled]);
+
+  const handleEditFormSuccess = useCallback(() => {
+    setEditDialogOpen(false);
+    setActionVehicle(null);
+    notifyDisabled();
+  }, [notifyDisabled]);
+
+  const handleDeleteConfirm = useCallback(() => {
+    setDeleteDialogOpen(false);
+    setActionVehicle(null);
+    setActionTrailer(null);
+    notifyDisabled();
+  }, [notifyDisabled]);
+
+  const handleDialogDeleteSuccess = useCallback(() => {
+    selectVehicle(null);
+    notifyDisabled();
+  }, [selectVehicle, notifyDisabled]);
+
+  const selectedVehicle = useMemo(
+    () => vehicles?.find((v: VehicleWithRelations) => v.id === state.selectedVehicleId) || null,
+    [vehicles, state.selectedVehicleId]
+  );
+
+  const deleteMutation = useMemo(() => ({ isPending: false }), []);
+  const deleteTrailerMut = useMemo(() => ({ isPending: false }), []);
 
   const kpiItems = useMemo(() => {
     if (activeTab === 1) {
@@ -100,5 +163,15 @@ export const useDemoVehicleContent = () => {
     actions, handleEdit, handleDelete,
     handleTrailerEdit, handleTrailerDelete, handleTrailerAssign, handleTrailerDetach, kpiItems,
     updateTrailerFilters, refreshAll, notifyDisabled,
+    addDialogOpen, setAddDialogOpen,
+    editDialogOpen, setEditDialogOpen,
+    deleteDialogOpen, setDeleteDialogOpen,
+    actionVehicle, setActionVehicle,
+    addTrailerOpen, setAddTrailerOpen,
+    editTrailerOpen, setEditTrailerOpen,
+    assignTrailerOpen, setAssignTrailerOpen,
+    actionTrailer, setActionTrailer,
+    handleAddSuccess, handleEditFormSuccess, handleDeleteConfirm, handleDialogDeleteSuccess,
+    deleteMutation, deleteTrailerMut, tabFromUrl, selectedVehicle,
   };
 };

@@ -257,7 +257,9 @@ export default function ShipmentContent() {
             />
           </Stack>
 
-          <ShipmentAnalytics state={state} actions={actions} />
+          <Box mt={3}>
+            <ShipmentAnalytics state={state} actions={actions} />
+          </Box>
         </>
       )}
 

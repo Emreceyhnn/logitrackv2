@@ -161,6 +161,12 @@ export const getThemeComponents = (
       },
       outlined: {
         transform: "translate(14px, 16px) scale(1)",
+        "&.MuiInputLabel-sizeSmall": {
+          transform: "translate(14px, 9px) scale(1)",
+          "&.MuiInputLabel-shrink": {
+            transform: "translate(14px, -9px) scale(0.75)",
+          },
+        },
         "&.MuiInputLabel-shrink": {
           transform: "translate(14px, -9px) scale(0.75)",
         },

@@ -56,7 +56,7 @@ const AddShipmentDialog = ({ open, onClose, onSuccess }: AddShipmentDialogProps)
       onSubmit={onSubmit}
       enableReinitialize
     >
-      {({ handleSubmit, validateForm, setFieldTouched }) => {
+      {({ handleSubmit, validateForm, setFieldTouched, isSubmitting }) => {
         // Ordered top-to-bottom as the fields appear in step 1, each mapped to a
         // [data-field] anchor and a human label — so we can name the first bad
         // field and scroll straight to it instead of a blind "check the form".
@@ -138,7 +138,7 @@ const AddShipmentDialog = ({ open, onClose, onSuccess }: AddShipmentDialogProps)
               <DialogActions sx={{ p: 3, pt: 1, borderTop: `1px solid ${paletteTheme.divider_alpha?.main_05}`, justifyContent: "space-between" }}>
                 <Button onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(1)} sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600, px: 2, "&:hover": { color: "text.primary", bgcolor: theme.palette.action.hover } }}>{currentStep === 1 ? dict.common.cancel : dict.common.back}</Button>
                 <Stack direction="row" spacing={2}>
-                  <Button variant="contained" onClick={currentStep === 1 ? handleNextStep : () => handleSubmit()} sx={{ minWidth: 140, borderRadius: 2, textTransform: "none", fontWeight: 700, letterSpacing: "0.5px", boxShadow: `0 8px 24px ${paletteTheme.primary?._alpha?.main_20}`, "&:hover": { boxShadow: `0 12px 32px ${paletteTheme.primary?._alpha?.main_40}`, transform: "translateY(-1px)" }, "&:active": { transform: "translateY(0)" } }}>{currentStep === 1 ? dict.common.next : dict.common.save}</Button>
+                  <Button disabled={isSubmitting} variant="contained" onClick={currentStep === 1 ? handleNextStep : () => handleSubmit()} sx={{ minWidth: 140, borderRadius: 2, textTransform: "none", fontWeight: 700, letterSpacing: "0.5px", boxShadow: `0 8px 24px ${paletteTheme.primary?._alpha?.main_20}`, "&:hover": { boxShadow: `0 12px 32px ${paletteTheme.primary?._alpha?.main_40}`, transform: "translateY(-1px)" }, "&:active": { transform: "translateY(0)" } }}>{currentStep === 1 ? dict.common.next : dict.common.save}</Button>
                 </Stack>
               </DialogActions>
             </Dialog>

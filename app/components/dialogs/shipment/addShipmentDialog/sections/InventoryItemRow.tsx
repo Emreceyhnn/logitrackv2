@@ -50,7 +50,11 @@ export default function InventoryItemRow({ item, dict, updateItem, handleRemove 
           <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>
             {dict.shipments.dialogs.fields.calculatedPallets}:{" "}
             <b>
-              {(item.unit === "Pallet" ? item.quantity : item.palletCount && item.palletCount > 0 ? item.quantity / item.palletCount : 0).toFixed(2)}
+              {item.unit === "Pallet"
+                ? item.quantity
+                : item.maxQuantity !== undefined && item.palletCount && item.palletCount > 0
+                  ? (item.quantity / item.palletCount).toFixed(2)
+                  : "--"}
             </b>
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>

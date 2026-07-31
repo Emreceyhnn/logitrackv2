@@ -2,7 +2,7 @@
 
 import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { DriverFilters } from "@/app/lib/type/driver";
 import { useDemoDriverWithDashboard } from "@/app/hooks/demo/useDemoDrivers";
@@ -36,10 +36,20 @@ import { toast } from "sonner";
  * just show a "disabled in demo" toast. No Add/Edit/Delete/details dialogs are
  * ever mounted, so no real mutation hook is reachable from this tree.
  */
+import DriverDialog from "@/app/components/dialogs/driver";
+import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
+import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import { DriverWithRelations } from "@/app/lib/type/driver";
+import { useSearchParams } from "next/navigation";
+
 export default function DemoDriverContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
+  const searchParams = useSearchParams();
+  const driverIdFromUrl = searchParams?.get("id");
+  const tabFromUrl = searchParams?.get("tab");
 
   /* ---------------------------------- STATES --------------------------------- */
   const [pagination, setPagination] = useState({ page: 1, limit: 10 });
@@ -55,6 +65,13 @@ export default function DemoDriverContent() {
     hasVehicle: undefined,
   });
 
+  const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [driverToEdit, setDriverToEdit] = useState<DriverWithRelations | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
     data: combinedData,
@@ -64,9 +81,16 @@ export default function DemoDriverContent() {
     refetch: refreshAllData,
   } = useDemoDriverWithDashboard();
 
-  const drivers = combinedData?.drivers || [];
+  const drivers = (combinedData?.drivers || []) as DriverWithRelations[];
   const totalCount = combinedData?.meta.total || 0;
   const dashboardData = combinedData;
+
+  useEffect(() => {
+    if (driverIdFromUrl) {
+      setSelectedDriverId(driverIdFromUrl);
+      setIsDetailsOpen(true);
+    }
+  }, [driverIdFromUrl]);
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
@@ -79,7 +103,6 @@ export default function DemoDriverContent() {
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleFilterChange = () => {
-    // Filters are inert in the demo — the dataset is fixed.
     notifyDisabled();
   };
   const handlePageChange = (newPage: number) => {
@@ -94,6 +117,20 @@ export default function DemoDriverContent() {
       order:
         prev.field === property && prev.order === "asc" ? "desc" : "asc",
     }));
+  };
+
+  const handleDriverSelect = (id: string) => {
+    setSelectedDriverId(id);
+    setIsDetailsOpen(true);
+  };
+
+  const handleEdit = (driver: DriverWithRelations) => {
+    setDriverToEdit(driver);
+    setIsEditOpen(true);
+  };
+
+  const handleDelete = () => {
+    setIsDeleteOpen(true);
   };
 
   /* ----------------------------------- KPI ---------------------------------- */
@@ -143,6 +180,8 @@ export default function DemoDriverContent() {
     [dashboardData, theme, dict]
   );
 
+  const selectedDriver = drivers.find((d) => d.id === selectedDriverId);
+
   return (
     <Box position={"relative"} p={4} width={"100%"}>
       <Stack
@@ -166,7 +205,7 @@ export default function DemoDriverContent() {
           data-tour="driver-add"
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={notifyDisabled}
+          onClick={() => setIsAddDialogOpen(true)}
           sx={{ textTransform: "none", borderRadius: 2 }}
         >
           {dict.drivers.addDriver}
@@ -192,9 +231,9 @@ export default function DemoDriverContent() {
             limit: pagination.limit,
             totalPages: Math.ceil(totalCount / pagination.limit),
           }}
-          onDriverSelect={notifyDisabled}
-          onEdit={notifyDisabled}
-          onDelete={notifyDisabled}
+          onDriverSelect={handleDriverSelect}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
           onRefresh={refreshAll}
           onPageChange={handlePageChange}
           onLimitChange={handleLimitChange}
@@ -208,6 +247,44 @@ export default function DemoDriverContent() {
       <DriverPerformanceCharts
         data={dashboardData?.performanceCharts}
         loading={isLoading}
+      />
+
+      <AddDriverDialog
+        open={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSuccess={() => { setIsAddDialogOpen(false); notifyDisabled(); }}
+      />
+
+      <EditDriverDialog
+        key={driverToEdit?.id}
+        open={isEditOpen}
+        driver={driverToEdit}
+        onClose={() => setIsEditOpen(false)}
+        onSuccess={() => { setIsEditOpen(false); notifyDisabled(); }}
+      />
+
+      <DeleteConfirmationDialog
+        open={isDeleteOpen}
+        title={dict.drivers.deleteTitle}
+        description={dict.drivers.deleteDesc}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={() => { setIsDeleteOpen(false); notifyDisabled(); }}
+        loading={false}
+      />
+
+      <DriverDialog
+        key={selectedDriver?.id}
+        open={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        driverData={selectedDriver ?? null}
+        onEdit={(driver) => {
+          setDriverToEdit(driver);
+          setIsEditOpen(true);
+        }}
+        onDelete={() => {
+          setIsDeleteOpen(true);
+        }}
+        initialTab={tabFromUrl ? parseInt(tabFromUrl) : 0}
       />
     </Box>
   );

@@ -31,10 +31,7 @@ const DriverPerformanceCharts = ({
     return (
       <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>
         <Box flex={1}>
-          <AnalyticsSkeleton title={dict.drivers.dashboard.ratings} />
-        </Box>
-        <Box flex={1}>
-          <AnalyticsSkeleton title={dict.drivers.dashboard.weeklyHours} />
+          <AnalyticsSkeleton title={`${dict.drivers.dashboard.ratings} & ${dict.drivers.dashboard.weeklyHours}`} />
         </Box>
       </Stack>
     );
@@ -79,66 +76,36 @@ const DriverPerformanceCharts = ({
         <CustomCard sx={{ height: "100%", p: 2 }}>
           <Stack spacing={2}>
             <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
-              {dict.drivers.dashboard.ratings}
+              {`${dict.drivers.dashboard.ratings} & ${dict.drivers.dashboard.weeklyHours}`}
             </Typography>
             <Divider />
             <BarChart
-              xAxis={[
-                {
-                  scaleType: "band",
-                  data: driverNames,
-                  label: dict.sidebar.drivers,
-                  tickLabelStyle: { fill: "text.secondary" },
-                },
-              ]}
+              xAxis={sharedXAxis}
               yAxis={[
                 {
+                  id: "ratingAxis",
                   label: dict.drivers.dashboard.ratingsLabel,
                   labelStyle: { fill: "text.secondary" },
+                  min: 0,
+                  max: 5,
                 },
-              ]}
-              series={[
                 {
-                  data: ratings,
-                  color: "#8b5cf6",
-                  label: dict.drivers.dashboard.ratingsLabel,
-                  highlightScope: { highlight: "item", fade: "global" },
-                },
-              ]}
-              height={300}
-              margin={{ top: 10, bottom: 40, left: 40, right: 10 }}
-              borderRadius={8}
-              slotProps={{
-                legend: {},
-              }}
-            />
-          </Stack>
-        </CustomCard>
-      </Box>
-      <Box flex={1}>
-        <CustomCard sx={{ height: "100%", p: 2 }}>
-          <Stack spacing={2}>
-            <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
-              {dict.drivers.dashboard.weeklyHours}
-            </Typography>
-            <Divider />
-            <BarChart
-              xAxis={[
-                {
-                  scaleType: "band",
-                  data: driverNames,
-                  label: dict.sidebar.drivers,
-                  tickLabelStyle: { fill: "text.secondary" },
-                },
-              ]}
-              yAxis={[
-                {
+                  id: "hoursAxis",
+                  position: "right",
                   label: dict.drivers.dashboard.hours,
                   labelStyle: { fill: "text.secondary" },
                 },
               ]}
               series={[
                 {
+                  yAxisId: "ratingAxis",
+                  data: ratings,
+                  color: "#8b5cf6",
+                  label: dict.drivers.dashboard.ratingsLabel,
+                  highlightScope: { highlight: "item", fade: "global" },
+                },
+                {
+                  yAxisId: "hoursAxis",
                   data: workingHours,
                   color: "#10b981",
                   label: dict.drivers.dashboard.hoursThisWeek,
@@ -146,7 +113,7 @@ const DriverPerformanceCharts = ({
                 },
               ]}
               height={300}
-              margin={{ top: 10, bottom: 40, left: 40, right: 10 }}
+              margin={{ top: 10, bottom: 40, left: 40, right: 40 }}
               borderRadius={8}
               slotProps={{
                 legend: {},

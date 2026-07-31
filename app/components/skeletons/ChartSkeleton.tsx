@@ -13,7 +13,7 @@ export default function ChartSkeleton({ height = 300 }: { height?: number }) {
       variant="rectangular"
       width="100%"
       height={height}
-      sx={{ borderRadius: 2 }}
+      sx={{ borderRadius: 2, mt: 3 }}
     />
   );
 }

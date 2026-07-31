@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import CustomCard from "../../cards/card";
 import { MapData } from "@/app/lib/type/overview";
 import { buildLocalizedHref } from "@/app/lib/language/navigation";
@@ -24,8 +24,11 @@ const DRILL_PATH: Record<MapData["type"], string> = {
 
 const OverviewMapCard = ({ stats }: OverviewMapCardProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { lang } = useLanguage();
   const dict = useDictionary();
+
+  const isDemo = pathname?.includes("/demo");
 
   const markers = useMemo(() => {
     if (!stats) return [];
@@ -44,8 +47,9 @@ const OverviewMapCard = ({ stats }: OverviewMapCardProps) => {
   if (!stats) return null;
 
   const handleMarkerClick = (marker: { type: string; name: string; id: string }) => {
-    const path = DRILL_PATH[marker.type as MapData["type"]];
-    if (!path) return;
+    const rawPath = DRILL_PATH[marker.type as MapData["type"]];
+    if (!rawPath) return;
+    const path = isDemo ? `/demo${rawPath}` : rawPath;
     const base = buildLocalizedHref(path, lang);
     const href = `${base}?id=${encodeURIComponent(marker.id)}`;
     router.push(href);

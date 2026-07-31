@@ -40,7 +40,8 @@ const InventorySection = ({ availableInventory, isLoadingInventory }: InventoryS
         itemTotalWeight = Math.abs(unitWeight) * perPallet * qty;
         itemTotalVolume = Math.abs(unitVolume) * perPallet * qty;
       } else {
-        itemTotalPallets = perPallet > 0 ? qty / perPallet : 0;
+        const isWarehouseProduct = item.maxQuantity !== undefined;
+        itemTotalPallets = isWarehouseProduct && perPallet > 0 ? qty / perPallet : 0;
         itemTotalWeight = Math.abs(unitWeight) * qty;
         itemTotalVolume = Math.abs(unitVolume) * qty;
       }
@@ -65,7 +66,9 @@ const InventorySection = ({ availableInventory, isLoadingInventory }: InventoryS
     const totals = calculateTotals(newItems);
     setFieldValue("weightKg", totals.weightKg);
     setFieldValue("volumeM3", totals.volumeM3);
-    setFieldValue("palletCount", Math.ceil(totals.palletCount));
+    if (totals.palletCount > 0) {
+      setFieldValue("palletCount", Math.ceil(totals.palletCount));
+    }
     if (newItem.cargoType) setFieldValue("cargoType", newItem.cargoType);
     setIsPickerOpen(false);
   };
@@ -76,7 +79,9 @@ const InventorySection = ({ availableInventory, isLoadingInventory }: InventoryS
     const totals = calculateTotals(updatedItems);
     setFieldValue("weightKg", totals.weightKg);
     setFieldValue("volumeM3", totals.volumeM3);
-    setFieldValue("palletCount", Math.ceil(totals.palletCount));
+    if (totals.palletCount > 0) {
+      setFieldValue("palletCount", Math.ceil(totals.palletCount));
+    }
   };
 
   const handleRemove = (id: string) => {
@@ -85,7 +90,9 @@ const InventorySection = ({ availableInventory, isLoadingInventory }: InventoryS
     const totals = calculateTotals(updatedItems);
     setFieldValue("weightKg", totals.weightKg);
     setFieldValue("volumeM3", totals.volumeM3);
-    setFieldValue("palletCount", Math.ceil(totals.palletCount));
+    if (totals.palletCount > 0) {
+      setFieldValue("palletCount", Math.ceil(totals.palletCount));
+    }
   };
 
   return (

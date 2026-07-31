@@ -74,36 +74,34 @@ const SecondRouteDialogStep = () => {
   }, [waypointsStr, setFieldValue]);
 
   return (
-    <Box>
-      <Stack spacing={4}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Box sx={{ width: 40, height: 40, borderRadius: "50%", bgcolor: paletteTheme.primary?._alpha?.main_10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <ExploreIcon color="primary" />
-          </Box>
-          <Stack spacing={0.5}>
-            <Typography variant="subtitle1" fontWeight={700} color="white">{dict.routes.dialogs.locationDetails}</Typography>
-            <Typography variant="caption" color="text.secondary">{dict.routes.dialogs.locationDetailsDesc}</Typography>
-          </Stack>
+    <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <Stack direction="row" spacing={2} alignItems="center" mb={2.5}>
+        <Box sx={{ width: 36, height: 36, borderRadius: "50%", bgcolor: paletteTheme.primary?._alpha?.main_10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <ExploreIcon color="primary" fontSize="small" />
+        </Box>
+        <Stack spacing={0.25}>
+          <Typography variant="subtitle1" fontWeight={700} color="white">{dict.routes.dialogs.locationDetails}</Typography>
+          <Typography variant="caption" color="text.secondary">{dict.routes.dialogs.locationDetailsDesc}</Typography>
         </Stack>
-
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Box sx={{ maxHeight: { xs: "auto", md: "500px" }, overflowY: "auto", pr: { xs: 0, md: 1 }, "&::-webkit-scrollbar": { width: "6px" }, "&::-webkit-scrollbar-track": { bgcolor: "transparent" }, "&::-webkit-scrollbar-thumb": { bgcolor: paletteTheme.divider_alpha?.main_20, borderRadius: "4px" } }}>
-              <RouteAddressForm values={values} setFieldValue={setFieldValue} touched={touched} errors={errors} dict={dict} />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, md: 7 }}>
-            <RouteMapPanel
-              values={values}
-              data={data}
-              dict={dict}
-              isLoading={isLoading}
-              setFieldValue={setFieldValue}
-              bufferError={touched.bufferMeters ? (errors.bufferMeters as string | undefined) : undefined}
-            />
-          </Grid>
-        </Grid>
       </Stack>
+
+      <Grid container spacing={3} sx={{ flex: 1, minHeight: 0 }}>
+        <Grid size={{ xs: 12, md: 5 }} sx={{ display: "flex", flexDirection: "column" }}>
+          <Box sx={{ pr: { xs: 0, md: 1 } }}>
+            <RouteAddressForm values={values} setFieldValue={setFieldValue} touched={touched} errors={errors} dict={dict} />
+          </Box>
+        </Grid>
+        <Grid size={{ xs: 12, md: 7 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <RouteMapPanel
+            values={values}
+            data={data}
+            dict={dict}
+            isLoading={isLoading}
+            setFieldValue={setFieldValue}
+            bufferError={touched.bufferMeters ? (errors.bufferMeters as string | undefined) : undefined}
+          />
+        </Grid>
+      </Grid>
     </Box>
   );
 };
