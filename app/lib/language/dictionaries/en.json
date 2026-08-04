@@ -2927,6 +2927,7 @@
       },
       "deviationTitle": "Route Deviation Tracking",
       "deviationDesc": "A notification is sent if the vehicle leaves this corridor.",
+      "deviationDisabledHint": "Select a start and end address to set the corridor.",
       "bufferLabel": "Deviation Tolerance (m)",
       "bufferHelper": "Maximum allowed distance from the planned path. Defaults to {default} m if left empty.",
       "bufferHint": "Low values may cause false alarms where urban GPS drift is common.",

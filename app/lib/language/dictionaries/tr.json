@@ -2928,6 +2928,7 @@
       },
       "deviationTitle": "Rota Sapma Takibi",
       "deviationDesc": "Araç bu koridorun dışına çıkarsa bildirim gönderilir.",
+      "deviationDisabledHint": "Koridoru belirlemek için başlangıç ve bitiş adresi seçin.",
       "bufferLabel": "Sapma Toleransı (m)",
       "bufferHelper": "Planlanan güzergâha izin verilen azami uzaklık. Boş bırakılırsa {default} m kullanılır.",
       "bufferHint": "Düşük değerler şehir içi GPS sapmalarında yanlış alarma yol açabilir.",

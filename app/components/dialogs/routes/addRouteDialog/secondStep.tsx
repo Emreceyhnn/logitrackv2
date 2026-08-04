@@ -87,8 +87,15 @@ const SecondRouteDialogStep = () => {
 
       <Grid container spacing={3} sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
         <Grid size={{ xs: 12, md: 5 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
-          <Box sx={{ pr: { xs: 0, md: 1 }, overflowY: "auto", flex: 1, minHeight: 0 }}>
-            <RouteAddressForm values={values} setFieldValue={setFieldValue} touched={touched} errors={errors} dict={dict} />
+          <Box sx={{ pr: { xs: 0, md: 1 }, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+            <RouteAddressForm
+              values={values}
+              setFieldValue={setFieldValue}
+              touched={touched}
+              errors={errors}
+              dict={dict}
+              bufferError={touched.bufferMeters ? (errors.bufferMeters as string | undefined) : undefined}
+            />
           </Box>
         </Grid>
         <Grid size={{ xs: 12, md: 7 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
@@ -97,7 +104,6 @@ const SecondRouteDialogStep = () => {
             data={data}
             dict={dict}
             isLoading={isLoading}
-            setFieldValue={setFieldValue}
             bufferError={touched.bufferMeters ? (errors.bufferMeters as string | undefined) : undefined}
           />
         </Grid>
