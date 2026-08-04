@@ -203,6 +203,33 @@ function rollbackCachedRoutes(
   });
 }
 
+function insertCachedRoute(
+  queryClient: ReturnType<typeof useQueryClient>,
+  route: RouteWithRelations
+) {
+  const previous: Array<{ queryKey: readonly unknown[]; data: unknown }> = [];
+
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: routeKeys.all })
+    .forEach((query) => {
+      const data = query.state.data as
+        | { routes: RouteWithRelations[]; totalCount: number }
+        | undefined;
+      if (!data || !Array.isArray(data.routes)) return;
+
+      previous.push({ queryKey: query.queryKey, data });
+
+      queryClient.setQueryData(query.queryKey, {
+        ...data,
+        routes: [route, ...data.routes],
+        totalCount: data.totalCount + 1,
+      });
+    });
+
+  return previous;
+}
+
 function removeCachedRoute(
   queryClient: ReturnType<typeof useQueryClient>,
   routeId: string
@@ -256,11 +283,48 @@ export function useRouteMutations() {
 
   const createMutation = useMutation({
     mutationFn: (data: Parameters<typeof createRoute>) => createRoute(...data),
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: routeKeys.all });
+      const [
+        name,
+        date,
+        startTime,
+        endTime,
+        distanceKm,
+        durationMin,
+        driverId,
+        vehicleId,
+        ,
+        stops,
+        shape,
+        bufferMeters,
+      ] = data;
+      const optimisticRoute: RouteWithRelations = {
+        id: `temp-${Date.now()}`,
+        name: name || null,
+        status: RouteStatus.PLANNED,
+        date,
+        startTime: startTime ?? null,
+        endTime: endTime ?? null,
+        distanceKm: distanceKm ?? null,
+        durationMin: durationMin ?? null,
+        stops: stops ?? null,
+        driverId: driverId || null,
+        vehicleId: vehicleId || null,
+        shape: shape ?? null,
+        bufferMeters: bufferMeters ?? null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const previous = insertCachedRoute(queryClient, optimisticRoute);
+      return { previous };
+    },
     onSuccess: () => {
       handleSuccess(dict.toasts.successAdd);
       settleSuccess();
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _vars, context) => {
+      if (context?.previous) rollbackCachedRoutes(queryClient, context.previous);
       handleError(dict.toasts.errorGeneric, error);
       settleError();
     },
