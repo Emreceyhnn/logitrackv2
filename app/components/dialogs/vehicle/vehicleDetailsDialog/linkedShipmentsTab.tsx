@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   Box,
   Stack,
@@ -18,6 +19,7 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { ShipmentStatus } from "@/app/lib/type/enums";
 import {
   getVehicleLinkedShipments,
   getEligibleTargetTrailers,
@@ -39,6 +41,8 @@ export default function LinkedShipmentsTab({
   const dict = useDictionary();
   const theme = useTheme();
   const t = dict.vehicles?.dialogs?.linkedShipments;
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
 
   const [loading, setLoading] = useState(true);
   const [sourceTrailerId, setSourceTrailerId] = useState<string | null>(null);
@@ -51,6 +55,44 @@ export default function LinkedShipmentsTab({
   const load = useCallback(async () => {
     if (!vehicle?.id) return;
     setLoading(true);
+    if (isDemo) {
+      setSourceTrailerId("demo-trailer-1");
+      setShipments([
+        {
+          id: "shp-demo-1",
+          trackingId: "TRK-DEMO101",
+          destination: "Ankara",
+          status: ShipmentStatus.IN_TRANSIT,
+          weightKg: 1500,
+          volumeM3: 4.5,
+          priority: "NORMAL",
+        },
+        {
+          id: "shp-demo-2",
+          trackingId: "TRK-DEMO102",
+          destination: "İzmir",
+          status: ShipmentStatus.PENDING,
+          weightKg: 2000,
+          volumeM3: 6.0,
+          priority: "HIGH",
+        }
+      ]);
+      setSelected(new Set(["shp-demo-1", "shp-demo-2"]));
+      setTargets([
+        {
+          id: "trailer-demo-2",
+          plate: "34 DEF 456",
+          type: "DRY_VAN",
+          maxLoadKg: 24000,
+          capacityVolumeM3: 80,
+          usedWeightKg: 0,
+          usedVolumeM3: 0,
+          vehiclePlate: null,
+        }
+      ]);
+      setLoading(false);
+      return;
+    }
     try {
       const linked = await getVehicleLinkedShipments(vehicle.id);
       setSourceTrailerId(linked.trailerId);
@@ -67,7 +109,7 @@ export default function LinkedShipmentsTab({
     } finally {
       setLoading(false);
     }
-  }, [vehicle]);
+  }, [vehicle, isDemo]);
 
   useEffect(() => {
     load();

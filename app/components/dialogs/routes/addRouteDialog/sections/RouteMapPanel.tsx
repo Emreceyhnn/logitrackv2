@@ -41,9 +41,9 @@ export default function RouteMapPanel({ values, data, dict, isLoading = false, s
   const hasShape = Boolean(values.shape);
   const effectiveBuffer = values.bufferMeters || DEFAULT_ROUTE_BUFFER_METERS;
   return (
-    <Stack spacing={2} sx={{ height: "100%", minHeight: 0 }}>
+    <Stack spacing={2} sx={{ height: "100%", minHeight: 0, overflow: "hidden", flex: 1 }}>
       {/* Metrics Row */}
-      <Stack direction="row" spacing={1.5}>
+      <Stack direction="row" spacing={1.5} sx={{ flexShrink: 0 }}>
         <Box sx={{ flex: 1, p: 1.5, borderRadius: 2, bgcolor: paletteTheme.divider_alpha?.main_05, border: `1px solid ${paletteTheme.divider_alpha?.main_10}` }}>
           <Typography variant="caption" color="text.secondary" display="block">{dict.routes.dialogs.distanceKmLabel}</Typography>
           <Typography component="div" variant="body1" fontWeight={700} color="#3b82f6">{values.distanceKm > 0 ? `${values.distanceKm.toFixed(1)} km` : "--"}</Typography>
@@ -59,7 +59,7 @@ export default function RouteMapPanel({ values, data, dict, isLoading = false, s
       </Stack>
 
       {/* Info & Deviation Bar */}
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ flexShrink: 0 }}>
         <Box sx={{ flex: 1, p: 1.5, borderRadius: 2, bgcolor: paletteTheme.info?._alpha?.main_05, border: `1px solid ${paletteTheme.info?._alpha?.main_10}`, display: "flex", gap: 1, alignItems: "center" }}>
           <ElectricBoltIcon fontSize="small" sx={{ color: theme.palette.info.main }} />
           <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>
@@ -99,8 +99,8 @@ export default function RouteMapPanel({ values, data, dict, isLoading = false, s
       </Stack>
 
       {/* Map Box */}
-      <Box sx={{ flex: 1, minHeight: 280, borderRadius: 3, overflow: "hidden", border: `1px solid ${paletteTheme.divider_alpha?.main_10}`, position: "relative" }}>
-        <Box sx={{ position: "relative", width: "100%", height: "100%", minHeight: 280 }}>
+      <Box sx={{ flex: 1, minHeight: 0, borderRadius: 3, overflow: "hidden", border: `1px solid ${paletteTheme.divider_alpha?.main_10}`, position: "relative" }}>
+        <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
           <Box
             aria-hidden={!isLoading}
             aria-busy={isLoading}

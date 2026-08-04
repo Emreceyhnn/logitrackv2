@@ -3,6 +3,7 @@
 import { Grid, Stack } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState, ChangeEvent } from "react";
+import { usePathname } from "next/navigation";
 import { useFormikContext } from "formik";
 import { AddDriverDocument, DriverFormValues, EditDriverFormValues } from "@/app/lib/type/driver";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
@@ -35,6 +36,8 @@ const DriverFormSecondStep = ({
 }: DriverFormSecondStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const { user } = useUser();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const dateSettings = useDateSettings();
   const { values, setFieldValue } =
     useFormikContext<DriverFormValues | EditDriverFormValues>();
@@ -47,6 +50,29 @@ const DriverFormSecondStep = ({
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
+      if (isDemo) {
+        setWarehouses([
+          {
+            id: "demo-warehouse-1",
+            code: "IST-01",
+            name: "İstanbul Depo",
+            address: "Sanayi Mah. No:1",
+            city: "İstanbul",
+            country: "Türkiye",
+            timezone: "Europe/Istanbul",
+          },
+        ]);
+        setVehicles([
+          {
+            id: "demo-vehicle-1",
+            plate: "34 DEF 456",
+            brand: "Mercedes",
+            model: "Actros",
+            status: VehicleStatus.AVAILABLE,
+          } as VehicleWithRelations,
+        ]);
+        return;
+      }
       try {
         const [wData, vData] = await Promise.all([
           getWarehouses(),
@@ -59,7 +85,7 @@ const DriverFormSecondStep = ({
       }
     };
     fetchData();
-  }, [user]);
+  }, [user, isDemo]);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {

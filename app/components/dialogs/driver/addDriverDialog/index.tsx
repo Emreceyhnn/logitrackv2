@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useEffect, useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { Formik, FormikHelpers } from "formik";
 import {
   AddDriverDialogProps,
@@ -59,6 +60,8 @@ const AddDriverDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
   const theme = useTheme();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const [currentStep, setCurrentStep] = useState(1);
   const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([]);
   const { createDriver } = useDriverMutations();
@@ -66,6 +69,23 @@ const AddDriverDialog = ({
   /* ------------------------------- lifecycles ------------------------------- */
   useEffect(() => {
     const fetchUsers = async () => {
+      if (isDemo) {
+        setEligibleUsers([
+          {
+            id: "demo-eligible-user-1",
+            name: "Mehmet",
+            surname: "Yılmaz",
+            email: "mehmet.yilmaz@demo.local",
+          },
+          {
+            id: "demo-eligible-user-2",
+            name: "Ayşe",
+            surname: "Kaya",
+            email: "ayse.kaya@demo.local",
+          },
+        ]);
+        return;
+      }
       try {
         const users = await getEligibleUsersForDriver();
         setEligibleUsers(users);
@@ -76,7 +96,7 @@ const AddDriverDialog = ({
     if (open) {
       fetchUsers();
     }
-  }, [open]);
+  }, [open, isDemo]);
 
   /* -------------------------------- handlers --------------------------------- */
   const handleSubmit = async (

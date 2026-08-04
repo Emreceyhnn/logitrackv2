@@ -103,8 +103,8 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
 
             <Divider sx={{ borderColor: paletteTheme.divider_alpha?.main_05 }} />
 
-            <DialogContent sx={{ flex: "1 1 auto", overflowY: "auto", p: 3, display: "flex", flexDirection: "column" }}>
-              <Form style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <DialogContent sx={{ flex: "1 1 auto", overflowY: currentStep === 2 ? "hidden" : "auto", p: 3, display: "flex", flexDirection: "column" }}>
+              <Form style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
                 {currentStep === 1 && <FirstRouteDialogStep shipments={shipments} onShipmentSelect={handleShipmentSelect} />}
                 {currentStep === 2 && <SecondRouteDialogStep />}
                 {currentStep === 3 && <ThirdRouteDialogStep />}

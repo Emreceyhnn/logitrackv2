@@ -40,6 +40,7 @@ import StockMetricsPanel from "./sections/StockMetricsPanel";
 import PhysicalSpecsPanel from "./sections/PhysicalSpecsPanel";
 import { logger } from "@/app/lib/logger";
 import MovementHistoryPanel from "./sections/MovementHistoryPanel";
+import { usePathname } from "next/navigation";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -70,6 +71,8 @@ export default function InventoryDetailsDialog({
 }: InventoryDetailsProps) {
   const theme = useTheme();
   const dict = useDictionary();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const [tabValue, setTabValue] = useState(0);
 
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
@@ -81,6 +84,24 @@ export default function InventoryDetailsDialog({
   const loadMovements = React.useCallback(async () => {
     if (!item) return;
     setLoadingMovements(true);
+    if (isDemo) {
+      setMovements([
+        {
+          id: "m-1",
+          sku: item.sku,
+          warehouseId: item.warehouseId,
+          quantity: 50,
+          type: "PUTAWAY",
+          notes: "Initial load",
+          createdAt: new Date(Date.now() - 3600000 * 24),
+          updatedAt: new Date(Date.now() - 3600000 * 24),
+          userId: "demo-user-id",
+          companyId: "demo-company-id",
+        } as unknown as InventoryMovement
+      ]);
+      setLoadingMovements(false);
+      return;
+    }
     try {
       const data = await getInventoryMovements(item.sku, item.warehouseId);
       setMovements(data as InventoryMovement[]);
@@ -89,7 +110,7 @@ export default function InventoryDetailsDialog({
     } finally {
       setLoadingMovements(false);
     }
-  }, [item]);
+  }, [item, isDemo]);
 
   /* ---------------------------------- ADJUSTMENT STATE ------------------------- */
   const [adjustAmount, setAdjustAmount] = useState<number>(0);
@@ -119,6 +140,31 @@ export default function InventoryDetailsDialog({
 
   const loadOtherLocations = React.useCallback(async () => {
     if (!item) return;
+    if (isDemo) {
+      setOtherLocations([
+        {
+          id: "inv-demo-other-1",
+          sku: item.sku,
+          name: item.name,
+          warehouseId: "wh-demo-other-id",
+          warehouse: {
+            id: "wh-demo-other-id",
+            name: "İzmir Depo",
+          },
+          quantity: 200,
+          minStock: 20,
+          maxStock: 1000,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          companyId: "demo-company",
+          unit: item.unit,
+          location: "B-12",
+          batchNumber: "B-001",
+          expiryDate: null,
+        } as unknown as InventoryWithRelations
+      ]);
+      return;
+    }
     try {
       const data = await getInventoryBySku(item.sku);
       setOtherLocations(
@@ -127,7 +173,7 @@ export default function InventoryDetailsDialog({
     } catch (err) {
       logger.error("Failed to load other locations", err);
     }
-  }, [item]);
+  }, [item, isDemo]);
 
   useEffect(() => {
     if (isOpen && item) {

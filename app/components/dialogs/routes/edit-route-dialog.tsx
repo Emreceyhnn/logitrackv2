@@ -221,6 +221,10 @@ const EditRouteDialog = ({
                   borderRadius: 4,
                   border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                   overflow: "hidden",
+                  height: "85vh",
+                  maxHeight: "90vh",
+                  display: "flex",
+                  flexDirection: "column",
                 },
               }}
             >
@@ -247,7 +251,7 @@ const EditRouteDialog = ({
                   </IconButton>
                 </Stack>
               </Box>
-              <DialogContent>
+              <DialogContent sx={{ flex: "1 1 auto", overflowY: currentStep === 2 ? "hidden" : "auto", p: 3, pt: 0, display: "flex", flexDirection: "column" }}>
                 <Box sx={{ mb: 4, px: 2 }}>
                   <Stepper
                     activeStep={currentStep - 1}
@@ -294,8 +298,8 @@ const EditRouteDialog = ({
                   }}
                 />
 
-                <Box sx={{ minHeight: 400 }}>
-                  <Form>
+                <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+                  <Form style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
                     {currentStep === 1 && <FirstRouteDialogStep />}
                     {currentStep === 2 && <SecondRouteDialogStep />}
                     {currentStep === 3 && <ThirdRouteDialogStep />}

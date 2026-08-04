@@ -83,7 +83,7 @@ export const useAddShipment = (open: boolean, onClose: () => void, onSuccess?: (
     try {
       await createShipment.mutateAsync({
         customerId: values.customerId, origin: originName, originWarehouseId: values.originWarehouseId,
-        destination: values.destination, status: ShipmentStatus.PENDING, itemsCount: values.inventoryItems.length || 1,
+        destination: values.destination, status: ShipmentStatus.PENDING, itemsCount: values.inventoryItems.reduce((sum, item) => sum + (item.quantity || 0), 0) || 1,
         weightKg: values.weightKg, volumeM3: values.volumeM3, palletCount: values.palletCount,
         cargoType: values.cargoType, destinationLat: values.destinationLat, destinationLng: values.destinationLng,
         originLat: values.originLat, originLng: values.originLng, trackingId: values.trackingId,

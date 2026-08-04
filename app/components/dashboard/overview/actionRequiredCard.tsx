@@ -19,7 +19,7 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { ReactNode } from "react";
 import { ActionRequiredItems } from "@/app/lib/type/overview";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
@@ -31,6 +31,8 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
   const { lang, dict } = useLanguage();
   const theme = useTheme();
   const router = useRouter();
+
+  const pathname = usePathname();
 
   const getMessage = (i: ActionRequiredItems) => {
     if (i.messageKey === "ISSUE_ALERT" && i.messageParams) {
@@ -54,7 +56,9 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
 
   const handleActionClick = (link?: string) => {
     if (link) {
-      router.push(link);
+      const isDemo = pathname?.includes("/demo");
+      const finalLink = isDemo && !link.startsWith("/demo") ? `/demo${link}` : link;
+      router.push(finalLink);
     }
   };
 

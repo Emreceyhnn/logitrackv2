@@ -85,13 +85,13 @@ const SecondRouteDialogStep = () => {
         </Stack>
       </Stack>
 
-      <Grid container spacing={3} sx={{ flex: 1, minHeight: 0 }}>
-        <Grid size={{ xs: 12, md: 5 }} sx={{ display: "flex", flexDirection: "column" }}>
-          <Box sx={{ pr: { xs: 0, md: 1 } }}>
+      <Grid container spacing={3} sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+        <Grid size={{ xs: 12, md: 5 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+          <Box sx={{ pr: { xs: 0, md: 1 }, overflowY: "auto", flex: 1, minHeight: 0 }}>
             <RouteAddressForm values={values} setFieldValue={setFieldValue} touched={touched} errors={errors} dict={dict} />
           </Box>
         </Grid>
-        <Grid size={{ xs: 12, md: 7 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+        <Grid size={{ xs: 12, md: 7 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
           <RouteMapPanel
             values={values}
             data={data}

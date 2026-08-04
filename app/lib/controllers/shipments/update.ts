@@ -232,10 +232,15 @@ export const updateShipment = authenticatedAction(
             const stops = updateData.stops || [];
             delete updateData.stops;
 
+            const calculatedItemsCount = items && items.length > 0
+              ? items.reduce((sum, item) => sum + (item.quantity || 0), 0)
+              : (updateData.itemsCount !== undefined ? updateData.itemsCount : oldShipment.itemsCount);
+
             const updated = await tx.shipment.update({
               where: { id: shipmentId },
               data: {
                 ...updateData,
+                itemsCount: calculatedItemsCount,
                 items: {
                   create: items.map((item: InventoryShipmentItem) => ({
                     companyId: companyId!,

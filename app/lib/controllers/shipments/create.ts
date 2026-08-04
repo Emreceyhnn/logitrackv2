@@ -211,6 +211,10 @@ export const createShipment = authenticatedAction(
         }
       }
 
+      const calculatedItemsCount = inventoryItems.length > 0
+        ? inventoryItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+        : itemsCount;
+
       const newShipment = await db.$transaction(
         async (tx) => {
           const shipment = await tx.shipment.create({
@@ -229,7 +233,7 @@ export const createShipment = authenticatedAction(
               destinationLat: finalDestinationLat,
               destinationLng: finalDestinationLng,
               status,
-              itemsCount,
+              itemsCount: calculatedItemsCount,
               weightKg,
               volumeM3,
               palletCount,

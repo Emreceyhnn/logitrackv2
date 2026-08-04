@@ -26,6 +26,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDateTime } from "@/app/lib/utils/date";
 import { logger } from "@/app/lib/logger";
+import { usePathname } from "next/navigation";
 
 
 interface DriverHistoryDialogProps {
@@ -107,6 +108,8 @@ export default function DriverHistoryDialog({
   const theme = useTheme();
   const dict = useDictionary();
   const dateSettings = useDateSettings();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const [history, setHistory] = useState<DriverHistory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -115,6 +118,30 @@ export default function DriverHistoryDialog({
     try {
       setLoading(true);
       setError(null);
+      if (isDemo) {
+        setHistory({
+          completedShipments: 12,
+          completedRoutes: 8,
+          activePermissions: 2,
+          activities: [
+            {
+              id: "act-1",
+              type: "ROUTE_COMPLETED",
+              title: "Route completed",
+              description: "Completed route to Ankara (450 km)",
+              timestamp: new Date(Date.now() - 3600000 * 24),
+            },
+            {
+              id: "act-2",
+              type: "JOB_COMPLETED",
+              title: "Vehicle assigned",
+              description: "Assigned to vehicle 34 ABC 123",
+              timestamp: new Date(Date.now() - 3600000 * 48),
+            },
+          ],
+        });
+        return;
+      }
       const data = await getDriverHistory(driverId);
       setHistory(data);
     } catch (err) {
@@ -123,7 +150,7 @@ export default function DriverHistoryDialog({
     } finally {
       setLoading(false);
     }
-  }, [driverId, dict]);
+  }, [driverId, dict, isDemo]);
 
   useEffect(() => {
     if (open && driverId) {

@@ -114,7 +114,7 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
           customerId: sanitize(values.customerId), customerLocationId: sanitize(values.customerLocationId),
           originWarehouseId: sanitize(values.originWarehouseId) ?? undefined, routeId: sanitize(values.assignedRouteId),
           trailerId: sanitize(values.trailerId), origin: originName, destination: values.destination,
-          itemsCount: values.inventoryItems.length || shipment.itemsCount || 1, weightKg: values.weightKg,
+          itemsCount: values.inventoryItems.reduce((sum, item) => sum + (item.quantity || 0), 0) || shipment.itemsCount || 1, weightKg: values.weightKg,
           volumeM3: values.volumeM3, palletCount: values.palletCount, cargoType: values.cargoType,
           destinationLat: values.destinationLat, destinationLng: values.destinationLng, originLat: values.originLat,
           originLng: values.originLng, trackingId: values.referenceNumber, priority: values.priority,
