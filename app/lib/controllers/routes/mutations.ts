@@ -173,6 +173,30 @@ export const createRoute = authenticatedAction(
         shipmentId ? invalidateShipmentCache(companyId, shipmentId) : Promise.resolve(),
       ]);
 
+      // tr-Rotaya bir sürücü atandıysa doğrudan kendisine de bildirilir: aşağıdaki şirket
+      //    geneli duyuru ofisi haberdar eder ama rotayı sürecek kişiye ulaşmaz.
+      // en-When the route has a driver, notify them directly: the company-wide announcement
+      //    below informs the office but never reaches the person who has to drive it.
+      if (driverId) {
+        const routeDriver = await db.driver.findFirst({
+          where: { id: driverId, companyId },
+          select: { userId: true },
+        });
+
+        if (routeDriver?.userId) {
+          await createNotification(
+            { userId: routeDriver.userId, companyId },
+            {
+              title: "Yeni Rota Atandı 🗺️",
+              message: `${finalName} numaralı rota size atandı.`,
+              type: "SUCCESS",
+              category: "NEW_ASSIGNMENT",
+              link: `/dashboard/routes/${newRoute.id}`,
+            }
+          );
+        }
+      }
+
       await createNotification(
         { companyId },
         {

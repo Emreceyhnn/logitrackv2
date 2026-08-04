@@ -43,7 +43,7 @@ export const assignDriverToShipment = authenticatedAction(
 
       const driver = await db.driver.findFirst({
         where: { id: driverId, companyId: companyId! },
-        select: { status: true },
+        select: { status: true, userId: true },
       });
       if (!driver) {
         throw new Error("Driver not found or unauthorized");
@@ -69,6 +69,26 @@ export const assignDriverToShipment = authenticatedAction(
       });
 
       await invalidateShipmentCache(companyId!, shipmentId);
+
+      // tr-Sürücüye doğrudan bildirim: şirket geneline giden duyuru ofisi haberdar eder ama
+      //    işi asıl yapacak kişiye ulaşmaz. Ayrı bir hedefli bildirim, sürücünün kendi
+      //    tercihlerine göre e-posta da almasını sağlar (uygulamayı açmasa bile).
+      // en-Notify the driver directly: the company-wide announcement below informs the office
+      //    but never reaches the person who has to do the work. A separately targeted
+      //    notification also earns them an email under their own preferences, so the
+      //    assignment lands even if they never open the app.
+      if (driver.userId) {
+        await createNotification(
+          { userId: driver.userId, companyId: companyId! },
+          {
+            title: "Yeni Sevkiyat Atandı 📦",
+            message: `${updatedShipment.trackingId} numaralı sevkiyat size atandı.`,
+            type: "SUCCESS",
+            category: "NEW_ASSIGNMENT",
+            link: `/dashboard/shipments/${updatedShipment.id}`,
+          }
+        );
+      }
 
       // Dispatch Notification
       await createNotification(

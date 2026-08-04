@@ -5,6 +5,11 @@ import { logger } from "@/app/lib/logger";
 import { timingSafeEqual } from "@/app/lib/utils/timingSafeEqual";
 import { runAsSystem } from "@/app/lib/tenant-context";
 
+// Outbound email is throttled to stay under the provider's 10 req/s limit, so a
+// large fan-out takes real wall-clock time. The default 10s budget would cut the
+// job off mid-batch and silently drop every remaining recipient.
+export const maxDuration = 300;
+
 
 export async function GET(req: NextRequest) {
   // Security check: validate the authorization header

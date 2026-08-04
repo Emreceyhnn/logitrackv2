@@ -12,6 +12,11 @@ const dbMock = {
     create: mock.fn(),
     findMany: mock.fn(),
   },
+  // getWarehouses aggregates pallet/volume totals per warehouse, so the
+  // inventory model has to exist on the mock even when the list is empty.
+  inventory: {
+    groupBy: mock.fn(async () => []),
+  },
 };
 
 // Redis & Cache Mock
@@ -30,6 +35,15 @@ const cacheUtilsMock = {
     list: mock.fn(() => "list-key"),
   },
   WAREHOUSE_CACHE_TTL: 3600,
+  // The warehouse controllers pull in inventory/cache.ts, which imports these
+  // from the same module. Mocking "../redis" replaces it wholesale, so a missing
+  // name throws at import time and cancels the suite rather than failing a test.
+  inventoryCacheKeys: {
+    companyPattern: mock.fn(() => "inventory-company-pattern"),
+    detail: mock.fn(() => "inventory-detail-key"),
+    list: mock.fn(() => "inventory-list-key"),
+  },
+  INVENTORY_CACHE_TTL: 3600,
 };
 
 // Auth & Permission Mock

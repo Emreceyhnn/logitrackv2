@@ -3192,9 +3192,11 @@
         "executiveKpi": "Executive KPI Summaries",
         "executiveKpiDesc": "Analytics digest delivered every Monday morning",
         "dynamicRouting": "Dynamic Routing",
-        "dynamicRoutingDesc": "Instant alerts for newly assigned logistics paths",
+        "dynamicRoutingDesc": "In-app alerts for newly assigned logistics paths",
+        "dynamicRoutingEmailDesc": "Email a copy when a new logistics path is assigned to you",
         "networkAnomalies": "Network Anomalies",
-        "networkAnomaliesDesc": "Critical alerts regarding logistics delays or disruptions",
+        "networkAnomaliesDesc": "In-app alerts regarding logistics delays or disruptions",
+        "networkAnomaliesEmailDesc": "Email a copy when a delay or disruption is detected",
         "updateWebhooks": "Update Webhooks"
       },
       "regional": {

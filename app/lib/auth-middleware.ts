@@ -33,6 +33,8 @@ export type AuthenticatedUser = {
   notifEmailShipment: boolean;
   notifEmailMaint: boolean;
   notifEmailWeekly: boolean;
+  notifEmailAssignment: boolean;
+  notifEmailDelay: boolean;
   notifPushAssignment: boolean;
   notifPushDelay: boolean;
   accessStatus: AccessStatus;
@@ -96,6 +98,8 @@ export const getAuthenticatedUser = cache(
         notifEmailShipment: sessionUser.notifEmailShipment ?? true,
         notifEmailMaint: sessionUser.notifEmailMaint ?? true,
         notifEmailWeekly: sessionUser.notifEmailWeekly ?? false,
+        notifEmailAssignment: sessionUser.notifEmailAssignment ?? true,
+        notifEmailDelay: sessionUser.notifEmailDelay ?? true,
         notifPushAssignment: sessionUser.notifPushAssignment ?? true,
         notifPushDelay: sessionUser.notifPushDelay ?? true,
         accessStatus: (sessionUser.accessStatus as AccessStatus) ?? "NONE",

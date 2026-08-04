@@ -66,6 +66,8 @@ export const updateUserNotificationSettings = authenticatedAction(
       emailShipmentUpdates: boolean;
       emailMaintenanceAlerts: boolean;
       emailWeeklyReports: boolean;
+      emailNewAssignments: boolean;
+      emailDelayAlerts: boolean;
       pushNewAssignments: boolean;
       pushDelayAlerts: boolean;
     }
@@ -77,6 +79,8 @@ export const updateUserNotificationSettings = authenticatedAction(
           notifEmailShipment: settings.emailShipmentUpdates,
           notifEmailMaint: settings.emailMaintenanceAlerts,
           notifEmailWeekly: settings.emailWeeklyReports,
+          notifEmailAssignment: settings.emailNewAssignments,
+          notifEmailDelay: settings.emailDelayAlerts,
           notifPushAssignment: settings.pushNewAssignments,
           notifPushDelay: settings.pushDelayAlerts,
         },

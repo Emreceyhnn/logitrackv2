@@ -9,6 +9,8 @@ import { invalidateCompanyCache, ensureStandardRoles } from "./shared";
 import { invalidateWarehouseCache } from "../warehouse/cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import { revokeAllUserSessions, invalidateUserSessionCache } from "../session/manage";
+import { sendCompanyWelcomeEmail } from "../../services/email";
+import { logger } from "../../logger";
 
 /**
  * tr-belirtilen kullanıcıyı şirketten çıkarır
@@ -185,6 +187,38 @@ export const addCompanyUser = authenticatedAction(
       // request (the onboarding page's checkAndSyncCompany → refreshSession)
       // re-mints the JWT with the new companyId and lands them on the dashboard.
       await invalidateUserSessionCache(targetUserId);
+
+      // tr-Kullanıcı bir şirkete eklendiğinde bundan haberdar edilmeli: hesabı artık başka
+      //    birinin filosuna bağlı ve bir sonraki girişinde farklı bir arayüz görecek.
+      //    E-posta hatası üyeliği geri almaz — kayıt zaten yazıldı, sadece günlüğe alınır.
+      // en-Someone added to a company must learn about it: their account is now attached to
+      //    another party's fleet and their next sign-in lands somewhere different. An email
+      //    failure must not undo the membership — the record is already written, so we log only.
+      try {
+        const [company, role] = await Promise.all([
+          db.company.findUnique({ where: { id: companyId }, select: { name: true } }),
+          db.role.findUnique({ where: { id: roleName }, select: { name: true } }),
+        ]);
+
+        await sendCompanyWelcomeEmail(
+          {
+            email: updatedUser.email,
+            lang: updatedUser.language === "tr" ? "tr" : "en",
+          },
+          {
+            companyName: company?.name ?? "your company",
+            roleName: role?.name ?? roleName,
+            addedByName: [user.name, user.surname].filter(Boolean).join(" ").trim(),
+          }
+        );
+      } catch (emailError) {
+        const msg = emailError instanceof Error ? emailError.message : String(emailError);
+        logger.warn(
+          `[addCompanyUser] Welcome email failed for ${targetUserId}. ` +
+            `The user was added to company ${companyId} regardless. Reason: ${msg}`
+        );
+      }
+
       return updatedUser;
     });
   }

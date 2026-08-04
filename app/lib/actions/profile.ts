@@ -1,7 +1,11 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { db } from "../db";
+import { sendSecurityAlertEmail } from "../services/email";
+// Imported from the leaf module rather than the ./session barrel: the barrel
+// also re-exports session/manage, pulling extra modules into every consumer.
+import { logAuditEvent } from "../controllers/session/audit";
 import { authenticatedAction } from "../auth-middleware";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
@@ -135,7 +139,7 @@ export const changeMyPassword = authenticatedAction(
 
     const found = await db.user.findUnique({
       where: { id: user.id },
-      select: { password: true },
+      select: { password: true, email: true, name: true, language: true },
     });
 
     if (!found) return { error: "User not found" };
@@ -150,6 +154,36 @@ export const changeMyPassword = authenticatedAction(
     await db.user.update({
       where: { id: user.id },
       data: { password: hashed },
+    });
+
+    const headerStore = await headers();
+    const ip =
+      headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      headerStore.get("x-real-ip") ||
+      "127.0.0.1";
+    const userAgent = headerStore.get("user-agent") || "Unknown Device";
+
+    // tr-Şifre değişikliği hesabın ele geçirilmesinin ilk adımı olabilir. Kullanıcıya
+    //    bant dışı haber vermek, saldırıyı fark edebileceği tek yoldur; bu yüzden
+    //    gönderim hatası şifre değişikliğini geri almaz, yalnızca günlüğe alınır.
+    // en-A password change is the first move in an account takeover. An out-of-band notice is
+    //    the only way the real owner finds out, so this always sends. A delivery failure must
+    //    not roll back the change the user explicitly asked for — it is logged instead.
+    await sendSecurityAlertEmail(
+      { email: found.email, lang: found.language === "tr" ? "tr" : "en" },
+      {
+        kind: "PASSWORD_CHANGED",
+        userName: found.name,
+        ipAddress: ip,
+        deviceInfo: userAgent,
+      }
+    );
+
+    await logAuditEvent({
+      userId: user.id,
+      action: "PASSWORD_CHANGE",
+      ipAddress: ip,
+      deviceInfo: userAgent,
     });
 
     return { success: true };

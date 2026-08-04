@@ -28,6 +28,8 @@ export function getDemoUser(lang: string): AuthenticatedUser {
     notifEmailShipment: true,
     notifEmailMaint: true,
     notifEmailWeekly: true,
+    notifEmailAssignment: true,
+    notifEmailDelay: true,
     notifPushAssignment: true,
     notifPushDelay: true,
     accessStatus: "ACTIVE",

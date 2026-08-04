@@ -66,6 +66,8 @@ export async function createSession(
     notifEmailShipment?: boolean;
     notifEmailMaint?: boolean;
     notifEmailWeekly?: boolean;
+    notifEmailAssignment?: boolean;
+    notifEmailDelay?: boolean;
     notifPushAssignment?: boolean;
     notifPushDelay?: boolean;
     emailVerifiedAt?: Date | null;
@@ -180,6 +182,8 @@ export async function validateSession(): Promise<SessionUser | null> {
             notifEmailShipment: true;
             notifEmailMaint: true;
             notifEmailWeekly: true;
+            notifEmailAssignment: true;
+            notifEmailDelay: true;
             notifPushAssignment: true;
             notifPushDelay: true;
             emailVerifiedAt: true;
@@ -227,6 +231,8 @@ export async function validateSession(): Promise<SessionUser | null> {
               notifEmailShipment: true,
               notifEmailMaint: true,
               notifEmailWeekly: true,
+              notifEmailAssignment: true,
+              notifEmailDelay: true,
               notifPushAssignment: true,
               notifPushDelay: true,
               emailVerifiedAt: true,
@@ -309,6 +315,8 @@ export async function validateSession(): Promise<SessionUser | null> {
       notifEmailShipment: session.user.notifEmailShipment,
       notifEmailMaint: session.user.notifEmailMaint,
       notifEmailWeekly: session.user.notifEmailWeekly,
+      notifEmailAssignment: session.user.notifEmailAssignment,
+      notifEmailDelay: session.user.notifEmailDelay,
       notifPushAssignment: session.user.notifPushAssignment,
       notifPushDelay: session.user.notifPushDelay,
       accessStatus: access.accessStatus,
@@ -362,6 +370,8 @@ export async function refreshSession(): Promise<boolean> {
             notifEmailShipment: true,
             notifEmailMaint: true,
             notifEmailWeekly: true,
+            notifEmailAssignment: true,
+            notifEmailDelay: true,
             notifPushAssignment: true,
             notifPushDelay: true,
             emailVerifiedAt: true,

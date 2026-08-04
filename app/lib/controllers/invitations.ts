@@ -4,3 +4,4 @@ export { createDriverInvitation } from "./invitations/create";
 export { getInvitationByToken, acceptDriverInvitation } from "./invitations/accept";
 export { getMyInvitations } from "./invitations/list";
 export { acceptExistingUserInvitation, declineExistingUserInvitation } from "./invitations/existing-user-accept";
+export { getCompanyInvitations, resendInvitation, revokeInvitation } from "./invitations/manage";

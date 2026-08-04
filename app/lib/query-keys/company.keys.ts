@@ -5,4 +5,5 @@ export const companyKeys = {
   dashboardWithFilters: (filters: { page: number; pageSize: number; search?: string | undefined }) =>
     [...companyKeys.dashboard(), filters] as const,
   joinRequests: () => [...companyKeys.all, "joinRequests"] as const,
+  invitations: () => [...companyKeys.all, "invitations"] as const,
 };

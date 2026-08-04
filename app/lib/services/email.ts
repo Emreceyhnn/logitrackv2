@@ -5,6 +5,11 @@ import { buildNotificationEmail, NotificationEmailKind } from "@/app/lib/templat
 import { buildWeeklyReportEmail, WeeklyReportEmailData } from "@/app/lib/templates/weeklyReportEmail";
 import { buildPasswordResetEmail } from "@/app/lib/templates/passwordResetEmail";
 import { buildEmailVerificationEmail } from "@/app/lib/templates/emailVerificationEmail";
+import { buildCompanyWelcomeEmail } from "@/app/lib/templates/companyWelcomeEmail";
+import { buildInvitationOutcomeEmail } from "@/app/lib/templates/invitationOutcomeEmail";
+import { buildSecurityAlertEmail, SecurityAlertKind } from "@/app/lib/templates/securityAlertEmail";
+import { buildSubscriptionEmail, SubscriptionEmailKind } from "@/app/lib/templates/subscriptionEmail";
+import { withEmailRetry } from "./emailRetry";
 
 let resendClient: Resend | null = null;
 /**
@@ -32,6 +37,56 @@ export interface SendEmailOptions {
   from?: string;
 }
 
+interface DispatchPayload {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string | undefined;
+  from?: string | undefined;
+}
+
+/**
+ * tr-Tüm giden e-postaların tek geçiş noktası. Resend hatayı fırlatmak yerine `{ error }`
+ *    olarak döndürür; bu hata yeniden deneme döngüsünün görebilmesi için fırlatılır.
+ *    Geçici hatalarda (429/5xx/ağ) üstel bekleme ile yeniden denenir, kalıcı hatalarda
+ *    (geçersiz adres, doğrulanmamış alan adı) ilk denemede vazgeçilir.
+ * en-The single choke point for every outbound email. Resend reports failures by returning
+ *    `{ error }` rather than throwing, so the error is rethrown here for the retry loop to see.
+ *    Transient failures (429/5xx/network) are retried with exponential backoff; permanent ones
+ *    (invalid address, unverified domain) fail on the first attempt.
+ * input (payload: DispatchPayload, context: string)
+ * output (Promise<string | undefined>) — the Resend message id when available
+ */
+async function dispatchEmail(
+  payload: DispatchPayload,
+  context: string
+): Promise<string | undefined> {
+  return withEmailRetry(async () => {
+    const resend = getResendClient();
+    const { data, error } = await resend.emails.send({
+      from:
+        payload.from ||
+        process.env.RESEND_FROM_EMAIL ||
+        "LogiTrack <onboarding@resend.dev>",
+      to: payload.to,
+      subject: payload.subject,
+      html: payload.html,
+      ...(payload.text ? { text: payload.text } : {}),
+    });
+
+    if (error) {
+      // Preserve Resend's fields (name/statusCode) so isRetryableEmailError can
+      // classify this correctly instead of falling back to string matching.
+      throw Object.assign(new Error(error.message), {
+        name: error.name,
+        statusCode: (error as { statusCode?: number }).statusCode,
+      });
+    }
+
+    return data?.id;
+  }, context);
+}
+
 /**
  * tr-Resend kullanarak genel bir e-posta gönderir. RESEND_API_KEY yapılandırılmamışsa e-postayı göndermek yerine günlüğe kaydeder.
  * en-Sends a generic email using Resend. If RESEND_API_KEY isn't configured, logs the email instead of sending it.
@@ -47,22 +102,16 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
     return;
   }
   try {
-    const resend = getResendClient();
-    const { error } = await resend.emails.send({
-      from:
-        options.from ||
-        process.env.RESEND_FROM_EMAIL ||
-        "LogiTrack <onboarding@resend.dev>",
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-      ...(options.text ? { text: options.text } : {}),
-    });
-
-    if (error) {
-      logger.error("[email] Resend API error:", error);
-      throw new Error(error.message);
-    }
+    await dispatchEmail(
+      {
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        from: options.from,
+      },
+      "sendEmail"
+    );
   } catch (error) {
     logger.error("[email] Failed to send email:", error);
     throw new Error("Failed to send email");
@@ -99,28 +148,12 @@ export async function sendDriverInviteEmail(
       expiryDays,
     });
 
-    const resend = getResendClient();
-    const { data, error } = await resend.emails.send({
-      from:
-        process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
-      to,
-      subject,
-      html,
-      text,
-    });
+    const id = await dispatchEmail(
+      { to, subject, html, text },
+      "sendDriverInviteEmail"
+    );
 
-    if (error) {
-      // Log the full Resend error object so the terminal shows the real cause
-      logger.error("[email] Resend rejected the request:", {
-        name: error.name,
-        message: error.message,
-        from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev (default)",
-        to,
-      });
-      throw new Error(`[Resend] ${error.name}: ${error.message}`);
-    }
-
-    logger.info(`[email] Driver invite sent → ${to} (id: ${data?.id})`);
+    logger.info(`[email] Driver invite sent → ${to} (id: ${id})`);
   } catch (error) {
     // Re-throw with the original message so callers can see the real cause
     const msg = error instanceof Error ? error.message : String(error);
@@ -161,26 +194,13 @@ export async function sendPasswordResetEmail(
     expiryMinutes,
   });
 
-  const resend = getResendClient();
-  const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
-    to,
-    subject,
-    html,
-    text,
-  });
+  // Never log resetUrl — it is a bearer credential until it is used.
+  const id = await dispatchEmail(
+    { to, subject, html, text },
+    "sendPasswordResetEmail"
+  );
 
-  if (error) {
-    // Never log resetUrl — it is a bearer credential until it is used.
-    logger.error("[email] Resend rejected the password reset email:", {
-      name: error.name,
-      message: error.message,
-      to,
-    });
-    throw new Error(`[Resend] ${error.name}: ${error.message}`);
-  }
-
-  logger.info(`[email] Password reset sent → ${to} (id: ${data?.id})`);
+  logger.info(`[email] Password reset sent → ${to} (id: ${id})`);
 }
 
 /**
@@ -216,31 +236,194 @@ export async function sendEmailVerificationEmail(
       expiryHours,
     });
 
-    const resend = getResendClient();
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
-      to,
-      subject,
-      html,
-      text,
-    });
+    // Never log verifyUrl — it is a bearer credential until it is used.
+    const id = await dispatchEmail(
+      { to, subject, html, text },
+      "sendEmailVerificationEmail"
+    );
 
-    if (error) {
-      // Never log verifyUrl — it is a bearer credential until it is used.
-      logger.error("[email] Resend rejected the verification email:", {
-        name: error.name,
-        message: error.message,
-        to,
-      });
-      return false;
-    }
-
-    logger.info(`[email] Verification email sent → ${to} (id: ${data?.id})`);
+    logger.info(`[email] Verification email sent → ${to} (id: ${id})`);
     return true;
   } catch (error) {
     logger.error(
       "[email] sendEmailVerificationEmail failed:",
       error instanceof Error ? error.message : String(error)
+    );
+    return false;
+  }
+}
+
+/**
+ * tr-Bir kullanıcı şirkete eklendiğinde karşılama e-postası gönderir. Üyelik zaten veritabanına
+ *    yazıldığı için gönderim hatası sessizce günlüğe alınır ve çağıranı bloklamaz.
+ * en-Sends the welcome email when a user is added to a company. The membership is already
+ *    persisted by the time this runs, so a delivery failure is logged rather than thrown.
+ * input (recipient: { email: string; lang?: "en" | "tr" }, data: { companyName: string; roleName: string; addedByName?: string })
+ * output (Promise<void>)
+ */
+export async function sendCompanyWelcomeEmail(
+  recipient: { email: string; lang?: "en" | "tr" | undefined },
+  data: { companyName: string; roleName: string; addedByName?: string | undefined }
+): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn(
+      `[email] RESEND_API_KEY not set — welcome email for ${recipient.email} (${data.companyName}) not sent`
+    );
+    return;
+  }
+
+  try {
+    const { subject, html, text } = buildCompanyWelcomeEmail({
+      companyName: data.companyName,
+      roleName: data.roleName,
+      addedByName: data.addedByName,
+      lang: recipient.lang,
+    });
+
+    await dispatchEmail(
+      { to: recipient.email, subject, html, text },
+      "sendCompanyWelcomeEmail"
+    );
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    logger.error(`[email] sendCompanyWelcomeEmail failed for ${recipient.email}:`, msg);
+  }
+}
+
+/**
+ * tr-Davetin kabul veya reddedildiğini davet eden kişiye bildirir. Davetin durumu zaten
+ *    güncellendiği için gönderim hatası akışı bozmaz, yalnızca günlüğe alınır.
+ * en-Tells the inviter that their invitation was accepted or declined. The invitation status is
+ *    already updated by this point, so a delivery failure is logged rather than thrown.
+ * input (recipient: { email: string; lang?: "en" | "tr" }, data: { inviteeEmail: string; inviteeName?: string; companyName: string; outcome: "ACCEPTED" | "DECLINED" })
+ * output (Promise<void>)
+ */
+export async function sendInvitationOutcomeEmail(
+  recipient: { email: string; lang?: "en" | "tr" | undefined },
+  data: {
+    inviteeEmail: string;
+    inviteeName?: string | undefined;
+    companyName: string;
+    outcome: "ACCEPTED" | "DECLINED";
+  }
+): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn(
+      `[email] RESEND_API_KEY not set — invitation ${data.outcome} notice for ${recipient.email} not sent`
+    );
+    return;
+  }
+
+  try {
+    const { subject, html, text } = buildInvitationOutcomeEmail({
+      inviteeEmail: data.inviteeEmail,
+      inviteeName: data.inviteeName,
+      companyName: data.companyName,
+      outcome: data.outcome,
+      lang: recipient.lang,
+    });
+
+    await dispatchEmail(
+      { to: recipient.email, subject, html, text },
+      "sendInvitationOutcomeEmail"
+    );
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    logger.error(`[email] sendInvitationOutcomeEmail failed for ${recipient.email}:`, msg);
+  }
+}
+
+/**
+ * tr-Kimlik bilgisi değişikliklerinde güvenlik uyarısı gönderir. Bu e-posta hiçbir bildirim
+ *    tercihiyle kapatılamaz: kullanıcının hesabının ele geçirildiğini öğrenebileceği tek
+ *    bant dışı sinyal budur. Değişiklik zaten uygulandığı için hata fırlatılmaz, günlüğe alınır.
+ * en-Sends a security alert on credential-affecting changes. This mail is intentionally not
+ *    gated by any notification preference — it is the user's only out-of-band signal that their
+ *    account may have been taken over. The change is already applied, so failures are logged,
+ *    never thrown.
+ * input (recipient: { email: string; lang?: "en" | "tr" }, data: { kind: SecurityAlertKind; userName?: string; ipAddress?: string; deviceInfo?: string })
+ * output (Promise<void>)
+ */
+export async function sendSecurityAlertEmail(
+  recipient: { email: string; lang?: "en" | "tr" | undefined },
+  data: {
+    kind: SecurityAlertKind;
+    userName?: string | undefined;
+    ipAddress?: string | undefined;
+    deviceInfo?: string | undefined;
+  }
+): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    logger.error(
+      `[email] RESEND_API_KEY not set — SECURITY ALERT (${data.kind}) for ${recipient.email} was not delivered.`
+    );
+    return;
+  }
+
+  try {
+    const { subject, html, text } = buildSecurityAlertEmail({
+      kind: data.kind,
+      userName: data.userName,
+      ipAddress: data.ipAddress,
+      deviceInfo: data.deviceInfo,
+      lang: recipient.lang,
+    });
+
+    await dispatchEmail(
+      { to: recipient.email, subject, html, text },
+      "sendSecurityAlertEmail"
+    );
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    // Logged at error level: a missed security alert is a real safety gap, not noise.
+    logger.error(
+      `[email] sendSecurityAlertEmail (${data.kind}) failed for ${recipient.email}:`,
+      msg
+    );
+  }
+}
+
+/**
+ * tr-Abonelik yaşam döngüsü e-postası gönderir (deneme bitişi, plan aktivasyonu).
+ * en-Sends a subscription lifecycle email (trial expiry, plan activation).
+ * input (recipient: { email: string; lang?: "en" | "tr" }, data: { kind: SubscriptionEmailKind; daysRemaining?: number; planName?: string })
+ * output (Promise<boolean>) — true when handed off to Resend
+ */
+export async function sendSubscriptionEmail(
+  recipient: { email: string; lang?: "en" | "tr" | undefined },
+  data: {
+    kind: SubscriptionEmailKind;
+    userName?: string | undefined;
+    daysRemaining?: number | undefined;
+    planName?: string | undefined;
+  }
+): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn(
+      `[email] RESEND_API_KEY not set — subscription email (${data.kind}) for ${recipient.email} not sent`
+    );
+    return false;
+  }
+
+  try {
+    const { subject, html, text } = buildSubscriptionEmail({
+      kind: data.kind,
+      userName: data.userName,
+      daysRemaining: data.daysRemaining,
+      planName: data.planName,
+      lang: recipient.lang,
+    });
+
+    await dispatchEmail(
+      { to: recipient.email, subject, html, text },
+      "sendSubscriptionEmail"
+    );
+    return true;
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    logger.error(
+      `[email] sendSubscriptionEmail (${data.kind}) failed for ${recipient.email}:`,
+      msg
     );
     return false;
   }
@@ -267,8 +450,6 @@ export async function sendNotificationEmail(
     return;
   }
 
-  const resend = getResendClient();
-  const from = process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>";
 
   await Promise.all(
     recipients.map(async (recipient) => {
@@ -281,21 +462,10 @@ export async function sendNotificationEmail(
           lang: recipient.lang,
         });
 
-        const { error } = await resend.emails.send({
-          from,
-          to: recipient.email,
-          subject,
-          html,
-          text,
-        });
-
-        if (error) {
-          logger.error("[email] Resend rejected notification email:", {
-            name: error.name,
-            message: error.message,
-            to: recipient.email,
-          });
-        }
+        await dispatchEmail(
+          { to: recipient.email, subject, html, text },
+          "sendNotificationEmail"
+        );
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         logger.error(`[email] sendNotificationEmail failed for ${recipient.email}:`, msg);
@@ -325,8 +495,6 @@ export async function sendWeeklyReportEmail(
     return;
   }
 
-  const resend = getResendClient();
-  const from = process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>";
 
   await Promise.all(
     recipients.map(async (recipient) => {
@@ -336,21 +504,10 @@ export async function sendWeeklyReportEmail(
           lang: recipient.lang,
         });
 
-        const { error } = await resend.emails.send({
-          from,
-          to: recipient.email,
-          subject,
-          html,
-          text,
-        });
-
-        if (error) {
-          logger.error("[email] Resend rejected weekly report email:", {
-            name: error.name,
-            message: error.message,
-            to: recipient.email,
-          });
-        }
+        await dispatchEmail(
+          { to: recipient.email, subject, html, text },
+          "sendWeeklyReportEmail"
+        );
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         logger.error(`[email] sendWeeklyReportEmail failed for ${recipient.email}:`, msg);

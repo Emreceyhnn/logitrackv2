@@ -7,6 +7,7 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { createSession, logAuditEvent } from "../session";
 import { invalidatePattern, driverCacheKeys } from "../../redis";
 import { invalidateCompanyCache } from "../company/shared";
+import { notifyInviterOfOutcome } from "./notifyInviter";
 
 interface InvitationDriverData {
   employeeId: string;
@@ -99,6 +100,12 @@ export const acceptExistingUserInvitation = authenticatedAction(
         metadata: { invitationId: invitation.id },
       });
 
+      await notifyInviterOfOutcome({
+        invitationId: invitation.id,
+        outcome: "ACCEPTED",
+        inviteeName: `${updatedUser.name} ${updatedUser.surname}`.trim(),
+      });
+
       return { success: true };
     });
   }
@@ -124,6 +131,19 @@ export const declineExistingUserInvitation = authenticatedAction(
       await db.invitation.update({
         where: { id: invitation.id },
         data: { status: "REVOKED" },
+      });
+
+      const invitee = await db.user.findUnique({
+        where: { id: user.id },
+        select: { name: true, surname: true },
+      });
+
+      await notifyInviterOfOutcome({
+        invitationId: invitation.id,
+        outcome: "DECLINED",
+        inviteeName: invitee
+          ? `${invitee.name} ${invitee.surname}`.trim()
+          : undefined,
       });
 
       return { success: true };

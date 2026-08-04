@@ -49,7 +49,25 @@ mock.module("../db.ts", { namedExports: { db: dbMock } });
 mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 mock.module("next/cache", { namedExports: nextCacheMock });
 mock.module("bcryptjs", { defaultExport: bcryptMock });
-mock.module("next/headers", { namedExports: { cookies: cookiesMock } });
+const headersMock = mock.fn(async () => ({
+  get: (key: string) =>
+    key === "user-agent" ? "Test Browser" : key === "x-real-ip" ? "1.2.3.4" : null,
+}));
+
+// changeMyPassword now emits a security alert + audit event, so both are mocked
+// here: the test asserts the password write, not the notification side effects.
+const sendSecurityAlertEmailMock = mock.fn(async () => {});
+const logAuditEventMock = mock.fn(async () => {});
+
+mock.module("next/headers", {
+  namedExports: { cookies: cookiesMock, headers: headersMock },
+});
+mock.module("../services/email.ts", {
+  namedExports: { sendSecurityAlertEmail: sendSecurityAlertEmailMock },
+});
+mock.module("../controllers/session/audit.ts", {
+  namedExports: { logAuditEvent: logAuditEventMock },
+});
 mock.module("../controllers/session/internal.ts", { namedExports: sessionInternalMock });
 mock.module("../redis.ts", { namedExports: { redis: redisMock } });
 
@@ -74,6 +92,8 @@ describe("Profile Actions", () => {
     sessionInternalMock.generateAccessToken.mock.resetCalls();
     sessionInternalMock.hashToken.mock.resetCalls();
     redisMock.del.mock.resetCalls();
+    sendSecurityAlertEmailMock.mock.resetCalls();
+    logAuditEventMock.mock.resetCalls();
   });
 
   describe("getMyProfile() metodu", () => {
@@ -129,6 +149,56 @@ describe("Profile Actions", () => {
       expect(bcryptMock.compare.mock.calls.length).toBe(1);
       expect(bcryptMock.hash.mock.calls.length).toBe(1);
       expect(dbMock.user.update.mock.calls.length).toBe(1);
+    });
+
+    it("should_SendSecurityAlert_WhenPasswordIsChanged", async () => {
+      // Arrange — a password change is the first move in an account takeover,
+      // so the real owner must be told out of band.
+      dbMock.user.findUnique.mock.mockImplementation(async () => ({
+        password: "hashed_old",
+        email: "owner@test.com",
+        name: "Owner",
+        language: "tr",
+      }));
+      bcryptMock.compare.mock.mockImplementation(async () => true);
+      bcryptMock.hash.mock.mockImplementation(async () => "hashed_new");
+
+      // Act
+      await profileActions.changeMyPassword(mockUser, {
+        currentPassword: "old",
+        newPassword: "new",
+      });
+
+      // Assert — alert carries the request's IP/device so the user can judge it
+      expect(sendSecurityAlertEmailMock.mock.calls.length).toBe(1);
+      const [recipient, payload] = sendSecurityAlertEmailMock.mock.calls[0].arguments;
+      expect(recipient).toEqual({ email: "owner@test.com", lang: "tr" });
+      expect(payload.kind).toBe("PASSWORD_CHANGED");
+      expect(payload.ipAddress).toBe("1.2.3.4");
+      expect(payload.deviceInfo).toBe("Test Browser");
+
+      expect(logAuditEventMock.mock.calls.length).toBe(1);
+      expect(logAuditEventMock.mock.calls[0].arguments[0].action).toBe("PASSWORD_CHANGE");
+    });
+
+    it("should_NotSendSecurityAlert_WhenCurrentPasswordIsWrong", async () => {
+      // Arrange — a failed attempt changes nothing, so alerting would be noise
+      dbMock.user.findUnique.mock.mockImplementation(async () => ({
+        password: "hashed_old",
+        email: "owner@test.com",
+        name: "Owner",
+        language: "en",
+      }));
+      bcryptMock.compare.mock.mockImplementation(async () => false);
+
+      // Act
+      await profileActions.changeMyPassword(mockUser, {
+        currentPassword: "wrong",
+        newPassword: "new",
+      });
+
+      // Assert
+      expect(sendSecurityAlertEmailMock.mock.calls.length).toBe(0);
     });
 
     it("should_ReturnError_WhenCurrentPasswordIsIncorrect", async () => {

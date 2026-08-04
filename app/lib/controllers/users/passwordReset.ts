@@ -7,7 +7,7 @@ import { maybeAuthenticatedAction } from "../../auth-middleware";
 import { rateLimit } from "../../rate-limiter";
 import { generateRefreshToken, hashToken } from "../session/internal";
 import { revokeAllUserSessions, logAuditEvent } from "../session";
-import { sendPasswordResetEmail } from "../../services/email";
+import { sendPasswordResetEmail, sendSecurityAlertEmail } from "../../services/email";
 import { getBaseUrl } from "../../utils/baseUrl";
 import {
   requestPasswordResetSchema,
@@ -230,6 +230,30 @@ export const resetPassword = maybeAuthenticatedAction(
         ipAddress: ip,
         deviceInfo: userAgent,
       });
+
+      // tr-Sıfırlamayı hesabın gerçek sahibi başlatmamış olabilir. Bant dışı uyarı,
+      //    ele geçirme girişimini fark etmesinin tek yolu — bu yüzden her zaman gönderilir.
+      // en-The real owner may not be the one who initiated this reset. The out-of-band alert is
+      //    their only chance to notice a takeover, so it always sends.
+      const resetUser = await db.user.findUnique({
+        where: { id: record.userId },
+        select: { email: true, name: true, language: true },
+      });
+
+      if (resetUser) {
+        await sendSecurityAlertEmail(
+          {
+            email: resetUser.email,
+            lang: resetUser.language === "tr" ? "tr" : "en",
+          },
+          {
+            kind: "PASSWORD_RESET",
+            userName: resetUser.name,
+            ipAddress: ip,
+            deviceInfo: userAgent,
+          }
+        );
+      }
 
       return { success: true as const };
     } catch (error) {

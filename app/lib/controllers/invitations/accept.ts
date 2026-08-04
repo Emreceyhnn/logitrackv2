@@ -11,6 +11,7 @@ import { invalidatePattern, driverCacheKeys } from "../../redis";
 import { invalidateCompanyCache } from "../company/shared";
 import { acceptInvitationSchema } from "../../validation/serverSchemas";
 import { logger } from "@/app/lib/logger";
+import { notifyInviterOfOutcome } from "./notifyInviter";
 
 interface InvitationDriverData {
   employeeId: string;
@@ -131,6 +132,12 @@ export const acceptDriverInvitation = maybeAuthenticatedAction(
         ipAddress: ip,
         deviceInfo: userAgent,
         metadata: { email: invitation.email, viaInvitation: true },
+      });
+
+      await notifyInviterOfOutcome({
+        invitationId: invitation.id,
+        outcome: "ACCEPTED",
+        inviteeName: `${newUser.name} ${newUser.surname}`.trim(),
       });
 
       return {

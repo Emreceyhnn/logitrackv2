@@ -73,6 +73,26 @@ export default function NotificationsTab({
             }
           />
           <NotificationRow
+            label={dict.settings.dialogs.notifications.dynamicRouting}
+            description={
+              dict.settings.dialogs.notifications.dynamicRoutingEmailDesc
+            }
+            checked={state.notifications.emailNewAssignments}
+            onChange={(v) =>
+              actions.updateNotifications({ emailNewAssignments: v })
+            }
+          />
+          <NotificationRow
+            label={dict.settings.dialogs.notifications.networkAnomalies}
+            description={
+              dict.settings.dialogs.notifications.networkAnomaliesEmailDesc
+            }
+            checked={state.notifications.emailDelayAlerts}
+            onChange={(v) =>
+              actions.updateNotifications({ emailDelayAlerts: v })
+            }
+          />
+          <NotificationRow
             label={dict.settings.dialogs.notifications.executiveKpi}
             description={dict.settings.dialogs.notifications.executiveKpiDesc}
             checked={state.notifications.emailWeeklyReports}

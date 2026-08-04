@@ -85,6 +85,8 @@ model User {
   notifEmailShipment     Boolean             @default(true)
   notifEmailMaint        Boolean             @default(true)
   notifEmailWeekly       Boolean             @default(false)
+  notifEmailAssignment   Boolean             @default(true)
+  notifEmailDelay        Boolean             @default(true)
   notifPushAssignment    Boolean             @default(true)
   notifPushDelay         Boolean             @default(true)
   createdAt              DateTime            @default(now())

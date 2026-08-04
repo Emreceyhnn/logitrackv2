@@ -3193,9 +3193,11 @@
         "executiveKpi": "Yönetici KPI Özetleri",
         "executiveKpiDesc": "Her Pazartesi sabahı iletilen analitik özeti",
         "dynamicRouting": "Dinamik Rotalama",
-        "dynamicRoutingDesc": "Yeni atanan lojistik yolları için anlık uyarılar",
+        "dynamicRoutingDesc": "Yeni atanan lojistik yolları için uygulama içi uyarılar",
+        "dynamicRoutingEmailDesc": "Size yeni bir lojistik yolu atandığında e-posta gönderilir",
         "networkAnomalies": "Ağ Anomalileri",
-        "networkAnomaliesDesc": "Lojistik gecikmeleri veya kesintileriyle ilgili kritik uyarılar",
+        "networkAnomaliesDesc": "Lojistik gecikmeleri veya kesintileri için uygulama içi uyarılar",
+        "networkAnomaliesEmailDesc": "Gecikme veya kesinti tespit edildiğinde e-posta gönderilir",
         "updateWebhooks": "Webhookları Güncelle"
       },
       "regional": {

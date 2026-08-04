@@ -16,6 +16,8 @@ export interface NotificationSettings {
   emailShipmentUpdates: boolean;
   emailMaintenanceAlerts: boolean;
   emailWeeklyReports: boolean;
+  emailNewAssignments: boolean;
+  emailDelayAlerts: boolean;
   pushNewAssignments: boolean;
   pushDelayAlerts: boolean;
 }

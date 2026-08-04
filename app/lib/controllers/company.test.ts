@@ -62,6 +62,13 @@ const checkPermissionMock = {
   checkPermission: mock.fn(),
 };
 
+// createCompany gates on a verified email address. The real guard reads the DB
+// and throws EmailNotVerifiedError, which is a separate concern from what these
+// tests assert — stub it so the company logic itself is what's under test.
+const requireVerifiedEmailMock = {
+  requireVerifiedEmail: mock.fn(async () => {}),
+};
+
 const trendUtilsMock = {
   calcTrend: mock.fn(() => 5),
   daysAgo: mock.fn(() => new Date()),
@@ -73,6 +80,7 @@ mock.module("./session.ts", { namedExports: sessionMock });
 mock.module("../redis.ts", { namedExports: cacheUtilsMock });
 mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 mock.module("./utils/checkPermission.ts", { namedExports: checkPermissionMock });
+mock.module("./utils/requireVerifiedEmail.ts", { namedExports: requireVerifiedEmailMock });
 mock.module("./utils/trendUtils.ts", { namedExports: trendUtilsMock });
 
 mock.module("next/cache", { namedExports: { revalidatePath: () => {} } });

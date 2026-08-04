@@ -56,6 +56,8 @@ export type SessionUser = {
   notifEmailShipment: boolean;
   notifEmailMaint: boolean;
   notifEmailWeekly: boolean;
+  notifEmailAssignment: boolean;
+  notifEmailDelay: boolean;
   notifPushAssignment: boolean;
   notifPushDelay: boolean;
   accessStatus: AccessStatus;
@@ -82,6 +84,8 @@ export interface SessionJWTPayload extends JWTPayload {
   notifEmailShipment?: boolean;
   notifEmailMaint?: boolean;
   notifEmailWeekly?: boolean;
+  notifEmailAssignment?: boolean;
+  notifEmailDelay?: boolean;
   notifPushAssignment?: boolean;
   notifPushDelay?: boolean;
   accessStatus?: AccessStatus;
@@ -113,6 +117,8 @@ export async function generateAccessToken(user: {
   notifEmailShipment?: boolean;
   notifEmailMaint?: boolean;
   notifEmailWeekly?: boolean;
+  notifEmailAssignment?: boolean;
+  notifEmailDelay?: boolean;
   notifPushAssignment?: boolean;
   notifPushDelay?: boolean;
   accessStatus?: AccessStatus;
@@ -138,6 +144,8 @@ export async function generateAccessToken(user: {
     notifEmailShipment: user.notifEmailShipment ?? true,
     notifEmailMaint: user.notifEmailMaint ?? true,
     notifEmailWeekly: user.notifEmailWeekly ?? false,
+    notifEmailAssignment: user.notifEmailAssignment ?? true,
+    notifEmailDelay: user.notifEmailDelay ?? true,
     notifPushAssignment: user.notifPushAssignment ?? true,
     notifPushDelay: user.notifPushDelay ?? true,
     accessStatus: user.accessStatus ?? "NONE",

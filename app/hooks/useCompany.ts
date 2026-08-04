@@ -15,6 +15,11 @@ import {
   acceptJoinRequest,
   rejectJoinRequest,
 } from "@/app/lib/controllers/joinRequests";
+import {
+  getCompanyInvitations,
+  resendInvitation,
+  revokeInvitation,
+} from "@/app/lib/controllers/invitations";
 import { toast } from "sonner";
 
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
@@ -352,4 +357,54 @@ export function useJoinRequestMutations() {
   });
 
   return { accept, reject };
+}
+
+export function useCompanyInvitations(
+  status?: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED"
+) {
+  return useQuery({
+    queryKey: [...companyKeys.invitations(), status ?? "ALL"],
+    queryFn: () => getCompanyInvitations(status),
+    staleTime: 1000 * 30,
+  });
+}
+
+export function useInvitationMutations() {
+  const queryClient = useQueryClient();
+
+  const settle = (refetchType: "none" | "active") =>
+    queryClient.invalidateQueries({
+      queryKey: companyKeys.invitations(),
+      refetchType,
+    });
+
+  const resend = useMutation({
+    mutationFn: (id: string) => resendInvitation(id),
+    onSuccess: () => {
+      // Resending mints a new token and pushes expiresAt out, so the row's
+      // displayed expiry is stale until refetched.
+      toast.success("Invitation resent");
+      settle("none");
+    },
+    onError: (error: Error) => {
+      logger.error("Failed to resend invitation", error);
+      toast.error(error?.message || "Failed to resend invitation");
+      settle("active");
+    },
+  });
+
+  const revoke = useMutation({
+    mutationFn: (id: string) => revokeInvitation(id),
+    onSuccess: () => {
+      toast.success("Invitation revoked");
+      settle("none");
+    },
+    onError: (error: Error) => {
+      logger.error("Failed to revoke invitation", error);
+      toast.error(error?.message || "Failed to revoke invitation");
+      settle("active");
+    },
+  });
+
+  return { resend, revoke };
 }

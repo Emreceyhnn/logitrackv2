@@ -87,8 +87,9 @@ export async function checkRouteDeviation(params: {
           `${plate} plakalı araç ${routeLabel} rotasının dışına çıktı. ` +
           `Planlanan güzergâha uzaklık: ${distanceKm} km.`,
         type: "WARNING",
-        // Reuses the existing delay-alert preference (notifPushDelay): an
-        // off-route vehicle is the same operational concern for the same users.
+        // Reuses the existing delay-alert preferences (notifPushDelay for the in-app
+        // inbox, notifEmailDelay for email): an off-route vehicle is the same
+        // operational concern for the same users.
         category: "DELAY_ALERT",
         link: `/dashboard/routes/${route.id}`,
         metadata: {

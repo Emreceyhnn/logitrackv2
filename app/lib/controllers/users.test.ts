@@ -34,12 +34,20 @@ const authMiddlewareMock = {
   maybeAuthenticatedAction: mock.fn((cb) => cb),
 };
 
+// Must cover every export of the ./session barrel that the controllers import.
+// A missing name is not a silent undefined — it throws at import time and
+// cancels the whole suite before a single test runs.
 const sessionMock = {
   createSession: mock.fn(),
   revokeSession: mock.fn(),
+  revokeAllUserSessions: mock.fn(),
+  invalidateUserSessionCache: mock.fn(),
   clearAuthCookies: mock.fn(),
+  cleanExpiredSessions: mock.fn(),
+  getUserActiveSessions: mock.fn(),
   logAuditEvent: mock.fn(),
   validateSession: mock.fn(),
+  refreshSession: mock.fn(),
   toSessionPayload: mock.fn(),
 };
 
@@ -78,7 +86,16 @@ const bcryptMock = {
 };
 
 // Jose Mock
+// Mocking "jose" replaces the whole module, so every export the code under test
+// imports must be present. session/internal.ts imports SignJWT; omitting it made
+// the import throw and cancelled the entire suite before any test ran.
 const joseMock = {
+  SignJWT: class {
+    setProtectedHeader() { return this; }
+    setJti() { return this; }
+    setExpirationTime() { return this; }
+    async sign() { return "mocked-jwt-token"; }
+  },
   jwtVerify: mock.fn(),
 };
 

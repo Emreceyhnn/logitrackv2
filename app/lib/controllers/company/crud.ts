@@ -89,6 +89,8 @@ export const createCompany = authenticatedAction(
       notifEmailShipment: updatedUser.notifEmailShipment,
       notifEmailMaint: updatedUser.notifEmailMaint,
       notifEmailWeekly: updatedUser.notifEmailWeekly,
+      notifEmailAssignment: updatedUser.notifEmailAssignment,
+      notifEmailDelay: updatedUser.notifEmailDelay,
       notifPushAssignment: updatedUser.notifPushAssignment,
       notifPushDelay: updatedUser.notifPushDelay,
     });

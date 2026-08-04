@@ -63,6 +63,8 @@ export default function SettingsDialog({ open, onClose }: Props) {
       emailShipmentUpdates: user?.notifEmailShipment ?? true,
       emailMaintenanceAlerts: user?.notifEmailMaint ?? true,
       emailWeeklyReports: user?.notifEmailWeekly ?? false,
+      emailNewAssignments: user?.notifEmailAssignment ?? true,
+      emailDelayAlerts: user?.notifEmailDelay ?? true,
       pushNewAssignments: user?.notifPushAssignment ?? true,
       pushDelayAlerts: user?.notifPushDelay ?? true,
     },
@@ -85,6 +87,8 @@ export default function SettingsDialog({ open, onClose }: Props) {
             emailShipmentUpdates: user.notifEmailShipment ?? true,
             emailMaintenanceAlerts: user.notifEmailMaint ?? true,
             emailWeeklyReports: user.notifEmailWeekly ?? false,
+            emailNewAssignments: user.notifEmailAssignment ?? true,
+            emailDelayAlerts: user.notifEmailDelay ?? true,
             pushNewAssignments: user.notifPushAssignment ?? true,
             pushDelayAlerts: user.notifPushDelay ?? true,
           };
