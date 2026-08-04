@@ -36,6 +36,10 @@ export default function LoginForm() {
   /* --------------------------------- STATES --------------------------------- */
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  // Set after a rejected credential attempt so the recovery prompt appears at
+  // the moment it's actually useful. Never distinguishes "no such account"
+  // from "wrong password" — the server deliberately returns one error for both.
+  const [credentialsFailed, setCredentialsFailed] = useState<boolean>(false);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
@@ -43,6 +47,7 @@ export default function LoginForm() {
     actions: FormikHelpers<LoginFormValues>
   ) => {
     setLoading(true);
+    setCredentialsFailed(false);
     try {
       const res = await LoginUser(values.email, values.password);
 
@@ -50,6 +55,7 @@ export default function LoginForm() {
         let errorMsg = res.error;
         if (res.error === "Invalid credentials") {
           errorMsg = dict.auth.invalidCredentials;
+          setCredentialsFailed(true);
         } else if (res.error === "Too many login attempts. Please try again later.") {
           errorMsg = dict.auth.tooManyAttempts;
         } else if (res.error === "Too many login attempts for this account. Please try again later.") {
@@ -247,6 +253,28 @@ export default function LoginForm() {
                 )}
               </Field>
 
+              <Box sx={{ mt: -1, textAlign: "right" }}>
+                <Link
+                  href={`/${lang}/auth/forgot-password`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "13px",
+                      color: "rgba(255, 255, 255, 0.5)",
+                      transition: "color 0.2s ease",
+                      "&:hover": {
+                        color: "#38bdf8",
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    {dict.auth.forgotPassword}
+                  </Typography>
+                </Link>
+              </Box>
+
               <AuthButton
                 type="submit"
                 loading={loading}
@@ -266,6 +294,41 @@ export default function LoginForm() {
               >
                 {dict.auth.logInNow}
               </AuthButton>
+
+              {credentialsFailed && (
+                <Box
+                  sx={{
+                    p: 1.5,
+                    borderRadius: "12px",
+                    bgcolor: "rgba(56, 189, 248, 0.08)",
+                    border: "1px solid rgba(56, 189, 248, 0.2)",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography
+                    component="span"
+                    sx={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)" }}
+                  >
+                    {dict.auth.forgotPasswordPrompt}{" "}
+                  </Typography>
+                  <Link
+                    href={`/${lang}/auth/forgot-password`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "#38bdf8",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      {dict.auth.resetPasswordButton}
+                    </Typography>
+                  </Link>
+                </Box>
+              )}
 
               <GoogleSignInButton
                 onCredential={handleGoogleCredential}

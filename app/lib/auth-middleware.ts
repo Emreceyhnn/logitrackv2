@@ -37,6 +37,7 @@ export type AuthenticatedUser = {
   notifPushDelay: boolean;
   accessStatus: AccessStatus;
   trialEndsAt: number | null;
+  emailVerified: boolean;
 };
 
 /**
@@ -102,6 +103,9 @@ export const getAuthenticatedUser = cache(
           typeof sessionUser.trialEndsAt === "number"
             ? sessionUser.trialEndsAt
             : null,
+        // Defaults to false: a token minted before this field existed must not
+        // be treated as verified just because the claim is absent.
+        emailVerified: sessionUser.emailVerified === true,
       };
     } catch (error) {
       if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {

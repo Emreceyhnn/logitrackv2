@@ -27,6 +27,7 @@ import {
 } from "../../validation/serverSchemas";
 import { logger } from "@/app/lib/logger";
 import { grantTrial, verifyDemoSignupToken } from "@/app/lib/entitlement.server";
+import { issueEmailVerification } from "./emailVerification";
 
 
 const getJwtSecret = () => {
@@ -182,6 +183,24 @@ export const RegisterUser = maybeAuthenticatedAction(
           }
         }
         await createSession(newUser, userAgent, ip);
+      }
+
+      // Prove the address belongs to whoever signed up. Non-fatal by design:
+      // the account already exists, and failing registration over a mail
+      // outage would be worse than an unverified address. The user can request
+      // a new link from the verify-email page at any time.
+      try {
+        await issueEmailVerification(
+          newUser.id,
+          newUser.email,
+          newUser.name,
+          newUser.language === "tr" ? "tr" : "en"
+        );
+      } catch (verifyErr) {
+        logger.error(
+          "Verification email could not be issued at signup:",
+          verifyErr
+        );
       }
 
       // Audit log
@@ -462,7 +481,13 @@ export const LoginWithGoogle = maybeAuthenticatedAction(
         if (!foundUser.googleId) {
           foundUser = await db.user.update({
             where: { id: foundUser.id },
-            data: { googleId: identity.sub, provider: foundUser.provider === "local" ? "google" : foundUser.provider },
+            data: {
+              googleId: identity.sub,
+              provider: foundUser.provider === "local" ? "google" : foundUser.provider,
+              // Signing in through Google proves the address belongs to them,
+              // so a previously unverified local account is verified now.
+              ...(foundUser.emailVerifiedAt ? {} : { emailVerifiedAt: new Date() }),
+            },
           });
         }
       } else {
@@ -481,6 +506,9 @@ export const LoginWithGoogle = maybeAuthenticatedAction(
             googleId: identity.sub,
             avatarUrl: identity.picture ?? null,
             currency: "USD",
+            // Google already asserted email_verified (checked above), so there
+            // is nothing left for us to prove — no verification mail needed.
+            emailVerifiedAt: new Date(),
           },
         });
 

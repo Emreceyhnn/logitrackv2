@@ -7,6 +7,7 @@ import { createSession, revokeSession } from "../session";
 import { invalidateCompanyCache, ensureStandardRoles } from "./shared";
 import { controllerGuard } from "../utils/controllerGuard";
 import { hasAccess } from "../../entitlement";
+import { requireVerifiedEmail } from "../utils/requireVerifiedEmail";
 import { ForbiddenError } from "../../errors";
 
 /**
@@ -29,6 +30,10 @@ export const createCompany = authenticatedAction(
     if (!hasAccess(user.accessStatus, user.trialEndsAt)) {
       throw new ForbiddenError("An active plan or trial is required to create a company");
     }
+
+    // A company is durable structure that other people get invited into, so the
+    // founder's address must be proven before it exists.
+    await requireVerifiedEmail(user);
 
     const existingCompany = await db.company.findUnique({ where: { name } });
     if (existingCompany) throw new Error("Company name already exists");

@@ -91,6 +91,9 @@ export const acceptDriverInvitation = maybeAuthenticatedAction(
             currency: "USD",
             companyId: invitation.companyId,
             roleId: invitation.roleId,
+            // Reaching this point required clicking a link sent to this exact
+            // address, which already proves ownership — no second mail needed.
+            emailVerifiedAt: new Date(),
           },
         });
 

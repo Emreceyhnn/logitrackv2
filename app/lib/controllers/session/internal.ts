@@ -60,6 +60,9 @@ export type SessionUser = {
   notifPushDelay: boolean;
   accessStatus: AccessStatus;
   trialEndsAt: number | null;
+  /// Whether the account's email address has been proven. Baked into the token
+  /// so gated server actions can check it without a DB round-trip.
+  emailVerified: boolean;
 };
 
 export interface SessionJWTPayload extends JWTPayload {
@@ -83,6 +86,7 @@ export interface SessionJWTPayload extends JWTPayload {
   notifPushDelay?: boolean;
   accessStatus?: AccessStatus;
   trialEndsAt?: number | null;
+  emailVerified?: boolean;
 }
 
 // ─── Token Generation ───────────────────────────────────────────────────────
@@ -113,6 +117,9 @@ export async function generateAccessToken(user: {
   notifPushDelay?: boolean;
   accessStatus?: AccessStatus;
   trialEndsAt?: number | null;
+  // Accepted as the raw column so callers can spread a user record straight in;
+  // it is collapsed to a boolean in the payload below.
+  emailVerifiedAt?: Date | null;
 }): Promise<string> {
   const secret = new TextEncoder().encode(getJwtSecret());
   return new SignJWT({
@@ -135,6 +142,7 @@ export async function generateAccessToken(user: {
     notifPushDelay: user.notifPushDelay ?? true,
     accessStatus: user.accessStatus ?? "NONE",
     trialEndsAt: user.trialEndsAt ?? null,
+    emailVerified: user.emailVerifiedAt != null,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setJti(crypto.randomUUID())

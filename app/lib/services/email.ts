@@ -3,6 +3,8 @@ import { logger } from "@/app/lib/logger";
 import { buildDriverInviteEmail } from "@/app/lib/templates/driverInviteEmail";
 import { buildNotificationEmail, NotificationEmailKind } from "@/app/lib/templates/notificationEmail";
 import { buildWeeklyReportEmail, WeeklyReportEmailData } from "@/app/lib/templates/weeklyReportEmail";
+import { buildPasswordResetEmail } from "@/app/lib/templates/passwordResetEmail";
+import { buildEmailVerificationEmail } from "@/app/lib/templates/emailVerificationEmail";
 
 let resendClient: Resend | null = null;
 /**
@@ -124,6 +126,123 @@ export async function sendDriverInviteEmail(
     const msg = error instanceof Error ? error.message : String(error);
     logger.error("[email] sendDriverInviteEmail failed:", msg);
     throw new Error(msg);
+  }
+}
+
+/**
+ * tr-Şifre sıfırlama bağlantısını gönderir. Diğer gönderim fonksiyonlarının aksine, RESEND_API_KEY
+ *    tanımlı değilse sessizce geçmez — hata fırlatır. Sessiz bir başarısızlık, kullanıcının
+ *    "bağlantı gönderildi" mesajını görüp hiçbir zaman e-posta almaması demektir.
+ * en-Sends the password reset link. Unlike the other senders, this one THROWS when RESEND_API_KEY
+ *    is missing instead of silently logging: a silent no-op here means the user is told "link sent"
+ *    and is permanently locked out of their account. A hard failure is the safer outcome.
+ * input (to: string, resetUrl: string, userName?: string, lang?: "en" | "tr", expiryMinutes?: number)
+ * output (Promise<void>)
+ */
+export async function sendPasswordResetEmail(
+  to: string,
+  resetUrl: string,
+  userName?: string,
+  lang: "en" | "tr" = "en",
+  expiryMinutes: number = 60
+): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    logger.error(
+      "[email] RESEND_API_KEY is not set — password reset email cannot be delivered. " +
+      "Refusing to report success for an email that was never sent."
+    );
+    throw new Error("Email delivery is not configured");
+  }
+
+  const { subject, html, text } = buildPasswordResetEmail({
+    resetUrl,
+    ...(userName ? { userName } : {}),
+    lang,
+    expiryMinutes,
+  });
+
+  const resend = getResendClient();
+  const { data, error } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
+    to,
+    subject,
+    html,
+    text,
+  });
+
+  if (error) {
+    // Never log resetUrl — it is a bearer credential until it is used.
+    logger.error("[email] Resend rejected the password reset email:", {
+      name: error.name,
+      message: error.message,
+      to,
+    });
+    throw new Error(`[Resend] ${error.name}: ${error.message}`);
+  }
+
+  logger.info(`[email] Password reset sent → ${to} (id: ${data?.id})`);
+}
+
+/**
+ * tr-E-posta doğrulama bağlantısını gönderir. Şifre sıfırlamanın aksine hata FIRLATMAZ:
+ *    doğrulama maili kaydın yan etkisidir, kaydın kendisi değil. Gönderim başarısız olursa
+ *    hesap yine de oluşmalı ve kullanıcı yeniden gönderim isteyebilmelidir.
+ * en-Sends the email verification link. Unlike the password reset sender this one does NOT throw:
+ *    verification is a side effect of signup, not the signup itself. If delivery fails the account
+ *    must still exist and the user can request a new link — failing registration over a mail
+ *    outage would be far worse than an unverified account.
+ * input (to: string, verifyUrl: string, userName?: string, lang?: "en" | "tr", expiryHours?: number)
+ * output (Promise<boolean>) — true when handed off to Resend, false otherwise
+ */
+export async function sendEmailVerificationEmail(
+  to: string,
+  verifyUrl: string,
+  userName?: string,
+  lang: "en" | "tr" = "en",
+  expiryHours: number = 24
+): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    logger.error(
+      `[email] RESEND_API_KEY not set — verification email for ${to} was not sent.`
+    );
+    return false;
+  }
+
+  try {
+    const { subject, html, text } = buildEmailVerificationEmail({
+      verifyUrl,
+      ...(userName ? { userName } : {}),
+      lang,
+      expiryHours,
+    });
+
+    const resend = getResendClient();
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "LogiTrack <onboarding@resend.dev>",
+      to,
+      subject,
+      html,
+      text,
+    });
+
+    if (error) {
+      // Never log verifyUrl — it is a bearer credential until it is used.
+      logger.error("[email] Resend rejected the verification email:", {
+        name: error.name,
+        message: error.message,
+        to,
+      });
+      return false;
+    }
+
+    logger.info(`[email] Verification email sent → ${to} (id: ${data?.id})`);
+    return true;
+  } catch (error) {
+    logger.error(
+      "[email] sendEmailVerificationEmail failed:",
+      error instanceof Error ? error.message : String(error)
+    );
+    return false;
   }
 }
 

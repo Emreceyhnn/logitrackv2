@@ -21,6 +21,7 @@ export const ErrorCode = {
   FORBIDDEN: "FORBIDDEN",
   NO_COMPANY: "NO_COMPANY",
   UNAUTHORIZED: "UNAUTHORIZED",
+  EMAIL_NOT_VERIFIED: "EMAIL_NOT_VERIFIED",
 
   // Resource
   NOT_FOUND: "NOT_FOUND",
@@ -81,6 +82,21 @@ export class NoCompanyError extends AppError {
   constructor() {
     super("User has no company", ErrorCode.NO_COMPANY, 403);
     this.name = "NoCompanyError";
+  }
+}
+
+// ─── 403 — Email Not Verified ───────────────────────────────────────────────
+/**
+ * Thrown when an action requires a proven email address. Distinct from
+ * ForbiddenError so the client can offer "resend verification" rather than
+ * telling the user they lack permission — the fix is in their inbox.
+ */
+export class EmailNotVerifiedError extends AppError {
+  constructor(
+    message: string = "Please verify your email address to continue"
+  ) {
+    super(message, ErrorCode.EMAIL_NOT_VERIFIED, 403);
+    this.name = "EmailNotVerifiedError";
   }
 }
 

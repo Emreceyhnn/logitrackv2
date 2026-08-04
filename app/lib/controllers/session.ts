@@ -10,6 +10,7 @@ export {
 export {
   revokeSession,
   revokeAllUserSessions,
+  invalidateUserSessionCache,
   clearAuthCookies,
   cleanExpiredSessions,
   getUserActiveSessions,

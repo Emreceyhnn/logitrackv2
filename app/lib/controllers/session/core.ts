@@ -68,6 +68,7 @@ export async function createSession(
     notifEmailWeekly?: boolean;
     notifPushAssignment?: boolean;
     notifPushDelay?: boolean;
+    emailVerifiedAt?: Date | null;
   },
   deviceInfo?: string,
   ipAddress?: string
@@ -181,6 +182,7 @@ export async function validateSession(): Promise<SessionUser | null> {
             notifEmailWeekly: true;
             notifPushAssignment: true;
             notifPushDelay: true;
+            emailVerifiedAt: true;
             role: {
               select: {
                 name: true;
@@ -227,6 +229,7 @@ export async function validateSession(): Promise<SessionUser | null> {
               notifEmailWeekly: true,
               notifPushAssignment: true,
               notifPushDelay: true,
+              emailVerifiedAt: true,
               role: {
                 select: {
                   name: true,
@@ -310,6 +313,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       notifPushDelay: session.user.notifPushDelay,
       accessStatus: access.accessStatus,
       trialEndsAt: access.trialEndsAt,
+      emailVerified: session.user.emailVerifiedAt != null,
     };
   } catch (error) {
     if ((error as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') {
@@ -360,6 +364,7 @@ export async function refreshSession(): Promise<boolean> {
             notifEmailWeekly: true,
             notifPushAssignment: true,
             notifPushDelay: true,
+            emailVerifiedAt: true,
             role: {
               select: { name: true }
             }

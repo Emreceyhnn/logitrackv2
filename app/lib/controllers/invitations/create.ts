@@ -2,6 +2,7 @@
 
 import { db } from "../../db";
 import { checkPermission } from "../utils/checkPermission";
+import { requireVerifiedEmail } from "../utils/requireVerifiedEmail";
 import { authenticatedAction } from "../../auth-middleware";
 import { controllerGuard } from "../utils/controllerGuard";
 import { ensureStandardRoles } from "../company/shared";
@@ -36,6 +37,10 @@ export const createDriverInvitation = authenticatedAction(
     const companyId = user?.companyId || "";
     return controllerGuard("createDriverInvitation", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+
+      // This action sends mail on the user's behalf. Requiring a proven address
+      // first stops an unverified account from using us as a mail relay.
+      await requireVerifiedEmail(user);
 
       const parsed = createDriverInvitationSchema.safeParse({ email, ...driverData });
       if (!parsed.success) {

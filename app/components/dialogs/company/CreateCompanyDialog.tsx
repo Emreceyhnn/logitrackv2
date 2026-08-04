@@ -32,6 +32,7 @@ import Step2Regional from "./Step2Regional";
 import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { createCompany } from "@/app/lib/controllers/company";
+import { isEmailNotVerifiedError } from "@/app/lib/utils/emailVerificationError";
 import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getRegionalDefaults } from "@/app/lib/constants";
 
@@ -112,7 +113,11 @@ export default function CreateCompanyDialog({
         loading: dict.toasts?.loading || "Creating company...",
         success: dict.toasts.successAdd,
         error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.toasts.errorGeneric,
+          isEmailNotVerifiedError(err)
+            ? dict.auth.emailNotVerifiedAction
+            : err instanceof Error
+              ? err.message
+              : dict.toasts.errorGeneric,
       }
     );
   };

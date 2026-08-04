@@ -14,6 +14,33 @@ export const getLoginValidationSchema = (dict: Dictionary) =>
     ),
   });
 
+// Mirrors the password rules from sign-up — a reset must never be a path to a
+// weaker password. The server re-validates via resetPasswordSchema (zod).
+export const getResetPasswordValidationSchema = (dict: Dictionary) =>
+  Yup.object({
+    password: Yup.string()
+      .min(
+        8,
+        formatMessage(dict.validation.min, {
+          field: dict.auth.password,
+          min: 8,
+        })
+      )
+      .matches(/[a-z]/, dict.validation.passwordLowercase)
+      .matches(/[A-Z]/, dict.validation.passwordUppercase)
+      .matches(/[0-9]/, dict.validation.passwordNumber)
+      .required(
+        formatMessage(dict.validation.required, { field: dict.auth.password })
+      ),
+    repeatPassword: Yup.string()
+      .oneOf([Yup.ref("password")], dict.validation.passwordsMatch || "Passwords must match")
+      .required(
+        formatMessage(dict.validation.required, {
+          field: dict.auth?.repeatPassword || "Repeat password",
+        })
+      ),
+  });
+
 export const getSignUpValidationSchema = (dict: Dictionary) => [
   Yup.object({
     name: Yup.string()

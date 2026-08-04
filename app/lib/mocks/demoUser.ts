@@ -32,5 +32,8 @@ export function getDemoUser(lang: string): AuthenticatedUser {
     notifPushDelay: true,
     accessStatus: "ACTIVE",
     trialEndsAt: null,
+    // The demo account is never gated on verification — it has no real inbox
+    // to confirm, and the demo tree never sends mail.
+    emailVerified: true,
   };
 }

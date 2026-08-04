@@ -12,6 +12,7 @@ import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { useCompanyMutations } from "@/app/hooks/useCompany";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { createDriverInvitation } from "@/app/lib/controllers/invitations";
+import { isEmailNotVerifiedError } from "@/app/lib/utils/emailVerificationError";
 import { addCompanyMemberDriverValidationSchema } from "@/app/lib/validationSchema";
 import { ValidationError } from "yup";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -104,7 +105,16 @@ export default function AddCompanyMemberDialog({ open, onClose, onSuccess }: Add
         resetDialog();
         await toast.promise(
           createDriverInvitation(inviteEmail, driverData),
-          { loading: dict.toasts?.loading || "Sending invitation...", success: dict.toasts.successInvite, error: (err: unknown) => err instanceof Error ? err.message : dict.toasts.errorGeneric }
+          {
+            loading: dict.toasts?.loading || "Sending invitation...",
+            success: dict.toasts.successInvite,
+            error: (err: unknown) =>
+              isEmailNotVerifiedError(err)
+                ? dict.auth.emailNotVerifiedAction
+                : err instanceof Error
+                  ? err.message
+                  : dict.toasts.errorGeneric,
+          }
         );
         onSuccess?.();
       } catch (err: unknown) {

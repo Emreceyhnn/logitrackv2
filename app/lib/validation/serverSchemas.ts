@@ -47,6 +47,25 @@ export const loginUserSchema = z.object({
   password: z.string().min(1).max(1024),
 });
 
+export const requestPasswordResetSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
+});
+
+// The new password reuses the exact strength rules from registration — a reset
+// must never be a way to downgrade an account to a weaker password.
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Reset token is required").max(512),
+  password: registerUserSchema.shape.password,
+});
+
+export const resendVerificationSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
+});
+
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, "Verification token is required").max(512),
+});
+
 // ─── Invitations ────────────────────────────────────────────────────────────
 export const createDriverInvitationSchema = z.object({
   email: z.string().trim().toLowerCase().email("Invalid email address").max(254),

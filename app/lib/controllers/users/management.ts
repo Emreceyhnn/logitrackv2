@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { checkPermission } from "../utils/checkPermission";
+import { requireVerifiedEmail } from "../utils/requireVerifiedEmail";
 import { db } from "../../db";
 import { redis } from "../../redis";
 import { exclude } from "@/app/lib/utils/exclude";
@@ -137,6 +138,10 @@ export const createUserForCompany = authenticatedAction(
         "role_admin",
         "role_manager",
       ]);
+
+      // Creating accounts for other people is a privileged, outward-facing
+      // action — the creator's own address must be proven first.
+      await requireVerifiedEmail(user);
 
       if (!user.companyId) {
         throw new NoCompanyError();

@@ -19,3 +19,7 @@ export {
   updateUserRegionalSettings,
   updateUserNotificationSettings,
 } from "./users/settings";
+export {
+  verifyEmailToken,
+  resendEmailVerification,
+} from "./users/emailVerification";
