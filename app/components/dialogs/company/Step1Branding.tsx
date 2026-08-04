@@ -53,18 +53,11 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
 
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, letterSpacing: "-0.01em" }}>
-          {dict.company.branding.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {dict.company.branding.subtitle}
-        </Typography>
-      </Box>
-
-      <Stack spacing={4}>
+      {/* The dialog header already renders this step's title/subtitle — a
+          second copy here just pushed the fields below the fold. */}
+      <Stack spacing={2.5}>
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
             {dict.company.branding.legalName}
           </Typography>
           <TextField
@@ -97,7 +90,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
             {dict.company.branding.digitalIdentity}
           </Typography>
           <Box
@@ -105,7 +98,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
             sx={{
               border: `2px dashed ${formData.logo ? theme.palette.primary._alpha.main_40 : theme.palette.primary._alpha.main_15}`,
               borderRadius: 4,
-              p: formData.logo ? 2 : 5,
+              p: formData.logo ? 2 : 3,
               textAlign: "center",
               cursor: "pointer",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -160,16 +153,16 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
                 </Box>
               </Box>
             ) : (
-              <Stack alignItems="center" spacing={1}>
-                <Box sx={{ 
-                  width: 50, 
-                  height: 50, 
-                  borderRadius: "50%", 
-                  bgcolor: theme.palette.primary._alpha.main_10, 
-                  display: "flex", 
-                  alignItems: "center", 
+              <Stack alignItems="center" spacing={0.5}>
+                <Box sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  bgcolor: theme.palette.primary._alpha.main_10,
+                  display: "flex",
+                  alignItems: "center",
                   justifyContent: "center",
-                  mb: 1
+                  mb: 0.5
                 }}>
                   <CloudUploadIcon sx={{ color: theme.palette.primary.main }} />
                 </Box>
@@ -185,7 +178,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
             {dict.company.branding.industry}
           </Typography>
           <FormControl fullWidth error={touched.industry && !!errors.industry}>
@@ -225,7 +218,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
             {dict.company.dialogs.domainLabel}
           </Typography>
           <TextField

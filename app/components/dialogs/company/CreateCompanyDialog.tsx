@@ -152,6 +152,9 @@ export default function CreateCompanyDialog({
           backgroundImage: "none",
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
+          // Cap the dialog to the viewport so the body scrolls instead of the
+          // last fields being squeezed against the footer on short screens.
+          maxHeight: "calc(100dvh - 48px)",
         },
       }}
     >
@@ -166,12 +169,12 @@ export default function CreateCompanyDialog({
       >
         {({ values, errors, setFieldValue, setTouched, submitForm }) => (
           <>
-            <Box sx={{ p: 4, pb: 0 }}>
+            <Box sx={{ px: 4, pt: 3, pb: 2.5, flexShrink: 0 }}>
               <Stack
                 direction="row"
                 justifyContent="space-between"
                 alignItems="center"
-                sx={{ mb: 3 }}
+                sx={{ mb: 2.5 }}
               >
                 <Stack spacing={0.5}>
                   <Typography component="div"
@@ -184,7 +187,9 @@ export default function CreateCompanyDialog({
                       : dict.company.dialogs.regionalTitle}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {dict.company.dialogs.identitySubtitle}
+                    {activeStep === 0
+                      ? dict.company.dialogs.identitySubtitle
+                      : dict.company.dialogs.steps.regionalDesc}
                   </Typography>
                 </Stack>
                 <IconButton
@@ -238,7 +243,17 @@ export default function CreateCompanyDialog({
             </Box>
 
             <DialogContent
-              sx={{ mt: 2, pb: 4, minHeight: 400, overflow: "hidden" }}
+              sx={{
+                px: 4,
+                py: 3,
+                // Scroll the form body rather than clipping it: the branding
+                // step is taller than the dialog on laptop-height screens.
+                overflowY: "auto",
+                overflowX: "hidden",
+                // The x-slide transition would otherwise trigger a horizontal
+                // scrollbar mid-animation.
+                overscrollBehavior: "contain",
+              }}
             >
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
@@ -301,9 +316,10 @@ export default function CreateCompanyDialog({
 
             <DialogActions
               sx={{
-                p: 4,
-                pt: 1,
-                borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
+                px: 4,
+                py: 2.5,
+                flexShrink: 0,
+                borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
                 justifyContent: "space-between",
                 bgcolor: theme.palette.background.paper_alpha.main_40,
               }}

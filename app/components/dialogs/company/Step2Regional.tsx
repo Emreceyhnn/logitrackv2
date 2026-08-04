@@ -26,34 +26,27 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
 
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="overline"
-          sx={{
-            color: "primary.main",
-            fontWeight: 800,
-            letterSpacing: "0.1em",
-          }}
-        >
-          {dict.company.dialogs.steps.globalConfig}
-        </Typography>
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: 800, mb: 1, letterSpacing: "-0.01em" }}
-        >
-          {dict.company.dialogs.steps.regionalEcosystem}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {dict.company.dialogs.steps.regionalDesc}
-        </Typography>
-      </Box>
+      {/* Title/subtitle live in the dialog header; only the section eyebrow is
+          kept here to anchor the step. */}
+      <Typography
+        variant="overline"
+        sx={{
+          display: "block",
+          mb: 2,
+          color: "primary.main",
+          fontWeight: 800,
+          letterSpacing: "0.1em",
+        }}
+      >
+        {dict.company.dialogs.steps.globalConfig}
+      </Typography>
 
-      <Stack spacing={4}>
+      <Stack spacing={2.5}>
         <Box>
           <Typography
             variant="subtitle2"
             sx={{
-              mb: 1.5,
+              mb: 1,
               fontWeight: 700,
               color: (theme) => theme.palette.text.primary_alpha.main_70,
             }}
@@ -104,12 +97,12 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
           </FormControl>
         </Box>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={2.5}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography
               variant="subtitle2"
               sx={{
-                mb: 1.5,
+                mb: 1,
                 fontWeight: 700,
                 color: (theme) => theme.palette.text.primary_alpha.main_70,
               }}
@@ -166,7 +159,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             <Typography
               variant="subtitle2"
               sx={{
-                mb: 1.5,
+                mb: 1,
                 fontWeight: 700,
                 color: (theme) => theme.palette.text.primary_alpha.main_70,
               }}
@@ -221,8 +214,8 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
 
         <Box
           sx={{
-            p: 3,
-            borderRadius: 4,
+            p: 2.5,
+            borderRadius: 3,
             bgcolor: (theme) => theme.palette.primary._alpha.main_04,
             border: (theme) =>
               `1px solid ${theme.palette.primary._alpha.main_15}`,
@@ -244,7 +237,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
               sx={{
                 color: (theme) => theme.palette.text.secondary_alpha.main_70,
                 display: "block",
-                mb: 2,
+                mb: 1,
                 lineHeight: 1.5,
               }}
             >

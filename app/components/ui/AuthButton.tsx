@@ -30,6 +30,8 @@ const AuthButton = ({
         fontSize: "0.95rem",
         position: "relative",
         overflow: "hidden",
+        // Keeps label/spinner off the rounded edges regardless of locale.
+        px: 2.5,
         bgcolor: "primary.main",
         "&:hover": {
           bgcolor: "primary.dark",
@@ -56,18 +58,30 @@ const AuthButton = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "12px",
+              // Longer localized strings (tr "Kaydediliyor...") must not run
+              // into the button edges.
+              gap: "8px",
+              maxWidth: "100%",
+              minWidth: 0,
             }}
           >
             <CircularProgress
-              size={20}
+              size={16}
               thickness={5}
-              sx={{ color: "inherit" }}
+              sx={{ color: "inherit", flexShrink: 0 }}
             />
             {loadingText && (
               <Box
                 component="span"
-                sx={{ fontSize: "0.9rem", fontWeight: 600 }}
+                sx={{
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  lineHeight: 1.2,
+                  minWidth: 0,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
               >
                 {loadingText}
               </Box>
