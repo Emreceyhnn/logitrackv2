@@ -49,7 +49,7 @@ export default function RouteDialog({ open, onClose, onSuccess, route }: RouteDi
   const theme = useTheme();
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
 
-  const { liveMetrics, setLiveMetrics, vehicleToDestMetrics, vehicleTraveledMetrics, statusLoading, mapOrigin, mapDestination, intermediateStops, handleStatusChange } = useRouteDialog(open, route, onSuccess);
+  const { liveMetrics, setLiveMetrics, vehicleToDestMetrics, vehicleTraveledMetrics, statusLoading, mapOrigin, mapDestination, intermediateStops, handleStatusChange } = useRouteDialog(open, route, onSuccess, dict.toasts.demoActionDisabled);
 
   if (!route) return null;
 

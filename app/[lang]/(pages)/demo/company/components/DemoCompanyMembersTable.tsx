@@ -19,9 +19,10 @@ import { Dictionary } from "@/app/lib/language/language";
 /**
  * Demo-only fork of CompanyMembersTable. The real table mounts
  * EditCompanyMemberDialog / DeleteConfirmationDialog and calls
- * actions.deleteMember (a real mutation). This fork mounts no dialogs and
- * routes every row action (details / edit / delete) through onAction so no
- * server action is reachable from the demo tree.
+ * actions.deleteMember (a real mutation). This fork mounts no mutation
+ * dialogs: details is delegated upward via onDetails (the caller mounts the
+ * read-only dialog), and edit / delete route through onAction, so no server
+ * action is reachable from the demo tree.
  */
 
 function StatusChip({ status, dict }: { status: string; dict: Dictionary }) {
@@ -52,11 +53,14 @@ function StatusChip({ status, dict }: { status: string; dict: Dictionary }) {
 interface DemoCompanyMembersTableProps {
   props: CompanyPageProps;
   onAction: () => void;
+  /** Opens the read-only member details dialog. Falls back to onAction. */
+  onDetails?: (member: CompanyMember) => void;
 }
 
 export default function DemoCompanyMembersTable({
   props,
   onAction,
+  onDetails,
 }: DemoCompanyMembersTableProps) {
   const dict = useDictionary();
   const { state, actions } = props;
@@ -152,7 +156,7 @@ export default function DemoCompanyMembersTable({
       {
         label: dict.company.members.actions.details,
         icon: <InfoIcon fontSize="small" color="info" />,
-        onClick: () => onAction(),
+        onClick: (row) => (onDetails ? onDetails(row) : onAction()),
       },
       {
         label: dict.company.members.actions.edit,
@@ -166,7 +170,7 @@ export default function DemoCompanyMembersTable({
         color: "error",
       },
     ],
-    [dict, onAction]
+    [dict, onAction, onDetails]
   );
 
   return (

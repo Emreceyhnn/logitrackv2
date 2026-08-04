@@ -15,6 +15,8 @@ import {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 import OverviewTab from "./overviewTab";
 import InventoryTab from "./inventoryTab";
 import CloseIcon from "@mui/icons-material/Close";
@@ -76,6 +78,8 @@ const WarehouseDetailsDialog = ({
 }: WarehouseDialogParams) => {
   /* --------------------------------- states --------------------------------- */
   const dict = useDictionary();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const [value, setValue] = useState(0);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const theme = useTheme();
@@ -155,7 +159,15 @@ const WarehouseDetailsDialog = ({
 
           <Stack direction="row" spacing={1} alignItems="center">
             <IconButton
-              onClick={() => setEditDialogOpen(true)}
+              onClick={() => {
+                // EditWarehouseDialog loads company users through an
+                // authenticated action, which would redirect a demo visitor.
+                if (isDemo) {
+                  toast.info(dict.toasts.demoActionDisabled);
+                  return;
+                }
+                setEditDialogOpen(true);
+              }}
               size="small"
               sx={{
                 color: "text.secondary",
@@ -210,12 +222,14 @@ const WarehouseDetailsDialog = ({
         </Stack>
       </DialogContent>
 
-      <EditWarehouseDialog
-        open={editDialogOpen}
-        onClose={() => setEditDialogOpen(false)}
-        onSuccess={() => setEditDialogOpen(false)}
-        warehouseData={warehouseData}
-      />
+      {!isDemo && (
+        <EditWarehouseDialog
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          onSuccess={() => setEditDialogOpen(false)}
+          warehouseData={warehouseData}
+        />
+      )}
     </Dialog>
   );
 };

@@ -19,13 +19,15 @@ import {
 } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
+import type { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 
 /**
  * Demo-only counterpart to WarehouseContent — same table/KPI/movements layout,
- * backed by the fixed demo dataset. Add/Edit/Delete/details actions stay
- * visible for visual fidelity but never open a real dialog or call a real
- * mutation; they show a "disabled in demo" toast. No Add/Edit/Delete/details
- * dialogs are mounted, so no real mutation hook is reachable from this tree.
+ * backed by the fixed demo dataset. Selecting a warehouse opens the real,
+ * read-only WarehouseDetailsDialog (its inventory tab reads the public demo
+ * endpoint, and its edit action is disabled in demo). Add/Edit/Delete still
+ * only show a "disabled in demo" toast; no mutation dialog is mounted.
  */
 export default function DemoWarehouseContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -34,6 +36,10 @@ export default function DemoWarehouseContent() {
 
   /* --------------------------------- STATES --------------------------------- */
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10 });
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
+    null
+  );
+  const [detailOpen, setDetailOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -49,9 +55,33 @@ export default function DemoWarehouseContent() {
     toast.info(dict.toasts.demoActionDisabled);
   }, [dict]);
 
-  const warehouses = dashboardData?.warehouses || [];
+  const handleOpenDetails = useCallback((id: string | null) => {
+    if (!id) return;
+    setSelectedWarehouseId(id);
+    setDetailOpen(true);
+  }, []);
+
+  const handleCloseDetails = useCallback(() => {
+    setDetailOpen(false);
+    setSelectedWarehouseId(null);
+  }, []);
+
+  // Memoised so the selectedWarehouse useMemo below keeps a stable dependency
+  // identity across renders (react-hooks exhaustive-deps).
+  const warehouses = useMemo(
+    () => dashboardData?.warehouses || [],
+    [dashboardData?.warehouses]
+  );
   const stats = dashboardData?.stats || null;
   const recentMovements = dashboardData?.recentMovements || [];
+
+  const selectedWarehouse = useMemo(
+    () =>
+      (warehouses as WarehouseWithRelations[]).find(
+        (w) => w.id === selectedWarehouseId
+      ),
+    [warehouses, selectedWarehouseId]
+  );
 
   /* --------------------------------- KPI --------------------------------- */
   const kpiItems = useMemo(
@@ -132,10 +162,10 @@ export default function DemoWarehouseContent() {
           <WarehouseListTable
             warehouses={warehouses}
             loading={isFetching}
-            onSelect={notifyDisabled}
+            onSelect={handleOpenDetails}
             onEdit={notifyDisabled}
             onDelete={notifyDisabled}
-            onDetails={notifyDisabled}
+            onDetails={handleOpenDetails}
             meta={{
               page: pagination.page,
               limit: pagination.pageSize,
@@ -152,6 +182,13 @@ export default function DemoWarehouseContent() {
       <Stack direction={{ xs: "column", xl: "row" }} spacing={4} sx={{ mt: 2 }}>
         <RecentStockMovements movements={recentMovements} loading={isLoading} />
       </Stack>
+
+      <WarehouseDetailsDialog
+        key={selectedWarehouseId}
+        open={detailOpen}
+        onClose={handleCloseDetails}
+        warehouseData={selectedWarehouse}
+      />
     </Box>
   );
 }

@@ -75,6 +75,20 @@ export interface RouteResponse {
 }
 
 const VALHALLA_URL = "/api/valhalla";
+// Session-free twin of the above, for the public Live Demo. /api/valhalla
+// requires an authenticated session and 401s for anonymous visitors, which
+// left every demo map with markers but no drawn route.
+const DEMO_VALHALLA_URL = "/api/demo/valhalla";
+
+function routingEndpoint(): string {
+  if (
+    typeof window !== "undefined" &&
+    window.location.pathname.includes("/demo")
+  ) {
+    return DEMO_VALHALLA_URL;
+  }
+  return VALHALLA_URL;
+}
 
 /**
  * tr-Valhalla rotalama hizmetinden bir rota alır
@@ -87,7 +101,7 @@ const VALHALLA_URL = "/api/valhalla";
 export async function fetchRoute(
   params: RoutingParams
 ): Promise<RouteResponse> {
-  const response = await fetch(VALHALLA_URL, {
+  const response = await fetch(routingEndpoint(), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

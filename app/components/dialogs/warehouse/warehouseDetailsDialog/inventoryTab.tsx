@@ -22,8 +22,9 @@ import {
   Error as ErrorIcon,
   AttachMoney,
 } from "@mui/icons-material";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { logger } from "@/app/lib/logger";
 
 
@@ -36,7 +37,13 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
   const params = useParams();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const lang = (params?.lang as string) || "en";
+
+  const notifyDisabled = () => {
+    toast.info(dict.toasts.demoActionDisabled);
+  };
 
   /* ---------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState({
@@ -101,18 +108,27 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
     setIsDetailsOpen(true);
   };
 
+  // Browsing inventory is allowed in the demo; mutating is not — every
+  // mutation below runs through an authenticated action that would redirect
+  // an anonymous visitor to sign-in.
   const handleOpenEdit = (id: string) => {
+    if (isDemo) return notifyDisabled();
     setSelectedItemId(id);
     setIsEditOpen(true);
   };
 
   const handleDeleteRequest = (id: string) => {
+    if (isDemo) return notifyDisabled();
     setSelectedItemId(id);
     setIsDeleteOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     if (!selectedItemId) return;
+    if (isDemo) {
+      setIsDeleteOpen(false);
+      return notifyDisabled();
+    }
     try {
       await deleteMutation.mutateAsync(selectedItemId);
       setIsDeleteOpen(false);
@@ -189,7 +205,10 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       <InventoryHeader
         value={displaySearch}
         onSearch={(val) => setDisplaySearch(val)}
-        onAddClick={() => setIsAddOpen(true)}
+        onAddClick={() => {
+          if (isDemo) return notifyDisabled();
+          setIsAddOpen(true);
+        }}
         status={filters.status}
         onStatusChange={(status) => {
           setFilters((prev) => ({ ...prev, status }));

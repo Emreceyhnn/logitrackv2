@@ -15,7 +15,8 @@ const useDictionaryMock = mock.fn(() => ({
     dialogs: {
       details: { overview: "Overview", inventory: "Inventory" }
     }
-  }
+  },
+  toasts: { demoActionDisabled: "Disabled in demo" }
 }));
 
 mock.module("@mui/material", {
@@ -51,6 +52,14 @@ mock.module("react", {
 mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock }
 });
+
+// The dialog reads the pathname to detect the public Live Demo (where the
+// edit action is disabled). Not the dashboard path here, so isDemo is false.
+mock.module("next/navigation", {
+  namedExports: { usePathname: mock.fn(() => "/en/warehouses") }
+});
+
+mock.module("sonner", { namedExports: { toast: { info: mock.fn() } } });
 
 mock.module("./overviewTab.tsx", { defaultExport: () => ({ type: "OverviewTab" }) });
 mock.module("./inventoryTab.tsx", { defaultExport: () => ({ type: "InventoryTab" }) });

@@ -15,6 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import BusinessIcon from "@mui/icons-material/Business";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { getCustomerById } from "@/app/lib/controllers/customer";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -26,25 +27,41 @@ interface CustomerDetailDialogParams {
   open: boolean;
   onClose: () => void;
   customerId: string | null;
-
-
+  /**
+   * Pre-resolved customer. When supplied the dialog renders it directly and
+   * never calls getCustomerById — the path the Live Demo uses, where the
+   * authenticated server action would redirect an anonymous visitor to
+   * sign-in. Omitted in the real dashboard, which fetches by id as before.
+   */
+  customerData?: CustomerWithRelations | null;
 }
 
 const CustomerDetailDialog = ({
   open,
   onClose,
   customerId,
-
+  customerData,
 }: CustomerDetailDialogParams) => {
   /* --------------------------------- states --------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const [customer, setCustomer] = useState<CustomerWithRelations | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open && customerId) {
+      // Demo (or any caller that already holds the record): render what was
+      // handed in. Calling the authenticated action here is what bounced
+      // anonymous demo visitors to the sign-in page.
+      if (customerData || isDemo) {
+        setCustomer(customerData ?? null);
+        setError(null);
+        setLoading(false);
+        return;
+      }
       if (customerId.startsWith("temp-")) {
         setCustomer(null);
         setError(null);
@@ -75,7 +92,7 @@ const CustomerDetailDialog = ({
       setCustomer(null);
       setError(null);
     }
-  }, [open, customerId, dict]);
+  }, [open, customerId, dict, customerData, isDemo]);
 
   const getIndustryLabel = (industry: string | null) => {
     if (!industry) return dict.customers.industryGeneral;

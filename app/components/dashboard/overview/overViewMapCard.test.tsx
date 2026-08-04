@@ -27,7 +27,12 @@ mock.module("../../cards/card.tsx", {
 // The card now navigates on marker drill-down and localizes labels; stub the
 // router + language hooks so the mapping logic can still be asserted in isolation.
 mock.module("next/navigation", {
-  namedExports: { useRouter: () => ({ push: () => {} }) },
+  // The component also imports usePathname (to detect the demo tree); without
+  // it here the module fails to instantiate.
+  namedExports: {
+    useRouter: () => ({ push: () => {} }),
+    usePathname: () => "/en/overview",
+  },
 });
 
 mock.module("../../../lib/language/DictionaryContext.tsx", {

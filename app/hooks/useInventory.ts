@@ -71,10 +71,22 @@ async function fetchInventoryDashboard(
   if (sortOrder) params.set("sortOrder", sortOrder);
   if (status && status.length > 0) params.set("status", status.join(","));
 
-  const response = await fetch(`/api/inventory/dashboard?${params.toString()}`, {
-    method: "GET",
-    credentials: "include",
-  });
+  // The warehouse details dialog reuses this tab inside the public Live Demo,
+  // where /api/inventory/dashboard 401s. Fall back to the fixed mock endpoint,
+  // which ignores the filter params (the demo dataset is not filterable).
+  const isDemo =
+    typeof window !== "undefined" &&
+    window.location.pathname.includes("/demo");
+
+  const response = await fetch(
+    isDemo
+      ? "/api/demo/inventory/dashboard"
+      : `/api/inventory/dashboard?${params.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+    }
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch inventory dashboard data");
   }

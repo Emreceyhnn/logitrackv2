@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import { useRouteMutations } from "@/app/hooks/useRoutes";
 import { polylineHelper } from "@/app/components/valhalla/polylineHelper";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import { RouteStatus } from "@/app/lib/type/enums";
 
-export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, onSuccess?: () => void) => {
+export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, onSuccess?: () => void, demoDisabledMessage: string = "This action is disabled in the live demo.") => {
   const [liveMetrics, setLiveMetrics] = useState<{ distanceKm: number; durationMin: number; } | null>(null);
   const [vehicleToDestMetrics, setVehicleToDestMetrics] = useState<{ distanceKm: number; durationMin: number; } | null>(null);
   const [vehicleTraveledMetrics, setVehicleTraveledMetrics] = useState<{ distanceKm: number; } | null>(null);
@@ -51,6 +52,15 @@ export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, 
 
   const handleStatusChange = (newStatus: RouteStatus) => {
     if (!route) return;
+    // Viewing a route is allowed in the public demo; updating its status runs
+    // through an authenticated action that would redirect to sign-in.
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname.includes("/demo")
+    ) {
+      toast.info(demoDisabledMessage);
+      return;
+    }
     updateRouteStatus.mutate(
       { id: route.id, status: newStatus },
       { onSuccess: () => onSuccess?.() }

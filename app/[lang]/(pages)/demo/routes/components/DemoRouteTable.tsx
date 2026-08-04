@@ -24,10 +24,10 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 /**
  * Demo-only fork of RouteTable. The real table imports the updateRouteStatus
- * controller and mounts RouteDetailsDialog (whose actions can mutate). This
- * fork drops both: every row action (details, activate, complete, edit,
- * delete) routes through the caller-supplied disabled-toast callbacks so no
- * server action is reachable from the demo tree.
+ * controller directly; this fork drops it, so no server action is reachable
+ * from the table itself. Details is delegated upward via onDetails (the
+ * caller mounts the read-only dialog); the mutating row actions (activate,
+ * complete, edit, delete) still route through the disabled-toast callbacks.
  */
 
 const VISIBLE_ROUTE_STATUSES: RouteStatus[] = [
@@ -41,6 +41,8 @@ interface DemoRouteTableProps extends RouteTableProps {
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onAction?: () => void;
+  /** Opens the read-only route details dialog. Falls back to onAction. */
+  onDetails?: (route: RouteWithRelations) => void;
   filters?:
     | { status?: RouteStatus[] | undefined; search?: string | undefined }
     | undefined;
@@ -55,6 +57,7 @@ const DemoRouteTable = ({
   onEdit,
   onDelete,
   onAction,
+  onDetails,
   filters,
   onFilterChange,
 }: DemoRouteTableProps) => {
@@ -205,7 +208,7 @@ const DemoRouteTable = ({
       {
         label: dict.common.details,
         icon: <ContentPasteIcon fontSize="small" />,
-        onClick: () => notify(),
+        onClick: (row) => (onDetails ? onDetails(row) : notify()),
       },
       {
         label: dict.routes.table.actions.activate,
@@ -239,7 +242,7 @@ const DemoRouteTable = ({
     }
 
     return actions;
-  }, [notify, onEdit, onDelete, dict]);
+  }, [notify, onDetails, onEdit, onDelete, dict]);
 
   return (
     <DataTable<RouteWithRelations>

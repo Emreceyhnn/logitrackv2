@@ -18,6 +18,8 @@ import {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
@@ -90,6 +92,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
     initialTab,
   } = params;
   const dict = useDictionary();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
 
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(initialTab ?? 0);
@@ -105,6 +109,14 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
   const handleDeleteConfirm = async () => {
     if (!vehicleData) return;
+
+    // Browsing details is allowed in the demo; mutating is not. deleteVehicle
+    // is an authenticated action and would redirect the anonymous visitor.
+    if (isDemo) {
+      setDeleteConfirmOpen(false);
+      toast.info(dict.toasts.demoActionDisabled);
+      return;
+    }
 
     try {
       setIsDeleting(true);

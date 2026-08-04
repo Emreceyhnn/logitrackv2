@@ -7,6 +7,7 @@ import { getSignedUrlAction } from "@/app/lib/actions/upload";
 import { deleteDocument } from "@/app/lib/controllers/documents";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import UploadDocumentDialog from "../uploadDocumentDialog";
 import DocumentViewerDialog from "../../shared/DocumentViewerDialog";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
@@ -24,6 +25,8 @@ interface DocumentsTabProps {
 const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const dict = useDictionary();
   const dateSettings = useDateSettings();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -41,6 +44,9 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
 
   const handleViewDoc = async (url: string, title: string) => {
     if (!url) return toast.error(dict.toasts.errorNoConnection);
+    // getSignedUrlAction is authenticated; in the demo there is no real file
+    // behind the mock document anyway.
+    if (isDemo) return toast.info(dict.toasts.demoActionDisabled);
     try {
       setLoadingDoc(true);
       const result = await getSignedUrlAction(url);
@@ -61,6 +67,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
 
   const handleDownloadDoc = async (url: string) => {
     if (!url) return toast.error(dict.toasts.errorNoConnection);
+    if (isDemo) return toast.info(dict.toasts.demoActionDisabled);
     try {
       const result = await getSignedUrlAction(url);
       if (result.success && result.url) {
@@ -82,6 +89,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
 
   const handleConfirmDelete = async () => {
     if (!docToDelete) return;
+    if (isDemo) {
+      setDeleteConfirmOpen(false);
+      setDocToDelete(null);
+      toast.info(dict.toasts.demoActionDisabled);
+      return;
+    }
     try {
       setIsDeletingDoc(true);
       await deleteDocument(docToDelete.id);

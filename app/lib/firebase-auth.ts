@@ -28,6 +28,16 @@ let authPromise: Promise<void> | null = null;
  */
 export function ensureFirebaseAuth(): Promise<void> {
   if (auth.currentUser) return Promise.resolve();
+
+  // The public Live Demo has no session: getFirebaseCustomTokenAction is an
+  // authenticatedAction, so calling it would redirect the anonymous visitor to
+  // /auth/sign-in the moment a details dialog mounted a tracking subscription.
+  // Reject instead — every caller already routes failures to its onError path
+  // and falls back to the static DB location.
+  if (typeof window !== "undefined" && window.location.pathname.includes("/demo")) {
+    return Promise.reject(new Error("Firebase auth is unavailable in the demo"));
+  }
+
   if (authPromise) return authPromise;
 
   authPromise = (async () => {

@@ -10,6 +10,9 @@ const mockRouterPush = mock.fn();
 mock.module("next/navigation", {
   namedExports: {
     useRouter: () => ({ push: mockRouterPush }),
+    // The component also imports usePathname (to detect the demo tree);
+    // without it here the module fails to instantiate.
+    usePathname: () => "/en/overview",
   },
 });
 

@@ -121,6 +121,13 @@ export default function InventoryDetailsDialog({
   const handleAdjustStock = async () => {
     if (!item || adjustAmount === 0) return;
 
+    // adjustStock is an authenticated mutation — browsing the dialog is fine
+    // in the demo, but committing an adjustment would redirect to sign-in.
+    if (isDemo) {
+      toast.info(dict.toasts.demoActionDisabled);
+      return;
+    }
+
     try {
       await adjustStock.mutateAsync({
         id: item.id,

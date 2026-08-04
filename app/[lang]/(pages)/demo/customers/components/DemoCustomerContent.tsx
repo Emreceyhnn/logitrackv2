@@ -14,6 +14,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import CustomerList from "@/app/components/dashboard/customer/CustomerList";
+import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { useState, useMemo, useCallback } from "react";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
@@ -30,9 +31,10 @@ const MapWithMarkers = dynamic(
 
 /**
  * Demo-only counterpart to CustomerContent — same list/map/search layout,
- * backed by the fixed demo dataset. Add/Edit/Delete/detail actions never open
- * a real dialog or call a real mutation; they show a "disabled in demo" toast.
- * No dialogs are mounted, so no real mutation hook is reachable from this tree.
+ * backed by the fixed demo dataset. Selecting a customer opens the real,
+ * read-only CustomerDetailDialog, fed the mock record directly so it never
+ * calls the authenticated getCustomerById action. Add/Edit/Delete still only
+ * show a "disabled in demo" toast; no mutation dialog is mounted.
  */
 export default function DemoCustomerContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -44,6 +46,7 @@ export default function DemoCustomerContent() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null
   );
+  const [detailOpen, setDetailOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -66,19 +69,29 @@ export default function DemoCustomerContent() {
     []
   );
 
-  const handleSelect = useCallback(
-    (id: string) => {
-      if (!id) return;
-      setSelectedCustomerId(id);
-      notifyDisabled();
-    },
-    [notifyDisabled]
-  );
+  const handleSelect = useCallback((id: string) => {
+    if (!id) return;
+    setSelectedCustomerId(id);
+    setDetailOpen(true);
+  }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailOpen(false);
+    setSelectedCustomerId(null);
+  }, []);
 
   /* --------------------------------- HELPERS -------------------------------- */
   const customers = useMemo(
     () => dashboardData?.customers || [],
     [dashboardData?.customers]
+  );
+
+  const selectedCustomer = useMemo(
+    () =>
+      customers.find(
+        (c: CustomerWithRelations) => c.id === selectedCustomerId
+      ) ?? null,
+    [customers, selectedCustomerId]
   );
 
   const mapLocations = useMemo(() => {
@@ -201,6 +214,14 @@ export default function DemoCustomerContent() {
           </Box>
         )}
       </Card>
+
+      <CustomerDetailDialog
+        key={selectedCustomerId}
+        open={detailOpen}
+        onClose={handleCloseDetail}
+        customerId={selectedCustomerId}
+        customerData={selectedCustomer}
+      />
     </Box>
   );
 }

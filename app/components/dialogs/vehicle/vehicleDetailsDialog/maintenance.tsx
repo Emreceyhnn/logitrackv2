@@ -3,6 +3,8 @@ import type { Issue, MaintenanceRecord } from "@/app/lib/type/enums";
 import { IssueStatus, VehicleStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 import ReportIssueDialog from "../reportIssueDialog";
 import MaintenanceRecordDialog from "../maintenanceRecordDialog";
 import MaintenanceDetailDialog from "../maintenanceDetailDialog";
@@ -22,6 +24,8 @@ interface MaintenanceTabProps {
 
 const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const dict = useDictionary();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   /* --------------------------------- states --------------------------------- */
@@ -61,6 +65,11 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   };
 
   const handleVehicleStatusChange = async (newStatus: VehicleStatus) => {
+    // Authenticated action — in the demo it would bounce the visitor to sign-in.
+    if (isDemo) {
+      toast.info(dict.toasts.demoActionDisabled);
+      return;
+    }
     try {
       await updateVehicleStatus(vehicle.id, newStatus);
       handleUpdate();
