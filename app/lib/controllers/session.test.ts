@@ -347,8 +347,13 @@ describe("Session Controller", () => {
       );
       expect(setNames).toContain("token");
       expect(setNames).toContain("refreshToken");
-      // Old access-token cache invalidated
-      expect(redisMock.del.mock.calls.length).toBe(1);
+      // Old access-token cache invalidated, and the stale-claims marker cleared
+      // now that the re-minted JWT carries current companyId/role claims.
+      const delKeys = redisMock.del.mock.calls.map(
+        (c: Record<string, unknown>) => c.arguments[0]
+      );
+      expect(delKeys.some((k: string) => k.startsWith("session:"))).toBe(true);
+      expect(delKeys).toContain("stale:claims:user-1");
       // Refresh is audit-logged
       const auditArgs = dbMock.auditLog.create.mock.calls.map(
         (c: Record<string, unknown>) => c.arguments[0]?.data?.action

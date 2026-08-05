@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { controllerGuard } from "../utils/controllerGuard";
-import { createSession, logAuditEvent } from "../session";
+import { refreshSession, logAuditEvent, invalidateUserSessionCache } from "../session";
 import { invalidatePattern, driverCacheKeys } from "../../redis";
 import { invalidateCompanyCache } from "../company/shared";
 import { notifyInviterOfOutcome } from "./notifyInviter";
@@ -91,7 +91,15 @@ export const acceptExistingUserInvitation = authenticatedAction(
       await invalidatePattern(driverCacheKeys.companyPattern(invitation.companyId));
       await invalidateCompanyCache(invitation.companyId);
 
-      await createSession(updatedUser, userAgent, ip);
+      // Re-mint the CURRENT session rather than creating a second one: the user
+      // is already signed in, and createSession would insert a duplicate session
+      // row while leaving the original live and un-revoked. refreshSession
+      // rotates the existing row's tokens and rebuilds the JWT from the row we
+      // just updated, so the new companyId/roleId land in the cookie. If cookies
+      // can't be written here, the stale-claims marker below still guarantees
+      // the proxy re-mints on the next request.
+      await invalidateUserSessionCache(user.id);
+      await refreshSession();
       await logAuditEvent({
         userId: updatedUser.id,
         action: "SETTINGS_UPDATE",

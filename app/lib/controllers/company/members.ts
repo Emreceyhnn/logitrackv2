@@ -182,10 +182,10 @@ export const addCompanyUser = authenticatedAction(
       await invalidateCompanyCache(companyId);
       // Do NOT revoke the target's sessions here: their access token now holds a
       // stale companyId (null), but revoking would kill their refresh token too
-      // and trap them on /onboarding with a valid-but-dead cookie. Instead drop
-      // the cached session so validateSession re-reads from the DB; their next
-      // request (the onboarding page's checkAndSyncCompany → refreshSession)
-      // re-mints the JWT with the new companyId and lands them on the dashboard.
+      // and trap them on /onboarding with a valid-but-dead cookie. Instead mark
+      // their claims stale — the proxy routes their very next request through
+      // /api/auth/refresh, which re-mints the JWT with the new companyId and
+      // lands them on the dashboard without signing out and back in.
       await invalidateUserSessionCache(targetUserId);
 
       // tr-Kullanıcı bir şirkete eklendiğinde bundan haberdar edilmeli: hesabı artık başka

@@ -55,13 +55,30 @@ export async function issueEmailVerification(
 
   const verifyUrl = `${getBaseUrl()}/${lang}/auth/verify-email?token=${rawToken}`;
 
-  return sendEmailVerificationEmail(
+  const delivered = await sendEmailVerificationEmail(
     email,
     verifyUrl,
     userName,
     lang,
     VERIFICATION_EXPIRY_HOURS
   );
+
+  if (!delivered) {
+    // The send failed, so this token will never reach anyone. Burn it rather
+    // than leaving a live credential in the table that nobody can use, and log
+    // loudly — the token row existing while no email was sent is exactly the
+    // state that made this failure look like a success.
+    await db.emailVerificationToken.updateMany({
+      where: { userId, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    logger.error(
+      `[issueEmailVerification] No verification email was delivered for user ${userId}; ` +
+        `the issued token has been invalidated. The user must request a new link.`
+    );
+  }
+
+  return delivered;
 }
 
 /**

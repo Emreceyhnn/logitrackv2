@@ -17,7 +17,7 @@ import {
   type SessionUser,
   type SessionJWTPayload,
 } from "./internal";
-import { clearAuthCookies } from "./manage";
+import { clearAuthCookies, clearStaleClaims } from "./manage";
 import { logAuditEvent } from "./audit";
 import { resolveEntitlement } from "@/app/lib/entitlement.server";
 import { logger } from "@/app/lib/logger";
@@ -441,6 +441,11 @@ export async function refreshSession(): Promise<boolean> {
       // We don't return false here because the DB rotation succeeded.
       // The tokens will be lost if not handled by middleware, but we avoid a crash.
     }
+
+    // The new JWT carries companyId/role straight from the row we just read, so
+    // whatever made the old one stale is now resolved. Clear the marker or the
+    // proxy would bounce every subsequent request through /api/auth/refresh.
+    await clearStaleClaims(session.user.id);
 
     // Extract current IP and User Agent from headers
     const headerStore = await headers();

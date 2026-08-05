@@ -189,13 +189,26 @@ export const RegisterUser = maybeAuthenticatedAction(
       // the account already exists, and failing registration over a mail
       // outage would be worse than an unverified address. The user can request
       // a new link from the verify-email page at any time.
+      //
+      // issueEmailVerification reports a delivery failure by RETURNING false
+      // rather than throwing (only the token write throws), so the return value
+      // must be inspected — ignoring it made a non-delivering signup look
+      // identical to a successful one, with the token sitting in the DB and no
+      // email ever sent.
       try {
-        await issueEmailVerification(
+        const delivered = await issueEmailVerification(
           newUser.id,
           newUser.email,
           newUser.name,
           newUser.language === "tr" ? "tr" : "en"
         );
+        if (!delivered) {
+          logger.error(
+            `[RegisterUser] Verification email was NOT delivered for user ${newUser.id}. ` +
+              `The token exists but the send failed — see the preceding ` +
+              `[email] sendEmailVerificationEmail error for the provider reason.`
+          );
+        }
       } catch (verifyErr) {
         logger.error(
           "Verification email could not be issued at signup:",

@@ -36,18 +36,23 @@ export default function OnboardingPage() {
   const [pendingInvitations, setPendingInvitations] = useState<{ id: string; company: { name: string }; role: { name: string } }[]>([]);
 
   useEffect(() => {
+    // Sequential, not parallel: checkAndSyncCompany may rotate the auth cookies
+    // (refreshSession) when it finds a companyId the JWT doesn't have yet. Any
+    // request already in flight with the old token would then hash to a session
+    // row that no longer exists and fail. Only fetch the onboarding data once
+    // we know no re-mint is happening.
     checkAndSyncCompany().then((hasCompany) => {
       if (hasCompany) {
         window.location.href = `/${locale}/overview`;
-      } else {
-        Promise.all([getMyJoinRequest(), getMyInvitations(), canCreateCompany()])
-          .then(([req, invs, createAllowed]) => {
-            if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
-            if (invs) setPendingInvitations(invs);
-            setCanCreate(createAllowed);
-          })
-          .finally(() => setCheckingPending(false));
+        return;
       }
+      return Promise.all([getMyJoinRequest(), getMyInvitations(), canCreateCompany()])
+        .then(([req, invs, createAllowed]) => {
+          if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
+          if (invs) setPendingInvitations(invs);
+          setCanCreate(createAllowed);
+        })
+        .finally(() => setCheckingPending(false));
     }).catch(() => setCheckingPending(false));
   }, [locale]);
 

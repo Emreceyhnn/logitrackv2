@@ -3,7 +3,11 @@
 import { cookies } from "next/headers";
 import { db } from "../../db";
 import { redis } from "../../redis";
-import { revokedTokenKey, REVOCATION_TTL_SECONDS } from "./internal";
+import {
+  revokedTokenKey,
+  staleClaimsKey,
+  REVOCATION_TTL_SECONDS,
+} from "./internal";
 import { logger } from "../../logger";
 
 /**
@@ -77,9 +81,15 @@ export async function revokeAllUserSessions(userId: string): Promise<void> {
  * Used when a user's identity changed server-side (e.g. an admin added them to a
  * company, changing their companyId) and their still-valid access token now holds
  * stale claims. We must NOT revoke the session — that would invalidate the refresh
- * token too and block the seamless re-mint. Dropping the cached `session:*` entry
- * forces the next validateSession() to re-read from the DB, and the user's own
- * next request refreshes the JWT (refreshSession re-reads companyId) with no re-login.
+ * token too and block the seamless re-mint.
+ *
+ * Dropping the cached `session:*` entry is necessary but NOT sufficient: both the
+ * edge proxy and getAuthenticatedUser read `companyId` straight out of the signed
+ * JWT and never consult that cache, so a cache drop alone leaves the user pinned
+ * to their old claims until the token expires (up to an hour stranded on
+ * /onboarding). So we also set a per-user stale-claims flag that the proxy checks;
+ * it routes the next request through /api/auth/refresh, re-minting the JWT from
+ * current DB state with no re-login.
  *
  * input (userId: string)
  * output (Promise<void>)
@@ -90,11 +100,24 @@ export async function invalidateUserSessionCache(userId: string): Promise<void> 
     select: { token: true },
   });
 
-  await Promise.all(
-    activeSessions
+  await Promise.all([
+    ...activeSessions
       .filter((s) => s.token)
-      .map((s) => redis.del(`session:${s.token}`).catch(() => {}))
-  );
+      .map((s) => redis.del(`session:${s.token}`).catch(() => {})),
+    redis
+      .set(staleClaimsKey(userId), "1", { ex: REVOCATION_TTL_SECONDS })
+      .catch(() => {}),
+  ]);
+}
+
+/**
+ * tr-kullanıcının bayat talep (stale claims) işaretini temizler
+ * en-clears a user's stale-claims marker once their JWT has been re-minted
+ * input (userId: string)
+ * output (Promise<void>)
+ */
+export async function clearStaleClaims(userId: string): Promise<void> {
+  await redis.del(staleClaimsKey(userId)).catch(() => {});
 }
 
 /**

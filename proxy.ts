@@ -74,6 +74,9 @@ async function hashTokenEdge(token: string): Promise<string> {
 const revokedTokenKeyEdge = (tokenHash: string): string =>
   `revoked:token:${tokenHash}`;
 
+// Mirror of session/internal.ts `staleClaimsKey`, same edge-bundle reason.
+const staleClaimsKeyEdge = (userId: string): string => `stale:claims:${userId}`;
+
 function getLocaleFromPathname(pathname: string): {
   locale: Locale;
   restPath: string;
@@ -239,12 +242,14 @@ export default async function middleware(request: NextRequest) {
   let isTokenValid = false;
   let accessStatus: AccessStatus | null = null;
   let trialEndsAt: number | null = null;
+  let userId: string | null = null;
 
   if (token) {
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
       const { payload } = await jwtVerify(token, secret);
       companyId = (payload.companyId as string) || null;
+      userId = typeof payload.id === "string" ? payload.id : null;
       accessStatus = (payload.accessStatus as AccessStatus) ?? null;
       trialEndsAt =
         typeof payload.trialEndsAt === "number" ? payload.trialEndsAt : null;
@@ -280,13 +285,39 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
+  // A signature-valid token can still carry STALE claims: when an admin adds an
+  // existing user to a company (addCompanyUser) or they accept an invitation,
+  // their `companyId` changes in the DB while their cookie keeps saying null.
+  // Nothing on the hot path re-reads it — both this proxy and
+  // getAuthenticatedUser decode companyId straight from the JWT — so without
+  // this the user is stranded on /onboarding until the token expires, and any
+  // Server Action they trigger runs under a null tenant context. The flag is
+  // set by invalidateUserSessionCache and cleared by refreshSession once the
+  // JWT is re-minted from current DB state.
+  // `refreshed=1` marks a request that just came back from /api/auth/refresh.
+  // If the flag somehow survived (a Redis del that failed), honouring it again
+  // would bounce the user between here and the refresh route forever — so we
+  // trust the fresh token for this hop and let the next request re-evaluate.
+  const justRefreshed = request.nextUrl.searchParams.get("refreshed") === "1";
+
+  let hasStaleClaims = false;
+  if (isTokenValid && userId && !justRefreshed) {
+    try {
+      hasStaleClaims = Boolean(await redis.get(staleClaimsKeyEdge(userId)));
+    } catch {
+      // Fail-open, same posture as the revocation check above: a Redis blip
+      // must not bounce everyone through the refresh endpoint.
+    }
+  }
+
   // Effective dashboard entitlement, decided purely from the JWT summary.
   const userHasAccess = hasAccess(accessStatus, trialEndsAt);
 
   // ── 4. Token Refresh Flow ───────────────────────────────────────────────────
-  // If access token is invalid/expired, but a refresh token exists, redirect
-  // to the refresh endpoint before hitting any Server Components.
-  if (!isTokenValid && refreshToken) {
+  // If the access token is invalid/expired — or still valid but holding stale
+  // claims — and a refresh token exists, redirect to the refresh endpoint
+  // before hitting any Server Components.
+  if ((!isTokenValid || hasStaleClaims) && refreshToken) {
     const url = request.nextUrl.clone();
     url.pathname = `/api/auth/refresh`;
     url.searchParams.set(

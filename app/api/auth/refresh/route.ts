@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
 
     try {
       const targetUrl = new URL(safeRedirectTo, request.nextUrl.origin);
+      // Tell the proxy this hop already went through a re-mint, so a
+      // stale-claims flag that failed to clear can't cause a redirect loop.
+      targetUrl.searchParams.set("refreshed", "1");
       return NextResponse.redirect(targetUrl);
     } catch {
       // Fallback

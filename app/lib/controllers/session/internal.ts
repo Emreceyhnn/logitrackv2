@@ -197,3 +197,15 @@ export const revokedTokenKey = (tokenHash: string): string =>
 
 /** TTL (seconds) for a denylist entry — the longest an access token can live. */
 export const REVOCATION_TTL_SECONDS = ACCESS_TOKEN_MAX_AGE;
+
+// Marks a user whose identity claims changed server-side (companyId, role)
+// while they held a still-valid access token. Unlike the revocation denylist
+// this does NOT reject the token — `companyId` is baked into the JWT and read
+// straight from it by both the edge proxy and getAuthenticatedUser, so a Redis
+// cache drop alone can never unstick them. The proxy sees this flag and routes
+// the request through /api/auth/refresh, which re-mints the JWT from the DB and
+// clears the flag. Keyed by user (not token) so it applies to every device they
+// are signed in on. Same TTL as revocation: past that the token has expired and
+// the normal refresh flow takes over anyway.
+export const staleClaimsKey = (userId: string): string =>
+  `stale:claims:${userId}`;

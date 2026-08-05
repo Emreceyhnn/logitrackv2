@@ -245,9 +245,15 @@ export async function sendEmailVerificationEmail(
     logger.info(`[email] Verification email sent → ${to} (id: ${id})`);
     return true;
   } catch (error) {
+    // Log the provider's own fields, not just `message`. Resend distinguishes
+    // an unverified sending domain (403), an invalid recipient (422) and a bad
+    // key (401) via `name`/`statusCode`; collapsing them to a bare string threw
+    // away the only information that identifies which one occurred.
+    const e = error as { name?: string; statusCode?: number; message?: string };
     logger.error(
-      "[email] sendEmailVerificationEmail failed:",
-      error instanceof Error ? error.message : String(error)
+      `[email] sendEmailVerificationEmail failed for ${to} — ` +
+        `name=${e.name ?? "n/a"} statusCode=${e.statusCode ?? "n/a"} ` +
+        `message=${e.message ?? String(error)}`
     );
     return false;
   }

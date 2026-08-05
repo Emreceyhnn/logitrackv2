@@ -11,6 +11,7 @@ export {
   revokeSession,
   revokeAllUserSessions,
   invalidateUserSessionCache,
+  clearStaleClaims,
   clearAuthCookies,
   cleanExpiredSessions,
   getUserActiveSessions,
