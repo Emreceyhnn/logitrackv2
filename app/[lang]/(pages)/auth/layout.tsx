@@ -2,7 +2,7 @@
 
 import { Box, Stack, Typography, useTheme, Grid } from "@mui/material";
 import Image from "next/image";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { useEffect } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -15,6 +15,7 @@ export default function AuthLayout({
 }) {
   const theme = useTheme();
   const dict = useDictionary();
+  const { lang } = useLanguage();
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -245,7 +246,7 @@ export default function AuthLayout({
   );
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID} locale={lang}>
       {content}
     </GoogleOAuthProvider>
   );
