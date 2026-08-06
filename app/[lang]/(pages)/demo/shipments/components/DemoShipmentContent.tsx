@@ -30,6 +30,14 @@ import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
+// Stable empty fallbacks. A fresh `[]`/`{}` literal is a new reference every
+// render, which defeats the memoisation of `state` below and of every child
+// that depends on these fields.
+const EMPTY_SHIPMENTS: ShipmentPageState["shipments"] = [];
+const EMPTY_VOLUME_HISTORY: ShipmentPageState["volumeHistory"] = [];
+const EMPTY_STATUS_DISTRIBUTION: ShipmentPageState["statusDistribution"] = [];
+const EMPTY_FILTERS: ShipmentPageState["filters"] = {};
+
 /**
  * Demo-only counterpart to ShipmentContent — same table/KPI/chart layout,
  * backed by the fixed demo dataset. Add/Edit/Delete buttons stay visible for
@@ -85,18 +93,36 @@ export default function DemoShipmentContent() {
     [refreshAll, notifyDisabled]
   );
 
+  // Spreading `actions` inline in JSX minted a new object on every render,
+  // which propagated straight back into the table's memoised callbacks.
+  const tableActions = useMemo(
+    () => ({ ...actions, onEdit: notifyDisabled, onDelete: notifyDisabled }),
+    [actions, notifyDisabled]
+  );
+
   /* -------------------------- COMPATIBILITY LAYER --------------------------- */
-  const state: ShipmentPageState = {
-    shipments: dashboardData?.shipments || [],
-    stats: dashboardData?.stats || null,
-    totalCount: dashboardData?.totalCount || 0,
-    volumeHistory: dashboardData?.volumeHistory || [],
-    statusDistribution: dashboardData?.statusDistribution || [],
-    selectedShipmentId,
-    filters: {},
-    loading: isFetching,
-    error: isError ? "error" : null,
-  };
+  // Memoised, and the `|| []` fallbacks replaced with shared frozen constants:
+  // rebuilding this object (and fresh [] literals) on every render handed
+  // DemoShipmentTable a new `shipments` reference each time, which re-fired its
+  // deep-link effect -> setSelectedShipment(new object) -> new `shipment` prop
+  // on the detail dialog -> its Valhalla effect refired -> render -> repeat.
+  // That loop also burned through the demo routing rate limit (30 req/60s),
+  // which is why the route line stopped drawing.
+  const state: ShipmentPageState = useMemo(
+    () => ({
+      shipments: dashboardData?.shipments || EMPTY_SHIPMENTS,
+      stats: dashboardData?.stats || null,
+      totalCount: dashboardData?.totalCount || 0,
+      volumeHistory: dashboardData?.volumeHistory || EMPTY_VOLUME_HISTORY,
+      statusDistribution:
+        dashboardData?.statusDistribution || EMPTY_STATUS_DISTRIBUTION,
+      selectedShipmentId,
+      filters: EMPTY_FILTERS,
+      loading: isFetching,
+      error: isError ? "error" : null,
+    }),
+    [dashboardData, selectedShipmentId, isFetching, isError]
+  );
 
   /* --------------------------------- RENDER --------------------------------- */
 
@@ -176,11 +202,7 @@ export default function DemoShipmentContent() {
           <Stack mt={2} data-tour="shipment-table">
             <DemoShipmentTable
               state={state}
-              actions={{
-                ...actions,
-                onEdit: notifyDisabled,
-                onDelete: notifyDisabled,
-              }}
+              actions={tableActions}
               pagination={{
                 page: pagination.page,
                 pageSize: pagination.pageSize,

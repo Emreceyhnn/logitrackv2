@@ -166,9 +166,21 @@ export default function ShipmentDetailDialog({
     }
   }, [shipment?.route?.shape]);
 
+  // The effect below must not depend on `waypoints`/`shipment` by reference:
+  // a parent re-render (e.g. a background refetch) hands this dialog a new
+  // `shipment` object with identical contents, which recomputes `waypoints`,
+  // refires the effect, sets state, and re-renders — an endless loop that also
+  // exhausted the demo routing rate limit so no line was ever drawn. Keying on
+  // the serialised coordinates makes the request fire only when the geometry
+  // genuinely changes.
+  const waypointsKey = useMemo(
+    () => waypoints.map((p) => `${p.lat},${p.lon}`).join("|"),
+    [waypoints]
+  );
+
   useEffect(() => {
     // Skip the request until data has arrived and there are at least 2 points.
-    if (!open || !shipment || waypoints.length < 2) {
+    if (!open || waypoints.length < 2) {
       setIsLoading(false);
       return;
     }
@@ -199,7 +211,10 @@ export default function ShipmentDetailDialog({
     return () => {
       cancelled = true;
     };
-  }, [waypoints, open, shipment]);
+    // `waypoints` is intentionally read but not depended on — `waypointsKey` is
+    // its content-addressed stand-in. See the note above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waypointsKey, open]);
 
   /* -------------------------------------------------------------------------- */
 

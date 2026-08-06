@@ -113,6 +113,15 @@ const MapRoutesDialogCard = ({
     return points;
   }, [origin, destination, stops]);
 
+  // Content-addressed stand-in for `waypoints`. Callers rebuild the
+  // origin/destination/stops props on every render, so depending on the array
+  // reference refired this request in a loop — which burned through the demo
+  // routing rate limit and left the map with markers but no line.
+  const waypointsKey = useMemo(
+    () => waypoints.map((p) => `${p.lat},${p.lon}`).join("|"),
+    [waypoints]
+  );
+
   useEffect(() => {
     if (waypoints.length < 2) {
       setData(null);
@@ -155,7 +164,11 @@ const MapRoutesDialogCard = ({
     return () => {
       cancelled = true;
     };
-  }, [waypoints, onRouteInfoUpdate]);
+    // `waypoints`/`onRouteInfoUpdate` are read but intentionally not depended
+    // on: `waypointsKey` is the content-addressed stand-in for the former, and
+    // the latter is a setState function whose identity callers keep stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waypointsKey]);
 
   return (
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>

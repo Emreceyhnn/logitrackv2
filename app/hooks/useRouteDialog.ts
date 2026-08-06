@@ -11,6 +11,19 @@ export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, 
   const [vehicleTraveledMetrics, setVehicleTraveledMetrics] = useState<{ distanceKm: number; } | null>(null);
   const { updateRouteStatus } = useRouteMutations();
 
+  // Content-addressed key for the stops. `route` itself is a new object on
+  // every background refetch even when nothing changed, and keying the memo on
+  // the reference regenerated mapOrigin/mapDestination/intermediateStops each
+  // time — refiring both the metrics effect below and the map's own routing
+  // effect, which looped and exhausted the demo routing rate limit (30/60s) so
+  // the polyline never came back.
+  const stopsKey = useMemo(() => {
+    const allStops = Array.isArray(route?.stops) ? route.stops : [];
+    return (allStops as { lat?: number; lng?: number; address?: string }[])
+      .map((s) => `${s.lat ?? ""},${s.lng ?? ""},${s.address ?? ""}`)
+      .join("|");
+  }, [route?.stops]);
+
   const { mapOrigin, mapDestination, intermediateStops } = useMemo(() => {
     if (!route) return { mapOrigin: undefined, mapDestination: undefined, intermediateStops: [] };
     const allStops = Array.isArray(route.stops) ? route.stops : [];
@@ -26,7 +39,10 @@ export const useRouteDialog = (open: boolean, route: RouteWithRelations | null, 
     }).map((w) => ({ location: { lat: w.lat || 0, lng: w.lng || 0 }, stopover: true })) : [];
 
     return { mapOrigin: mOrigin, mapDestination: mDest, intermediateStops: interStops };
-  }, [route]);
+    // Keyed on the serialised stops rather than the `route` reference — see the
+    // note on stopsKey above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stopsKey]);
 
   useEffect(() => {
     if (!open) return;

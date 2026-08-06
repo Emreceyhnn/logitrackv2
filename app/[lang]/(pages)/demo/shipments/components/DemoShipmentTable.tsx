@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { Typography } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
 import type {
@@ -131,10 +131,25 @@ const DemoShipmentTable = ({
 
   // Deep-link support: open the dialog when a shipment id arrives via state
   // (e.g. from the ?id= URL param handled by the parent container).
+  //
+  // Deliberately keyed on the *id* rather than the resolved object: a
+  // background refetch hands us a referentially-new `shipments` array holding
+  // semantically identical rows, and re-running setSelectedShipment with that
+  // new object reference cascaded into the detail dialog's Valhalla effect and
+  // spun a render loop. Re-selecting the same id is a no-op now.
+  const openedShipmentIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!state.selectedShipmentId) return;
-    const match = shipments.find((s) => s.id === state.selectedShipmentId);
+    const id = state.selectedShipmentId;
+    if (!id) {
+      openedShipmentIdRef.current = null;
+      return;
+    }
+    if (openedShipmentIdRef.current === id) return;
+
+    const match = shipments.find((s) => s.id === id);
     if (match) {
+      openedShipmentIdRef.current = id;
       setSelectedShipment(match);
       setDetailOpen(true);
     }
