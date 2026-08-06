@@ -89,6 +89,8 @@ export function getWarehouseWorkerDashboardMock(
       initials: "DG",
       role: "WAREHOUSE_WORKER",
     },
+    // The demo panel is fully interactive (mutations are simulated in-memory).
+    canWrite: true,
     kpis: {
       picks: 342,
       picksTarget: 400,
@@ -273,6 +275,8 @@ export function getWarehouseWorkerDashboardMock(
         suggestedQty: 32,
       },
     ],
+    // Every demo SKU carries a surveyed zone, so nothing is unlocated.
+    unassignedPallets: 0,
     capacity: currentConfig.capacity,
   };
 }

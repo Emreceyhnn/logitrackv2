@@ -1,11 +1,19 @@
 "use server";
 
 import { db } from "../../db";
-import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
 import { controllerGuard } from "../utils/controllerGuard";
-import { WW_ROLES } from "./shared";
+import { WW_WRITE_ROLES, assertWarehouseAccess } from "./shared";
+
+/**
+ * Every panel mutation used to end with `revalidatePath("/", "layout")`, which
+ * drops the server cache for *every* route in the app — a single pallet scan
+ * invalidated reports, customers and fleet alike. The panel's data is owned by
+ * React Query (see useWarehouseWorkerMutations, which patches the cache
+ * optimistically and re-fetches on error), so no path revalidation is needed
+ * here at all.
+ */
 
 /**
  * Log a stock movement from the warehouse floor. PICK removes on-hand stock;
@@ -32,15 +40,17 @@ export const logWarehouseMovement = authenticatedAction(
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     return controllerGuard("logWarehouseMovement", async () => {
-      await checkPermission(user, companyId, WW_ROLES);
+      await checkPermission(user, companyId, WW_WRITE_ROLES);
       if (!companyId) throw new Error("User has no company");
       if (!Number.isFinite(quantity) || quantity <= 0)
         throw new Error("Quantity must be positive");
 
-      const warehouse = await db.warehouse.findFirst({
-        where: { id: warehouseId, companyId },
-      });
-      if (!warehouse) throw new Error("Invalid warehouse or unauthorized");
+      await assertWarehouseAccess(
+        companyId,
+        userId,
+        warehouseId,
+        user.roleName
+      );
 
       const inventoryNode = await db.inventory.findFirst({
         where: { warehouseId, sku, companyId },
@@ -88,7 +98,6 @@ export const logWarehouseMovement = authenticatedAction(
         }
       );
 
-      revalidatePath("/", "layout");
       return { success: true, movementId: movement.id };
     });
   }
@@ -119,17 +128,19 @@ export const adjustWarehouseStock = authenticatedAction(
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     return controllerGuard("adjustWarehouseStock", async () => {
-      await checkPermission(user, companyId, WW_ROLES);
+      await checkPermission(user, companyId, WW_WRITE_ROLES);
       if (!companyId) throw new Error("User has no company");
       if (!Number.isFinite(counted) || counted < 0)
         throw new Error("Counted quantity must be zero or positive");
       const note = reason?.trim();
       if (!note) throw new Error("Adjustment reason is required");
 
-      const warehouse = await db.warehouse.findFirst({
-        where: { id: warehouseId, companyId },
-      });
-      if (!warehouse) throw new Error("Invalid warehouse or unauthorized");
+      await assertWarehouseAccess(
+        companyId,
+        userId,
+        warehouseId,
+        user.roleName
+      );
 
       const inventoryNode = await db.inventory.findFirst({
         where: { warehouseId, sku, companyId },
@@ -172,7 +183,6 @@ export const adjustWarehouseStock = authenticatedAction(
         return mv;
       });
 
-      revalidatePath("/", "layout");
       return { success: true, movementId: movement.id, delta, counted };
     });
   }
@@ -187,15 +197,27 @@ export const adjustWarehouseStock = authenticatedAction(
 export const advanceWarehouseTask = authenticatedAction(
   async (user, taskId: string, delta?: number) => {
     const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     return controllerGuard("advanceWarehouseTask", async () => {
-      await checkPermission(user, companyId, WW_ROLES);
+      await checkPermission(user, companyId, WW_WRITE_ROLES);
 
       const task = await db.warehouseTask.findFirst({ where: { id: taskId, companyId } });
       if (!task)
         throw new Error("Task not found or unauthorized");
+
+      // Already-finished tasks write nothing, so answer before spending the
+      // scope check on them.
       if (task.status === "COMPLETED" || task.doneUnits >= task.totalUnits) {
         return { success: true, done: task.totalUnits, complete: true };
       }
+
+      // A locked operator must not advance work belonging to another site.
+      await assertWarehouseAccess(
+        companyId,
+        userId,
+        task.warehouseId,
+        user.roleName
+      );
 
       const step =
         delta && delta > 0 ? delta : Math.max(1, Math.ceil(task.totalUnits / 5));
@@ -210,7 +232,6 @@ export const advanceWarehouseTask = authenticatedAction(
         },
       });
 
-      revalidatePath("/", "layout");
       return { success: true, done: nextDone, complete };
     });
   }
@@ -238,13 +259,15 @@ export const requestRestock = authenticatedAction(
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     return controllerGuard("requestRestock", async () => {
-      await checkPermission(user, companyId, WW_ROLES);
+      await checkPermission(user, companyId, WW_WRITE_ROLES);
       if (!companyId) throw new Error("User has no company");
 
-      const warehouse = await db.warehouse.findFirst({
-        where: { id: warehouseId, companyId },
-      });
-      if (!warehouse) throw new Error("Invalid warehouse or unauthorized");
+      await assertWarehouseAccess(
+        companyId,
+        userId,
+        warehouseId,
+        user.roleName
+      );
 
       const targetSku = sku?.trim();
       // quantity is a requested amount, not a stock mutation, so we record it on
@@ -268,7 +291,6 @@ export const requestRestock = authenticatedAction(
         },
       });
 
-      revalidatePath("/", "layout");
       return { success: true };
     });
   }
@@ -276,21 +298,32 @@ export const requestRestock = authenticatedAction(
 
 /**
  * tr-depo çalışanının sahadan yeni bir sorun/arıza bildirmesini sağlar
- * en-allows a warehouse worker to report a new issue/defect from the floor
- * input (user: AuthenticatedUser, warehouseId: string, title: string, description?: string)
+ * en-allows a warehouse worker to report a new issue/defect from the floor.
+ *    The warehouse (and reported zone) are persisted as real columns, so floor
+ *    reports can be filtered by site instead of being buried in the title text.
+ * input (user: AuthenticatedUser, warehouseId: string, title: string, description?: string, zone?: string)
  * output (Promise<{ success: boolean, issueId: string }>)
  */
 export const reportWarehouseIssue = authenticatedAction(
-  async (user, warehouseId: string, title: string, description?: string) => {
+  async (
+    user,
+    warehouseId: string,
+    title: string,
+    description?: string,
+    zone?: string
+  ) => {
     const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     return controllerGuard("reportWarehouseIssue", async () => {
-      await checkPermission(user, companyId, WW_ROLES);
+      await checkPermission(user, companyId, WW_WRITE_ROLES);
       if (!companyId) throw new Error("User has no company");
 
-      const warehouse = await db.warehouse.findFirst({
-        where: { id: warehouseId, companyId },
-      });
-      if (!warehouse) throw new Error("Invalid warehouse or unauthorized");
+      await assertWarehouseAccess(
+        companyId,
+        userId,
+        warehouseId,
+        user.roleName
+      );
 
       const issue = await db.issue.create({
         data: {
@@ -299,11 +332,12 @@ export const reportWarehouseIssue = authenticatedAction(
           type: "OTHER",
           priority: "MEDIUM",
           status: "OPEN",
+          warehouseId,
+          zone: zone?.trim() || null,
           companyId,
         },
       });
 
-      revalidatePath("/", "layout");
       return { success: true, issueId: issue.id };
     });
   }

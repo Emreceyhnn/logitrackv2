@@ -5,7 +5,7 @@ import type { WWState } from "@/app/hooks/useWarehouseWorkerState";
 
 export default function WWCapacityTab({ state }: { state: WWState }) {
   const theme = useTheme();
-  const { ww, capUsed, capTotal, capacityPct, zones } = state;
+  const { ww, capUsed, capTotal, capacityPct, zones, unassignedPallets } = state;
 
   const advice = zoneCapacityAdvice(zones);
 
@@ -51,6 +51,35 @@ export default function WWCapacityTab({ state }: { state: WWState }) {
               </Box>
             ))}
           </Stack>
+        </Card>
+      )}
+      {/* Stock with no surveyed zone is deliberately absent from the bars
+          below — say so, rather than letting the chart imply everything is
+          located. */}
+      {unassignedPallets > 0 && (
+        <Card
+          data-tour="ww-capacity-unassigned"
+          sx={{
+            bgcolor: "rgba(245,158,11,0.06)",
+            border: `1px solid rgba(245,158,11,0.28)`,
+            borderRadius: 3,
+            p: 2.5,
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 0.5 }}>
+            <Box sx={{ color: theme.palette.kpi.amber, display: "inline-flex" }}>
+              <Ico d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" size={20} />
+            </Box>
+            <Typography sx={{ fontWeight: 800, fontSize: 15, color: theme.palette.kpi.amber }}>
+              {ww.unassignedPallets.replace(
+                "{count}",
+                unassignedPallets.toLocaleString()
+              )}
+            </Typography>
+          </Stack>
+          <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary }}>
+            {ww.unassignedPalletsHint}
+          </Typography>
         </Card>
       )}
       <Stack direction="row" spacing={2.5} alignItems="flex-start">

@@ -84,10 +84,17 @@ export interface WWWarehouseOption {
   code: string;
 }
 
+/** Sentinel zone code for stock with no valid WarehouseZone. Mirrors
+ *  UNASSIGNED_ZONE in the controller's shared module. */
+export const UNASSIGNED_ZONE = "__UNASSIGNED__";
+
 export interface WarehouseWorkerDashboard {
   warehouse: WWWarehouse | null;
   warehouses: WWWarehouseOption[];
   worker: WWWorker;
+  /** False for read-only roles (e.g. Dispatcher): the panel hides every
+   *  write control and the server rejects the mutation regardless. */
+  canWrite: boolean;
   kpis: WWKpis;
   tasks: WWTask[];
   zones: WWZone[];
@@ -96,5 +103,8 @@ export interface WarehouseWorkerDashboard {
   /** SKUs at/below their reorder point, worst first — the proactive shortage
    *  signal the worker sees without having to scan each item. */
   lowStock: WWLowStockItem[];
+  /** Pallets held by stock with no valid zone. Deliberately kept out of the
+   *  per-zone bars so the capacity chart shows only surveyed locations. */
+  unassignedPallets: number;
   capacity: { used: number; total: number; pct: number; free: number };
 }

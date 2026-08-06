@@ -68,6 +68,10 @@ export function useDemoWarehouseWorkerState(
     [data?.catalog]
   );
 
+  // The demo panel is always interactive; mutations are simulated in-memory.
+  const canWrite = data?.canWrite ?? true;
+  const unassignedPallets = data?.unassignedPallets ?? 0;
+
   const picks = data?.kpis.picks ?? 0;
   const packs = data?.kpis.packs ?? 0;
   const rate = data?.kpis.rate ?? 0;
@@ -253,6 +257,8 @@ export function useDemoWarehouseWorkerState(
     warehouse,
     worker,
     warehouseOptions,
+    canWrite,
+    unassignedPallets,
     picks,
     packs,
     rate,

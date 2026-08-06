@@ -16,9 +16,13 @@ import {
   PICKS_TARGET,
   PACKS_TARGET,
   WW_ROLES,
+  UNASSIGNED_ZONE,
+  canWriteFromPanel,
   startOfToday,
   zonePct,
-  hashCode,
+  resolveTargets,
+  shiftHoursElapsed,
+  accessibleWarehouseIds,
   resolveWarehouse,
 } from "./shared";
 
@@ -35,7 +39,25 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
     await checkPermission(user, companyId, WW_ROLES);
     if (!companyId) throw new Error("User has no company");
 
-    const warehouse = await resolveWarehouse(companyId, userId, warehouseId);
+    // Floor-locked operators are scoped to the sites they are attached to;
+    // everyone else (admin/manager/dispatcher) keeps company-wide visibility.
+    // `null` means unrestricted.
+    const allowedIds = await accessibleWarehouseIds(
+      companyId,
+      userId,
+      user.roleName
+    );
+
+    const warehouse = await resolveWarehouse(
+      companyId,
+      userId,
+      warehouseId,
+      allowedIds
+    );
+
+    // Dispatchers can watch the floor but hold no `inventory:write` grant in
+    // roles.json, so the panel renders read-only for them.
+    const canWrite = canWriteFromPanel(user.roleName);
 
     const worker = {
       name: `${user.name} ${user.surname}`.trim(),
@@ -46,10 +68,11 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       role: user.roleName || "Warehouse Worker",
     };
 
-    // Every warehouse in the company is selectable from the panel's switcher.
+    // The switcher only ever lists what the caller is allowed to open, so a
+    // locked operator cannot read another site's tasks, stock or capacity.
     const warehouses = (
       await db.warehouse.findMany({
-        where: { companyId },
+        where: allowedIds ? { companyId, id: { in: allowedIds } } : { companyId },
         select: { id: true, name: true, code: true },
         orderBy: { code: "asc" },
       })
@@ -61,6 +84,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         warehouse: null,
         warehouses,
         worker,
+        canWrite,
         kpis: {
           picks: 0,
           picksTarget: PICKS_TARGET,
@@ -73,6 +97,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         feed: [],
         catalog: [],
         lowStock: [],
+        unassignedPallets: 0,
         capacity: { used: 0, total: 0, pct: 0, free: 0 },
       };
     }
@@ -130,24 +155,25 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       .filter((m) => m.type === "PACK")
       .reduce((a, m) => a + Math.abs(m.quantity), 0);
 
-    const hoursElapsed = Math.max(
-      0.5,
-      1 // Dummy value to avoid refactoring rate calculation too much
-    );
-    const rate = Math.round((picks + packs) / hoursElapsed) || 0;
+    // Throughput is units/hour across the shift so far — not the running daily
+    // total. shiftHoursElapsed clamps to the shift window, so the figure is
+    // stable before the shift opens and stops inflating after it closes.
+    const rate = Math.round((picks + packs) / shiftHoursElapsed()) || 0;
+
+    // Per-warehouse targets when the site defines them, module defaults otherwise.
+    const { picksTarget, packsTarget } = resolveTargets(warehouse.specifications);
 
     // Zones come from the WarehouseZone config; actual usage is derived live from
     // each inventory item's `zone` (pallet occupancy), so stats stay in sync.
+    // Stock whose zone is empty or unknown is NOT invented into a real zone —
+    // it is grouped under UNASSIGNED_ZONE and surfaced separately, so the
+    // capacity chart only ever reflects surveyed locations.
     const zoneCodes = zonesRaw.map((z) => z.code);
-    const fallbackZone = (sku: string) =>
-      zoneCodes.length
-        ? zoneCodes[Math.abs(hashCode(sku)) % zoneCodes.length] ?? "A"
-        : "A";
     const skuZone = new Map<string, string>();
     const usedByZone = new Map<string, number>();
     for (const it of inventoryRaw) {
       const z =
-        it.zone && zoneCodes.includes(it.zone) ? it.zone : fallbackZone(it.sku);
+        it.zone && zoneCodes.includes(it.zone) ? it.zone : UNASSIGNED_ZONE;
       skuZone.set(it.sku, z);
       usedByZone.set(z, (usedByZone.get(z) ?? 0) + (it.palletCount ?? 0));
     }
@@ -161,6 +187,10 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         pct: zonePct(usedPallets, z.capacityPallets),
       };
     });
+
+    // Pallets sitting in stock with no valid zone — the signal that used to be
+    // hidden behind a hashed placeholder zone.
+    const unassignedPallets = Math.round(usedByZone.get(UNASSIGNED_ZONE) ?? 0);
 
     const used = Math.round(
       inventoryRaw.reduce((a, it) => a + (it.palletCount ?? 0), 0)
@@ -191,21 +221,24 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       name: m.notes || skuName.get(m.sku) || m.sku,
       sku: m.sku,
       qty: m.quantity,
-      zone: skuZone.get(m.sku) ?? fallbackZone(m.sku),
+      zone: skuZone.get(m.sku) ?? UNASSIGNED_ZONE,
       who: m.user ? `${m.user.name} ${m.user.surname}`.trim() : "System",
       self: m.userId === userId,
       at: m.date.toISOString(),
     }));
 
+    // The catalog backs the scanner's SKU lookup, so it must cover the same
+    // rows the shortage list scans. Slicing it to 100 previously made any SKU
+    // that had not moved recently scan as "unrecognised" in a large warehouse.
     // A SKU is "low" when what's actually pickable (on-hand minus allocated)
     // has fallen to or below its reorder point. minStock 0 = untracked, never low.
-    const catalog: WWCatalogItem[] = inventoryRaw.slice(0, 100).map((it) => {
+    const catalog: WWCatalogItem[] = inventoryRaw.map((it) => {
       const available = it.quantity - (it.allocatedQuantity ?? 0);
       const minStock = it.minStock ?? 0;
       return {
         sku: it.sku,
         name: it.name,
-        zone: skuZone.get(it.sku) ?? fallbackZone(it.sku),
+        zone: skuZone.get(it.sku) ?? UNASSIGNED_ZONE,
         quantity: it.quantity,
         available,
         minStock,
@@ -222,7 +255,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         return {
           sku: it.sku,
           name: it.name,
-          zone: skuZone.get(it.sku) ?? fallbackZone(it.sku),
+          zone: skuZone.get(it.sku) ?? UNASSIGNED_ZONE,
           available,
           minStock,
           suggestedQty: Math.max(1, minStock - available),
@@ -241,11 +274,12 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       },
       warehouses,
       worker,
+      canWrite,
       kpis: {
         picks,
-        picksTarget: PICKS_TARGET,
+        picksTarget,
         packs,
-        packsTarget: PACKS_TARGET,
+        packsTarget,
         rate,
       },
       tasks,
@@ -253,6 +287,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       feed,
       catalog,
       lowStock,
+      unassignedPallets,
       capacity: {
         used,
         total,

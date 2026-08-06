@@ -13,6 +13,7 @@ import type {
   SkuInfo,
   WarehouseWorkerDict,
 } from "@/app/lib/type/warehouseWorkerClient";
+import { zoneLabel } from "@/app/lib/utils/warehouseWorkerUi";
 
 interface WWScanSectionProps {
   scanResult: SkuInfo | null;
@@ -156,7 +157,7 @@ export default function WWScanSection({
                     fontWeight: 700,
                   }}
                 >
-                  {ww.ui.zone} {scanResult.zone}
+                  {ww.ui.zone} {zoneLabel(scanResult.zone, ww)}
                 </Box>
                 {/* Proactive low-stock flag right where the worker scans. */}
                 {scanResult.lowStock && (

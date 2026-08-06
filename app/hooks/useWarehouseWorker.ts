@@ -204,11 +204,13 @@ export function useWarehouseWorkerMutations() {
       warehouseId,
       title,
       description,
+      zone,
     }: {
       warehouseId: string;
       title: string;
       description?: string;
-    }) => reportWarehouseIssue(warehouseId, title, description),
+      zone?: string;
+    }) => reportWarehouseIssue(warehouseId, title, description, zone),
     onError: () => settleError(),
     onSuccess: () => settleSuccess(),
   });

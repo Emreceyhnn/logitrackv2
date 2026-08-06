@@ -5,7 +5,7 @@ import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { useGuidedTour } from "@/app/lib/context/GuidedTourContext";
 import { getTourStepsForPage } from "@/app/components/guidedTour/tourSteps";
 import { View, Task, Zone, Movement, SkuInfo, LowStockItem } from "@/app/lib/type/warehouseWorkerClient";
-import { PICKS_TARGET, PACKS_TARGET, relativeTime, prioFromServer, sortTasksByPriority, pickNextTask, I } from "@/app/lib/utils/warehouseWorkerUi";
+import { PICKS_TARGET, PACKS_TARGET, relativeTime, prioFromServer, sortTasksByPriority, pickNextTask, isUnassignedZone, I } from "@/app/lib/utils/warehouseWorkerUi";
 
 export function useWarehouseWorkerState(selectedWarehouseId: string | undefined) {
   const { dict } = useLanguage();
@@ -40,6 +40,13 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
 
   const warehouseOptions = data?.warehouses ?? [];
   const catalog: WWCatalogItem[] = useMemo(() => data?.catalog ?? [], [data?.catalog]);
+
+  // Read-only roles (e.g. Dispatcher) see the floor but may not write to it.
+  // The server enforces this too — this only keeps dead controls off screen.
+  const canWrite = data?.canWrite ?? false;
+  // Pallets whose stock carries no valid zone; surfaced so nobody reads the
+  // capacity bars as if every pallet had been located.
+  const unassignedPallets = data?.unassignedPallets ?? 0;
 
   const picks = data?.kpis.picks ?? 0;
   const packs = data?.kpis.packs ?? 0;
@@ -142,7 +149,10 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanResult(info);
     setScanQty(1);
     setScanInput("");
-    setCurrentZone(info.zone);
+    // Only follow the item into a *real* zone. Unlocated stock must not become
+    // the active zone, or the next restock/issue report would be filed against
+    // the sentinel instead of a place anyone can walk to.
+    if (!isUnassignedZone(info.zone)) setCurrentZone(info.zone);
   };
 
   const simScan = () => {
@@ -152,6 +162,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   };
 
   const log = async (kind: "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY") => {
+    if (!canWrite) return showToast(ww.readOnlyRole, "warning");
     if (!scanResult || !warehouseId) return;
     const qty = scanQty;
     const result = scanResult;
@@ -170,6 +181,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   // Reconcile a physical count for the scanned SKU (eksik/fazla). `counted` is
   // the shelf count; the server computes the signed delta against live on-hand.
   const adjust = async (counted: number, reason: string) => {
+    if (!canWrite) return showToast(ww.readOnlyRole, "warning");
     if (!scanResult || !warehouseId) return;
     const result = scanResult;
     const expected = result.onHand;
@@ -192,6 +204,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   // count → Complete); omitted, the backend falls back to its default step so
   // the Next-task card's single-tap "Start" still works.
   const advanceTask = async (id: string, delta?: number) => {
+    if (!canWrite) return showToast(ww.readOnlyRole, "warning");
     try {
       const res = await advanceTaskMutation.mutateAsync({ taskId: id, delta });
       if (res.complete) showToast(ww.taskComplete, "success");
@@ -207,12 +220,15 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     zone: string;
     suggestedQty?: number;
   }) => {
+    if (!canWrite) return showToast(ww.readOnlyRole, "warning");
     if (!warehouseId) return;
     try {
       if (item) {
         await requestRestockMutation.mutateAsync({
           warehouseId,
-          zone: item.zone,
+          // Unlocated stock has no zone to replenish into; fall back to where
+          // the worker actually is so the request stays actionable.
+          zone: isUnassignedZone(item.zone) ? currentZone : item.zone,
           sku: item.sku,
           quantity: item.suggestedQty,
         });
@@ -228,11 +244,15 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   };
 
   const onReport = async () => {
+    if (!canWrite) return showToast(ww.readOnlyRole, "warning");
     if (!warehouseId) return;
     try {
       await reportIssueMutation.mutateAsync({
         warehouseId,
         title: `Floor issue — Zone ${currentZone}`,
+        // Persisted as a column too, so reports stay filterable by site/zone
+        // rather than only being greppable out of the title.
+        zone: currentZone,
       });
       showToast(ww.issueReported, "error");
     } catch {
@@ -255,6 +275,8 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     warehouse,
     worker,
     warehouseOptions,
+    canWrite,
+    unassignedPallets,
     picks,
     packs,
     rate,

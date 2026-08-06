@@ -4,7 +4,7 @@ import type {
   Movement,
   WarehouseWorkerDict,
 } from "@/app/lib/type/warehouseWorkerClient";
-import { I } from "@/app/lib/utils/warehouseWorkerUi";
+import { I, zoneLabel } from "@/app/lib/utils/warehouseWorkerUi";
 import { Ico } from "./Ico";
 
 export function getMoveMetaFor(
@@ -185,7 +185,7 @@ export default function WWLiveFeed({ fd, ww }: WWLiveFeedProps) {
                     color: theme.palette.text.secondary,
                   }}
                 >
-                  {mv.zone}
+                  {zoneLabel(mv.zone, ww)}
                 </Box>
                 <Box
                   sx={{

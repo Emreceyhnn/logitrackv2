@@ -303,6 +303,7 @@ model Warehouse {
   staff            User[]              @relation("WarehouseStaff")
   zones            WarehouseZone[]
   tasks            WarehouseTask[]
+  issues           Issue[]
 
   @@unique([companyId, code])
   @@index([companyId])
@@ -317,6 +318,9 @@ model WarehouseZone {
   code            String
   name            String?
   capacityPallets Int       @default(0)
+  /// Denormalised snapshot only. The warehouse-worker panel derives live
+  /// occupancy from Inventory.palletCount instead, so this column may lag —
+  /// never read it as the source of truth for zone utilisation.
   usedPallets     Int       @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -695,6 +699,9 @@ model Issue {
   vehicleId   String?
   driverId    String?
   shipmentId  String?
+  warehouseId String?
+  /** Free-text zone code the issue was reported from (warehouse issues only). */
+  zone        String?
   companyId   String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -704,12 +711,14 @@ model Issue {
   shipment    Shipment?     @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
   trailer     Trailer?      @relation(fields: [trailerId], references: [id], onDelete: Restrict)
   vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  warehouse   Warehouse?    @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
 
   @@index([companyId, status])
   @@index([vehicleId])
   @@index([driverId])
   @@index([shipmentId])
   @@index([trailerId])
+  @@index([warehouseId, status])
   @@map("issues")
 }
 

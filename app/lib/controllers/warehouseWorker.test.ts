@@ -18,6 +18,10 @@ const txMock: MockedTx = {
 const dbMock = {
   warehouse: {
     findFirst: mock.fn(),
+    findMany: mock.fn(async () => []),
+  },
+  user: {
+    findFirst: mock.fn(async () => ({ assignedWarehouseId: null })),
   },
   inventory: {
     findFirst: mock.fn(),
@@ -67,6 +71,8 @@ describe("WarehouseWorker Controller", () => {
 
   beforeEach(() => {
     dbMock.warehouse.findFirst.mock.resetCalls();
+    dbMock.warehouse.findMany.mock.resetCalls();
+    dbMock.user.findFirst.mock.resetCalls();
     dbMock.inventory.findFirst.mock.resetCalls();
     dbMock.inventoryMovement.create.mock.resetCalls();
     dbMock.warehouseTask.findFirst.mock.resetCalls();
@@ -308,11 +314,16 @@ describe("WarehouseWorker Controller", () => {
         async () => ({
           id: "t-1",
           companyId: "company-1",
+          warehouseId: "wh-1",
           status: WarehouseTaskStatus.IN_PROGRESS,
           doneUnits: 8,
           totalUnits: 10,
         })
       );
+      // The task's warehouse is re-checked before any write.
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+      }));
 
       const res = await controller.advanceWarehouseTask(user, "t-1", 5);
       expect(res).toEqual({ success: true, done: 10, complete: true });
@@ -393,6 +404,80 @@ describe("WarehouseWorker Controller", () => {
       const createArg = dbMock.issue.create.mock.calls[0].arguments[0];
       expect(createArg.data.title).toBe("Forklift arızalı");
       expect(createArg.data.status).toBe("OPEN");
+    });
+
+    it("bildirimi depoya ve bölgeye bağlar", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+      dbMock.issue.create.mock.mockImplementationOnce(async () => ({
+        id: "issue-2",
+      }));
+
+      await controller.reportWarehouseIssue(
+        user,
+        "wh-1",
+        "Zemin hasarlı",
+        undefined,
+        " A "
+      );
+      const createArg = dbMock.issue.create.mock.calls[0].arguments[0];
+      // Previously the warehouse was verified but never written, leaving floor
+      // reports unfilterable by site.
+      expect(createArg.data.warehouseId).toBe("wh-1");
+      expect(createArg.data.zone).toBe("A");
+    });
+  });
+
+  describe("depo kapsamı (kilitli operatör)", () => {
+    const lockedUser = {
+      id: "user-2",
+      companyId: "company-1",
+      roleName: "Warehouse Operator",
+    };
+
+    it("atanmamış bir depoya hareket yazmayı reddeder", async () => {
+      // Attached to wh-1 only; wh-9 belongs to another site.
+      dbMock.user.findFirst.mock.mockImplementationOnce(async () => ({
+        assignedWarehouseId: "wh-1",
+      }));
+      dbMock.warehouse.findMany.mock.mockImplementationOnce(async () => []);
+
+      await rejects(
+        controller.logWarehouseMovement(lockedUser, "wh-9", "SKU-1", 5, "PICK"),
+        /Invalid warehouse or unauthorized/
+      );
+      // Rejected before touching inventory.
+      expect(dbMock.inventory.findFirst.mock.calls.length).toBe(0);
+    });
+
+    it("atanmış deposuna hareket yazmasına izin verir", async () => {
+      dbMock.user.findFirst.mock.mockImplementationOnce(async () => ({
+        assignedWarehouseId: "wh-1",
+      }));
+      dbMock.warehouse.findMany.mock.mockImplementationOnce(async () => []);
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+      }));
+      dbMock.inventory.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "inv-1",
+        name: "Widget",
+        quantity: 10,
+        allocatedQuantity: 0,
+      }));
+      txMock.inventoryMovement.create.mock.mockImplementationOnce(async () => ({
+        id: "mv-1",
+      }));
+
+      const res = await controller.logWarehouseMovement(
+        lockedUser,
+        "wh-1",
+        "SKU-1",
+        5,
+        "PICK"
+      );
+      expect(res).toEqual({ success: true, movementId: "mv-1" });
     });
   });
 });

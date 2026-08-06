@@ -2,6 +2,7 @@
 
 import { Box, Stack, Typography, Card, Button, Avatar, useTheme } from "@mui/material";
 import { Ico } from "./Ico";
+import { zoneLabel } from "@/app/lib/utils/warehouseWorkerUi";
 import type {
   LowStockItem,
   WarehouseWorkerDict,
@@ -95,7 +96,7 @@ export default function WWLowStockCard({
                   variant="caption"
                   sx={{ color: theme.palette.text.secondary, fontFamily: "monospace" }}
                 >
-                  {it.sku} · {ww.ui.zone} {it.zone}
+                  {it.sku} · {ww.ui.zone} {zoneLabel(it.zone, ww)}
                 </Typography>
                 {/* available / minStock makes the deficit explicit. */}
                 <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.kpi.amber, mt: 0.25 }}>

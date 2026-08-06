@@ -1,8 +1,31 @@
 import type { Theme } from "@mui/material/styles";
 import type { Priority, Task, Zone } from "../type/warehouseWorkerClient";
+import { UNASSIGNED_ZONE } from "../type/warehouseWorker";
 
+/**
+ * Client-side fallbacks only, used before the dashboard payload arrives. The
+ * authoritative targets come from the server (per-warehouse, see
+ * `resolveTargets` in the controller's shared module) via `kpis.picksTarget`.
+ */
 export const PICKS_TARGET = 240;
 export const PACKS_TARGET = 180;
+
+/**
+ * tr-bölge kodunu ekranda gösterilecek etikete çevirir ("atanmamış" dahil)
+ * en-renders a zone code for display, translating the unassigned sentinel into
+ *    a readable label instead of leaking `__UNASSIGNED__` into the UI.
+ * input (zone: string, ww: { unassignedZone: string })
+ * output (string)
+ */
+export function zoneLabel(
+  zone: string,
+  ww: { unassignedZone: string }
+): string {
+  return zone === UNASSIGNED_ZONE ? ww.unassignedZone : zone;
+}
+
+/** True when the code is the "no valid zone" sentinel rather than a real zone. */
+export const isUnassignedZone = (zone: string) => zone === UNASSIGNED_ZONE;
 
 /** Fill thresholds — keep in step with zoneColor(). */
 export const ZONE_CRITICAL_PCT = 85;
