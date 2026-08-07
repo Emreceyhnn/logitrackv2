@@ -12,7 +12,7 @@ import {
   CircularProgress,
   useTheme,
 } from "@mui/material";
-import { Business, AddBusiness, HomeRounded, RocketLaunch, MarkEmailReadOutlined } from "@mui/icons-material";
+import { Business, AddBusiness, HomeRounded, RocketLaunch } from "@mui/icons-material";
 import Link from "next/link";
 import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { formatMessage } from "@/app/lib/language/language";
@@ -21,8 +21,7 @@ import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyD
 import JoinCompanyDialog from "@/app/components/dialogs/company/JoinCompanyDialog";
 import { getMyJoinRequest, cancelJoinRequest } from "@/app/lib/controllers/joinRequests";
 import { getMyInvitations, acceptExistingUserInvitation, declineExistingUserInvitation } from "@/app/lib/controllers/invitations";
-import { resendEmailVerification } from "@/app/lib/controllers/users/emailVerification";
-import { checkAndSyncCompany, canCreateCompany, getEmailVerificationGate } from "./actions";
+import { checkAndSyncCompany, canCreateCompany } from "./actions";
 import { toast } from "sonner";
 import Tooltip from "@mui/material/Tooltip";
 
@@ -113,7 +112,7 @@ export default function OnboardingPage() {
     >
       <Button
         component={Link}
-        href={`/${locale}`}
+        href={`/${locale}?landing=true`}
         startIcon={<HomeRounded sx={{ fontSize: 18 }} />}
         sx={{
           position: "fixed",

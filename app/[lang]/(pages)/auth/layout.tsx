@@ -43,7 +43,7 @@ export default function AuthLayout({
           layout, so one back-to-home affordance here covers all of them. */}
       <Button
         component={Link}
-        href={`/${lang}`}
+        href={`/${lang}?landing=true`}
         startIcon={<HomeRoundedIcon sx={{ fontSize: 18 }} />}
         sx={{
           position: "fixed",

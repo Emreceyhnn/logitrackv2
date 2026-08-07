@@ -400,7 +400,13 @@ export default async function middleware(request: NextRequest) {
   // ── 5. Root Path Redirect ───────────────────────────────────────────────────
   // Authenticated users skip the marketing page; anonymous visitors (and
   // crawlers) must reach the landing page, so no redirect for them.
-  if (currentPath === "/" && isTokenValid) {
+  // Exception: If an explicit landing parameter (?landing=true or ?home=true) is present,
+  // allow reaching the landing page even when authenticated.
+  const isExplicitLanding =
+    request.nextUrl.searchParams.get("landing") === "true" ||
+    request.nextUrl.searchParams.get("home") === "true";
+
+  if (currentPath === "/" && isTokenValid && !isExplicitLanding) {
     const url = request.nextUrl.clone();
     url.pathname = authedHome.pathname;
     url.search = authedHome.search;
