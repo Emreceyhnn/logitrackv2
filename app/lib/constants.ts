@@ -23,6 +23,13 @@ export const PROTECTED_ROUTES = [
   "/users",
   "/company",
   "/warehouse-worker",
+  // Platform-admin console. Listed here so an unauthenticated visitor is
+  // bounced at the edge and the strict nonce-based CSP applies. Authorization
+  // itself is NOT done here — `requirePlatformAdmin` in the (admin) layout
+  // checks the allowlist, since the edge cannot be trusted with that decision.
+  // Must NOT be in COMPANY_REQUIRED_ROUTES or the access-gated list: the
+  // console is cross-tenant, so a company/entitlement check would loop.
+  "/admin",
   // Requires a signed-in user, but must NOT be in COMPANY_REQUIRED_ROUTES —
   // it is the destination for users without a company (loop otherwise).
   "/onboarding",

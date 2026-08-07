@@ -136,6 +136,73 @@ See [`.env.example`](.env.example) for the full list. Key groups:
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
 | Maps | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_API_KEY` |
 | FX rates | `EXCHANGE_RATE_API_KEY`, `EXCHANGE_RATE_BASE_URL` |
+| Admin console | `PLATFORM_ADMIN_USER_IDS` (see below) |
+
+## 🛡️ Super Admin Console
+
+A cross-tenant administration and service-diagnostics console at **`/[lang]/admin`**.
+
+### Access
+
+Access is **not** role-based. `roles.json`'s `role_admin` is a *company* role — every tenant has one — so granting it platform-wide reach would break tenant isolation. The console is instead gated on an explicit allowlist of user IDs supplied out of band:
+
+```bash
+# .env — comma-separated user IDs (cuid). Find them via `npm run db:run`.
+PLATFORM_ADMIN_USER_IDS=cuid_one,cuid_two
+```
+
+**It fails closed:** an unset or empty allowlist grants nobody access. An attacker with write access to `users`/`roles` still cannot promote themselves, because the allowlist is not in the database.
+
+### Authorization model
+
+`app/lib/platform-admin.ts` is the single choke point. `platformAdminAction(operation, fn)` runs, in order: allowlist check → rate limit (60/min) → audit write → `runAsSystem()`.
+
+> **Invariant:** this is the *only* place in the app that pairs `runAsSystem()` (which bypasses the fail-closed tenant guard in `db.ts`) with a user-facing request path. Never call `runAsSystem()` directly from a route handler or server action.
+
+Denied attempts are audited too — a non-admin probing the console is a security signal.
+
+### Modules
+
+| Area | Route | Notes |
+|---|---|---|
+| Overview | `/admin` | KPIs + activity charts, all from real rows |
+| Health matrix | `/admin/health` | Live probes: Postgres, Redis, Resend, Cloudinary, Firebase, Valhalla |
+| Tenants / Users / Sessions | `/admin/{tenants,users,sessions}` | Suspend, deactivate, kill sessions |
+| Audit logs | `/admin/audit` | Append-only; no edit or delete route exists |
+| Database browser | `/admin/database` | Read + soft-delete only; closed model allowlist, no editing |
+| Deleted records | `/admin/deleted` | Review and restore soft-deleted rows |
+| Feature flags + env | `/admin/{flags,settings}` | Flags in Redis; env values masked server-side |
+| Service sandbox | `/admin/sandbox/*` | API tester, SSE stream, email, queue monitor |
+
+### Deliberate omissions
+
+These are absent because the underlying integration does not exist in this codebase. Simulating them would imply coverage that isn't there:
+
+- **Payment gateway sandbox** — no Stripe/Iyzico integration.
+- **BullMQ job board** — no queue library; the monitor reports real Redis keyspace state instead.
+- **Raw WebSocket tester** — no WS endpoint; a real SSE endpoint (`/api/admin/sandbox/stream`) is provided.
+- **User masquerade** — `SessionJWTPayload` carries no impersonation claim, so a masquerade token would be indistinguishable from a genuine login and its actions unattributable. Implementing it safely needs an `impersonatedBy` claim, a shortened token lifetime, a persistent UI banner, and dedicated `AuditAction` enum members (a migration). See `MasqueradeNotice.tsx`.
+
+### Deletion model
+
+Deletes in the console are **soft**: `deletedAt` is stamped and the tenant-guard extension hides the row from every read in the app. Nothing is erased.
+
+This is not a shortcut — it is the only correct option here. Almost every foreign key in the schema is `onDelete: Restrict`, so a real `DELETE` of a company or user is rejected by Postgres as soon as any dependent row exists, and `audit_logs.userId` is `Restrict` too, meaning a hard delete of a user would either fail or destroy its own audit trail.
+
+- **Covered models:** `User`, `Company`, `Shipment`, `Route`, `Warehouse`, `Customer`, `Driver`, `Inventory` (added in `20260807120000_add_soft_delete_columns`), plus `Vehicle` and `Trailer` which already had `deletedAt`.
+- **Reversible** via `/admin/deleted`.
+- **Deleting a user** revokes every live session — otherwise they keep working until their access token expires.
+- **Deleting a company** also soft-deletes its users and signs them out, and requires the operator to retype the tenant name.
+- **Protected:** an admin cannot delete their own account, and no account listed in `PLATFORM_ADMIN_USER_IDS` can be deleted (a two-admin platform must not be reducible to zero).
+
+> **Uniqueness caveat:** `users.email`, `companies.name` and `companies.domain` stay `@unique` in Postgres regardless of deletion, so a soft-deleted record still occupies its value. Signup and company-creation checks spread `INCLUDE_DELETED` (from `app/lib/softDelete.ts`) to see deleted rows — without it they would report the value as free and then crash on the unique constraint.
+
+### Security notes
+
+- **API tester is SSRF-guarded.** `assertSafeApiPath` rejects absolute URLs, protocol-relative paths, `file:`, traversal escapes and cloud-metadata IPs; only this app's own `/api/*` is reachable. Covered by 18 tests.
+- **`set-cookie` / `authorization` response headers are redacted** before reaching the browser.
+- **No credential columns are ever selected** — `User.password`, `User.googleId`, `Session.token`, `Session.refreshToken`. Covered by tests.
+- **The email tester sends real mail** through Resend using production templates, and says so in the UI.
 
 ## 📜 Scripts
 
@@ -167,3 +234,5 @@ A few rules that keep the build and runtime healthy — check these before large
 - **dayjs** is configured once in `dayjsConfig.ts` (with `localizedFormat` + `en.formats` patch for MUI pickers); never call `dayjs.locale("en", obj)` elsewhere.
 - **`app/[lang]/layout.tsx`** must stay cookie-free so the landing pages remain statically generated.
 - **Decimal fields** must be serialized before crossing the server/client boundary.
+- **`runAsSystem()`** must only ever be reached from a user-facing path via `platformAdminAction` (`app/lib/platform-admin.ts`). It bypasses the tenant guard, so any other call site is a cross-tenant data leak.
+- **Soft-delete filtering** is injected by `db.ts` for every model in `SOFT_DELETE_MODELS`. A query that must see deleted rows (uniqueness checks against `@unique` columns, the restore view) has to spread `INCLUDE_DELETED` into its `where` — a bare `deletedAt: undefined` does not work under `exactOptionalPropertyTypes`. It lives in `app/lib/softDelete.ts`, **not** `db.ts`, so the dozens of tests that mock `db.ts` don't each have to re-export it.

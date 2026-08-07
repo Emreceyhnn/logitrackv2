@@ -29,9 +29,13 @@ describe("db.ts tenant-guard extension", () => {
   let runWithTenant: <T>(companyId: string | null, fn: () => T) => T;
   let runAsSystem: <T>(fn: () => T) => T;
   let queryMock: unknown;
+  let INCLUDE_DELETED: { OR: unknown[] };
 
   before(async () => {
+    // Importing ./db registers the extension via extendsCapture; the
+    // opt-out constant lives in its own module.
     await import("./db");
+    ({ INCLUDE_DELETED } = await import("./softDelete"));
     ({ runWithTenant, runAsSystem } = await import("./tenant-context"));
     handler = extendsCapture.config?.query?.$allModels?.$allOperations;
     expect(typeof handler).toBe("function");
@@ -55,9 +59,14 @@ describe("db.ts tenant-guard extension", () => {
   const passedArgs = () => queryMock.mock.calls[0].arguments[0];
 
   describe("tenant scoping on reads", () => {
+    // NOTE: Shipment is both a tenant model and a soft-delete model, so reads
+    // pick up `deletedAt: null` alongside the injected companyId.
     it("should_InjectCompanyIdIntoWhere_WhenTenantModelQueriedInTenantContext", async () => {
       await invoke("comp-A", "Shipment", "findMany", {});
-      expect(passedArgs().where).toEqual({ companyId: "comp-A" });
+      expect(passedArgs().where).toEqual({
+        companyId: "comp-A",
+        deletedAt: null,
+      });
     });
 
     it("should_PreserveExistingWhereFilters_WhenInjectingCompanyId", async () => {
@@ -67,6 +76,7 @@ describe("db.ts tenant-guard extension", () => {
       expect(passedArgs().where).toEqual({
         status: "PENDING",
         companyId: "comp-A",
+        deletedAt: null,
       });
     });
 
@@ -106,7 +116,12 @@ describe("db.ts tenant-guard extension", () => {
           query: queryMock,
         })
       );
-      expect(passedArgs().where).toEqual({ status: "PENDING" });
+      // Soft-delete filtering still applies: a system job scanning every
+      // tenant should not resurrect deleted rows.
+      expect(passedArgs().where).toEqual({
+        status: "PENDING",
+        deletedAt: null,
+      });
       expect(passedArgs().where.companyId).toBeUndefined();
     });
 
@@ -121,7 +136,11 @@ describe("db.ts tenant-guard extension", () => {
           query: queryMock,
         })
       );
-      expect(passedArgs().where).toEqual({ companyId: "comp-A", id: "s1" });
+      expect(passedArgs().where).toEqual({
+        companyId: "comp-A",
+        id: "s1",
+        deletedAt: null,
+      });
     });
 
     it("should_LeaveNonTenantModelsUntouched", async () => {
@@ -276,6 +295,58 @@ describe("db.ts tenant-guard extension", () => {
         where: { deletedAt: { not: null } },
       });
       expect(passedArgs().where.deletedAt).toEqual({ not: null });
+    });
+
+    // Models brought into soft-delete by the admin console's delete actions.
+    it("should_HideSoftDeletedRows_ForNewlyCoveredModels", async () => {
+      for (const model of [
+        "Shipment",
+        "Route",
+        "Warehouse",
+        "Customer",
+        "Driver",
+        "Inventory",
+      ]) {
+        queryMock.mock.resetCalls();
+        await invoke("comp-A", model, "findMany", {});
+        expect(passedArgs().where.deletedAt).toBe(null);
+      }
+    });
+
+    // User and Company are NOT tenant models, so this also proves the filter
+    // applies on the strength of soft-delete membership alone.
+    it("should_HideSoftDeletedRows_ForUserAndCompany", async () => {
+      queryMock.mock.resetCalls();
+      await invoke("comp-A", "User", "findMany", {});
+      expect(passedArgs().where.deletedAt).toBe(null);
+      expect(passedArgs().where.companyId).toBeUndefined();
+
+      queryMock.mock.resetCalls();
+      await invoke("comp-A", "Company", "findMany", {});
+      expect(passedArgs().where.deletedAt).toBe(null);
+    });
+
+    // INCLUDE_DELETED expresses "any deletion state" as a top-level OR. The
+    // guard must recognise it and not clamp the result back to live rows —
+    // uniqueness checks depend on seeing deleted records.
+    it("should_RespectIncludeDeleted_OptOut", async () => {
+      await invoke("comp-A", "User", "findFirst", {
+        where: { email: "a@b.c", ...INCLUDE_DELETED },
+      });
+      expect(passedArgs().where.deletedAt).toBeUndefined();
+      expect(passedArgs().where.OR).toEqual([
+        { deletedAt: null },
+        { deletedAt: { not: null } },
+      ]);
+    });
+
+    // A caller's own OR that says nothing about deletion must still be
+    // filtered — otherwise any OR query would silently leak deleted rows.
+    it("should_StillFilter_WhenOrDoesNotMentionDeletedAt", async () => {
+      await invoke("comp-A", "User", "findMany", {
+        where: { OR: [{ name: "a" }, { surname: "b" }] },
+      });
+      expect(passedArgs().where.deletedAt).toBe(null);
     });
 
     it("should_NotInjectDeletedAt_OnWriteOperations", async () => {

@@ -5,6 +5,7 @@ import { OAuth2Client } from "google-auth-library";
 import { checkPermission } from "../utils/checkPermission";
 import { jwtVerify } from "jose";
 import { db } from "../../db";
+import { INCLUDE_DELETED } from "../../softDelete";
 import { exclude } from "@/app/lib/utils/exclude";
 import {
   authenticatedAction,
@@ -136,8 +137,13 @@ export const RegisterUser = maybeAuthenticatedAction(
         await checkPermission(user, user.companyId, ["role_admin"]);
       }
 
+      // INCLUDE_DELETED makes this check see soft-deleted accounts too.
+      // `email` stays `@unique` at the database level regardless of deletion,
+      // so without the opt-out a deleted user's address would look available
+      // here and `user.create` below would violate the constraint — surfacing
+      // as an opaque P2002 crash instead of this message.
       const isExist = await db.user.findFirst({
-        where: { email: input.email },
+        where: { email: input.email, ...INCLUDE_DELETED },
       });
 
       if (isExist) {

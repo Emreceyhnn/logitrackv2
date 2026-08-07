@@ -3799,7 +3799,12 @@
     "accepting": "Accepting...",
     "declining": "Declining...",
     "invitationAccepted": "Invitation accepted!",
-    "invitationDeclined": "Invitation declined."
+    "invitationDeclined": "Invitation declined.",
+    "requestDemoButton": "Request a Demo",
+    "verifyGateTitle": "Verify your email to continue",
+    "verifyGateBody": "We sent a verification link to {email}. Confirm it before creating or joining a company.",
+    "verifyGateResendButton": "Resend verification email",
+    "verifyGateResent": "Verification email sent — check your inbox."
   },
   "pendingAccess": {
     "title": "Setting up your access",
@@ -3816,5 +3821,342 @@
     "title": "User Management",
     "subtitle": "Manage company users, roles, and access permissions",
     "comingSoonDescription": "The User Management module is currently under development. Soon you will be able to invite team members, assign specific roles (e.g. Dispatcher, Manager, Admin), and track user activity logs."
+  },
+  "admin": {
+    "title": "Admin Console",
+    "subtitle": "Platform administration and service diagnostics",
+    "badge": "Platform Admin",
+    "nav": {
+      "overview": "Overview",
+      "platform": "Platform",
+      "tenants": "Tenants",
+      "users": "Users",
+      "sessions": "Sessions",
+      "audit": "Audit Logs",
+      "observability": "Observability",
+      "health": "Health Checks",
+      "database": "Database",
+      "sandbox": "Service Sandbox",
+      "sandboxApi": "API Tester",
+      "sandboxWebsocket": "WebSocket & SSE",
+      "sandboxEmail": "Email & SMTP",
+      "sandboxQueue": "Queue Monitor",
+      "sandboxNotifications": "Notifications",
+      "system": "System",
+      "flags": "Feature Flags",
+      "settings": "Environment",
+      "deleted": "Deleted Records"
+    },
+    "header": {
+      "search": "Search or jump to…",
+      "commandHint": "Ctrl K",
+      "allSystems": "All systems operational",
+      "degraded": "Degraded performance",
+      "outage": "Service outage",
+      "checking": "Checking services…",
+      "backToApp": "Back to app",
+      "signOut": "Sign out"
+    },
+    "palette": {
+      "placeholder": "Type a command or search…",
+      "empty": "No results found.",
+      "groupNavigation": "Navigation",
+      "groupActions": "Actions",
+      "close": "Close"
+    },
+    "status": {
+      "up": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "Unknown"
+    },
+    "common": {
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "loading": "Loading…",
+      "error": "Something went wrong",
+      "noData": "No data available",
+      "lastChecked": "Last checked",
+      "latency": "Latency",
+      "sensitive": "Sensitive",
+      "readOnly": "Read only",
+      "simulated": "Simulated"
+    },
+    "overview": {
+      "kpi": {
+        "tenants": "Tenants",
+        "users": "Total Users",
+        "activeSessions": "Active Sessions",
+        "signIns": "Sign-ins",
+        "shipments": "Shipments Created",
+        "failedSignIns": "Failed Sign-ins"
+      },
+      "ranges": {
+        "1h": "1H",
+        "24h": "24H",
+        "7d": "7D",
+        "30d": "30D"
+      },
+      "charts": {
+        "activityTitle": "Platform Activity",
+        "activitySubtitle": "Sign-ins and new users over the selected range",
+        "signIns": "Sign-ins",
+        "signups": "New users",
+        "subscriptionsTitle": "Subscription Mix",
+        "subscriptionsSubtitle": "Distribution across all accounts",
+        "tenantsTitle": "Most Active Tenants",
+        "tenantsSubtitle": "Ranked by shipment volume"
+      },
+      "table": {
+        "tenant": "Tenant",
+        "users": "Users",
+        "shipments": "Shipments",
+        "created": "Created"
+      },
+      "telemetryNotice": "Host metrics (CPU, memory, request rate, p99 latency) are not shown — this deployment has no APM data source connected.",
+      "generatedAt": "Updated"
+    },
+    "sandbox": {
+      "api": {
+        "title": "API Tester",
+        "subtitle": "Replay this application's own REST endpoints",
+        "presets": "Presets",
+        "method": "Method",
+        "path": "Path",
+        "headers": "Headers",
+        "query": "Query Params",
+        "body": "Body (JSON)",
+        "send": "Send Request",
+        "sending": "Sending…",
+        "reset": "Reset",
+        "response": "Response",
+        "status": "Status",
+        "duration": "Time",
+        "size": "Size",
+        "noResponse": "Send a request to see the response here.",
+        "keyPlaceholder": "Header name",
+        "valuePlaceholder": "Value",
+        "queryKeyPlaceholder": "Param name",
+        "addRow": "Add row",
+        "scopeNotice": "Only this app's /api/* routes can be called. Absolute URLs and external hosts are rejected by the server.",
+        "bodyInvalid": "Body must be valid JSON"
+      },
+      "email": {
+        "title": "Email & SMTP Tester",
+        "subtitle": "Send a real message through Resend using production templates",
+        "recipient": "Recipient",
+        "recipientPlaceholder": "you@example.com",
+        "template": "Template",
+        "language": "Language",
+        "subject": "Subject",
+        "html": "HTML body",
+        "send": "Send Test Email",
+        "sending": "Sending…",
+        "warning": "This sends a REAL email through Resend. Use an address you control.",
+        "templates": {
+          "verification": "Email verification",
+          "passwordReset": "Password reset",
+          "companyWelcome": "Company welcome",
+          "securityAlert": "Security alert",
+          "notification": "Notification",
+          "custom": "Custom HTML"
+        },
+        "success": "Email dispatched",
+        "failure": "Delivery failed"
+      },
+      "queue": {
+        "title": "Queue & Cache Monitor",
+        "subtitle": "Live Redis keyspace and rate-limit state",
+        "totalKeys": "Keys scanned",
+        "namespaces": "Namespaces",
+        "rateLimitKeys": "Active rate-limit windows",
+        "latency": "Probe latency",
+        "unreachable": "Redis is unreachable",
+        "truncated": "Scan capped — the keyspace is larger than shown.",
+        "live": "Live",
+        "noBullmq": "This application does not use BullMQ or a job queue library, so there are no jobs to retry or drain. What is shown is the real Redis cache and rate-limiter state.",
+        "namespace": "Namespace",
+        "keyCount": "Keys"
+      },
+      "stream": {
+        "title": "Event Stream Tester",
+        "subtitle": "Connect to a live Server-Sent Events endpoint",
+        "connect": "Connect",
+        "disconnect": "Disconnect",
+        "clear": "Clear",
+        "status": "Status",
+        "events": "Events",
+        "noEvents": "No events yet. Connect to start receiving.",
+        "statuses": {
+          "idle": "Idle",
+          "connecting": "Connecting…",
+          "open": "Connected",
+          "closed": "Closed",
+          "error": "Error"
+        },
+        "wsNotice": "This tester uses Server-Sent Events (SSE). A raw WebSocket tester is not included because this deployment exposes no WebSocket endpoint."
+      },
+      "notImplemented": {
+        "payments": "Payment Gateway Sandbox",
+        "paymentsBody": "No payment provider (Stripe, Iyzico) is integrated in this codebase, so there is nothing to test. This page is intentionally left unimplemented rather than simulated, so the console never implies coverage that does not exist."
+      }
+    },
+    "data": {
+      "tenants": {
+        "title": "Tenants",
+        "subtitle": "Every company on the platform",
+        "name": "Name",
+        "domain": "Domain",
+        "users": "Users",
+        "vehicles": "Vehicles",
+        "shipments": "Shipments",
+        "created": "Created"
+      },
+      "users": {
+        "title": "Users",
+        "subtitle": "Manage accounts across all tenants",
+        "search": "Search by name or email",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "user": "User",
+        "email": "Email",
+        "role": "Role",
+        "tenant": "Tenant",
+        "sessions": "Sessions",
+        "lastLogin": "Last login",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "never": "Never",
+        "actions": "Actions",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "suspend": "Suspend",
+        "revokeSessions": "Sign out everywhere",
+        "statuses": {
+          "ACTIVE": "Active",
+          "INACTIVE": "Inactive",
+          "SUSPENDED": "Suspended"
+        },
+        "confirmSuspend": "Suspend this account? All active sessions will be terminated immediately.",
+        "confirmRevoke": "Sign this user out of every device?",
+        "selfActionBlocked": "You cannot change your own account status."
+      },
+      "sessions": {
+        "title": "Sessions",
+        "subtitle": "Live sessions across the platform",
+        "user": "User",
+        "device": "Device",
+        "ip": "IP address",
+        "lastActivity": "Last activity",
+        "expires": "Expires",
+        "state": "State",
+        "active": "Active",
+        "revoked": "Revoked",
+        "expired": "Expired",
+        "kill": "Revoke",
+        "confirmKill": "Revoke this session? The user will be signed out immediately.",
+        "unknownDevice": "Unknown device"
+      },
+      "audit": {
+        "title": "Audit Logs",
+        "subtitle": "Immutable record of security-relevant events",
+        "action": "Action",
+        "allActions": "All actions",
+        "search": "Search by email or IP",
+        "actor": "Actor",
+        "ip": "IP",
+        "when": "When",
+        "metadata": "Metadata",
+        "immutableNotice": "This log is append-only. The console provides no way to edit or delete entries.",
+        "system": "System",
+        "noLiveLogsNotice": "There is no separate live log stream: app/lib/logger.ts writes only to the process console (stdout/stderr) and persists nothing, so there is no store this console could read from. This audit trail is the real, persisted, queryable record of security-relevant events."
+      },
+      "database": {
+        "title": "Database Browser",
+        "subtitle": "Read-only view of platform records",
+        "model": "Table",
+        "readOnlyNotice": "No editing. Rows can be soft-deleted (hidden and restorable) but never edited or erased, and tables holding credentials (users, sessions, tokens) are excluded entirely.",
+        "rows": "rows"
+      },
+      "flags": {
+        "title": "Feature Flags",
+        "subtitle": "Toggle platform capabilities without a deploy",
+        "flag": "Flag",
+        "state": "State",
+        "updated": "Last changed",
+        "never": "Never changed",
+        "enabled": "On",
+        "disabled": "Off"
+      },
+      "env": {
+        "title": "Environment",
+        "subtitle": "Deployment configuration",
+        "variable": "Variable",
+        "value": "Value",
+        "notSet": "(not set)",
+        "maskNotice": "Secret values are masked server-side and never sent to the browser. Only the last four characters of long values are shown, so two keys can be told apart without either being readable."
+      },
+      "masquerade": {
+        "title": "User Masquerade",
+        "unavailable": "Not available",
+        "body": "Signing in as another user is not implemented. The session token in this application carries no impersonation marker, so a masquerade session would be indistinguishable from a genuine login — in the audit trail, to the tenant's own users, and to any downstream service. Shipping it without that marker would make every action taken while impersonating unattributable. Implementing it safely requires an `impersonatedBy` claim in the JWT, a shortened token lifetime, a persistent banner in the app shell, and dedicated audit actions."
+      },
+      "announcement": {
+        "title": "Announcement Banner",
+        "subtitle": "Broadcast a message to every signed-in user",
+        "message": "Message",
+        "messagePlaceholder": "Scheduled maintenance tonight at 22:00 UTC…",
+        "severity": "Severity",
+        "severities": {
+          "info": "Info",
+          "warning": "Warning",
+          "critical": "Critical"
+        },
+        "publish": "Publish",
+        "clear": "Take down",
+        "active": "Live",
+        "inactive": "Not published",
+        "updated": "Last changed",
+        "preview": "Preview",
+        "charCount": "characters",
+        "plainTextNotice": "The banner is rendered as plain text. HTML and markup are not interpreted."
+      },
+      "deletion": {
+        "delete": "Delete",
+        "restore": "Restore",
+        "deleted": "Deleted",
+        "deletedAt": "Deleted at",
+        "confirmTitle": "Delete this record?",
+        "confirmBody": "The record will be hidden everywhere in the application. It is not erased from the database and can be restored later.",
+        "confirmCompanyTitle": "Delete this tenant?",
+        "confirmCompanyBody": "This hides the company AND every one of its users, and signs them all out immediately. Vehicles, shipments and other records become unreachable with it. This can be restored, but the affected users must sign in again.",
+        "typeToConfirm": "Type the company name to confirm:",
+        "cancel": "Cancel",
+        "confirmDelete": "Yes, delete",
+        "softDeleteNotice": "Deletes are reversible. Records are hidden from the application, not erased — the audit trail and referential integrity stay intact.",
+        "restoreTitle": "Deleted Records",
+        "restoreSubtitle": "Review and restore soft-deleted records",
+        "entity": "Type",
+        "record": "Record",
+        "noDeleted": "Nothing has been deleted.",
+        "deleteSuccess": "Record deleted",
+        "restoreSuccess": "Record restored",
+        "cascadeUsers": "users also hidden and signed out",
+        "cannotDeleteSelf": "You cannot delete your own account",
+        "cannotDeleteAdmin": "Platform administrators cannot be deleted",
+        "entities": {
+          "user": "User",
+          "company": "Tenant",
+          "vehicle": "Vehicle",
+          "trailer": "Trailer",
+          "shipment": "Shipment",
+          "route": "Route",
+          "warehouse": "Warehouse",
+          "customer": "Customer",
+          "driver": "Driver",
+          "inventory": "Inventory"
+        }
+      }
+    }
   }
 }
