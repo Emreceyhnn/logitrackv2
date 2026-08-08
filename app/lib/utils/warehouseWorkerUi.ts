@@ -95,11 +95,15 @@ export interface ZoneAdvice {
  */
 
 export function zoneCapacityAdvice(zones: Zone[]): ZoneAdvice[] {
-  const critical = zones.filter((z) => z.pct >= ZONE_CRITICAL_PCT);
+  // The "no zone recorded" bucket isn't a fillable location — its pct is a
+  // data-quality signal, not occupancy, so it can neither be "critically
+  // full" nor a valid divert target.
+  const realZones = zones.filter((z) => !z.isUnassigned);
+  const critical = realZones.filter((z) => z.pct >= ZONE_CRITICAL_PCT);
   if (critical.length === 0) return [];
 
   // Emptiest first; only healthy zones (below warning) are safe divert targets.
-  const healthyByEmptiest = zones
+  const healthyByEmptiest = realZones
     .filter((z) => z.pct < ZONE_WARNING_PCT)
     .sort((a, b) => a.pct - b.pct);
 

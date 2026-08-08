@@ -3061,6 +3061,7 @@
       "details": {
         "overview": "Genel Bakış",
         "inventory": "Envanter",
+        "zones": "Bölgeler",
         "locationDetails": "Konum Bilgileri",
         "address": "Adres",
         "cityCountry": "Şehir / Ülke",
@@ -3117,6 +3118,26 @@
         "specifications": "Tesis Özellikleri",
         "guidance": "Operasyonel Rehber Notlar",
         "guidanceText": "Hazardous materyal sertifikalarının güncel olduğundan ve tesisin yerel güvenlik standartlarına uygun olduğundan emin olun."
+      },
+      "zones": {
+        "title": "Depo Bölgeleri",
+        "subtitle": "Bu depodaki fiziksel bölgeleri (A, B, C…) ve palet kapasitelerini tanımlayın. Envanter ve depo çalışanı paneli, ürünleri buradaki bölgelere göre konumlandırır.",
+        "empty": "Henüz bölge tanımlanmadı",
+        "emptyDesc": "Ürünlere konum atayabilmek için önce en az bir bölge oluşturun (örn. A, B, C).",
+        "addZone": "Bölge Ekle",
+        "editZone": "Bölgeyi Düzenle",
+        "deleteZone": "Bölgeyi Sil",
+        "deleteZoneConfirm": "\"{code}\" bölgesini silmek istediğinizden emin misiniz?",
+        "code": "Bölge Kodu",
+        "codePlaceholder": "Örn. A, B1, SOĞUK-01",
+        "name": "Bölge Adı (Opsiyonel)",
+        "namePlaceholder": "Örn. Zemin Kat Raf Alanı",
+        "capacityPallets": "Palet Kapasitesi",
+        "capacityPalletsPlaceholder": "Örn. 500",
+        "usedOfCapacity": "{used} / {capacity} palet",
+        "codeRequired": "Bölge kodu zorunludur",
+        "save": "Kaydet",
+        "cancel": "İptal"
       }
     },
     "fields": {
@@ -3643,6 +3664,8 @@
       "nextTaskStart": "Başla",
       "nextTaskAllClear": "Hepsi tamam",
       "nextTaskAllClearSub": "Açık görev yok — eline sağlık.",
+      "taskCompleteNoScan": "Görev tamamlandı — ama bu oturumda hiç ürün taranmadı",
+      "taskZoneMismatch": "farklı bölgedesin",
       "allAssignedTasks": "Tüm atanan görevler",
       "siteCapacity": "Tesis kapasitesi",
       "zoneNearFull": "Bölge dolmak üzere",

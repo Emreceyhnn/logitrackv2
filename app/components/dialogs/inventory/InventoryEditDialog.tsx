@@ -79,6 +79,7 @@ export default function InventoryEditDialog({
       name: item?.name || "",
       sku: item?.sku || "",
       warehouseId: item?.warehouseId || "",
+      zone: item?.zone || "",
       imageUrl: item?.imageUrl || "",
       quantity: item?.quantity || 0,
       minStock: item?.minStock || 0,

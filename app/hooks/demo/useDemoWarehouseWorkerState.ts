@@ -92,6 +92,7 @@ export function useDemoWarehouseWorkerState(
   const zones: Zone[] = (data?.zones ?? []).map((z) => ({
     name: z.code,
     pct: z.pct,
+    ...(z.isUnassigned ? { isUnassigned: true } : {}),
   }));
 
   const feed: Movement[] = (data?.feed ?? []).map((m) => ({

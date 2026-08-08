@@ -101,6 +101,7 @@ const AddInventoryDialog = ({
           warehouseId: storageLevels.warehouseId,
           sku: itemDetails.sku,
           name: itemDetails.name,
+          zone: storageLevels.zone || undefined,
           quantity: storageLevels.initialQuantity,
           minStock: storageLevels.minStockLevel,
           weightKg: itemDetails.weightKg || 0,

@@ -225,6 +225,7 @@ export interface Inventory {
   warehouseId: string;
   sku: string;
   name: string;
+  zone?: string | null;
   quantity: number;
   allocatedQuantity: number;
   minStock: number;

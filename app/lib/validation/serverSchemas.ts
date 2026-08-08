@@ -308,6 +308,7 @@ export const createInventorySchema = z.object({
   warehouseId: z.string().min(1, "Warehouse ID is required"),
   sku: z.string().optional(),
   name: z.string().min(1, "Name is required"),
+  zone: z.string().nullable().optional(),
   quantity: z.number().int().nonnegative(),
   minStock: z.number().int().nonnegative().optional().default(0),
   weightKg: z.number().nonnegative().optional().default(0),

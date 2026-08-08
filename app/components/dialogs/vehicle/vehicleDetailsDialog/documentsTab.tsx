@@ -31,7 +31,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [loadingDoc, setLoadingDoc] = useState(false);
-  const [selectedDoc, setSelectedDoc] = useState<{ url: string; title: string; } | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<{ url: string; sourceUrl: string; title: string; fileType?: string; } | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [docToDelete, setDocToDelete] = useState<{ id: string; name: string; } | null>(null);
   const [isDeletingDoc, setIsDeletingDoc] = useState(false);
@@ -51,7 +51,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
       setLoadingDoc(true);
       const result = await getSignedUrlAction(url);
       if (result.success && result.url) {
-        setSelectedDoc({ url: result.url, title });
+        setSelectedDoc({
+          url: result.url,
+          sourceUrl: url,
+          title,
+          fileType: result.resourceType === "raw" ? "application/pdf" : "image",
+        });
         setViewerOpen(true);
       } else {
         toast.error(dict.toasts.errorNoPermission);
@@ -174,7 +179,8 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
           onClose={() => setViewerOpen(false)}
           url={selectedDoc.url}
           title={selectedDoc.title}
-          onDownload={() => handleDownloadDoc(selectedDoc.url)}
+          fileType={selectedDoc.fileType}
+          onDownload={() => handleDownloadDoc(selectedDoc.sourceUrl)}
         />
       )}
     </>

@@ -19,6 +19,7 @@ import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import OverviewTab from "./overviewTab";
 import InventoryTab from "./inventoryTab";
+import ZonesTab from "./zonesTab";
 import CloseIcon from "@mui/icons-material/Close";
 
 import WarehouseIcon from "@mui/icons-material/Storefront";
@@ -211,6 +212,10 @@ const WarehouseDetailsDialog = ({
                 label={dict.warehouses.dialogs.details.inventory}
                 {...a11yProps(1)}
               />
+              <Tab
+                label={dict.warehouses.dialogs.details.zones}
+                {...a11yProps(2)}
+              />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -218,6 +223,9 @@ const WarehouseDetailsDialog = ({
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <InventoryTab warehouse={warehouseData} />
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={2}>
+            <ZonesTab warehouse={warehouseData} />
           </CustomTabPanel>
         </Stack>
       </DialogContent>

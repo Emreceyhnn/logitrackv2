@@ -27,6 +27,8 @@ export interface Task {
 export interface Zone {
   name: string;
   pct: number;
+  /** True for the synthetic "no zone recorded" bucket — see WWZone. */
+  isUnassigned?: boolean;
 }
 export interface Movement {
   id: string;

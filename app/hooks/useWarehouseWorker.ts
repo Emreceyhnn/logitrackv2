@@ -82,12 +82,14 @@ export function useWarehouseWorkerMutations() {
       sku,
       quantity,
       kind,
+      zone,
     }: {
       warehouseId: string;
       sku: string;
       quantity: number;
       kind: "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY";
-    }) => logWarehouseMovement(warehouseId, sku, quantity, kind),
+      zone?: string;
+    }) => logWarehouseMovement(warehouseId, sku, quantity, kind, zone),
     onMutate: async ({ sku, quantity, kind }) => {
       await queryClient.cancelQueries({ queryKey: warehouseWorkerKeys.all });
       const previous = patchCachedDashboards(queryClient, (data) => {
@@ -136,13 +138,15 @@ export function useWarehouseWorkerMutations() {
       counted,
       reason,
       expected,
+      zone,
     }: {
       warehouseId: string;
       sku: string;
       counted: number;
       reason: string;
       expected?: number | undefined;
-    }) => adjustWarehouseStock(warehouseId, sku, counted, reason, expected),
+      zone?: string | undefined;
+    }) => adjustWarehouseStock(warehouseId, sku, counted, reason, expected, zone),
     onMutate: async ({ sku, counted }) => {
       await queryClient.cancelQueries({ queryKey: warehouseWorkerKeys.all });
       const previous = patchCachedDashboards(queryClient, (data) => ({
@@ -204,11 +208,13 @@ export function useWarehouseWorkerMutations() {
       warehouseId,
       title,
       description,
+      zone,
     }: {
       warehouseId: string;
       title: string;
       description?: string;
-    }) => reportWarehouseIssue(warehouseId, title, description),
+      zone?: string;
+    }) => reportWarehouseIssue(warehouseId, title, description, zone),
     onError: () => settleError(),
     onSuccess: () => settleSuccess(),
   });

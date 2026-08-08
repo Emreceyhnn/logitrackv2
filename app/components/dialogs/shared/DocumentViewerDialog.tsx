@@ -26,7 +26,7 @@ interface DocumentViewerDialogProps {
   onClose: () => void;
   url: string;
   title: string;
-  fileType?: string;
+  fileType?: string | undefined;
   onDownload?: () => void;
 }
 

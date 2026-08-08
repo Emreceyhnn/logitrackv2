@@ -40,7 +40,9 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
   const [loadingDoc, setLoadingDoc] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<{
     url: string;
+    sourceUrl: string;
     title: string;
+    fileType?: string;
   } | null>(null);
 
   if (!driver) {
@@ -67,7 +69,12 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
       setLoadingDoc(true);
       const result = await getSignedUrlAction(url);
       if (result.success && result.url) {
-        setSelectedDoc({ url: result.url, title });
+        setSelectedDoc({
+          url: result.url,
+          sourceUrl: url,
+          title,
+          fileType: result.resourceType === "raw" ? "application/pdf" : "image",
+        });
         setViewerOpen(true);
       } else {
         toast.error(dict.toasts.errorGeneric);
@@ -337,7 +344,8 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
           onClose={() => setViewerOpen(false)}
           url={selectedDoc.url}
           title={selectedDoc.title}
-          onDownload={() => handleDownloadDoc(selectedDoc.url)}
+          fileType={selectedDoc.fileType}
+          onDownload={() => handleDownloadDoc(selectedDoc.sourceUrl)}
         />
       )}
     </Stack>

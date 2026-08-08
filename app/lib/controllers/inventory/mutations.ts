@@ -144,10 +144,25 @@ export const updateInventoryItem = authenticatedAction(
         }
       }
 
+      const updateData = { ...parsed } as Prisma.InventoryUpdateInput;
+      if (typeof parsed.zone === "string") {
+        const trimmedZone = parsed.zone.trim().toLocaleUpperCase("en-US");
+        if (trimmedZone) {
+          const zoneExists = await db.warehouseZone.findFirst({
+            where: { warehouseId: newWarehouseId, code: trimmedZone },
+            select: { id: true },
+          });
+          if (!zoneExists) {
+            throw new Error("Selected zone does not exist in this warehouse");
+          }
+        }
+        updateData.zone = trimmedZone || null;
+      }
+
       const updatedItem = await db.$transaction(async (tx) => {
         const item = await tx.inventory.update({
           where: { id: inventoryId },
-          data: parsed as Prisma.InventoryUpdateInput,
+          data: updateData,
         });
 
         if (parsed.quantity !== undefined && parsed.quantity !== currentItem.quantity) {

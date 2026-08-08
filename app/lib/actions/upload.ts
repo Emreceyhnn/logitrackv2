@@ -39,20 +39,19 @@ interface SignedUrlResult {
   success: true;
   url: string;
   signed: boolean;
+  resourceType?: CloudinaryResourceType;
 }
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 const SIGNED_URL_TTL_SECONDS = 3600;
 
-const ALLOWED_MIME_PREFIXES = [
-  "data:image/jpeg",
-  "data:image/png",
-  "data:image/webp",
-  "data:image/gif",
-  "data:image/jpg",
-  "data:application/pdf",
-] as const;
+// Any "data:image/<subtype>" is accepted — Cloudinary itself validates and
+// transcodes the actual image bytes, so pinning an exhaustive subtype list
+// here only means legitimate formats (avif, heic, bmp, svg+xml, tiff, ...)
+// get rejected before ever reaching that check. PDFs are the one non-image
+// type this app stores, so they're matched explicitly.
+const ALLOWED_MIME_PATTERN = /^data:(image\/[a-zA-Z0-9.+-]+|application\/pdf);/;
 
 /**
  * tr-base64 formatındaki görüntü verisinin geçerliliğini ve boyutunu kontrol eder
@@ -65,14 +64,9 @@ function validateBase64Image(fileData: string): void {
     throw new Error("File data is required.");
   }
 
-  const isAllowedType = ALLOWED_MIME_PREFIXES.some((prefix) =>
-    fileData.startsWith(prefix)
-  );
-  if (!isAllowedType) {
+  if (!ALLOWED_MIME_PATTERN.test(fileData)) {
     throw new Error(
-      `Unsupported file type. Allowed formats: ${ALLOWED_MIME_PREFIXES.map(
-        (p) => p.replace("data:", "").replace(";", "")
-      ).join(", ")}.`
+      "Unsupported file type. Only image files and PDFs are allowed."
     );
   }
 
@@ -194,6 +188,7 @@ export const uploadImageAction = maybeAuthenticatedAction(
 interface ParsedAssetRef {
   publicId: string;
   resourceType: CloudinaryResourceType;
+  extension: string;
 }
 
 /**
@@ -243,10 +238,20 @@ function parseAssetRef(fileUrl: string): ParsedAssetRef | null {
     // ("s--AbC123--") sits *before* the version, so slicing here drops it —
     // which keeps rows written before signature-stripping parseable.
     const publicIdWithExt = segments.slice(versionIndex + 1).join("/");
-    const publicId = publicIdWithExt.replace(/\.[^./]+$/, "");
+    const extMatch = publicIdWithExt.match(/\.([^./]+)$/);
+    const publicId = extMatch
+      ? publicIdWithExt.slice(0, -extMatch[0].length)
+      : publicIdWithExt;
     if (!publicId) return null;
 
-    return { publicId, resourceType };
+    // "raw" delivery URLs carry no extension of their own — Cloudinary
+    // echoes back exactly the (extension-less) public_id we stored — so
+    // PDF is the only fallback that matches what this app actually uploads
+    // under "raw" (see resourceTypeForMime). "image" URLs always carry the
+    // real format as their extension.
+    const extension = extMatch?.[1] ?? (resourceType === "raw" ? "pdf" : "jpg");
+
+    return { publicId, resourceType, extension };
   } catch {
     return null;
   }
@@ -275,7 +280,7 @@ export const getSignedUrlAction = authenticatedAction(
     const companyId = user?.companyId || "";
     const ownedDocument = await db.document.findFirst({
       where: { url: fileUrl, companyId },
-      select: { id: true },
+      select: { id: true, name: true },
     });
     if (!ownedDocument) {
       throw new Error("Document not found or unauthorized.");
@@ -288,19 +293,45 @@ export const getSignedUrlAction = authenticatedAction(
 
     ensureCloudinaryConfigured();
 
+    // Uploaded public_ids carry no extension (see uploadImageAction). For
+    // "raw" assets (PDFs) Cloudinary has no independent notion of "format" —
+    // the delivered filename is exactly the public_id — so the attachment
+    // flag must supply the extension itself, or browsers/OSes get a file
+    // they can't open. For "image" assets Cloudinary already appends the
+    // real format to the delivery URL and does the same for the
+    // Content-Disposition filename; appending our own extension there
+    // produces "name.jpg" being treated as a second (invalid) format
+    // segment, which Cloudinary rejects with a 400. So: name only for
+    // images, name+extension for raw.
+    let attachmentFlag: string | undefined;
+    if (download) {
+      const safeName = (ownedDocument.name || "document")
+        .replace(/[^a-zA-Z0-9._-]+/g, "_")
+        .replace(/\.[a-zA-Z0-9]+$/, "");
+      attachmentFlag =
+        asset.resourceType === "raw"
+          ? `attachment:${safeName}.${asset.extension}`
+          : `attachment:${safeName}`;
+    }
+
     try {
       const signedUrl = cloudinary.url(asset.publicId, {
         type: BUCKET_DELIVERY_TYPE[bucket],
         resource_type: asset.resourceType,
         sign_url: true,
         secure: true,
-        ...(download ? { flags: "attachment" } : {}),
+        ...(attachmentFlag ? { flags: attachmentFlag } : {}),
         // Cloudinary signatures are permanent unless the URL also carries an
         // expiry, so set one to match the old 1-hour Supabase signed URLs.
         expires_at: Math.floor(Date.now() / 1000) + SIGNED_URL_TTL_SECONDS,
       });
 
-      return { success: true, url: signedUrl, signed: true };
+      return {
+        success: true,
+        url: signedUrl,
+        signed: true,
+        resourceType: asset.resourceType,
+      };
     } catch (error) {
       logger.error(
         "[getSignedUrlAction] Failed to generate signed URL:",

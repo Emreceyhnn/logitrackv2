@@ -67,18 +67,26 @@ export default function WWCapacityTab({ state }: { state: WWState }) {
         </Card>
         <Card data-tour="ww-zone-list" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 3, flex: 1 }}>
           <Stack spacing={2.5}>
-            {zones.map((z) => (
-              <Box key={z.name}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                  <Stack direction="row" alignItems="center" spacing={1} sx={{ fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary }}>
-                    <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: zoneColor(z.pct, theme) }} />
-                    <Box>{ww.ui.zone} {z.name}</Box>
+            {zones.map((z) => {
+              // The unassigned bucket isn't a real, fillable location — its
+              // bar reads as a count of misplaced items, not occupancy, so it
+              // gets a neutral color instead of the red/amber/green scale.
+              const color = z.isUnassigned ? theme.palette.text.secondary : zoneColor(z.pct, theme);
+              return (
+                <Box key={z.name}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary }}>
+                      <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: color }} />
+                      <Box>{z.isUnassigned ? z.name : `${ww.ui.zone} ${z.name}`}</Box>
+                    </Stack>
+                    <Typography sx={{ fontSize: 12, fontWeight: 700, color, fontFamily: "monospace" }}>
+                      {z.pct}%
+                    </Typography>
                   </Stack>
-                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: zoneColor(z.pct, theme), fontFamily: "monospace" }}>{z.pct}%</Typography>
-                </Stack>
-                <LinearProgress variant="determinate" value={z.pct} sx={{ height: 6, borderRadius: 6, bgcolor: "rgba(255,255,255,0.07)", "& .MuiLinearProgress-bar": { bgcolor: zoneColor(z.pct, theme) } }} />
-              </Box>
-            ))}
+                  <LinearProgress variant="determinate" value={z.pct} sx={{ height: 6, borderRadius: 6, bgcolor: "rgba(255,255,255,0.07)", "& .MuiLinearProgress-bar": { bgcolor: color } }} />
+                </Box>
+              );
+            })}
           </Stack>
         </Card>
       </Stack>

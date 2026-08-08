@@ -18,7 +18,6 @@ import {
   WW_ROLES,
   startOfToday,
   zonePct,
-  hashCode,
   resolveWarehouse,
 } from "./shared";
 
@@ -130,24 +129,27 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       .filter((m) => m.type === "PACK")
       .reduce((a, m) => a + Math.abs(m.quantity), 0);
 
+    // Hours since the start of the shift day, floored so a burst of activity
+    // right at shift start can't inflate the rate toward infinity.
     const hoursElapsed = Math.max(
       0.5,
-      1 // Dummy value to avoid refactoring rate calculation too much
+      (Date.now() - startOfToday().getTime()) / (1000 * 60 * 60)
     );
     const rate = Math.round((picks + packs) / hoursElapsed) || 0;
 
     // Zones come from the WarehouseZone config; actual usage is derived live from
     // each inventory item's `zone` (pallet occupancy), so stats stay in sync.
+    // Items with no recorded zone are genuinely unlocated — surfaced as
+    // "UNASSIGNED" rather than guessed at, so the worker never acts on a
+    // location the system doesn't actually know.
+    const UNASSIGNED_ZONE = "UNASSIGNED";
     const zoneCodes = zonesRaw.map((z) => z.code);
-    const fallbackZone = (sku: string) =>
-      zoneCodes.length
-        ? zoneCodes[Math.abs(hashCode(sku)) % zoneCodes.length] ?? "A"
-        : "A";
+    const resolveZone = (itemZone: string | null) =>
+      itemZone && zoneCodes.includes(itemZone) ? itemZone : UNASSIGNED_ZONE;
     const skuZone = new Map<string, string>();
     const usedByZone = new Map<string, number>();
     for (const it of inventoryRaw) {
-      const z =
-        it.zone && zoneCodes.includes(it.zone) ? it.zone : fallbackZone(it.sku);
+      const z = resolveZone(it.zone);
       skuZone.set(it.sku, z);
       usedByZone.set(z, (usedByZone.get(z) ?? 0) + (it.palletCount ?? 0));
     }
@@ -161,6 +163,21 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         pct: zonePct(usedPallets, z.capacityPallets),
       };
     });
+    // Surface unlocated pallets as their own entry rather than letting them
+    // vanish from the per-zone breakdown. Marked isUnassigned so the capacity
+    // tab still lists it (so the worker knows to go fix the data) without
+    // zoneCapacityAdvice treating it as a real zone that's "critically full"
+    // and telling the worker to stop putting stock away here / divert to it.
+    const unassignedPallets = Math.round(usedByZone.get(UNASSIGNED_ZONE) ?? 0);
+    if (unassignedPallets > 0) {
+      zones.push({
+        code: UNASSIGNED_ZONE,
+        capacityPallets: unassignedPallets,
+        usedPallets: unassignedPallets,
+        pct: 100,
+        isUnassigned: true,
+      });
+    }
 
     const used = Math.round(
       inventoryRaw.reduce((a, it) => a + (it.palletCount ?? 0), 0)
@@ -191,7 +208,10 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       name: m.notes || skuName.get(m.sku) || m.sku,
       sku: m.sku,
       qty: m.quantity,
-      zone: skuZone.get(m.sku) ?? fallbackZone(m.sku),
+      // The zone recorded on the movement itself (as of the moment it
+      // happened) is authoritative; only fall back to the SKU's *current*
+      // zone for movements logged before this column existed.
+      zone: m.zone ?? skuZone.get(m.sku) ?? UNASSIGNED_ZONE,
       who: m.user ? `${m.user.name} ${m.user.surname}`.trim() : "System",
       self: m.userId === userId,
       at: m.date.toISOString(),
@@ -205,7 +225,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       return {
         sku: it.sku,
         name: it.name,
-        zone: skuZone.get(it.sku) ?? fallbackZone(it.sku),
+        zone: skuZone.get(it.sku) ?? UNASSIGNED_ZONE,
         quantity: it.quantity,
         available,
         minStock,
@@ -222,7 +242,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         return {
           sku: it.sku,
           name: it.name,
-          zone: skuZone.get(it.sku) ?? fallbackZone(it.sku),
+          zone: skuZone.get(it.sku) ?? UNASSIGNED_ZONE,
           available,
           minStock,
           suggestedQty: Math.max(1, minStock - available),

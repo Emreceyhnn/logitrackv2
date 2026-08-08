@@ -13,7 +13,7 @@ import { INCLUDE_DELETED } from "../../softDelete";
 /**
  * tr-depoya yeni bir envanter/stok kalemi ekler ve ilk giriş hareketini (putaway) kaydeder
  * en-adds a new inventory/stock item to the warehouse and records the initial putaway movement
- * input (user: AuthenticatedUser, warehouseId: string, sku: string, name: string, quantity: number, minStock?: number, weightKg?: number, volumeM3?: number, palletCount?: number, cargoType?: string, imageUrl?: string, unitValue?: number, currency?: string)
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, name: string, quantity: number, minStock?: number, weightKg?: number, volumeM3?: number, palletCount?: number, cargoType?: string, imageUrl?: string, unitValue?: number, currency?: string, zone?: string)
  * output (Promise<Inventory>)
  */
 export const addInventoryItem = authenticatedAction(
@@ -30,7 +30,8 @@ export const addInventoryItem = authenticatedAction(
     cargoType: string = "General Cargo",
     imageUrl?: string,
     unitValue?: number,
-    currency: string = "USD"
+    currency: string = "USD",
+    zone?: string
   ) => {
     return controllerGuard("addInventoryItem", async () => {
       await checkPermission(user, user.companyId, [
@@ -83,12 +84,24 @@ export const addInventoryItem = authenticatedAction(
         );
       }
 
+      const trimmedZone = zone?.trim().toLocaleUpperCase("en-US") || null;
+      if (trimmedZone) {
+        const zoneExists = await db.warehouseZone.findFirst({
+          where: { warehouseId, code: trimmedZone },
+          select: { id: true },
+        });
+        if (!zoneExists) {
+          throw new Error("Selected zone does not exist in this warehouse");
+        }
+      }
+
       const result = await db.$transaction(async (tx) => {
         const newItem = await tx.inventory.create({
           data: {
             warehouseId,
             sku: itemSku,
             name,
+            zone: trimmedZone,
             quantity,
             minStock,
             weightKg,
@@ -171,6 +184,20 @@ export const updateInventoryItem = authenticatedAction(
       const updateData = { ...data };
       if (updateData.sku === "") {
         updateData.sku = `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
+      }
+
+      if (typeof updateData.zone === "string") {
+        const trimmedZone = updateData.zone.trim().toLocaleUpperCase("en-US");
+        if (trimmedZone) {
+          const zoneExists = await db.warehouseZone.findFirst({
+            where: { warehouseId: currentItem.warehouseId, code: trimmedZone },
+            select: { id: true },
+          });
+          if (!zoneExists) {
+            throw new Error("Selected zone does not exist in this warehouse");
+          }
+        }
+        updateData.zone = trimmedZone || null;
       }
 
       const updatedItem = await db.$transaction(async (tx) => {

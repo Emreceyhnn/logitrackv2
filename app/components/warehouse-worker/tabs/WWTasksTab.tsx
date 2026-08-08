@@ -6,7 +6,7 @@ import type { WWState } from "@/app/hooks/useWarehouseWorkerState";
 
 export default function WWTasksTab({ state }: { state: WWState }) {
   const theme = useTheme();
-  const { ww, openTasks, highCount, tasks, advanceTask } = state;
+  const { ww, openTasks, highCount, tasks, advanceTask, currentZone } = state;
 
   return (
     <Stack spacing={2.5}>
@@ -113,7 +113,7 @@ export default function WWTasksTab({ state }: { state: WWState }) {
             </Stack>
           ) : (
             tasks.map((t) => (
-              <WWTaskRow key={t.id} t={t} advanceTask={advanceTask} ww={ww} />
+              <WWTaskRow key={t.id} t={t} advanceTask={advanceTask} ww={ww} currentZone={currentZone} />
             ))
           )}
         </Box>

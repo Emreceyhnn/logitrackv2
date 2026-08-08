@@ -18,6 +18,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { FormikProps } from "formik";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useWarehouseZones } from "@/app/hooks/useWarehouses";
 import {
   InventoryFormData,
   HandleNumChange,
@@ -56,6 +57,7 @@ export default function InventoryProductInfoSection({
   const theme = useTheme();
   const dict = useDictionary();
   const textFieldSx = inventoryTextFieldSx(theme);
+  const { data: zones } = useWarehouseZones(values.warehouseId || undefined);
 
   return (
     <Box>
@@ -225,6 +227,26 @@ export default function InventoryProductInfoSection({
             {warehouses?.map((w) => (
               <MenuItem key={w.id} value={w.id}>
                 {w.name} ({w.code})
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            name="zone"
+            select
+            label={dict.warehouses.dialogs.zones.code}
+            fullWidth
+            value={values.zone || ""}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            sx={textFieldSx}
+          >
+            <MenuItem value="">{dict.warehouses.dialogs.fields.unassigned}</MenuItem>
+            {(zones || []).map((z) => (
+              <MenuItem key={z.id} value={z.code}>
+                {z.code}
+                {z.name ? ` · ${z.name}` : ""}
               </MenuItem>
             ))}
           </TextField>

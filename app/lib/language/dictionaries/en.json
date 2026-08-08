@@ -3060,6 +3060,7 @@
       "details": {
         "overview": "Overview",
         "inventory": "Inventory",
+        "zones": "Zones",
         "locationDetails": "Location Details",
         "address": "Address",
         "cityCountry": "City / Country",
@@ -3116,6 +3117,26 @@
         "specifications": "Facility Specifications",
         "guidance": "Operational Guidance Notes",
         "guidanceText": "Ensure that hazardous material certifications are up-to-date and facility complies with local safety standards before finalizing."
+      },
+      "zones": {
+        "title": "Warehouse Zones",
+        "subtitle": "Define the physical zones (A, B, C…) in this warehouse and their pallet capacity. Inventory and the warehouse worker panel locate items against these zones.",
+        "empty": "No zones defined yet",
+        "emptyDesc": "Create at least one zone (e.g. A, B, C) before you can assign locations to items.",
+        "addZone": "Add Zone",
+        "editZone": "Edit Zone",
+        "deleteZone": "Delete Zone",
+        "deleteZoneConfirm": "Are you sure you want to delete zone \"{code}\"?",
+        "code": "Zone Code",
+        "codePlaceholder": "e.g. A, B1, COLD-01",
+        "name": "Zone Name (Optional)",
+        "namePlaceholder": "e.g. Ground Floor Shelving",
+        "capacityPallets": "Pallet Capacity",
+        "capacityPalletsPlaceholder": "e.g. 500",
+        "usedOfCapacity": "{used} / {capacity} pallets",
+        "codeRequired": "Zone code is required",
+        "save": "Save",
+        "cancel": "Cancel"
       }
     },
     "fields": {
@@ -3642,6 +3663,8 @@
       "nextTaskStart": "Start",
       "nextTaskAllClear": "All caught up",
       "nextTaskAllClearSub": "No open tasks — nice work.",
+      "taskCompleteNoScan": "Task completed — but no items were scanned this session",
+      "taskZoneMismatch": "you're in a different zone",
       "allAssignedTasks": "All assigned tasks",
       "siteCapacity": "Site capacity",
       "zoneNearFull": "Zone near full",

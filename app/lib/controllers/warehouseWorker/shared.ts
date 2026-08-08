@@ -36,19 +36,6 @@ export function zonePct(used: number, capacity: number): number {
 }
 
 /**
- * tr-verilen metin (string) için 32-bit tamsayı özet (hash) değeri üretir
- * en-generates a 32-bit integer hash code for a given string
- * input (s: string)
- * output (number)
- */
-export function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++)
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  return h;
-}
-
-/**
  * tr-çalışanın görevli olduğu depoyu bulur (açıkça belirtilen depo > yönettiği depo > şirketin ilk deposu)
  * en-resolves the warehouse a worker is attached to (explicitly provided > managed > company's first warehouse)
  * input (companyId: string, userId: string, warehouseId?: string)

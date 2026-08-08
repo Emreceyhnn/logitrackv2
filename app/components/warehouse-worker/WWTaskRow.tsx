@@ -19,13 +19,16 @@ interface WWTaskRowProps {
   t: Task;
   advanceTask: (id: string, delta?: number) => void;
   ww: WarehouseWorkerDict;
+  /** Worker's active zone, if known — flags a mismatch against the task's own zone. */
+  currentZone?: string;
 }
 
 // Glove-friendly touch target for the in-row unit stepper.
 const STEP_SIZE = 48;
 
-export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
+export default function WWTaskRow({ t, advanceTask, ww, currentZone }: WWTaskRowProps) {
   const theme = useTheme();
+  const zoneMismatch = !!currentZone && currentZone !== t.zone;
 
   const kindMeta: Record<string, { color: string; bg: string }> = {
     PICK: { color: theme.palette.kpi.amber, bg: "rgba(245,158,11,0.14)" },
@@ -126,9 +129,10 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
           </Typography>
           <Typography
             variant="caption"
-            sx={{ color: theme.palette.text.secondary }}
+            sx={{ color: zoneMismatch ? theme.palette.kpi.amber : theme.palette.text.secondary, fontWeight: zoneMismatch ? 700 : 400 }}
           >
             {t.order} · {ww.ui.zone} {t.zone}
+            {zoneMismatch ? ` · ${ww.ui.taskZoneMismatch}` : ""}
           </Typography>
         </Box>
       </Stack>

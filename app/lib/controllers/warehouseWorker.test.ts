@@ -342,7 +342,10 @@ describe("WarehouseWorker Controller", () => {
       const createArg =
         dbMock.inventoryMovement.create.mock.calls[0].arguments[0];
       expect(createArg.data.type).toBe("RESTOCK_REQUEST");
-      expect(createArg.data.sku).toBe("ZONE-A1");
+      // Zone-wide requests (no sku given) carry no item — sku is empty rather
+      // than a synthetic "ZONE-*" placeholder that could collide with a real SKU.
+      expect(createArg.data.sku).toBe("");
+      expect(createArg.data.zone).toBe("A1");
     });
 
     it("SKU + miktar verilince ürün bazlı talep yazar", async () => {

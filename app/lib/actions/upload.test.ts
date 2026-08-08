@@ -351,5 +351,95 @@ describe("Upload Actions", () => {
         uploadActions.getSignedUrlAction(mockUser, "not-a-url")
       ).rejects.toThrow("Invalid file URL provided.");
     });
+
+    it("should_SetAttachmentFilenameWithoutExtension_WhenDownloadingImageDocument", async () => {
+      // Image assets: Cloudinary already appends the real format to both the
+      // delivery URL and the Content-Disposition filename. Appending our own
+      // extension on top (e.g. "Insurance_Photo.jpg") makes Cloudinary parse
+      // it as an invalid second format segment and reject the request with
+      // an HTTP 400 — so the attachment name must be bare here.
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-img",
+        name: "Insurance Photo",
+      }));
+
+      await uploadActions.getSignedUrlAction(
+        mockUser,
+        "https://res.cloudinary.com/demo/image/authenticated/v1712345678/documents/1786190533464-nlh6ef.jpg",
+        "documents",
+        true
+      );
+
+      const opts = cloudinaryMock.url.mock.calls[0].arguments[1];
+      expect(opts.flags).toBe("attachment:Insurance_Photo");
+    });
+
+    it("should_SetAttachmentFilenameWithPdfExtension_WhenDownloadingRawDocument", async () => {
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-pdf",
+        name: "Vehicle Registration",
+      }));
+
+      await uploadActions.getSignedUrlAction(
+        mockUser,
+        "https://res.cloudinary.com/demo/raw/authenticated/v1712345678/documents/1786190533464-nlh6ef",
+        "documents",
+        true
+      );
+
+      const opts = cloudinaryMock.url.mock.calls[0].arguments[1];
+      expect(opts.flags).toBe("attachment:Vehicle_Registration.pdf");
+    });
+
+    it("should_NotSetAttachmentFlag_WhenNotDownloading", async () => {
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-view",
+        name: "Vehicle Registration",
+      }));
+
+      await uploadActions.getSignedUrlAction(mockUser, docUrl, "documents", false);
+
+      const opts = cloudinaryMock.url.mock.calls[0].arguments[1];
+      expect(opts.flags).toBeUndefined();
+    });
+
+    it("should_NotAppendExtension_WhenLegacyImageUrlHasNoExtension", async () => {
+      // Guards against a URL shape this app shouldn't produce going forward,
+      // but may still hold from before this fix — an image delivery URL with
+      // no extension at all. Image attachments never carry an extension
+      // (Cloudinary appends its own), so this must behave the same as any
+      // other image download.
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-legacy-img",
+        name: "old scan",
+      }));
+
+      await uploadActions.getSignedUrlAction(
+        mockUser,
+        "https://res.cloudinary.com/demo/image/authenticated/v1712345678/documents/legacy-no-ext",
+        "documents",
+        true
+      );
+
+      const opts = cloudinaryMock.url.mock.calls[0].arguments[1];
+      expect(opts.flags).toBe("attachment:old_scan");
+    });
+
+    it("should_ReturnResourceType_ForConsumerPreviewBranching", async () => {
+      // The client (DocumentViewerDialog) can't infer PDF vs image from an
+      // extension-less signed URL, so it relies on this field instead.
+      dbMock.document.findFirst.mock.mockImplementation(async () => ({
+        id: "doc-raw",
+        name: "test",
+      }));
+
+      const result = await uploadActions.getSignedUrlAction(
+        mockUser,
+        "https://res.cloudinary.com/demo/raw/authenticated/v1712345678/documents/abc",
+        "documents"
+      );
+
+      expect(result.resourceType).toBe("raw");
+    });
   });
 });

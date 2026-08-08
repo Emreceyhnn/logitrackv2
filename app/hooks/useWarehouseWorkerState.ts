@@ -68,6 +68,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   const zones: Zone[] = (data?.zones ?? []).map((z) => ({
     name: z.code,
     pct: z.pct,
+    ...(z.isUnassigned ? { isUnassigned: true } : {}),
   }));
 
   const feed: Movement[] = (data?.feed ?? []).map((m) => ({
@@ -91,6 +92,9 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   const [scanResult, setScanResult] = useState<SkuInfo | null>(null);
   const [scanQty, setScanQty] = useState(1);
   const [toast, setToast] = useState<{ msg: string; tone: "success" | "warning" | "error" | "info" } | null>(null);
+  // Session-local tally of logged movements, used only to warn (never block)
+  // when a task is completed without any scan/log activity this session.
+  const [scanActivityCount, setScanActivityCount] = useState(0);
 
   const zonesKey = zones.map((z) => z.name).join(",");
   const [prevZonesKey, setPrevZonesKey] = useState<string | null>(null);
@@ -142,6 +146,12 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanResult(info);
     setScanQty(1);
     setScanInput("");
+    // Switching the active zone to match the scanned item is convenient, but
+    // doing it silently hides a real change from the worker — flag it when it
+    // actually moves them somewhere new.
+    if (info.zone !== currentZone) {
+      showToast(`${ww.ui.zone} ${info.zone}`, "info");
+    }
     setCurrentZone(info.zone);
   };
 
@@ -158,7 +168,10 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanResult(null);
     setScanQty(1);
     try {
-      await logMovement.mutateAsync({ warehouseId, sku: result.sku, quantity: qty, kind });
+      // The scanned item's own zone, not the active-zone toggle, is what's
+      // actually authoritative for where this movement happened.
+      await logMovement.mutateAsync({ warehouseId, sku: result.sku, quantity: qty, kind, zone: result.zone });
+      setScanActivityCount((c) => c + 1);
       const label = (ww.ui[kind] || kind).toLocaleLowerCase("en-US");
       // PICK removes stock (warning tone); everything else adds/settles (success).
       showToast(`${ww.logged} ${label} · ${qty} × ${result.sku}`, kind === "PICK" ? "warning" : "success");
@@ -176,7 +189,8 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanResult(null);
     setScanQty(1);
     try {
-      const res = await adjustStock.mutateAsync({ warehouseId, sku: result.sku, counted, reason, expected });
+      const res = await adjustStock.mutateAsync({ warehouseId, sku: result.sku, counted, reason, expected, zone: result.zone });
+      setScanActivityCount((c) => c + 1);
       if (res.delta === 0) {
         showToast(`${ww.adjustNoChange} · ${result.sku}`, "info");
       } else {
@@ -190,11 +204,23 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
 
   // delta lets the task row commit a counted unit total in one step (Start →
   // count → Complete); omitted, the backend falls back to its default step so
-  // the Next-task card's single-tap "Start" still works.
+  // the Next-task card's single-tap "Start" still works. Never blocks on it —
+  // the counter is a best-effort nudge, not a hard gate, since a worker may
+  // legitimately batch several scans before committing progress.
   const advanceTask = async (id: string, delta?: number) => {
+    const willComplete = tasks.some(
+      (t) => t.id === id && delta && t.done + delta >= t.total
+    );
     try {
       const res = await advanceTaskMutation.mutateAsync({ taskId: id, delta });
-      if (res.complete) showToast(ww.taskComplete, "success");
+      if (res.complete) {
+        showToast(
+          scanActivityCount > 0 ? ww.taskComplete : ww.ui.taskCompleteNoScan,
+          scanActivityCount > 0 ? "success" : "warning"
+        );
+      } else if (willComplete && scanActivityCount === 0) {
+        showToast(ww.ui.taskCompleteNoScan, "warning");
+      }
     } catch {
       showToast(ww.couldNotUpdateTask, "error");
     }
@@ -233,6 +259,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
       await reportIssueMutation.mutateAsync({
         warehouseId,
         title: `Floor issue — Zone ${currentZone}`,
+        zone: currentZone,
       });
       showToast(ww.issueReported, "error");
     } catch {

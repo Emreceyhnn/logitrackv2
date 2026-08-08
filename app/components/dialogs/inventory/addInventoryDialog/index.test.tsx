@@ -25,6 +25,17 @@ const useDictionaryMock = mock.fn(() => ({
       }
     }
   },
+  warehouses: {
+    dialogs: {
+      zones: {
+        code: "Zone",
+        empty: "No zones defined yet",
+      },
+      fields: {
+        unassigned: "Unassigned",
+      },
+    },
+  },
   toasts: {
     loading: "Loading...",
     successAdd: "Item Added",

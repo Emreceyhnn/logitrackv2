@@ -18,7 +18,7 @@ const INBOUND_KINDS: readonly FloorMovementKind[] = ["STOCK_IN", "PUTAWAY"];
 /**
  * tr-depo sahasındaki bir stok hareketini (toplama, paketleme, mal kabul vb.) kaydeder ve envanter miktarını günceller
  * en-logs a stock movement (pick, pack, stock-in, etc.) from the warehouse floor and updates inventory quantities accordingly
- * input (user: AuthenticatedUser, warehouseId: string, sku: string, quantity: number, kind: FloorMovementKind)
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, quantity: number, kind: FloorMovementKind, zone?: string)
  * output (Promise<{ success: boolean, movementId: string }>)
  */
 export const logWarehouseMovement = authenticatedAction(
@@ -27,7 +27,8 @@ export const logWarehouseMovement = authenticatedAction(
     warehouseId: string,
     sku: string,
     quantity: number,
-    kind: FloorMovementKind
+    kind: FloorMovementKind,
+    zone?: string
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
@@ -56,6 +57,7 @@ export const logWarehouseMovement = authenticatedAction(
               sku,
               quantity: kind === "PICK" ? -quantity : quantity,
               type: kind,
+              zone: zone?.trim() || inventoryNode?.zone || null,
               notes: inventoryNode?.name ?? sku,
               userId,
               companyId,
@@ -104,7 +106,7 @@ export const logWarehouseMovement = authenticatedAction(
 /**
  * tr-fiziksel sayım sonucunu sistemle karşılaştırarak (eksik/fazla) stok düzeltmesi yapar ve 'ADJUSTMENT' hareketi kaydeder
  * en-reconciles a physical stock count against the system, adjusts the on-hand quantity, and logs an 'ADJUSTMENT' movement
- * input (user: AuthenticatedUser, warehouseId: string, sku: string, counted: number, reason: string, expected?: number)
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, counted: number, reason: string, expected?: number, zone?: string)
  * output (Promise<{ success: boolean, movementId: string | null, delta: number, counted: number }>)
  */
 export const adjustWarehouseStock = authenticatedAction(
@@ -114,7 +116,8 @@ export const adjustWarehouseStock = authenticatedAction(
     sku: string,
     counted: number,
     reason: string,
-    expected?: number
+    expected?: number,
+    zone?: string
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
@@ -152,6 +155,7 @@ export const adjustWarehouseStock = authenticatedAction(
             sku,
             quantity: delta,
             type: "ADJUSTMENT",
+            zone: zone?.trim() || inventoryNode.zone || null,
             notes:
               expected !== undefined && expected !== systemExpected
                 ? `${note} (counted ${counted} vs system ${systemExpected}; worker expected ${expected})`
@@ -257,9 +261,13 @@ export const requestRestock = authenticatedAction(
       await db.inventoryMovement.create({
         data: {
           warehouseId,
-          sku: targetSku || `ZONE-${zone}`,
+          // Zone-wide requests (no sku) carry no item — sku stores an empty
+          // string rather than a synthetic "ZONE-*" value so it never collides
+          // with a real SKU in item-level reports.
+          sku: targetSku || "",
           quantity: qty,
           type: "RESTOCK_REQUEST",
+          zone: zone?.trim() || null,
           notes: targetSku
             ? `Restock requested — ${targetSku}${qty ? ` × ${qty}` : ""} (Zone ${zone})`
             : `Restock requested — Zone ${zone}`,
@@ -277,11 +285,17 @@ export const requestRestock = authenticatedAction(
 /**
  * tr-depo çalışanının sahadan yeni bir sorun/arıza bildirmesini sağlar
  * en-allows a warehouse worker to report a new issue/defect from the floor
- * input (user: AuthenticatedUser, warehouseId: string, title: string, description?: string)
+ * input (user: AuthenticatedUser, warehouseId: string, title: string, description?: string, zone?: string)
  * output (Promise<{ success: boolean, issueId: string }>)
  */
 export const reportWarehouseIssue = authenticatedAction(
-  async (user, warehouseId: string, title: string, description?: string) => {
+  async (
+    user,
+    warehouseId: string,
+    title: string,
+    description?: string,
+    zone?: string
+  ) => {
     const companyId = user?.companyId || "";
     return controllerGuard("reportWarehouseIssue", async () => {
       await checkPermission(user, companyId, WW_ROLES);
@@ -299,6 +313,8 @@ export const reportWarehouseIssue = authenticatedAction(
           type: "OTHER",
           priority: "MEDIUM",
           status: "OPEN",
+          warehouseId,
+          zone: zone?.trim() || null,
           companyId,
         },
       });

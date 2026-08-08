@@ -45,6 +45,7 @@ export interface CreateInventoryInput {
   warehouseId: string;
   sku: string;
   name: string;
+  zone?: string | null;
   quantity: number;
   minStock?: number;
   weightKg?: number | null;

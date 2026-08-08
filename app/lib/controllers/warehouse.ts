@@ -17,6 +17,12 @@ export {
   getLowStockItems,
 } from "./warehouse/inventory";
 export {
+  getWarehouseZones,
+  createWarehouseZone,
+  updateWarehouseZone,
+  deleteWarehouseZone,
+} from "./warehouse/zones";
+export {
   getWarehouseStats,
   getRecentStockMovements,
   getWarehousesWithDashboardData,

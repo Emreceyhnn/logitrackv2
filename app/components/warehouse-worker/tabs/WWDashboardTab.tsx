@@ -382,6 +382,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
                     t={t}
                     advanceTask={advanceTask}
                     ww={ww}
+                    currentZone={currentZone}
                   />
                 ))
               )}

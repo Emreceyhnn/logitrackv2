@@ -15,6 +15,10 @@ import {
   updateWarehouse,
   deleteWarehouse,
   assignManagerToWarehouse,
+  getWarehouseZones,
+  createWarehouseZone,
+  updateWarehouseZone,
+  deleteWarehouseZone,
 } from "@/app/lib/controllers/warehouse";
 import type { Warehouse } from "@/app/lib/type/enums";
 import { toast } from "sonner";
@@ -443,5 +447,72 @@ export function useWarehouseMutations() {
     updateWarehouse: updateMutation,
     deleteWarehouse: deleteMutation,
     assignManager: assignManagerMutation,
+  };
+}
+
+export function useWarehouseZones(warehouseId: string | null | undefined) {
+  return useQuery({
+    queryKey: warehouseKeys.zones(warehouseId || ""),
+    queryFn: () => getWarehouseZones(warehouseId as string),
+    enabled: !!warehouseId,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useWarehouseZoneMutations(warehouseId: string) {
+  const queryClient = useQueryClient();
+  const dict = useDictionary();
+
+  const handleSuccess = (message: string) => toast.success(message);
+  const handleError = (message: string, error: unknown) => {
+    logger.error(message, error);
+    toast.error(error instanceof Error ? error.message : message);
+  };
+
+  const settle = () => {
+    queryClient.invalidateQueries({ queryKey: warehouseKeys.zones(warehouseId) });
+    // Zone edits change per-zone capacity/occupancy, which the warehouse
+    // worker dashboard and warehouse detail views also read.
+    queryClient.invalidateQueries({ queryKey: warehouseKeys.detailsAll() });
+  };
+
+  const createZoneMutation = useMutation({
+    mutationFn: (data: { code: string; name?: string; capacityPallets?: number }) =>
+      createWarehouseZone(warehouseId, data.code, data.name, data.capacityPallets),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successAdd);
+      settle();
+    },
+  });
+
+  const updateZoneMutation = useMutation({
+    mutationFn: ({
+      zoneId,
+      data,
+    }: {
+      zoneId: string;
+      data: { name?: string; capacityPallets?: number };
+    }) => updateWarehouseZone(zoneId, data),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successUpdate);
+      settle();
+    },
+  });
+
+  const deleteZoneMutation = useMutation({
+    mutationFn: (zoneId: string) => deleteWarehouseZone(zoneId),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
+    onSuccess: () => {
+      handleSuccess(dict.toasts.successDelete);
+      settle();
+    },
+  });
+
+  return {
+    createZone: createZoneMutation,
+    updateZone: updateZoneMutation,
+    deleteZone: deleteZoneMutation,
   };
 }

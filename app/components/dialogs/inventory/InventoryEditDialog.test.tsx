@@ -41,6 +41,16 @@ const useDictionaryMock = mock.fn(() => ({
       unitPrice: "Unit Value",
     }
   },
+  warehouses: {
+    dialogs: {
+      zones: {
+        code: "Zone",
+      },
+      fields: {
+        unassigned: "Unassigned",
+      },
+    },
+  },
   toasts: {
     loading: "Loading...",
   }
@@ -61,10 +71,11 @@ mock.module("sonner", {
 });
 
 mock.module("../../../hooks/useWarehouses.ts", {
-  namedExports: { 
+  namedExports: {
     useWarehouses: mock.fn(() => ({
       data: [{ id: "wh-1", name: "Main Warehouse", code: "WH-M" }]
-    }))
+    })),
+    useWarehouseZones: mock.fn(() => ({ data: [] })),
   },
 });
 
