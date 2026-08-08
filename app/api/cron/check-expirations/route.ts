@@ -74,7 +74,9 @@ export async function GET(req: NextRequest) {
 
       await sendNotificationAction(
         { companyId: doc.companyId },
-        { title, message, type, link: "/dashboard/documents" }
+        // tr-"documents" diye bir sayfa yok; belgeler araç detayının sekmesi (bkz. documents.ts)
+        // en-No standalone "documents" page; documents live in the vehicle detail tab
+        { title, message, type, link: "/vehicle" }
       );
     }
 
@@ -104,7 +106,7 @@ export async function GET(req: NextRequest) {
 
       await sendNotificationAction(
         { companyId: driver.companyId },
-        { title, message, type, link: `/dashboard/drivers/${driver.id}` }
+        { title, message, type, link: `/drivers?id=${driver.id}` }
       );
     }
 
@@ -138,7 +140,7 @@ export async function GET(req: NextRequest) {
                   : "Araç Ruhsat Süresi Yaklaşıyor! ⏳",
               message: `${vehicle.plate} plakalı aracın ruhsat süresi ${regDays <= 0 ? "doldu" : regDays + " gün kaldı"}.`,
               type: regDays <= 0 ? "ERROR" : "WARNING",
-              link: `/dashboard/vehicles/${vehicle.id}`,
+              link: `/vehicle?id=${vehicle.id}`,
             }
           );
         }
@@ -160,7 +162,7 @@ export async function GET(req: NextRequest) {
                   : "Araç Muayene Süresi Yaklaşıyor! ⏳",
               message: `${vehicle.plate} plakalı aracın muayene süresi ${inspDays <= 0 ? "doldu" : inspDays + " gün kaldı"}.`,
               type: inspDays <= 0 ? "ERROR" : "WARNING",
-              link: `/dashboard/vehicles/${vehicle.id}`,
+              link: `/vehicle?id=${vehicle.id}`,
             }
           );
         }
@@ -189,7 +191,7 @@ export async function GET(req: NextRequest) {
             title: "Rota Gecikti! ⏰",
             message: `${route.name} numaralı rotanın bitiş saati geçti fakat henüz tamamlanmadı!`,
             type: "ERROR",
-            link: `/dashboard/routes/${route.id}`,
+            link: `/routes`,
           }
         );
       }
@@ -207,7 +209,7 @@ export async function GET(req: NextRequest) {
               title: "Rota Başlamak Üzere! 🚚",
               message: `${route.name} numaralı rotanın başlamasına yaklaşık ${minutesLeft} dakika kaldı.`,
               type: "INFO",
-              link: `/dashboard/routes/${route.id}`,
+              link: `/routes`,
             }
           );
         }
@@ -251,7 +253,7 @@ export async function GET(req: NextRequest) {
           message: `${shipment.trackingId} numaralı sevkiyatın SLA teslim süresi doldu! Durum GECİKMİŞ olarak güncellendi.`,
           type: "ERROR",
           category: "DELAY_ALERT",
-          link: `/dashboard/shipments/${shipment.id}`,
+          link: `/shipments?id=${shipment.id}`,
         }
       );
     }
@@ -297,7 +299,7 @@ export async function GET(req: NextRequest) {
             title: "Depo Kapasitesi Dolmak Üzere! 🏗️",
             message: `${wh.name} deposunun kapasite kullanımı %${Math.max(palletUsage, volumeUsage).toFixed(1)} seviyesine ulaştı.`,
             type: "WARNING",
-            link: `/dashboard/warehouses/${wh.id}`,
+            link: `/warehouses?id=${wh.id}`,
           }
         );
       }

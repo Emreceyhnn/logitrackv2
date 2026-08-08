@@ -347,7 +347,7 @@ export const createShipment = authenticatedAction(
           message: `${newShipment.trackingId} takip numaralı yeni sevkiyat oluşturuldu.`,
           type: "INFO",
           category: "SHIPMENT_UPDATE",
-          link: `/dashboard/shipments/${newShipment.id}`,
+          link: `/shipments?id=${newShipment.id}`,
         }
       );
 

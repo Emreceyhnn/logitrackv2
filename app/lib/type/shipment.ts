@@ -105,6 +105,8 @@ export interface ShipmentPageState {
     date?: Date | undefined;
   };
   loading: boolean;
+  /** Background refetch with data already on screen — dim, don't blank. */
+  refreshing?: boolean | undefined;
   error: string | null;
 }
 

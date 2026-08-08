@@ -79,6 +79,7 @@ mock.module("@mui/material", {
     Chip: (props: Record<string, unknown>) => ({ type: "Chip", props }),
     Button: (props: Record<string, unknown>) => ({ type: "Button", props }),
     Tooltip: (props: Record<string, unknown>) => ({ type: "Tooltip", props }),
+    LinearProgress: (props: Record<string, unknown>) => ({ type: "LinearProgress", props }),
   }
 });
 

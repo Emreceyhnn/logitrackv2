@@ -70,6 +70,19 @@ export function useVehicles(filters: VehicleFilters = {}) {
   });
 }
 
+export function useVehicle(id?: string | null) {
+  return useQuery({
+    queryKey: vehicleKeys.detail(id || ""),
+    queryFn: async () => {
+      if (!id) return null;
+      const { getVehicleById } = await import("@/app/lib/controllers/vehicle");
+      return getVehicleById(id);
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 async function fetchVehicleDashboard(
   filters: VehicleFilters
 ): Promise<

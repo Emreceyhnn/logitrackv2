@@ -109,7 +109,7 @@ export const updateRouteStatus = authenticatedAction(
                 title: "Rota Başlatıldı 🚛",
                 message: `${route.name || route.id} numaralı rota şu an aktif durumda. Araç yola çıktı.`,
                 type: "SUCCESS",
-                link: `/dashboard/routes/${route.id}`,
+                link: `/routes`,
               }
             );
         } else if (status === "COMPLETED") {
@@ -159,7 +159,7 @@ export const updateRouteStatus = authenticatedAction(
                     ? `${route.name || route.id} numaralı rota tamamlandı. ${activeShipmentIds.length} sevkiyat teslim edildi, ${failedCount} sevkiyat teslim edilemedi.`
                     : `${route.name || route.id} numaralı rota başarıyla tamamlandı. Tüm sevkiyatlar teslim edildi.`,
                 type: failedCount > 0 ? "WARNING" : "SUCCESS",
-                link: `/dashboard/routes/${route.id}`,
+                link: `/routes`,
               }
             );
         } else if (status === "CANCELED") {
@@ -201,7 +201,7 @@ export const updateRouteStatus = authenticatedAction(
                 title: "Rota İptal Edildi ⚠️",
                 message: `${route.name || route.id} numaralı rota iptal edildi. Araç müsait durumuna çekildi.`,
                 type: "WARNING",
-                link: `/dashboard/routes/${route.id}`,
+                link: `/routes`,
               }
             );
         }

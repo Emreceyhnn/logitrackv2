@@ -15,6 +15,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 const DriverTable = ({
   drivers,
   loading = false,
+  refreshing = false,
   meta: apiMeta,
   onDriverSelect,
   onEdit,
@@ -181,6 +182,7 @@ const DriverTable = ({
       rows={paginatedDrivers}
       columns={columns}
       loading={loading}
+      refreshing={refreshing}
       emptyMessage={dict.drivers.table.noDrivers}
       meta={meta}
       onPageChange={handlePageChange}

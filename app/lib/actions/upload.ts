@@ -262,7 +262,8 @@ export const getSignedUrlAction = authenticatedAction(
   async (
     user,
     fileUrl: string,
-    bucket: UploadBucket = "documents"
+    bucket: UploadBucket = "documents",
+    download: boolean = false
   ): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
 
@@ -293,6 +294,7 @@ export const getSignedUrlAction = authenticatedAction(
         resource_type: asset.resourceType,
         sign_url: true,
         secure: true,
+        ...(download ? { flags: "attachment" } : {}),
         // Cloudinary signatures are permanent unless the URL also carries an
         // expiry, so set one to match the old 1-hour Supabase signed URLs.
         expires_at: Math.floor(Date.now() / 1000) + SIGNED_URL_TTL_SECONDS,

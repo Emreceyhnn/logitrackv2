@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
@@ -56,6 +57,9 @@ export default function InventoryContent() {
   const warehouseId = getFilter("warehouseId");
   const status = getArrayFilter("status");
 
+  const searchParams = useSearchParams();
+  const itemIdFromUrl = searchParams.get("id");
+
   const [displaySearch, setDisplaySearch] = useState(search);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -79,6 +83,17 @@ export default function InventoryContent() {
     sortOrder,
     status
   );
+
+  // tr-Bildirimden `?id=` ile gelindiğinde detay dialog'unu açar. `temp-` ile başlayan
+  //    iyimser kimlikler sunucuda bulunmadığı için yok sayılır (bkz. CustomerContent).
+  // en-Opens the detail dialog when arriving from a notification with `?id=`. Optimistic
+  //    `temp-` ids don't exist server-side, so they're ignored (same as CustomerContent).
+  useEffect(() => {
+    if (itemIdFromUrl && !itemIdFromUrl.startsWith("temp-")) {
+      setSelectedItemId(itemIdFromUrl);
+      setIsDetailsOpen(true);
+    }
+  }, [itemIdFromUrl]);
 
   // Debouncing effect
   useEffect(() => {
@@ -222,7 +237,12 @@ export default function InventoryContent() {
             ) : (
             <InventoryTable
             items={items}
-            loading={isFetching}
+            // `isLoading`, not `isFetching`: the query keeps the previous page's
+            // rows via keepPreviousData, so every filter/sort/page change was
+            // blanking a table that still had perfectly good data to show.
+            // `isLoading` is true only when there is nothing to display yet.
+            loading={isLoading}
+            refreshing={isFetching}
             onSelect={actions.openDetails}
             onEdit={(item) => actions.openEdit(item.id)}
             onDelete={handleDeleteRequest}

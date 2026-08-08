@@ -198,12 +198,14 @@ export default function InventoryProductInfoSection({
         <Grid size={{ xs: 12 }}>
           <TextField
             name="sku"
-            label={dict.inventory.dialogs.skuOptional}
+            label={dict.inventory.fields.sku}
             placeholder={dict.inventory.dialogs.skuPlaceholder}
             fullWidth
             value={values.sku}
             onChange={handleChange}
             onBlur={handleBlur}
+            error={touched.sku && !!errors.sku}
+            helperText={touched.sku && errors.sku}
             sx={textFieldSx}
           />
         </Grid>

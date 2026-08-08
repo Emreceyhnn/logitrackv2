@@ -167,7 +167,8 @@ export default function DemoInventoryContent() {
             ) : (
               <InventoryTable
                 items={items}
-                loading={isFetching}
+                loading={isLoading}
+                refreshing={isFetching}
                 onSelect={handleOpenDetails}
                 onEdit={notifyDisabled}
                 onDelete={notifyDisabled}

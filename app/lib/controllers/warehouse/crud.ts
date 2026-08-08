@@ -19,7 +19,7 @@ import { controllerGuard } from "../utils/controllerGuard";
 /**
  * tr-sisteme yeni bir depo ekler ve oluşturulduğuna dair bildirim gönderir
  * en-adds a new warehouse to the system and dispatches a creation notification
- * input (user: AuthenticatedUser, name: string, code: string, type: WarehouseType, address: string, city: string, country: string, lat?: number, lng?: number, managerId?: string, capacityPallets?: number, capacityVolumeM3?: number, operatingHours?: string, timezone?: string, specifications?: string[])
+ * input (user: AuthenticatedUser, name: string, code: string, type: WarehouseType, address: string, city: string, country: string, lat?: number, lng?: number, managerId?: string | null, capacityPallets?: number, capacityVolumeM3?: number, operatingHours?: string, timezone?: string, specifications?: string[])
  * output (Promise<{ warehouse: Warehouse }>)
  */
 export const createWarehouse = authenticatedAction(
@@ -33,7 +33,7 @@ export const createWarehouse = authenticatedAction(
     country: string,
     lat?: number,
     lng?: number,
-    managerId?: string,
+    managerId?: string | null,
     capacityPallets?: number,
     capacityVolumeM3?: number,
     operatingHours?: string,
@@ -58,6 +58,30 @@ export const createWarehouse = authenticatedAction(
         throw new Error("Warehouse code already exists");
       }
 
+      // tr-"Atanmamış" seçeneği boş string gönderir; `?? null` bunu yakalamaz ve
+      //    veritabanına managerId="" gider — hiçbir kullanıcıyla eşleşmediği için
+      //    foreign key hatası verir. Boş/whitespace değerleri burada null'a çeviriyoruz.
+      // en-The "unassigned" option submits an empty string, which `?? null` does not
+      //    catch — the empty value reaches Postgres, matches no user, and trips the
+      //    managerId foreign key. Normalise blank values to null here.
+      const normalizedManagerId = managerId?.trim() ? managerId.trim() : null;
+
+      // tr-Yönetici bu şirkete ait olmalı: aksi halde başka bir kiracının kullanıcısı
+      //    depoya yönetici olarak bağlanabilirdi. Geçersiz kimlik de burada anlaşılır
+      //    ve ham veritabanı hatası yerine anlamlı bir mesaj döner.
+      // en-The manager must belong to this company: otherwise another tenant's user
+      //    could be attached as a warehouse manager. This also catches a bogus id and
+      //    surfaces a readable message instead of a raw foreign-key error.
+      if (normalizedManagerId) {
+        const manager = await db.user.findFirst({
+          where: { id: normalizedManagerId, companyId },
+          select: { id: true },
+        });
+        if (!manager) {
+          throw new Error("Manager not found or not in your company");
+        }
+      }
+
       const newWarehouse = await db.warehouse.create({
         data: {
           name,
@@ -69,7 +93,7 @@ export const createWarehouse = authenticatedAction(
           lat: lat ?? null,
           lng: lng ?? null,
           companyId: companyId,
-          managerId: managerId ?? null,
+          managerId: normalizedManagerId,
           capacityPallets: capacityPallets || 5000,
           capacityVolumeM3: capacityVolumeM3 || 100000,
           operatingHours: operatingHours || "08:00 - 18:00",
@@ -87,7 +111,7 @@ export const createWarehouse = authenticatedAction(
           title: "Yeni Depo Oluşturuldu 🏗️",
           message: `${name} (${warehouseCode}) isimli yeni depo sisteme tanımlandı.`,
           type: "SUCCESS",
-          link: `/dashboard/warehouses/${newWarehouse.id}`,
+          link: `/warehouses?id=${newWarehouse.id}`,
         }
       );
 
@@ -333,7 +357,7 @@ export const assignManagerToWarehouse = authenticatedAction(
           title: "Depo Yöneticisi Atandınız 👤",
           message: `${updatedWarehouse.name} deposu için yönetici olarak görevlendirildiniz.`,
           type: "INFO",
-          link: `/dashboard/warehouses/${updatedWarehouse.id}`,
+          link: `/warehouses?id=${updatedWarehouse.id}`,
         }
       );
 

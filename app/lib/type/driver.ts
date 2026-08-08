@@ -155,6 +155,8 @@ export interface DriverTableProps {
   onEdit: (driver: DriverWithRelations) => void;
   onDelete: (id: string) => void;
   loading: boolean;
+  /** Background refetch with rows already on screen — dim, don't blank. */
+  refreshing?: boolean | undefined;
   onRefresh: () => void;
   onPageChange: (page: number) => void;
   onLimitChange?: (limit: number) => void;

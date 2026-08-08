@@ -16,10 +16,13 @@ import {
   MenuItem,
   FormControl,
   Box,
+  Chip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
+import SendIcon from "@mui/icons-material/Send";
+import BlockIcon from "@mui/icons-material/Block";
 import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import DataTable from "@/app/components/ui/DataTable";
@@ -32,14 +35,24 @@ import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
 import type { DriverStateData } from "@/app/lib/type/add-company-member";
 import {
-  usePendingJoinRequests,
+  useAllJoinRequests,
   useJoinRequestMutations,
+  useCompanyInvitations,
+  useInvitationMutations,
 } from "@/app/hooks/useCompany";
 
-interface JoinRequestRow {
+interface CombinedRow {
   id: string;
+  type: "JOIN_REQUEST" | "INVITATION";
+  status: string; // "PENDING", "ACCEPTED", "REJECTED", "EXPIRED", "REVOKED"
+  isExpired?: boolean;
   createdAt: string | Date;
-  user: { name: string; surname: string; email: string; avatarUrl: string | null };
+  email: string;
+  name?: string;
+  surname?: string;
+  avatarUrl?: string | null;
+  roleName?: string;
+  invitedBy?: string; // Optional: who invited them
 }
 
 const initialDriverData: DriverStateData = {
@@ -54,17 +67,59 @@ export default function PendingJoinRequestsTable() {
   const dict = useDictionary();
   const theme = useTheme();
   const dateSettings = useDateSettings();
-  const { data, isLoading, refetch } = usePendingJoinRequests();
+  
+  const { data: joinRequestsData, isLoading: isLoadingJoinRequests, refetch: refetchJoinRequests } = useAllJoinRequests();
+  const { data: invitationsData, isLoading: isLoadingInvitations, refetch: refetchInvitations } = useCompanyInvitations("ALL");
+  
   const { accept, reject } = useJoinRequestMutations();
+  const { resend, revoke } = useInvitationMutations();
 
-  const rows: JoinRequestRow[] = data ?? [];
+  const isLoading = isLoadingJoinRequests || isLoadingInvitations;
 
-  const [acceptTarget, setAcceptTarget] = useState<JoinRequestRow | null>(null);
-  const [rejectTarget, setRejectTarget] = useState<JoinRequestRow | null>(null);
+  const rows: CombinedRow[] = useMemo(() => {
+    const combined: CombinedRow[] = [];
+    
+    if (joinRequestsData) {
+      combined.push(...joinRequestsData.map(req => ({
+        id: req.id,
+        type: "JOIN_REQUEST" as const,
+        status: req.status,
+        createdAt: req.createdAt,
+        email: req.user.email,
+        name: req.user.name,
+        surname: req.user.surname,
+        avatarUrl: req.user.avatarUrl,
+      })));
+    }
+    
+    if (invitationsData) {
+      combined.push(...invitationsData.map(inv => ({
+        id: inv.id,
+        type: "INVITATION" as const,
+        status: inv.isExpired ? "EXPIRED" : inv.status,
+        createdAt: inv.createdAt,
+        email: inv.email,
+        roleName: inv.role.name,
+        invitedBy: `${inv.invitedBy.name} ${inv.invitedBy.surname}`,
+      })));
+    }
+    
+    // Sort by createdAt descending
+    return combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [joinRequestsData, invitationsData]);
+
+  const [acceptTarget, setAcceptTarget] = useState<CombinedRow | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<CombinedRow | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<CombinedRow | null>(null);
+  const [resendTarget, setResendTarget] = useState<CombinedRow | null>(null);
+  
   const [selectedRole, setSelectedRole] = useState("role_default");
   const [driverData, setDriverData] = useState<DriverStateData>(initialDriverData);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  
   const [rejectLoading, setRejectLoading] = useState(false);
+  const [revokeLoading, setRevokeLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const roles = useMemo(
     () => [
@@ -81,7 +136,7 @@ export default function PendingJoinRequestsTable() {
   const handleDriverDataChange = (field: keyof DriverStateData, value: string) =>
     setDriverData((prev) => ({ ...prev, [field]: value }));
 
-  const openAccept = (row: JoinRequestRow) => {
+  const openAccept = (row: CombinedRow) => {
     setAcceptTarget(row);
     setSelectedRole("role_default");
     setDriverData(initialDriverData);
@@ -111,7 +166,7 @@ export default function PendingJoinRequestsTable() {
           error: (err: unknown) => (err instanceof Error ? err.message : dict.toasts.errorGeneric),
         }
       );
-      await refetch();
+      await refetchJoinRequests();
     } catch (err: unknown) {
       if (err instanceof ValidationError) {
         const errors: Record<string, string> = {};
@@ -133,7 +188,7 @@ export default function PendingJoinRequestsTable() {
       await reject.mutateAsync(rejectTarget.id);
       toast.success(dict.toasts.successJoinRequestRejected);
       setRejectTarget(null);
-      await refetch();
+      await refetchJoinRequests();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : dict.toasts.errorGeneric);
     } finally {
@@ -141,22 +196,82 @@ export default function PendingJoinRequestsTable() {
     }
   };
 
-  const columns: DataTableColumn<JoinRequestRow>[] = useMemo(
+  const handleRevoke = async () => {
+    if (!revokeTarget) return;
+    setRevokeLoading(true);
+    try {
+      await revoke.mutateAsync(revokeTarget.id);
+      setRevokeTarget(null);
+      await refetchInvitations();
+    } catch {
+      // toast is handled in mutation
+    } finally {
+      setRevokeLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!resendTarget) return;
+    setResendLoading(true);
+    try {
+      await resend.mutateAsync(resendTarget.id);
+      setResendTarget(null);
+      await refetchInvitations();
+    } catch {
+      // toast is handled in mutation
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const columns: DataTableColumn<CombinedRow>[] = useMemo(
     () => [
+      {
+        key: "type",
+        label: dict.company.joinRequests.columns?.type || "Type",
+        render: (row) => (
+          <Chip 
+            label={row.type === "JOIN_REQUEST" ? (dict.company.joinRequests.columns?.request || "Request") : (dict.company.joinRequests.columns?.invitation || "Invitation")}
+            size="small"
+            color={row.type === "JOIN_REQUEST" ? "primary" : "secondary"}
+            variant="outlined"
+            sx={{ fontWeight: 600, fontSize: 11 }}
+          />
+        ),
+      },
       {
         key: "requester",
         label: dict.company.joinRequests.columns.requester,
         render: (row) => (
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Avatar
-              src={row.user.avatarUrl ?? undefined}
-              sx={{ width: 32, height: 32, fontSize: 13 }}
-            >
-              {!row.user.avatarUrl && `${row.user.name[0]}${row.user.surname[0]}`}
-            </Avatar>
-            <Typography fontSize={13} fontWeight={600}>
-              {row.user.name} {row.user.surname}
-            </Typography>
+            {row.type === "JOIN_REQUEST" ? (
+              <>
+                <Avatar
+                  src={row.avatarUrl ?? undefined}
+                  sx={{ width: 32, height: 32, fontSize: 13 }}
+                >
+                  {!row.avatarUrl && `${row.name?.[0] || ""}${row.surname?.[0] || ""}`}
+                </Avatar>
+                <Typography fontSize={13} fontWeight={600}>
+                  {row.name} {row.surname}
+                </Typography>
+              </>
+            ) : (
+              <Stack>
+                <Typography fontSize={13} fontWeight={600}>
+                  {row.email}
+                </Typography>
+                <Typography fontSize={11} color="text.secondary">
+                  {/* tr-roles sabit anahtarlı; roleName serbest string olduğu için indekslemeden
+                          önce Record'a daraltılır, karşılığı yoksa ham ad gösterilir.
+                      en-roles has fixed keys while roleName is a free string, so narrow to a
+                          Record before indexing and fall back to the raw name. */}
+                  {(dict.company.roles as Record<string, string | undefined>)[
+                    row.roleName || ""
+                  ] || row.roleName}
+                </Typography>
+              </Stack>
+            )}
           </Stack>
         ),
       },
@@ -165,7 +280,7 @@ export default function PendingJoinRequestsTable() {
         label: dict.company.joinRequests.columns.email,
         render: (row) => (
           <Typography fontSize={13} color="text.secondary">
-            {row.user.email}
+            {row.type === "JOIN_REQUEST" ? row.email : "-"}
           </Typography>
         ),
       },
@@ -178,22 +293,79 @@ export default function PendingJoinRequestsTable() {
           </Typography>
         ),
       },
+      {
+        key: "status",
+        label: dict.company.joinRequests.columns?.status || "Status",
+        render: (row) => {
+          let color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" = "default";
+          let label = row.status;
+          
+          // tr-`common.status` bir etiket string'i ("Durum"); durum adları ayrı bir
+          //    `statusLabels` nesnesinde tutuluyor.
+          // en-`common.status` is a column label ("Status"); the state names live in a
+          //    separate `statusLabels` object.
+          const statusLabels = dict.common.statusLabels;
+
+          if (row.status === "PENDING") {
+            color = "warning";
+            label = statusLabels.pending;
+          } else if (row.status === "ACCEPTED") {
+            color = "success";
+            label = statusLabels.accepted;
+          } else if (row.status === "REJECTED") {
+            color = "error";
+            label = statusLabels.rejected;
+          } else if (row.status === "EXPIRED") {
+            color = "default";
+            label = statusLabels.expired;
+          } else if (row.status === "REVOKED") {
+            color = "error";
+            label = statusLabels.revoked;
+          }
+          
+          return (
+            <Chip 
+              label={label} 
+              size="small" 
+              color={color} 
+              sx={{ fontWeight: 600, fontSize: 11 }} 
+            />
+          );
+        }
+      }
     ],
     [dict, dateSettings]
   );
 
-  const rowActions: DataTableRowAction<JoinRequestRow>[] = useMemo(
+  const rowActions: DataTableRowAction<CombinedRow>[] = useMemo(
     () => [
       {
         label: dict.company.joinRequests.actions.accept,
         icon: <CheckIcon fontSize="small" color="success" />,
         onClick: openAccept,
+        hidden: (row) => row.type !== "JOIN_REQUEST" || row.status !== "PENDING",
       },
       {
         label: dict.company.joinRequests.actions.reject,
         icon: <ClearIcon fontSize="small" />,
         onClick: (row) => setRejectTarget(row),
         color: "error",
+        hidden: (row) => row.type !== "JOIN_REQUEST" || row.status !== "PENDING",
+      },
+      {
+        label: dict.company.joinRequests.actions?.resend || "Resend",
+        icon: <SendIcon fontSize="small" />,
+        onClick: (row) => setResendTarget(row),
+        hidden: (row) =>
+          row.type !== "INVITATION" ||
+          (row.status !== "PENDING" && row.status !== "EXPIRED"),
+      },
+      {
+        label: dict.company.joinRequests.actions?.revoke || "Revoke",
+        icon: <BlockIcon fontSize="small" />,
+        onClick: (row) => setRevokeTarget(row),
+        color: "error",
+        hidden: (row) => row.type !== "INVITATION" || row.status !== "PENDING",
       },
     ],
     [dict]
@@ -201,7 +373,7 @@ export default function PendingJoinRequestsTable() {
 
   return (
     <>
-      <DataTable<JoinRequestRow>
+      <DataTable<CombinedRow>
         rows={rows}
         columns={columns}
         loading={isLoading}
@@ -248,23 +420,37 @@ export default function PendingJoinRequestsTable() {
           <Button onClick={closeAccept} sx={{ color: "text.secondary" }}>
             {dict.common.cancel}
           </Button>
-          <Button
-            variant="contained"
-            onClick={handleAccept}
-            disabled={selectedRole === "role_driver" && (!driverData.employeeId || !driverData.phone)}
-          >
-            {dict.company.joinRequests.actions.accept}
+          <Button onClick={handleAccept} variant="contained" sx={{ px: 4, fontWeight: 700, borderRadius: 2 }}>
+            {dict.common.confirm}
           </Button>
         </DialogActions>
       </Dialog>
 
       <DeleteConfirmationDialog
         open={!!rejectTarget}
-        onClose={() => setRejectTarget(null)}
-        onConfirm={handleReject}
         title={dict.company.dialogs.rejectJoinRequestTitle}
         description={dict.company.dialogs.rejectJoinRequestDescription}
+        onConfirm={handleReject}
+        onClose={() => setRejectTarget(null)}
         loading={rejectLoading}
+      />
+
+      <DeleteConfirmationDialog
+        open={!!revokeTarget}
+        title={dict.company.dialogs.revokeInvitationTitle}
+        description={dict.company.dialogs.revokeInvitationDesc}
+        onConfirm={handleRevoke}
+        onClose={() => setRevokeTarget(null)}
+        loading={revokeLoading}
+      />
+
+      <DeleteConfirmationDialog
+        open={!!resendTarget}
+        title={dict.company.dialogs.resendInvitationTitle}
+        description={dict.company.dialogs.resendInvitationDesc}
+        onConfirm={handleResend}
+        onClose={() => setResendTarget(null)}
+        loading={resendLoading}
       />
     </>
   );

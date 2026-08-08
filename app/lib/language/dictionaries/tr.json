@@ -55,6 +55,13 @@
     },
     "actions": "İşlemler",
     "status": "Durum",
+    "statusLabels": {
+      "pending": "Beklemede",
+      "accepted": "Kabul Edildi",
+      "rejected": "Reddedildi",
+      "expired": "Süresi Doldu",
+      "revoked": "İptal Edildi"
+    },
     "date": "Tarih",
     "technician": "Teknisyen",
     "next": "İleri",
@@ -162,7 +169,12 @@
     "searchPlaceholder": "Ara...",
     "underDevelopment": "Bu özellik şu anda geliştirme aşamasındadır.",
     "comingSoon": "Çok Yakında",
-    "manualEntry": "Manuel Giriş"
+    "manualEntry": "Manuel Giriş",
+    "timeUnits": {
+      "day": "gün",
+      "hour": "saat",
+      "minute": "dk"
+    }
   },
   "guidedTour": {
     "overview": {
@@ -1793,6 +1805,7 @@
     },
     "docTypes": {
       "REGISTRATION": "Ruhsat",
+      "TRAILER_REGISTRATION": "Dorse Ruhsatı",
       "INSURANCE": "Sigorta",
       "LICENSE": "Lisans/İzin",
       "INSPECTION": "Muayene",
@@ -1948,6 +1961,18 @@
       "onTrip": "Seferde",
       "openIssues": "Açık Sorunlar",
       "docsExpiring": "Süresi Dolanlar"
+    },
+    "docStats": {
+      "summary": "Belge Özeti",
+      "valid": "Geçerli",
+      "expiringSoon": "Yakında Doluyor",
+      "expired": "Süresi Dolmuş",
+      "noExpiry": "Tarihsiz",
+      "lastUpload": "Son yükleme",
+      "never": "Henüz yükleme yok",
+      "totalDocs": "{count} belge",
+      "uploadNew": "Yeni Belge Yükle",
+      "allValid": "Tüm belgeler geçerli"
     },
     "dashboard": {
       "expiringSoon": "Süresi Yaklaşanlar",
@@ -2264,6 +2289,13 @@
       "lastName": "Soyad",
       "status": "Durum",
       "locationName": "Lokasyon Adı"
+    },
+    "activityStatus": {
+      "PENDING": "Sevkiyat oluşturuldu",
+      "ASSIGNED": "Rota oluşturuldu",
+      "IN_TRANSIT": "Yolda",
+      "DELIVERED": "Başarılı",
+      "CANCELLED": "İptal edildi"
     }
   },
   "industries": {
@@ -2393,6 +2425,7 @@
       "storageDesc": "Bu envanterin nerede saklanacağını ve stok eşiklerini tanımlayın.",
       "warehouseLocation": "Depo Konumu",
       "selectFacility": "TESİS SEÇİN *",
+      "warehouseLockedHint": "Bu depodan eklediğiniz için depo otomatik seçildi.",
       "stockConfig": "Stok Yapılandırması",
       "initialQuantity": "BAŞLANGIÇ MİKTARI",
       "minStockAlert": "MİN. STOK SEVİYESİ (UYARI)",
@@ -2464,16 +2497,22 @@
       "active": "Aktif"
     },
     "joinRequests": {
-      "title": "Bekleyen Katılma İstekleri",
+      "title": "Davet ve Katılma İstekleri",
       "empty": "Bekleyen katılma isteği yok.",
       "columns": {
         "requester": "İsim",
         "email": "Email",
-        "requestedAt": "İstek Tarihi"
+        "requestedAt": "İstek Tarihi",
+        "type": "Tür",
+        "status": "Durum",
+        "request": "İstek",
+        "invitation": "Davet"
       },
       "actions": {
         "accept": "Kabul Et",
-        "reject": "Reddet"
+        "reject": "Reddet",
+        "resend": "Yeniden Gönder",
+        "revoke": "İptal Et"
       }
     },
     "roles": {
@@ -2540,6 +2579,10 @@
       "acceptJoinRequestTitle": "Katılma İsteğini Kabul Et",
       "rejectJoinRequestTitle": "Katılma İsteğini Reddet",
       "rejectJoinRequestDescription": "Bu kişi tekrar katılmak için yeni bir istek göndermesi gerekecek.",
+      "revokeInvitationTitle": "Daveti İptal Et",
+      "revokeInvitationDesc": "Bu daveti iptal etmek istediğinize emin misiniz? Gönderilen bağlantı geçersiz hale gelecek.",
+      "resendInvitationTitle": "Daveti Yeniden Gönder",
+      "resendInvitationDesc": "Bu daveti yeniden göndermek istediğinize emin misiniz? Yeni bir bağlantı üretilecek ve eski bağlantı geçersiz olacak.",
       "steps": {
         "branding": "Markalama",
         "regional": "Bölgesel",
@@ -2837,6 +2880,7 @@
     "table": {
       "title": "Rota Listesi",
       "noRoutes": "Rota bulunamadı.",
+      "notSyncedYet": "Rota henüz kaydedilmedi. Lütfen bir saniye bekleyip tekrar deneyin.",
       "searchPlaceholder": "Rota ara...",
       "columns": {
         "routeId": "Rota No",
@@ -3326,8 +3370,19 @@
         "pendingCount": "{count} Bekleyen",
         "allClear": "Her şey yolunda! Acil aksiyon gerekmiyor.",
         "ISSUE_ALERT": "{priority} · {status}",
-        "DOC_EXPIRES": "Son Tüketim {date}",
-        "DOC_EXPIRY_APPROACHING": "Süresi yaklaşıyor"
+        "DOC_EXPIRES": "Geçerlilik: {date}",
+        "DOC_EXPIRY_APPROACHING": "Süresi yaklaşıyor",
+        "DOC_EXPIRED_DETAIL": "{owner} aracının {docType} belgesinin süresi {date} tarihinde doldu",
+        "DOC_EXPIRED_DETAIL_DRIVER": "{owner} adlı sürücünün {docType} belgesinin süresi {date} tarihinde doldu",
+        "DOC_EXPIRED_DETAIL_NONE": "{docType} belgesinin süresi {date} tarihinde doldu",
+        "DOC_EXPIRING_DETAIL": "{owner} aracının {docType} belgesinin süresi {date} tarihinde dolacak",
+        "DOC_EXPIRING_DETAIL_DRIVER": "{owner} adlı sürücünün {docType} belgesinin süresi {date} tarihinde dolacak",
+        "DOC_EXPIRING_DETAIL_NONE": "{docType} belgesinin süresi {date} tarihinde dolacak",
+        "badgeExpired": "SÜRESİ DOLDU",
+        "badgeExpiringSoon": "YAKINDA DOLUYOR",
+        "expiredDaysAgo": "{days} gün geçti",
+        "expiresInDays": "{days} gün kaldı",
+        "expiresToday": "Bugün doluyor"
       },
       "dailyOperations": {
         "title": "Bugünkü Operasyonlar",
@@ -3846,7 +3901,8 @@
       "system": "Sistem",
       "flags": "Özellik Anahtarları",
       "settings": "Ortam Değişkenleri",
-      "deleted": "Silinmiş Kayıtlar"
+      "deleted": "Silinmiş Kayıtlar",
+      "demoRequests": "Demo Talepleri"
     },
     "header": {
       "search": "Ara veya sayfaya git…",
@@ -4121,6 +4177,40 @@
         "preview": "Önizleme",
         "charCount": "karakter",
         "plainTextNotice": "Duyuru düz metin olarak gösterilir. HTML ve işaretleme yorumlanmaz."
+      },
+      "demoRequests": {
+        "title": "Demo Talepleri",
+        "subtitle": "Gelen demo taleplerini inceleyin ve deneme erişimi tanımlayın",
+        "requester": "Talep eden",
+        "type": "Tür",
+        "account": "Hesap",
+        "status": "Durum",
+        "received": "Geliş tarihi",
+        "trialDays": "Deneme",
+        "days": "{days} gün",
+        "approve": "Onayla",
+        "regrant": "Yeniden ver",
+        "reject": "Reddet",
+        "reopen": "Yeniden aç",
+        "until": "bitiş",
+        "noAccount": "Hesap yok",
+        "noAccountHint": "Bu e-postaya ait bir hesap henüz yok, bu yüzden onaylamak deneme hakkı tanımlayamaz. Kayıt olduklarında otomatik olarak alacaklar.",
+        "noRequests": "Burada talep yok.",
+        "invalidDays": "Deneme süresi 1 ile 365 gün arasında tam sayı olmalı.",
+        "approvedWithTrial": "Onaylandı — {days} günlük deneme tanımlandı",
+        "approvedNoAccount": "Onaylandı, ancak bu e-postaya ait hesap henüz yok — hiçbir hak tanımlanmadı.",
+        "statusUpdated": "Durum güncellendi",
+        "filters": {
+          "PENDING": "Bekleyen",
+          "APPROVED": "Onaylanan",
+          "REJECTED": "Reddedilen",
+          "ALL": "Tüm talepler"
+        },
+        "statuses": {
+          "PENDING": "Bekliyor",
+          "APPROVED": "Onaylandı",
+          "REJECTED": "Reddedildi"
+        }
       },
       "deletion": {
         "delete": "Sil",

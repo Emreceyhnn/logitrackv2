@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   IconButton,
@@ -41,6 +42,7 @@ export default function NotificationBell({}: {
   const dateSettings = useDateSettings();
   const { user: contextUser } = useUser();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const router = useRouter();
 
   const open = Boolean(anchorEl);
 
@@ -59,6 +61,19 @@ export default function NotificationBell({}: {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  // tr-Bildirime tıklandığında ilgili kaydın detayına gidilir. Linkler dil ön eki olmadan
+  //    saklanır (`/shipments?id=...`), çünkü hangi dilde okunacağı yazıldığı anda belli
+  //    değil; ön eki burada, kullanıcının o anki diline göre ekliyoruz.
+  // en-Clicking a notification navigates to the record it refers to. Links are stored without
+  //    a locale prefix (`/shipments?id=...`) since the reading locale isn't known at write
+  //    time; we prepend it here from the user's current language.
+  const handleNotificationClick = (notif: (typeof notifications)[number]) => {
+    if (!notif.isRead) markAsRead(notif);
+    if (!notif.link) return;
+    handleClose();
+    router.push(`/${lang}${notif.link}`);
   };
 
   return (
@@ -231,11 +246,17 @@ export default function NotificationBell({}: {
                   <ListItem
                     key={notif.id}
                     disablePadding
+                    onClick={
+                      notif.link
+                        ? () => handleNotificationClick(notif)
+                        : undefined
+                    }
                     sx={{
                       mb: 1,
                       borderRadius: 3,
                       transition: "all 0.2s",
                       position: "relative",
+                      cursor: notif.link ? "pointer" : "default",
                       bgcolor: notif.isRead
                         ? "transparent"
                         : theme.palette.action.hover,
@@ -284,7 +305,12 @@ export default function NotificationBell({}: {
                         {!notif.isRead && (
                           <IconButton
                             size="small"
-                            onClick={() => markAsRead(notif)}
+                            onClick={(e) => {
+                              // tr-Satırın yönlendirmesini tetiklemesin
+                              // en-Don't trigger the row's navigation
+                              e.stopPropagation();
+                              markAsRead(notif);
+                            }}
                             sx={{ color: theme.palette.primary.main, p: 0.5 }}
                           >
                             <ReadIcon sx={{ fontSize: 16 }} />
@@ -292,7 +318,10 @@ export default function NotificationBell({}: {
                         )}
                         <IconButton
                           size="small"
-                          onClick={() => deleteNotification(notif)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteNotification(notif);
+                          }}
                           sx={{
                             color: theme.palette.text.secondary,
                             opacity: 0.3,

@@ -63,9 +63,17 @@ const entitlementServerMock = {
 };
 
 // Next.js Headers Mock
+// `cookies` is required as well as `headers`: the regional-settings save
+// re-mints the session token in-process (refreshSession), and that reads and
+// writes auth cookies. Without this export the whole module fails to load.
 const headersMock = {
   headers: mock.fn(async () => ({
     get: mock.fn(() => "127.0.0.1"),
+  })),
+  cookies: mock.fn(async () => ({
+    get: mock.fn(() => undefined),
+    set: mock.fn(),
+    delete: mock.fn(),
   })),
 };
 

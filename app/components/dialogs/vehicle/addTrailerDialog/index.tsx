@@ -43,7 +43,8 @@ export default function AddTrailerDialog({
     isColdChain: false,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // No submitting flag: the dialog closes on submit, so there is no window in
+  // which a "saving…" disabled state could be seen.
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = e.target;
@@ -55,27 +56,29 @@ export default function AddTrailerDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+
+    // Close and reset up front: the mutation toasts its own outcome, so waiting
+    // on the round-trip just leaves the user staring at a spinner.
+    const payload = {
+      ...formData,
+      capacityVolumeM3: Number(formData.capacityVolumeM3),
+      maxLoadKg: Number(formData.maxLoadKg),
+    };
+    onClose();
+    setFormData({
+      plate: "",
+      fleetNo: "",
+      type: TrailerType.DRY_VAN,
+      capacityVolumeM3: "",
+      maxLoadKg: "",
+      isColdChain: false,
+    });
+
     try {
-      await createTrailer.mutateAsync({
-        ...formData,
-        capacityVolumeM3: Number(formData.capacityVolumeM3),
-        maxLoadKg: Number(formData.maxLoadKg),
-      });
+      await createTrailer.mutateAsync(payload);
       onSuccess?.();
-      onClose();
-      setFormData({
-        plate: "",
-        fleetNo: "",
-        type: TrailerType.DRY_VAN,
-        capacityVolumeM3: "",
-        maxLoadKg: "",
-        isColdChain: false,
-      });
     } catch (error) {
       logger.error("Failed to create trailer:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -180,7 +183,6 @@ export default function AddTrailerDialog({
           <Button
             type="submit"
             variant="contained"
-            disabled={isSubmitting}
             sx={{ textTransform: "none", borderRadius: 2 }}
           >
             {dict.common.save}

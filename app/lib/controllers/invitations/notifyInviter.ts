@@ -70,7 +70,7 @@ export async function notifyInviterOfOutcome(params: {
         title,
         message,
         type: accepted ? "SUCCESS" : "INFO",
-        link: "/dashboard/users",
+        link: "/users",
       }
     );
 

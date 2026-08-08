@@ -33,6 +33,8 @@ const VISIBLE_ROUTE_STATUSES: RouteStatus[] = [
 ];
 
 interface ExtendedRouteTableProps extends RouteTableProps {
+  /** Background refetch with rows already on screen — dim, don't blank. */
+  refreshing?: boolean | undefined;
   onRefresh?: () => void;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -43,6 +45,7 @@ interface ExtendedRouteTableProps extends RouteTableProps {
 const RouteTable = ({
   routes,
   loading = false,
+  refreshing = false,
   pagination,
   onPageChange,
   onSelect,
@@ -276,7 +279,8 @@ const RouteTable = ({
         rows={paginatedRoutes}
         columns={columns}
         rowActions={rowActions}
-        loading={loading || updateRouteStatus.isPending}
+        loading={loading}
+        refreshing={refreshing || updateRouteStatus.isPending}
         emptyMessage={dict.routes.table.noRoutes}
         searchValue={filters?.search ?? ""}
         searchPlaceholder={dict.routes.table.searchPlaceholder || dict.common.search}

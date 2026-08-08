@@ -5,10 +5,8 @@ import { FuelType } from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
 import { FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
-import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 import { controllerGuard } from "./utils/controllerGuard";
 import { createFuelLogSchema } from "../validation/serverSchemas";
-import { logger } from "../logger";
 
 /**
  * tr-belirtilen filtrelere göre yakıt kayıtlarını getirir
@@ -95,29 +93,18 @@ export const createFuelLog = authenticatedAction(
     return controllerGuard("createFuelLog", async () => {
       const companyId = user?.companyId || "";
       await checkPermission(user, companyId);
-      
+
       const parsed = createFuelLogSchema.parse(data);
 
-      // Normalize cost to USD
-      let normalizedCost = parsed.cost;
-      const currency = parsed.currency;
-      if (currency !== "USD") {
-        try {
-          const rates = await getExchangeRates();
-          const rate = rates.rates[currency] || 1;
-          normalizedCost = parsed.cost / rate;
-        } catch (err) {
-          logger.warn("[fuel] Currency conversion failed", err);
-        }
-      }
-
+      // Store the cost exactly as the user entered it, in their chosen currency.
+      // The UI uses formatFrom(cost, currency) to convert to the viewer's currency at render time.
       const log = await db.fuelLog.create({
         data: {
           ...parsed,
           location: parsed.location ?? null,
           receiptUrl: parsed.receiptUrl ?? null,
-          cost: normalizedCost,
-          currency: "USD",
+          cost: parsed.cost,
+          currency: parsed.currency,
           companyId,
         },
       });

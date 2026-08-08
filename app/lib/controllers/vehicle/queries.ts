@@ -23,6 +23,7 @@ import {
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
+import { withLiveDocumentStatus } from "../../utils/documentStatus";
 
 /**
  * tr-kullanıcının şirketine ait araçları, uygulanan filtrelere (arama, durum, tip vb.) göre ilişkili verilerle listeler
@@ -97,6 +98,9 @@ export const getVehicles = authenticatedAction(
       });
       const result: VehicleWithRelations[] = vehicles.map((vehicle) => ({
         ...vehicle,
+        // tr-Saklı `status` oluşturma anında donuyor; süresi dolmuş belge ACTIVE görünmesin.
+        // en-The stored `status` is frozen at creation; don't let a lapsed document read ACTIVE.
+        documents: withLiveDocumentStatus(vehicle.documents),
         maintenanceRecords: vehicle.maintenanceRecords.map((record) => ({
           ...record,
           cost: Number(record.cost),
@@ -374,6 +378,9 @@ export const getVehiclesWithDashboard = authenticatedAction(
         const vehiclesWithRelations: VehicleWithRelations[] = vehicles.map(
           (vehicle) => ({
             ...vehicle,
+            // tr-Saklı belge durumu bayat; tarihten türetilenle değiştir (bkz. documentStatus.ts)
+            // en-Stored document status is stale; swap in the date-derived one
+            documents: withLiveDocumentStatus(vehicle.documents),
             maintenanceRecords: vehicle.maintenanceRecords.map((record) => ({
               ...record,
               cost: Number(record.cost),

@@ -23,6 +23,8 @@ import { TrailerStatus, TrailerType } from "@/app/lib/type/enums";
 interface TrailerTableProps {
   trailers: TrailerWithRelations[];
   loading: boolean;
+  /** Background refetch with rows already on screen — dim, don't blank. */
+  refreshing?: boolean | undefined;
   onEdit: (trailer: TrailerWithRelations) => void;
   onDelete: (trailer: TrailerWithRelations) => void;
   onAssign: (trailer: TrailerWithRelations) => void;
@@ -39,6 +41,7 @@ interface TrailerTableProps {
 export default function TrailerTable({
   trailers,
   loading,
+  refreshing = false,
   onEdit,
   onDelete,
   onAssign,
@@ -218,6 +221,7 @@ export default function TrailerTable({
       rows={trailers}
       columns={columns}
       loading={loading}
+      refreshing={refreshing}
       rowActions={rowActions}
       tableTitle={dict.trailers.title}
       emptyMessage={dict.trailers.emptyMessage || "No trailers found"}

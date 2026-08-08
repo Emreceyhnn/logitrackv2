@@ -12,6 +12,7 @@ import {
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
 import { driverCache } from "./shared";
+import { withLiveDocumentStatus } from "../../utils/documentStatus";
 
 interface WeeklyStat {
   delivered: number;
@@ -305,7 +306,12 @@ export const getDriverWithDashboardData = authenticatedAction(
           );
 
           return {
-            drivers: drivers as DriverWithRelations[],
+            // tr-Saklı belge durumu bayat; tarihten türetilenle değiştir (bkz. documentStatus.ts)
+            // en-Stored document status is stale; swap in the date-derived one
+            drivers: drivers.map((driver) => ({
+              ...driver,
+              documents: withLiveDocumentStatus(driver.documents),
+            })) as DriverWithRelations[],
             meta: {
               total: totalDriversList,
               page,

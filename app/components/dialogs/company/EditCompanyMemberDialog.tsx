@@ -89,18 +89,22 @@ export default function EditCompanyMemberDialog({
 
   const handleSubmitForm = async (values: FormData) => {
     if (!member) return;
+
+    // Close first; the mutation toasts its own success/failure.
+    const payload = {
+      id: member.id,
+      data: {
+        name: values.name,
+        surname: values.surname,
+        roleId: values.roleId,
+        status: values.status as UserStatus,
+      },
+    };
+    onClose();
+
     try {
-      await updateMember.mutateAsync({
-        id: member.id,
-        data: {
-          name: values.name,
-          surname: values.surname,
-          roleId: values.roleId,
-          status: values.status as UserStatus,
-        },
-      });
+      await updateMember.mutateAsync(payload);
       onSuccess();
-      onClose();
     } catch (error) {
       logger.error("Failed to update member", error);
     }

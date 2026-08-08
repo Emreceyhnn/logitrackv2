@@ -196,7 +196,10 @@ export default function RoutesContent() {
         ) : (
         <RouteTable
           routes={routes}
-          loading={isFetching}
+          // Previous rows survive a filter/sort change via keepPreviousData;
+          // only blank the table when there is genuinely nothing to show.
+          loading={isLoading}
+          refreshing={isFetching}
           pagination={{
             page: pagination.page,
             pageSize: pagination.pageSize,

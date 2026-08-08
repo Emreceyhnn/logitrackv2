@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
 import RecentStockMovements from "@/app/components/dashboard/warehouse/recentStockMovements";
@@ -13,6 +14,7 @@ import {
 import {
   useWarehousesWithDashboard,
   useWarehouseMutations,
+  useWarehouse,
 } from "@/app/hooks/useWarehouses";
 import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
 import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
@@ -44,6 +46,9 @@ export default function WarehouseContent() {
     page: 1,
     pageSize: 10,
   });
+  const searchParams = useSearchParams();
+  const warehouseIdFromUrl = searchParams.get("id");
+
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
     null
   );
@@ -68,6 +73,14 @@ export default function WarehouseContent() {
   } = useWarehousesWithDashboard(pagination.page, pagination.pageSize);
 
   const { deleteWarehouse: deleteMutation } = useWarehouseMutations();
+
+  // Auto-open details dialog when navigating from overview map with ?id=
+  useEffect(() => {
+    if (warehouseIdFromUrl && !isLoading) {
+      setSelectedWarehouseId(warehouseIdFromUrl);
+      setDetailsDialogOpen(true);
+    }
+  }, [warehouseIdFromUrl, isLoading]);
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const noop = useCallback(async () => {}, []);
@@ -116,6 +129,12 @@ export default function WarehouseContent() {
   const warehouses = dashboardData?.warehouses || [];
   const stats = dashboardData?.stats || null;
   const recentMovements = dashboardData?.recentMovements || [];
+
+  const { data: individualWarehouse } = useWarehouse(
+    selectedWarehouseId && !warehouses.find((w: WarehouseWithRelations) => w.id === selectedWarehouseId)
+      ? selectedWarehouseId
+      : null
+  );
 
   const warehouseToDelete = warehouses.find(
     (w: WarehouseWithRelations) => w.id === warehouseToDeleteId
@@ -199,7 +218,10 @@ export default function WarehouseContent() {
         ) : (
         <WarehouseListTable
           warehouses={warehouses}
-          loading={isFetching}
+          // Previous rows survive a filter/sort change via keepPreviousData;
+          // only blank the table when there is genuinely nothing to show.
+          loading={isLoading}
+          refreshing={isFetching}
           onSelect={actions.selectWarehouse}
           onEdit={actions.editWarehouse}
           onDelete={actions.deleteWarehouse}
@@ -233,9 +255,9 @@ export default function WarehouseContent() {
           actions.selectWarehouse(null);
         }}
         warehouseData={
-          warehouses.find(
-            (w: WarehouseWithRelations) => w.id === selectedWarehouseId
-          ) || undefined
+          selectedWarehouseId
+            ? warehouses.find((w: WarehouseWithRelations) => w.id === selectedWarehouseId) || individualWarehouse || undefined
+            : undefined
         }
       />
 

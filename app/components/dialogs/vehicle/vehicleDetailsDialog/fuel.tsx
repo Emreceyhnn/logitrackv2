@@ -31,7 +31,7 @@ interface FuelTabProps {
 const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
-  const { formatFrom } = useCurrency();
+  const { formatFrom, convertFrom, currency } = useCurrency();
   const [addFuelDialogOpen, setAddFuelDialogOpen] = useState(false);
 
   if (!vehicle) {
@@ -41,7 +41,7 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
   const fuelHistory = (vehicle.fuelLogs || []).slice(0, 10);
 
   const totalFuelCost = (vehicle.fuelLogs || []).reduce(
-    (sum, log) => sum + log.cost,
+    (sum, log) => sum + convertFrom(Number(log.cost), log.currency || "USD"),
     0
   );
   const totalVolume = (vehicle.fuelLogs || []).reduce(
@@ -104,7 +104,7 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
             {dict.fuel.fields.cost}
           </Typography>
           <Typography variant="h5" fontWeight={800} color="primary.main">
-            {formatFrom(totalFuelCost, "USD")}
+            {formatFrom(totalFuelCost, currency)}
           </Typography>
         </Card>
 

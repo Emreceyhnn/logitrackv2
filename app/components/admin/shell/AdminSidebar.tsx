@@ -29,6 +29,7 @@ import {
   Lock,
   Mail,
   Radio,
+  Rocket,
   ScrollText,
   Send,
   Settings2,
@@ -71,6 +72,7 @@ const ICONS: Record<string, LucideIcon> = {
   ToggleLeft,
   Lock,
   Trash2,
+  Rocket,
 };
 
 /**

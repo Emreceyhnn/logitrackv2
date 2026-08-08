@@ -191,7 +191,7 @@ export const createRoute = authenticatedAction(
               message: `${finalName} numaralı rota size atandı.`,
               type: "SUCCESS",
               category: "NEW_ASSIGNMENT",
-              link: `/dashboard/routes/${newRoute.id}`,
+              link: `/routes`,
             }
           );
         }
@@ -204,7 +204,7 @@ export const createRoute = authenticatedAction(
           message: `${finalName} numaralı yeni bir rota planlandı. Sürücü: ${driverId ? 'Atandı' : 'Bekleniyor'}.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
-          link: `/dashboard/routes/${newRoute.id}`,
+          link: `/routes`,
         }
       );
 

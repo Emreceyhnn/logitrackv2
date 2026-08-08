@@ -166,7 +166,8 @@ export default function DemoRoutesContent() {
         ) : (
           <DemoRouteTable
             routes={routes}
-            loading={isFetching}
+            loading={isLoading}
+            refreshing={isFetching}
             pagination={{
               page: pagination.page,
               pageSize: pagination.pageSize,

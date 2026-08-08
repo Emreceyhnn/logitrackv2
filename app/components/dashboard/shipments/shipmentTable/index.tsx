@@ -48,7 +48,7 @@ const ShipmentTable = ({
   const dict = useDictionary();
 
   const dateSettings = useDateSettings();
-  const { shipments, loading = false, filters } = state;
+  const { shipments, loading = false, refreshing = false, filters } = state;
   const { selectShipment, onEdit, onDelete, updateFilters } = actions;
 
   // Localized statuses for the filter
@@ -269,6 +269,7 @@ const ShipmentTable = ({
         rows={paginatedShipments}
         columns={columns}
         loading={loading}
+        refreshing={refreshing}
         emptyMessage={dict.shipments.table.noShipments}
         searchValue={filters.search ?? ""}
         searchPlaceholder={dict.shipments.table.searchPlaceholder}

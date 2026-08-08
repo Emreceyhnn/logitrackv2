@@ -94,7 +94,8 @@ export default function DemoShipmentContent() {
     statusDistribution: dashboardData?.statusDistribution || [],
     selectedShipmentId,
     filters: {},
-    loading: isFetching,
+    loading: isLoading,
+    refreshing: isFetching,
     error: isError ? "error" : null,
   };
 

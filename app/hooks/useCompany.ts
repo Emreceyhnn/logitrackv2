@@ -12,6 +12,7 @@ import {
 } from "@/app/lib/controllers/company";
 import {
   getPendingJoinRequests,
+  getAllJoinRequests,
   acceptJoinRequest,
   rejectJoinRequest,
 } from "@/app/lib/controllers/joinRequests";
@@ -283,6 +284,14 @@ export function usePendingJoinRequests() {
   });
 }
 
+export function useAllJoinRequests() {
+  return useQuery({
+    queryKey: [...companyKeys.joinRequests(), "ALL"],
+    queryFn: () => getAllJoinRequests(),
+    staleTime: 1000 * 30,
+  });
+}
+
 function removeCachedJoinRequest(
   queryClient: ReturnType<typeof useQueryClient>,
   requestId: string
@@ -360,7 +369,7 @@ export function useJoinRequestMutations() {
 }
 
 export function useCompanyInvitations(
-  status?: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED"
+  status?: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED" | "ALL"
 ) {
   return useQuery({
     queryKey: [...companyKeys.invitations(), status ?? "ALL"],

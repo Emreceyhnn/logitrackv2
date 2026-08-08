@@ -37,6 +37,7 @@ export default function VehicleContent() {
     isVehiclesFetching,
     isVehiclesError,
     refetchVehicleWithDashboard,
+    isTrailersLoading,
     isTrailersFetching,
     isTrailersError,
     refetchTrailers,
@@ -90,13 +91,17 @@ export default function VehicleContent() {
           <QueryErrorState onRetry={() => refetchTrailers()} />
         ) : activeTab === 0 ? (
           <VehicleTable
-            state={{ ...state, vehicles, dashboardData: dashboardData ?? null, loading: isVehiclesFetching, error: null } as VehiclePageState}
+            // `isVehiclesLoading` (first load) blanks the table; `isFetching`
+            // would also fire on every filter/sort refetch, throwing away rows
+            // keepPreviousData is deliberately holding on screen.
+            state={{ ...state, vehicles, dashboardData: dashboardData ?? null, loading: isVehiclesLoading, refreshing: isVehiclesFetching, error: null } as VehiclePageState}
             actions={{ ...actions, onEdit: handleEdit, onDelete: handleDelete }}
           />
         ) : (
           <TrailerTable
             trailers={trailers || []}
-            loading={isTrailersFetching}
+            loading={isTrailersLoading}
+            refreshing={isTrailersFetching}
             onEdit={handleTrailerEdit}
             onDelete={handleTrailerDelete}
             onAssign={handleTrailerAssign}

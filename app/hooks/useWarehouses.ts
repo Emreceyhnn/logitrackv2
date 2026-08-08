@@ -266,7 +266,7 @@ function buildOptimisticWarehouse(
     country: string;
     lat?: number | undefined;
     lng?: number | undefined;
-    managerId?: string | undefined;
+    managerId?: string | null | undefined;
     capacityPallets: number;
     capacityVolumeM3: number;
     operatingHours?: string | undefined;
@@ -340,7 +340,9 @@ export function useWarehouseMutations() {
       country: string;
       lat?: number | undefined;
       lng?: number | undefined;
-      managerId: string;
+      // Nullable: a warehouse may legitimately be created with no manager, and
+      // the "unassigned" option must not be forced through as an empty string.
+      managerId?: string | null | undefined;
       capacityPallets: number;
       capacityVolumeM3: number;
       operatingHours?: string | undefined;

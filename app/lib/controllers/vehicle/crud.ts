@@ -11,6 +11,7 @@ import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../../acti
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import { logger } from "@/app/lib/logger";
+import { withLiveDocumentStatus } from "../../utils/documentStatus";
 
 
 /**
@@ -96,6 +97,14 @@ export const getVehicleById = authenticatedAction(
             orderBy: { date: "desc" },
             take: 10,
           },
+          // tr-`VehicleWithRelations` bu iki ilişkiyi zorunlu tutuyor ve detay dialog'u
+          //    (belgeler sekmesi, rota listesi) ikisini de okuyor; çekilmedikleri için
+          //    tek araç sorgusu tipe uymuyordu.
+          // en-`VehicleWithRelations` requires both relations and the detail dialog reads
+          //    them (documents tab, route list); leaving them out made this single-vehicle
+          //    query fail to satisfy the type.
+          documents: true,
+          routes: { include: { stops: { orderBy: { sequence: "asc" } } } },
         },
       });
 
@@ -103,7 +112,38 @@ export const getVehicleById = authenticatedAction(
         throw new Error("Vehicle not found or unauthorized");
       }
 
-      return foundVehicle;
+      return {
+        ...foundVehicle,
+        // tr-Saklı belge durumu bayat; tarihten türetilenle değiştir (bkz. documentStatus.ts)
+        // en-Stored document status is stale; swap in the date-derived one
+        documents: withLiveDocumentStatus(foundVehicle.documents),
+        // tr-Prisma `cost`u Decimal döndürür ama istemci tipi `number` bekler; diğer araç
+        //    sorguları da aynı dönüşümü yapıyor (bkz. vehicle/queries.ts).
+        // en-Prisma returns `cost` as Decimal while the client type expects `number`; the
+        //    other vehicle queries do the same conversion (see vehicle/queries.ts).
+        maintenanceRecords: foundVehicle.maintenanceRecords.map((record) => ({
+          ...record,
+          cost: Number(record.cost),
+          originalCost:
+            record.originalCost === null ? null : Number(record.originalCost),
+        })),
+        fuelLogs: foundVehicle.fuelLogs.map((log) => ({
+          ...log,
+          cost: Number(log.cost),
+        })),
+        // tr-İstemci tipi durakları sade {address, lat?, lng?} olarak bekliyor; Prisma satırı
+        //    olduğu gibi geçirilemez (bkz. vehicle/queries.ts'deki aynı dönüşüm).
+        // en-The client type expects plain {address, lat?, lng?} stops; the raw Prisma row
+        //    can't be passed through (same conversion as in vehicle/queries.ts).
+        routes: foundVehicle.routes.map((route) => ({
+          ...route,
+          stops: route.stops.map((stop) => ({
+            address: stop.address,
+            lat: stop.lat ?? undefined,
+            lng: stop.lng ?? undefined,
+          })),
+        })),
+      };
     });
   }
 );
@@ -237,7 +277,7 @@ export const updateVehicleStatus = authenticatedAction(
             message: `${updatedVehicle.plate} plakalı araç şu an bakım durumunda.`,
             type: "ERROR",
             category: "MAINTENANCE_ALERT",
-            link: `/dashboard/vehicles/${vehicleId}`,
+            link: `/vehicle?id=${vehicleId}`,
           }
         );
       }

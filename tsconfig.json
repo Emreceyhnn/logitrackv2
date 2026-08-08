@@ -48,6 +48,7 @@
     "node_modules",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "poc.test.tsx"
+    "poc.test.tsx",
+    "test.ts"
   ]
 }

@@ -17,6 +17,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { ReactNode } from "react";
 import { ActionRequiredItems } from "@/app/lib/type/overview";
 import { useRouter, usePathname } from "next/navigation";
@@ -44,6 +45,44 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
         .replace("{priority}", p)
         .replace("{status}", s);
     }
+    // Document alerts spell out what expired and whose it is — "the inspection
+    // document for vehicle 34ABC123 expired on 3 Mar 2026" — instead of a bare
+    // date with no subject.
+    if (
+      (i.messageKey === "DOC_EXPIRED_DETAIL" ||
+        i.messageKey === "DOC_EXPIRING_DETAIL") &&
+      i.messageParams
+    ) {
+      const p = i.messageParams;
+      const t = dict.dashboard.overview.actionRequired as Record<string, string>;
+
+      // Pick the phrasing that matches the owner: vehicles and drivers need
+      // different wording in Turkish ("aracının" vs "adlı sürücünün"), and a
+      // document with neither must not render a dangling "of vehicle".
+      const ownerKind = String(p.ownerKind ?? "none");
+      const suffix =
+        ownerKind === "vehicle" ? "" : ownerKind === "driver" ? "_DRIVER" : "_NONE";
+      const template = t[`${i.messageKey}${suffix}`] ?? t[i.messageKey] ?? "";
+
+      const date = p.date
+        ? new Intl.DateTimeFormat(lang, {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }).format(new Date(String(p.date)))
+        : "";
+
+      const docTypeKey = String(p.docType ?? "OTHER");
+      const docTypeLabel =
+        (dict.vehicles?.docTypes as Record<string, string> | undefined)?.[
+          docTypeKey
+        ] ?? docTypeKey;
+
+      return template
+        .replace("{owner}", String(p.owner ?? ""))
+        .replace("{docType}", docTypeLabel)
+        .replace("{date}", date);
+    }
     if (i.messageKey === "DOC_EXPIRES" && i.messageParams) {
       const d = new Intl.DateTimeFormat(lang, { day: "numeric", month: "short", year: "numeric" }).format(new Date(i.messageParams.date ?? ""));
       return (dict.dashboard.overview.actionRequired.DOC_EXPIRES as string).replace("{date}", d);
@@ -53,6 +92,38 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     }
     return i.message;
   };
+
+  // "3 gün kaldı" / "12 gün geçti" — the date alone does not convey how urgent
+  // something is at a glance.
+  const countdownLabel = (i: ActionRequiredItems): string | null => {
+    if (!i.urgency || i.messageParams?.daysLeft === undefined) return null;
+    const t = dict.dashboard.overview.actionRequired as Record<string, string>;
+    const days = Number(i.messageParams.daysLeft);
+    if (!Number.isFinite(days)) return null;
+
+    if (days < 0) return t.expiredDaysAgo?.replace("{days}", String(-days)) ?? null;
+    if (days === 0) return t.expiresToday ?? null;
+    return t.expiresInDays?.replace("{days}", String(days)) ?? null;
+  };
+
+  // Expired items get their own error-toned icon so the row reads as a breach
+  // even before the text is parsed.
+  const expiredIcon = (
+    <Box
+      sx={{
+        bgcolor: theme.palette.error._alpha.main_10,
+        color: theme.palette.error.main,
+        width: 32,
+        height: 32,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "8px",
+      }}
+    >
+      <ErrorOutlineIcon sx={{ fontSize: 18 }} />
+    </Box>
+  );
 
   const handleActionClick = (link?: string) => {
     if (link) {
@@ -219,19 +290,86 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
                       },
                     }}
                   >
-                    {setType[i.type]}
+                    {i.urgency === "EXPIRED" ? expiredIcon : setType[i.type]}
 
-                    <Stack spacing={0.25}>
-                      <Typography
-                        fontSize={14}
-                        fontWeight={600}
-                        color="text.primary"
+                    <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+                      <Stack
+                        direction="row"
+                        spacing={0.75}
+                        alignItems="center"
+                        flexWrap="wrap"
                       >
-                        {i.title}
-                      </Typography>
-                      <Typography fontSize={13} color="text.secondary">
+                        <Typography
+                          fontSize={14}
+                          fontWeight={600}
+                          color="text.primary"
+                        >
+                          {i.title}
+                        </Typography>
+                        {/* An expired document is a live compliance breach, so
+                            it carries a filled badge rather than the same muted
+                            treatment as an upcoming renewal. */}
+                        {i.urgency === "EXPIRED" && (
+                          <Box
+                            sx={{
+                              bgcolor: theme.palette.error.main,
+                              color: theme.palette.error.contrastText,
+                              px: 0.75,
+                              py: 0.125,
+                              borderRadius: "6px",
+                              fontSize: "0.65rem",
+                              fontWeight: 800,
+                              letterSpacing: 0.3,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {dict.dashboard.overview.actionRequired.badgeExpired}
+                          </Box>
+                        )}
+                        {i.urgency === "EXPIRING_SOON" && (
+                          <Box
+                            sx={{
+                              border: `1px solid ${theme.palette.warning.main}`,
+                              color: theme.palette.warning.main,
+                              px: 0.75,
+                              py: 0.125,
+                              borderRadius: "6px",
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              letterSpacing: 0.3,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {
+                              dict.dashboard.overview.actionRequired
+                                .badgeExpiringSoon
+                            }
+                          </Box>
+                        )}
+                      </Stack>
+                      <Typography
+                        fontSize={13}
+                        color={
+                          i.urgency === "EXPIRED"
+                            ? "error.main"
+                            : "text.secondary"
+                        }
+                        fontWeight={i.urgency === "EXPIRED" ? 600 : 400}
+                      >
                         {getMessage(i)}
                       </Typography>
+                      {countdownLabel(i) && (
+                        <Typography
+                          fontSize={12}
+                          color={
+                            i.urgency === "EXPIRED"
+                              ? "error.main"
+                              : "text.secondary"
+                          }
+                        >
+                          {countdownLabel(i)}
+                        </Typography>
+                      )}
                     </Stack>
                   </ListItemButton>
                 </ListItem>

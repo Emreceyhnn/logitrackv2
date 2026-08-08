@@ -58,6 +58,14 @@ export function buildAdminNav(dict: Dictionary): AdminNavItem[] {
           icon: "KeyRound",
         },
         {
+          id: "demo-requests",
+          label: t.demoRequests,
+          href: "/admin/demo-requests",
+          icon: "Rocket",
+          // Approving grants real dashboard entitlement to an account.
+          sensitive: true,
+        },
+        {
           id: "audit",
           label: t.audit,
           href: "/admin/audit",

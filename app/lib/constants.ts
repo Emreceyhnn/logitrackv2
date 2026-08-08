@@ -38,6 +38,17 @@ export const PROTECTED_ROUTES = [
   // self-serve trial grant failed at signup, or a manual approval is pending).
   // Must NOT be company-required or access-gated, else the proxy loops.
   "/pending-access",
+  // tr-Eski `/dashboard/...` bağlantılarını gerçek sayfalarına çeviren yönlendirme
+  //    (bkz. app/[lang]/(pages)/dashboard/[...slug]/page.tsx). Korumalı listede olmalı ki
+  //    oturumu olmayan ziyaretçi hedef sayfaya varmadan kenarda sign-in'e düşsün.
+  //    COMPANY_REQUIRED_ROUTES'a EKLENMEZ: sadece yönlendirir, kendi içeriği yoktur —
+  //    şirket kontrolü zaten yönlendirdiği asıl sayfada yapılır.
+  // en-Redirect shim that maps legacy `/dashboard/...` links onto the real pages (see
+  //    app/[lang]/(pages)/dashboard/[...slug]/page.tsx). Listed as protected so a signed-out
+  //    visitor is bounced to sign-in at the edge rather than after the redirect. NOT added to
+  //    COMPANY_REQUIRED_ROUTES: it only redirects and has no content of its own — the company
+  //    check happens on the real page it forwards to.
+  "/dashboard",
 ];
 
 export const COMPANY_REQUIRED_ROUTES = [

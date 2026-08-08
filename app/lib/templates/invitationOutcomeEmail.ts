@@ -80,7 +80,7 @@ export function buildInvitationOutcomeEmail(data: InvitationOutcomeEmailData): {
     title: t.title,
     message: interpolate(t.body),
     type: data.outcome === "ACCEPTED" ? "SUCCESS" : "INFO",
-    link: "/dashboard/users",
+    link: "/users",
     lang,
   });
 

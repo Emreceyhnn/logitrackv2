@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { LocalShipping, CheckCircle, Build, DirectionsCar, ReportProblem, Description } from "@mui/icons-material";
 import { useTheme } from "@mui/material";
 import { toast } from "sonner";
-import { useVehicleWithDashboard, useVehicleMutations } from "@/app/hooks/useVehicles";
+import { useVehicleWithDashboard, useVehicleMutations, useVehicle } from "@/app/hooks/useVehicles";
 import { useTrailers, useTrailerMutations } from "@/app/hooks/useTrailers";
 import { VehiclePageState, VehiclePageActions, VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { TrailerWithRelations, TrailerFilters } from "@/app/lib/type/trailer";
@@ -116,7 +116,13 @@ export const useVehicleContent = () => {
     }
   };
 
-  const selectedVehicle = vehicles?.find((v) => v.id === state.selectedVehicleId) || null;
+  const { data: individualVehicle } = useVehicle(
+    state.selectedVehicleId && !vehicles?.find((v) => v.id === state.selectedVehicleId)
+      ? state.selectedVehicleId
+      : null
+  );
+
+  const selectedVehicle = vehicles?.find((v) => v.id === state.selectedVehicleId) || individualVehicle || null;
 
   const kpiItems = useMemo(() => {
     if (activeTab === 1) {

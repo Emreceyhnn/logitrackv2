@@ -2,7 +2,8 @@
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
-import { logAuditEvent } from "../session";
+import { logAuditEvent, refreshSession } from "../session";
+import { invalidateUserSessionCache } from "../session/manage";
 import { headers } from "next/headers";
 import { controllerGuard } from "../utils/controllerGuard";
 
@@ -47,6 +48,36 @@ export const updateUserRegionalSettings = authenticatedAction(
         deviceInfo: userAgent,
         metadata: { ...settings, type: "regional_settings_update" },
       });
+
+      // tr-Saat dilimi ve tarih/saat formatları imzalı JWT'nin içinde taşınıyor:
+      //    getAuthenticatedUser bunları doğrudan token'dan okuyor, veritabanından
+      //    değil. Bu yüzden kayıttan sonra çerez hâlâ eski değerleri söyler.
+      //
+      //    Token'ı BURADA, bu Server Action içinde yeniden basıyoruz. Bayat-talep
+      //    bayrağına güvenip proxy'nin yönlendirmesini beklemek yetmiyordu: proxy
+      //    307 döndürüyor, ama router.refresh()'in gönderdiği RSC isteği bu
+      //    yönlendirmeyi sayfa gezinmesi gibi izleyemiyor — dolayısıyla ekran
+      //    token yenilenmeden render oluyordu. Server Action çerez yazabildiği
+      //    için yeniden basma işlemi güvenle burada yapılır ve yanıt döndüğünde
+      //    çerez zaten güncel olur.
+      //
+      //    Bayrak yine de set ediliyor: kullanıcının DİĞER cihazlarındaki
+      //    oturumlar bu isteğin çerezini almaz, onları proxy yoluyla yakalarız.
+      // en-Timezone and the date/time formats travel INSIDE the signed JWT, so
+      //    after saving, this browser's cookie still carries the old values.
+      //
+      //    Re-mint the token HERE, inside the Server Action. Relying on the
+      //    stale-claims flag alone was not enough: the proxy answers with a 307,
+      //    but the RSC request issued by router.refresh() cannot follow that
+      //    redirect the way a page navigation does, so the UI re-rendered with
+      //    the old token still in place. A Server Action may write cookies, so
+      //    doing it here means the cookie is already current when the call
+      //    returns.
+      //
+      //    The flag is still set, for the user's OTHER devices: those sessions
+      //    never receive this response's cookie and are caught via the proxy.
+      await invalidateUserSessionCache(user.id);
+      await refreshSession();
 
       return { success: true, user: updatedUser };
     });

@@ -91,7 +91,7 @@ export async function checkRouteDeviation(params: {
         // inbox, notifEmailDelay for email): an off-route vehicle is the same
         // operational concern for the same users.
         category: "DELAY_ALERT",
-        link: `/dashboard/routes/${route.id}`,
+        link: `/routes`,
         metadata: {
           kind: "ROUTE_DEVIATION",
           routeId: route.id,

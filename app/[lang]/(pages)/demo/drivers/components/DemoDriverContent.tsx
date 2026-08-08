@@ -224,7 +224,8 @@ export default function DemoDriverContent() {
           filters={filters}
           onFilterChange={handleFilterChange}
           drivers={drivers}
-          loading={isFetching}
+          loading={isLoading}
+          refreshing={isFetching}
           meta={{
             total: totalCount,
             page: pagination.page,

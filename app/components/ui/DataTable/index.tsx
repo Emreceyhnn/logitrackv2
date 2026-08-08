@@ -13,6 +13,7 @@ import {
   Divider,
   Box,
   Button,
+  LinearProgress,
 } from "@mui/material";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import { useState, useMemo } from "react";
@@ -37,6 +38,7 @@ function DataTable<TRow extends { id: string }>({
   rows,
   columns,
   loading = false,
+  refreshing = false,
   emptyMessage = "No records found",
   searchValue = "",
   searchPlaceholder = "Search...",
@@ -199,7 +201,31 @@ function DataTable<TRow extends { id: string }>({
       {loading ? (
         <TableSkeleton rows={10} columns={colCount} />
       ) : (
-        <TableContainer sx={{ p: 0, flex: 1, overflowY: "auto" }}>
+        <Box sx={{ position: "relative", flex: 1, display: "flex", minHeight: 0 }}>
+          {/* Background refetch: a hairline bar instead of a full skeleton, so
+              the rows underneath stay readable and in place. */}
+          {refreshing && (
+            <LinearProgress
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 2,
+                zIndex: 2,
+              }}
+            />
+          )}
+        <TableContainer
+          sx={{
+            p: 0,
+            flex: 1,
+            overflowY: "auto",
+            // Just enough to signal "updating" without hiding anything.
+            opacity: refreshing ? 0.6 : 1,
+            transition: "opacity 0.15s ease",
+          }}
+        >
           <Table size="small">
             <TableHead
               sx={{
@@ -348,6 +374,7 @@ function DataTable<TRow extends { id: string }>({
             </TableBody>
           </Table>
         </TableContainer>
+        </Box>
       )}
 
       {/* Pagination Container */}

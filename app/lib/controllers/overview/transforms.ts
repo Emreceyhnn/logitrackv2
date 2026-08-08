@@ -22,7 +22,41 @@ type AlertIssue = Pick<
   Issue,
   "type" | "title" | "priority" | "status" | "vehicleId" | "driverId" | "shipmentId"
 >;
-type AlertDocument = Pick<Document, "name" | "expiryDate" | "driverId" | "vehicleId">;
+type AlertDocument = Pick<
+  Document,
+  "name" | "type" | "expiryDate" | "driverId" | "vehicleId"
+> & {
+  vehicle?: { plate: string } | null;
+  driver?: { user: { name: string; surname: string } } | null;
+};
+
+/**
+ * tr-Belgenin son geçerlilik tarihine göre aciliyetini hesaplar.
+ * en-Derives a document's urgency from its expiry date.
+ *
+ *    Computed, never read from `Document.status`: nothing in the app writes
+ *    DocumentStatus.EXPIRED (the check-expirations cron only sends
+ *    notifications), so a lapsed document keeps reporting ACTIVE. The date is
+ *    the only field that can be trusted.
+ * input (expiryDate: Date | null)
+ * output ({ urgency, daysLeft })
+ */
+export function deriveDocumentUrgency(expiryDate: Date | null): {
+  urgency: "EXPIRED" | "EXPIRING_SOON";
+  daysLeft: number;
+} {
+  if (!expiryDate) return { urgency: "EXPIRING_SOON", daysLeft: 0 };
+
+  // Compare whole days: a document expiring later today is not yet expired, and
+  // millisecond drift must not flip the label back and forth on refresh.
+  const today = dayjs().startOf("day");
+  const daysLeft = dayjs(expiryDate).startOf("day").diff(today, "day");
+
+  return {
+    urgency: daysLeft < 0 ? "EXPIRED" : "EXPIRING_SOON",
+    daysLeft,
+  };
+}
 
 /**
  * tr-açık olan sorunları ve süresi yaklaşan/dolan belgeleri eyleme dönüştürülebilir uyarılar olarak birleştirir
@@ -54,19 +88,46 @@ export function buildAlerts(
       : undefined,
   }));
 
-  const docAlerts: ActionRequiredItems[] = expiringDocs.map((doc) => ({
-    type: "DOCUMENT_DUE" as const,
-    title: doc.name,
-    messageKey: doc.expiryDate ? "DOC_EXPIRES" : "DOC_EXPIRY_APPROACHING",
-    messageParams: doc.expiryDate ? { date: doc.expiryDate.toISOString() } : undefined,
-    link: doc.driverId
-      ? `/drivers?id=${doc.driverId}`
-      : doc.vehicleId
-      ? `/vehicle?id=${doc.vehicleId}&tab=1`
-      : undefined,
-  }));
+  const docAlerts: ActionRequiredItems[] = expiringDocs.map((doc) => {
+    const { urgency, daysLeft } = deriveDocumentUrgency(doc.expiryDate);
 
-  return [...issueAlerts, ...docAlerts];
+    // Who the document belongs to. Without this the alert reads "the
+    // inspection certificate expired" with no way to tell which vehicle.
+    const owner = doc.vehicle?.plate
+      ? doc.vehicle.plate
+      : doc.driver
+        ? `${doc.driver.user.name} ${doc.driver.user.surname}`.trim()
+        : null;
+
+    return {
+      type: "DOCUMENT_DUE" as const,
+      title: doc.name,
+      // The renderer picks the phrasing; it also needs the raw parts to build
+      // "the inspection certificate of vehicle 34ABC123 has expired".
+      messageKey:
+        urgency === "EXPIRED" ? "DOC_EXPIRED_DETAIL" : "DOC_EXPIRING_DETAIL",
+      messageParams: {
+        ...(doc.expiryDate ? { date: doc.expiryDate.toISOString() } : {}),
+        ...(owner ? { owner } : {}),
+        docType: doc.type,
+        ownerKind: doc.vehicle?.plate ? "vehicle" : doc.driver ? "driver" : "none",
+        daysLeft,
+      },
+      urgency,
+      link: doc.driverId
+        ? `/drivers?id=${doc.driverId}`
+        : doc.vehicleId
+          ? `/vehicle?id=${doc.vehicleId}&tab=1`
+          : undefined,
+    };
+  });
+
+  // Expired documents outrank open issues: they are a live compliance breach,
+  // not something merely scheduled.
+  const expiredFirst = docAlerts.filter((a) => a.urgency === "EXPIRED");
+  const expiringNext = docAlerts.filter((a) => a.urgency !== "EXPIRED");
+
+  return [...expiredFirst, ...issueAlerts, ...expiringNext];
 }
 
 /**
@@ -201,30 +262,35 @@ export function buildMapData(
   mapDataRaw: [MapWarehouse[], MapVehicle[], MapCustomer[]]
 ): MapData[] {
   const [mapWarehouses, mapVehicles, mapCustomers] = mapDataRaw;
-  return [
-    ...mapWarehouses.map((w) => ({
-      position: { lat: w.lat || 40.7128, lng: w.lng || -74.006 },
+
+  const warehouseMarkers = mapWarehouses
+    .filter((w) => w.lat != null && w.lng != null)
+    .map((w) => ({
+      position: { lat: w.lat as number, lng: w.lng as number },
       name: w.name,
       id: w.id,
       type: "W" as const,
-    })),
-    ...mapVehicles.map((v) => ({
-      position: { lat: v.currentLat || 40.7128, lng: v.currentLng || -74.006 },
+    }));
+
+  const vehicleMarkers = mapVehicles
+    .filter((v) => v.currentLat != null && v.currentLng != null)
+    .map((v) => ({
+      position: { lat: v.currentLat as number, lng: v.currentLng as number },
       name: v.plate,
       id: v.id,
       type: "V" as const,
-    })),
-    ...mapCustomers.map((c) => {
-      const defaultLoc = c.locations.find((l) => l.isDefault) || c.locations[0];
-      return {
-        position: {
-          lat: defaultLoc?.lat ?? 40.7128,
-          lng: defaultLoc?.lng ?? -74.006,
-        },
-        name: c.name,
-        id: c.id,
-        type: "C" as const,
-      };
-    }),
-  ];
+    }));
+
+  const customerMarkers = mapCustomers.flatMap((c) => {
+    const defaultLoc = c.locations.find((l) => l.isDefault) || c.locations[0];
+    if (!defaultLoc || defaultLoc.lat == null || defaultLoc.lng == null) return [];
+    return [{
+      position: { lat: defaultLoc.lat as number, lng: defaultLoc.lng as number },
+      name: c.name,
+      id: c.id,
+      type: "C" as const,
+    }];
+  });
+
+  return [...warehouseMarkers, ...vehicleMarkers, ...customerMarkers];
 }

@@ -150,20 +150,36 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
       }),
 
-      // 3. Alerts: Expiring Docs
+      // 3. Alerts: Expiring and already-expired docs
+      //
+      // The `status` column is NOT filtered on, deliberately. Nothing in the app
+      // ever writes DocumentStatus.EXPIRED — the check-expirations cron sends
+      // notifications but never updates the row — so a lapsed document still
+      // reads ACTIVE. Excluding `status: EXPIRED` therefore hid nothing while
+      // making the list look like it only held upcoming renewals. Expiry is
+      // derived from `expiryDate` alone (see deriveDocumentUrgency), which is
+      // the only field that is actually maintained.
       db.document.findMany({
         where: {
           companyId,
           expiryDate: { not: null, lte: thirtyDaysFromNow },
-          status: { not: "EXPIRED" },
         },
         select: {
           name: true,
+          type: true,
           expiryDate: true,
           driverId: true,
           vehicleId: true,
+          // The owner is what makes an alert actionable: "the inspection
+          // certificate expired" is useless without knowing whose.
+          vehicle: { select: { plate: true } },
+          driver: {
+            select: { user: { select: { name: true, surname: true } } },
+          },
         },
         take: 5,
+        // Most overdue first: something that lapsed weeks ago outranks a
+        // renewal that is merely approaching.
         orderBy: { expiryDate: "asc" },
       }),
 

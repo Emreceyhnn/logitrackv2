@@ -30,7 +30,7 @@ export const useDemoVehicleContent = () => {
   const [actionTrailer, setActionTrailer] = useState<TrailerWithRelations | null>(null);
 
   const { data: dashboardData, isLoading: isVehiclesLoading, isFetching: isVehiclesFetching, isError: isVehiclesError, refetch: refetchVehicleWithDashboard } = useDemoVehicleWithDashboard();
-  const { data: trailerData, isFetching: isTrailersFetching, isError: isTrailersError, refetch: refetchTrailers } = useDemoTrailers();
+  const { data: trailerData, isLoading: isTrailersLoading, isFetching: isTrailersFetching, isError: isTrailersError, refetch: refetchTrailers } = useDemoTrailers();
 
   const trailers = useMemo(() => trailerData?.trailers || [], [trailerData?.trailers]);
   const trailerMeta = trailerData?.meta;
@@ -158,7 +158,7 @@ export const useDemoVehicleContent = () => {
   return {
     dict, activeTab, setActiveTab, state, trailerFilters,
     dashboardData, isVehiclesLoading, isVehiclesFetching, isVehiclesError, refetchVehicleWithDashboard,
-    isTrailersFetching, isTrailersError, refetchTrailers,
+    isTrailersLoading, isTrailersFetching, isTrailersError, refetchTrailers,
     trailers, trailerMeta, vehicles, kpiLoading,
     actions, handleEdit, handleDelete,
     handleTrailerEdit, handleTrailerDelete, handleTrailerAssign, handleTrailerDetach, kpiItems,

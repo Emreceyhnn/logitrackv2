@@ -22,11 +22,18 @@ import { logger } from "@/app/lib/logger";
 interface StorageLevelsSectionProps {
   state: AddInventoryStorageLevels;
   updateStorageLevels: (data: Partial<AddInventoryStorageLevels>) => void;
+  /**
+   * Set when the dialog was opened from a specific warehouse's own tab. The
+   * destination is already decided there, so the picker is locked and says so
+   * — leaving it enabled implied a choice that the caller had in fact made.
+   */
+  lockedWarehouseId?: string | undefined;
 }
 
 const StorageLevelsSection = ({
   state,
   updateStorageLevels,
+  lockedWarehouseId,
 }: StorageLevelsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
@@ -102,10 +109,19 @@ const StorageLevelsSection = ({
                 name="warehouseId"
                 select
                 value={state.warehouseId}
+                disabled={Boolean(lockedWarehouseId)}
                 onChange={(e) =>
                   updateStorageLevels({ warehouseId: e.target.value })
                 }
               >
+                {/* Rendered even while the list is loading, so a locked picker
+                    still shows its own warehouse instead of an empty box. */}
+                {lockedWarehouseId &&
+                  !warehouses.some((w) => w.id === lockedWarehouseId) && (
+                    <MenuItem value={lockedWarehouseId}>
+                      {dict.common.loading}
+                    </MenuItem>
+                  )}
                 <MenuItem value="" disabled>
                   {dict.common.noData}
                 </MenuItem>
@@ -115,6 +131,11 @@ const StorageLevelsSection = ({
                   </MenuItem>
                 ))}
               </CustomTextArea>
+              {lockedWarehouseId && (
+                <Typography variant="caption" color="text.secondary">
+                  {dict.inventory.dialogs.warehouseLockedHint}
+                </Typography>
+              )}
             </Stack>
           </Stack>
 

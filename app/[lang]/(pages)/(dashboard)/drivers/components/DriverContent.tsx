@@ -289,7 +289,10 @@ function DriverContent() {
           filters={state.filters}
           onFilterChange={handleFilterChange}
           drivers={drivers}
-          loading={isFetching}
+          // Previous rows survive a filter/sort change via keepPreviousData;
+          // only blank the table when there is genuinely nothing to show.
+          loading={isLoading}
+          refreshing={isFetching}
           meta={{
             total: totalCount,
             page: state.pagination.page,

@@ -11,6 +11,7 @@ import {
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useRouter } from "next/navigation";
 
 interface CustomerActivityPanelProps {
   customer: CustomerWithRelations;
@@ -21,6 +22,7 @@ export default function CustomerActivityPanel({
 }: CustomerActivityPanelProps) {
   const theme = useTheme();
   const dict = useDictionary();
+  const router = useRouter();
 
   return (
     <Box sx={{ width: { xs: "100%", md: "65%" }, p: 3 }}>
@@ -93,9 +95,17 @@ export default function CustomerActivityPanel({
             <Paper
               key={shipment.id}
               variant="outlined"
+              onClick={() => {
+                if (shipment.routeId) {
+                  router.push(`/dashboard/routes/${shipment.routeId}`);
+                } else {
+                  router.push(`/dashboard/shipments/${shipment.id}`);
+                }
+              }}
               sx={{
                 p: 2,
                 borderRadius: 2,
+                cursor: "pointer",
                 bgcolor: theme.palette.background.paper_alpha.main_02,
                 borderColor: theme.palette.divider_alpha.main_05,
                 "&:hover": {
@@ -109,7 +119,7 @@ export default function CustomerActivityPanel({
                   {shipment.trackingId}
                 </Typography>
                 <Chip
-                  label={(dict.routes?.statuses as Record<string, string>)?.[shipment.status] || shipment.status}
+                  label={(dict.customers.activityStatus as Record<string, string>)?.[shipment.status] || shipment.status}
                   size="small"
                 />
               </Stack>

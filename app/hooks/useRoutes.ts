@@ -317,9 +317,23 @@ export function useRouteMutations() {
         updatedAt: new Date(),
       };
       const previous = insertCachedRoute(queryClient, optimisticRoute);
-      return { previous };
+      return { previous, tempId: optimisticRoute.id };
     },
-    onSuccess: () => {
+    onSuccess: (result, _vars, context) => {
+      // tr-İyimser satır `temp-...` kimliğiyle eklendi; settleSuccess yalnızca sorguları
+      //    bayat işaretlediği için (refetchType: "none") bu sahte kimlik ekranda kalır ve
+      //    "Başlat" gibi aksiyonlar onu sunucuya gönderip 500 alır. Sunucudan dönen gerçek
+      //    kaydı yerine koyarak kimliği hemen düzeltiyoruz.
+      // en-The optimistic row was inserted with a `temp-...` id. settleSuccess only marks
+      //    queries stale (refetchType: "none"), so that fake id stays on screen and actions
+      //    like "activate" would send it to the server and fail. Swap in the real record.
+      if (context?.tempId && result?.route) {
+        patchCachedRoutes(
+          queryClient,
+          context.tempId,
+          result.route as Partial<RouteWithRelations>
+        );
+      }
       handleSuccess(dict.toasts.successAdd);
       settleSuccess();
     },
@@ -349,8 +363,16 @@ export function useRouteMutations() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: RouteStatus }) =>
-      updateRouteStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: RouteStatus }) => {
+      // tr-Kayıt sunucuya işlenmeden aksiyon tetiklenirse kimlik hâlâ iyimser satırın
+      //    geçici kimliği olabilir; sunucuya göndermek 500 üretir.
+      // en-If the action fires before the create round-trip lands, the id can still be the
+      //    optimistic row's placeholder; sending it to the server produces a 500.
+      if (id.startsWith("temp-")) {
+        throw new Error(dict.routes.table.notSyncedYet);
+      }
+      return updateRouteStatus(id, status);
+    },
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: routeKeys.all });
       const previous = patchCachedRoutes(queryClient, id, { status });

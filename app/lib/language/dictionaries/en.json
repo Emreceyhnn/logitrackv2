@@ -55,6 +55,13 @@
     },
     "actions": "Actions",
     "status": "Status",
+    "statusLabels": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
     "date": "Date",
     "technician": "Technician",
     "next": "Next",
@@ -162,7 +169,12 @@
     "searchPlaceholder": "Search...",
     "underDevelopment": "This feature is currently under development.",
     "comingSoon": "Coming Soon",
-    "manualEntry": "Manual Entry"
+    "manualEntry": "Manual Entry",
+    "timeUnits": {
+      "day": "d",
+      "hour": "h",
+      "minute": "m"
+    }
   },
   "guidedTour": {
     "overview": {
@@ -1829,6 +1841,7 @@
     },
     "docTypes": {
       "REGISTRATION": "Registration",
+      "TRAILER_REGISTRATION": "Trailer Registration",
       "INSURANCE": "Insurance",
       "LICENSE": "License/Permit",
       "INSPECTION": "Inspection",
@@ -1979,6 +1992,18 @@
       "onTrip": "On Trip",
       "openIssues": "Open Issues",
       "docsExpiring": "Docs Expiring"
+    },
+    "docStats": {
+      "summary": "Document Summary",
+      "valid": "Valid",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired",
+      "noExpiry": "No expiry",
+      "lastUpload": "Last upload",
+      "never": "Nothing uploaded yet",
+      "totalDocs": "{count} documents",
+      "uploadNew": "Upload New Document",
+      "allValid": "All documents valid"
     },
     "tabs": {
       "vehicles": "Vehicles",
@@ -2263,6 +2288,13 @@
       "lastName": "Last Name",
       "status": "Status",
       "locationName": "Location Name"
+    },
+    "activityStatus": {
+      "PENDING": "Shipment created",
+      "ASSIGNED": "Route created",
+      "IN_TRANSIT": "In transit",
+      "DELIVERED": "Successful",
+      "CANCELLED": "Cancelled"
     }
   },
   "industries": {
@@ -2392,6 +2424,7 @@
       "storageDesc": "Define where this inventory will be stored and its stock thresholds.",
       "warehouseLocation": "Warehouse Location",
       "selectFacility": "SELECT FACILITY *",
+      "warehouseLockedHint": "Warehouse preselected because you are adding from this warehouse.",
       "stockConfig": "Stock Configuration",
       "initialQuantity": "INITIAL QUANTITY",
       "minStockAlert": "MIN. STOCK LEVEL (ALERT)",
@@ -2463,16 +2496,22 @@
       "active": "Active"
     },
     "joinRequests": {
-      "title": "Pending Join Requests",
+      "title": "Invitations & Join Requests",
       "empty": "No pending join requests.",
       "columns": {
         "requester": "Name",
         "email": "Email",
-        "requestedAt": "Requested"
+        "requestedAt": "Requested",
+        "type": "Type",
+        "status": "Status",
+        "request": "Request",
+        "invitation": "Invitation"
       },
       "actions": {
         "accept": "Accept",
-        "reject": "Reject"
+        "reject": "Reject",
+        "resend": "Resend",
+        "revoke": "Revoke"
       }
     },
     "roles": {
@@ -2539,6 +2578,10 @@
       "acceptJoinRequestTitle": "Accept Join Request",
       "rejectJoinRequestTitle": "Reject Join Request",
       "rejectJoinRequestDescription": "This person will need to submit a new request to join later.",
+      "revokeInvitationTitle": "Revoke Invitation",
+      "revokeInvitationDesc": "Are you sure you want to revoke this invitation? The link that was sent will stop working.",
+      "resendInvitationTitle": "Resend Invitation",
+      "resendInvitationDesc": "Are you sure you want to resend this invitation? A new link will be generated and the old one will stop working.",
       "steps": {
         "branding": "Branding",
         "regional": "Regional",
@@ -2836,6 +2879,7 @@
     "table": {
       "title": "Route List",
       "noRoutes": "No routes found.",
+      "notSyncedYet": "This route hasn't been saved yet. Please wait a moment and try again.",
       "searchPlaceholder": "Search route...",
       "columns": {
         "routeId": "Route ID",
@@ -3326,7 +3370,18 @@
         "allClear": "All clear! No urgent actions required.",
         "ISSUE_ALERT": "{priority} · {status}",
         "DOC_EXPIRES": "Expires {date}",
-        "DOC_EXPIRY_APPROACHING": "Expiry approaching"
+        "DOC_EXPIRY_APPROACHING": "Expiry approaching",
+        "DOC_EXPIRED_DETAIL": "The {docType} document for vehicle {owner} expired on {date}",
+        "DOC_EXPIRED_DETAIL_DRIVER": "The {docType} document for driver {owner} expired on {date}",
+        "DOC_EXPIRED_DETAIL_NONE": "The {docType} document expired on {date}",
+        "DOC_EXPIRING_DETAIL": "The {docType} document for vehicle {owner} expires on {date}",
+        "DOC_EXPIRING_DETAIL_DRIVER": "The {docType} document for driver {owner} expires on {date}",
+        "DOC_EXPIRING_DETAIL_NONE": "The {docType} document expires on {date}",
+        "badgeExpired": "EXPIRED",
+        "badgeExpiringSoon": "EXPIRING SOON",
+        "expiredDaysAgo": "{days} days overdue",
+        "expiresInDays": "{days} days left",
+        "expiresToday": "Expires today"
       },
       "dailyOperations": {
         "title": "Today's Operations",
@@ -3845,7 +3900,8 @@
       "system": "System",
       "flags": "Feature Flags",
       "settings": "Environment",
-      "deleted": "Deleted Records"
+      "deleted": "Deleted Records",
+      "demoRequests": "Demo Requests"
     },
     "header": {
       "search": "Search or jump to…",
@@ -4120,6 +4176,40 @@
         "preview": "Preview",
         "charCount": "characters",
         "plainTextNotice": "The banner is rendered as plain text. HTML and markup are not interpreted."
+      },
+      "demoRequests": {
+        "title": "Demo Requests",
+        "subtitle": "Review incoming demo requests and grant trial access",
+        "requester": "Requester",
+        "type": "Type",
+        "account": "Account",
+        "status": "Status",
+        "received": "Received",
+        "trialDays": "Trial",
+        "days": "{days} days",
+        "approve": "Approve",
+        "regrant": "Re-grant",
+        "reject": "Reject",
+        "reopen": "Reopen",
+        "until": "until",
+        "noAccount": "No account",
+        "noAccountHint": "No account exists for this email yet, so approving cannot grant a trial. They will receive one when they sign up.",
+        "noRequests": "No requests here.",
+        "invalidDays": "Trial length must be a whole number between 1 and 365 days.",
+        "approvedWithTrial": "Approved — {days}-day trial granted",
+        "approvedNoAccount": "Approved, but no account exists for that email yet — nothing was granted.",
+        "statusUpdated": "Status updated",
+        "filters": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected",
+          "ALL": "All requests"
+        },
+        "statuses": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected"
+        }
       },
       "deletion": {
         "delete": "Delete",

@@ -16,11 +16,14 @@ const INVITE_EXPIRY_DAYS = 7;
 /**
  * tr-şirketin gönderdiği davetiyeleri yönetim için listeler
  * en-lists the invitations sent by the company, for administration
- * input (user: AuthenticatedUser, status?: InvitationStatus)
+ * input (user: AuthenticatedUser, status?: InvitationStatus | "ALL")
  * output (Promise<Invitation[]>)
  */
 export const getCompanyInvitations = authenticatedAction(
-  async (user, status?: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED") => {
+  async (
+    user,
+    status?: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED" | "ALL"
+  ) => {
     const companyId = user?.companyId || "";
 
     return controllerGuard("getCompanyInvitations", async () => {
@@ -29,7 +32,9 @@ export const getCompanyInvitations = authenticatedAction(
       const invitations = await db.invitation.findMany({
         where: {
           companyId,
-          ...(status ? { status } : {}),
+          // tr-"ALL" bir enum değeri değil, "filtre yok" anlamına gelen bir işaret
+          // en-"ALL" is a sentinel meaning "no filter", not an InvitationStatus enum value
+          ...(status && status !== "ALL" ? { status } : {}),
         },
         select: {
           id: true,

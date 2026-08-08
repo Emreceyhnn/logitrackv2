@@ -32,6 +32,19 @@ export function useCustomers() {
   });
 }
 
+export function useCustomer(id?: string | null) {
+  return useQuery({
+    queryKey: customerKeys.details(id || ""),
+    queryFn: async () => {
+      if (!id) return null;
+      const { getCustomerById } = await import("@/app/lib/controllers/customer");
+      return getCustomerById(id);
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 async function fetchCustomerDashboard(
   page: number,
   pageSize: number,

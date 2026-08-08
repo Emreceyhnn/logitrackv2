@@ -125,6 +125,8 @@ export interface VehiclePageState {
   filters: VehicleFilters;
   selectedVehicleId: string | null;
   loading: boolean;
+  /** Background refetch with rows already on screen — dim, don't blank. */
+  refreshing?: boolean | undefined;
   error: string | null;
   meta?: PaginationMeta;
 }

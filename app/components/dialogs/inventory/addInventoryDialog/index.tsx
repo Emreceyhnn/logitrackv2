@@ -30,12 +30,14 @@ import ItemDetailsSection from "./sections/ItemDetailsSection";
 import StorageLevelsSection from "./sections/StorageLevelsSection";
 import ReviewSection from "./sections/ReviewSection";
 
-const initialItemDetails: AddInventoryItemDetails = {
-  sku: "",
+const generateSKU = () => `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
+
+const getInitialItemDetails = (): AddInventoryItemDetails => ({
+  sku: generateSKU(),
   name: "",
   category: "",
   unitValue: 0,
-};
+});
 
 const initialStorageLevels: AddInventoryStorageLevels = {
   warehouseId: "",
@@ -56,7 +58,7 @@ const AddInventoryDialog = ({
 
   /* --------------------------------- states --------------------------------- */
   const [itemDetails, setItemDetails] =
-    useState<AddInventoryItemDetails>(initialItemDetails);
+    useState<AddInventoryItemDetails>(getInitialItemDetails);
   const [storageLevels, setStorageLevels] = useState<AddInventoryStorageLevels>(
     () => ({
       ...initialStorageLevels,
@@ -104,7 +106,12 @@ const AddInventoryDialog = ({
           weightKg: itemDetails.weightKg || 0,
           volumeM3: itemDetails.volumeM3 || 0,
           palletCount: itemDetails.palletCount || 0,
-          cargoType: itemDetails.cargoType || "General Cargo",
+          // The category the user picked in step 1 is what `cargoType` stores —
+          // there is no separate `category` column on Inventory. Without this
+          // the selection was silently dropped and every item was filed as
+          // "General Cargo" no matter what was chosen.
+          cargoType:
+            itemDetails.category || itemDetails.cargoType || "General Cargo",
           imageUrl: finalImageUrl,
           unitValue: itemDetails.unitValue || 0,
           currency: user.currency || "USD",
@@ -121,7 +128,7 @@ const AddInventoryDialog = ({
   };
 
   const resetForm = () => {
-    setItemDetails(initialItemDetails);
+    setItemDetails(getInitialItemDetails());
     setStorageLevels({
       ...initialStorageLevels,
       warehouseId: initialWarehouseId || "",
@@ -252,6 +259,7 @@ const AddInventoryDialog = ({
             key={`storage-levels-${formKey}`}
             state={storageLevels}
             updateStorageLevels={updateStorageLevels}
+            lockedWarehouseId={initialWarehouseId}
           />
         )}
         {currentStep === 3 && (
@@ -290,6 +298,7 @@ const AddInventoryDialog = ({
           disabled={
             (currentStep === 1 &&
               (!itemDetails.name ||
+                !itemDetails.sku ||
                 !itemDetails.category ||
                 itemDetails.unitValue === undefined)) ||
             (currentStep === 2 && !storageLevels.warehouseId)

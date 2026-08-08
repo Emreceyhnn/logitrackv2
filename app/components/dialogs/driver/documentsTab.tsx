@@ -87,7 +87,8 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
     }
     try {
       // The documents bucket is private; sign the URL on demand before opening.
-      const result = await getSignedUrlAction(url);
+      // Pass download=true to force Cloudinary to return it as an attachment
+      const result = await getSignedUrlAction(url, "documents", true);
       if (result.success && result.url) {
         window.open(result.url, "_blank", "noopener,noreferrer");
       } else {
@@ -336,6 +337,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
           onClose={() => setViewerOpen(false)}
           url={selectedDoc.url}
           title={selectedDoc.title}
+          onDownload={() => handleDownloadDoc(selectedDoc.url)}
         />
       )}
     </Stack>

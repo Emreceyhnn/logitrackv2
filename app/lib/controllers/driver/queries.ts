@@ -13,6 +13,10 @@ import {
 import { controllerGuard } from "../utils/controllerGuard";
 import { NotFoundError } from "../../errors";
 import { driverCache } from "./shared";
+import {
+  computeDocumentStatus,
+  withLiveDocumentStatus,
+} from "../../utils/documentStatus";
 
 /**
  * tr-sürücü olarak atanmaya uygun olan, henüz sürücü rolü olmayan kullanıcıları getirir
@@ -87,9 +91,13 @@ export const getDriverHistory = authenticatedAction(
             orderBy: { updatedAt: "desc" },
             take: 20,
           },
-          documents: {
-            where: { status: "ACTIVE" },
-          },
+          // tr-`status: "ACTIVE"` ile filtrelemek yanıltıcıydı: saklı durum hiç güncellenmediği
+          //    için süresi dolmuş belgeler de ACTIVE olarak kayıtlı ve bu filtreden geçiyordu.
+          //    Tüm belgeler çekilip durum aşağıda tarihten türetiliyor.
+          // en-Filtering on `status: "ACTIVE"` was misleading: the stored status is never
+          //    updated, so lapsed documents are still recorded as ACTIVE and passed this
+          //    filter. Fetch them all and derive status from the date below.
+          documents: true,
         },
       });
 
@@ -133,7 +141,13 @@ export const getDriverHistory = authenticatedAction(
         activities,
         completedRoutes: driver.routes.length,
         completedShipments: driver.shipments.length,
-        activePermissions: driver.documents.length,
+        // tr-"Aktif" sayısı yalnızca gerçekten geçerli belgeleri kapsamalı; süresi dolmuş
+        //    olanlar saklı durumda hâlâ ACTIVE göründüğü için tarihten kontrol ediyoruz.
+        // en-The "active" count must only include genuinely valid documents; lapsed ones
+        //    still read ACTIVE in the stored status, so we check the date instead.
+        activePermissions: driver.documents.filter(
+          (doc) => computeDocumentStatus(doc.expiryDate) === "ACTIVE"
+        ).length,
       };
     });
   }
@@ -266,7 +280,12 @@ export const getDrivers = authenticatedAction(
           db.driver.count({ where }),
         ]);
 
-        const typedDrivers: DriverWithRelations[] = drivers;
+        // tr-Saklı belge durumu bayat; arayüze vermeden önce tarihten türetilenle değiştir.
+        // en-The stored document status is stale; swap in the date-derived one before the UI.
+        const typedDrivers: DriverWithRelations[] = drivers.map((driver) => ({
+          ...driver,
+          documents: withLiveDocumentStatus(driver.documents),
+        }));
 
         return {
           data: typedDrivers,

@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 const WarehouseListTable = ({
   warehouses,
   loading,
+  refreshing = false,
   onSelect,
   onEdit,
   onDelete,
@@ -354,6 +355,7 @@ const WarehouseListTable = ({
       rows={paginatedWarehouses}
       columns={columns}
       loading={loading}
+      refreshing={refreshing}
       emptyMessage={dict.dashboard.warehouse.noWarehouses}
       meta={currentMeta}
       onPageChange={handlePageChange}
