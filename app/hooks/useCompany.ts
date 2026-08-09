@@ -234,10 +234,13 @@ export function useCompanyMutations() {
     }: {
       id: string;
       data: Parameters<typeof updateCompanyMember>[1];
+      optimisticRoleName?: string | null;
     }) => updateCompanyMember(id, data),
-    onMutate: async ({ id, data }) => {
+    onMutate: async ({ id, data, optimisticRoleName }) => {
       await queryClient.cancelQueries({ queryKey: companyKeys.dashboard() });
-      const previous = patchCachedCompanyMember(queryClient, id, data as Partial<CompanyMember>);
+      const patch: Partial<CompanyMember> = { ...data };
+      if (optimisticRoleName) patch.roleName = optimisticRoleName;
+      const previous = patchCachedCompanyMember(queryClient, id, patch);
       return { previous };
     },
     onError: (error: Error, _vars, context) => {

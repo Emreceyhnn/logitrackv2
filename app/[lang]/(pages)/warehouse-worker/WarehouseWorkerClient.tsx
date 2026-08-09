@@ -106,7 +106,6 @@ export default function WarehouseWorkerClient({
           setSelectedWarehouseId={setSelectedWarehouseId}
           warehouse={warehouse}
           warehouseOptions={warehouseOptions}
-          worker={worker}
         />
 
         <Box

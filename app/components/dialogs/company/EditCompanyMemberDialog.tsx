@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,15 @@ import { useCompanyMutations } from "@/app/hooks/useCompany";
 import { UserStatus } from "@/app/lib/type/enums";
 import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 import { logger } from "@/app/lib/logger";
+import { getWarehouses } from "@/app/lib/controllers/warehouse";
+
+const isWarehouseRole = (roleId: string) => roleId === "role_warehouse" || roleId === "role_manager";
+
+interface WarehouseOption {
+  id: string;
+  code: string;
+  name: string;
+}
 
 
 const mapToStandardRoleId = (roleId: string | null, roleName: string | null): string => {
@@ -56,6 +65,7 @@ type FormData = {
   surname: string;
   roleId: string;
   status: string;
+  warehouseId: string;
 };
 
 export default function EditCompanyMemberDialog({
@@ -68,6 +78,32 @@ export default function EditCompanyMemberDialog({
   const dict = useDictionary();
   const { updateMember } = useCompanyMutations();
 
+  const roleLabels = useMemo<Record<string, string>>(() => ({
+    role_default: dict.company.roles.Customer || "User",
+    role_admin: dict.company.roles.Administrator || "Admin",
+    role_manager: dict.company.roles["Warehouse Manager"] || "Manager",
+    role_dispatcher: dict.company.roles.Dispatcher || "Dispatcher",
+    role_warehouse: dict.company.roles["Warehouse Operator"] || "Warehouse Worker",
+    role_driver: dict.company.roles.Driver || "Driver",
+  }), [dict]);
+
+  const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    (async () => {
+      try {
+        const list = await getWarehouses();
+        if (active) setWarehouses(list.map((w) => ({ id: w.id, code: w.code, name: w.name })));
+      } catch (err) {
+        logger.error("Warehouse fetch error:", err);
+        if (active) setWarehouses([]);
+      }
+    })();
+    return () => { active = false; };
+  }, [open]);
+
   const initialValues = useMemo(() => {
     if (member) {
       return {
@@ -75,6 +111,7 @@ export default function EditCompanyMemberDialog({
         surname: member.surname || "",
         roleId: mapToStandardRoleId(member.roleId, member.roleName),
         status: member.status || "",
+        warehouseId: member.assignedWarehouseId || "",
       };
     }
     return {
@@ -82,6 +119,7 @@ export default function EditCompanyMemberDialog({
       surname: "",
       roleId: "",
       status: "",
+      warehouseId: "",
     };
   }, [member]);
 
@@ -98,7 +136,9 @@ export default function EditCompanyMemberDialog({
         surname: values.surname,
         roleId: values.roleId,
         status: values.status as UserStatus,
+        ...(isWarehouseRole(values.roleId) ? { warehouseId: values.warehouseId } : {}),
       },
+      optimisticRoleName: roleLabels[values.roleId] ?? null,
     };
     onClose();
 
@@ -239,7 +279,40 @@ export default function EditCompanyMemberDialog({
                     {dict.company.roles.Driver || "Driver"}
                   </MenuItem>
                 </TextField>
- 
+
+                {isWarehouseRole(values.roleId) && (
+                  <Box>
+                    {warehouses.length === 0 ? (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", opacity: 0.8 }}>
+                        {dict.company.dialogs.noWarehouses}
+                      </Typography>
+                    ) : (
+                      <>
+                        <TextField
+                          name="warehouseId"
+                          select
+                          label={dict.company.dialogs.assignWarehouse}
+                          fullWidth
+                          value={values.warehouseId}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={touched.warehouseId && !!errors.warehouseId}
+                          helperText={touched.warehouseId && (errors.warehouseId as string)}
+                          sx={textFieldSx}
+                        >
+                          <MenuItem value="" disabled>{dict.company.dialogs.selectWarehouse}</MenuItem>
+                          {warehouses.map((w) => (
+                            <MenuItem key={w.id} value={w.id}>{w.code} · {w.name}</MenuItem>
+                          ))}
+                        </TextField>
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", opacity: 0.7 }}>
+                          {values.roleId === "role_manager" ? dict.company.dialogs.warehouseManagerNote : dict.company.dialogs.warehouseStaffNote}
+                        </Typography>
+                      </>
+                    )}
+                  </Box>
+                )}
+
                 <TextField
                   name="status"
                   select
@@ -272,7 +345,7 @@ export default function EditCompanyMemberDialog({
                 <Button
                   type="submit"
                   variant="contained"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (isWarehouseRole(values.roleId) && !values.warehouseId)}
                   startIcon={<SaveIcon />}
                   sx={{ 
                     minWidth: 160,

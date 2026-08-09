@@ -2516,15 +2516,17 @@
     },
     "roles": {
       "Admin": "Admin",
-      "Manager": "Manager",
+      "Manager": "Warehouse Manager",
       "Warehouse Worker": "Warehouse Worker",
       "Driver": "Driver",
-      "Customer": "Customer",
+      "Customer": "Staff",
       "read-only": "read-only",
       "Administrator": "Administrator",
       "Warehouse Manager": "Warehouse Manager",
       "Dispatcher": "Dispatcher",
-      "Warehouse Operator": "Warehouse Operator"
+      "Warehouse Operator": "Warehouse Operator",
+      "Warehouse": "Warehouse Worker",
+      "Default": "Staff"
     },
     "branding": {
       "title": "Company Identity",
@@ -2570,7 +2572,7 @@
       "employeeIdHelper": "Company assigned unique identifier",
       "phoneHelper": "Required for driver contact",
       "existingUser": "Add existing user",
-      "inviteByEmail": "Invite driver by email",
+      "inviteByEmail": "Invite user by email",
       "inviteEmailPlaceholder": "driver@example.com",
       "sendInvite": "Send Invite",
       "domainLabel": "Company Email Domain",

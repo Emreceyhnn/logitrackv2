@@ -16,7 +16,7 @@ const dbMock = {
 };
 
 const emailMock = {
-  sendDriverInviteEmail: mock.fn(async () => {}),
+  sendCompanyInviteEmail: mock.fn(async () => {}),
 };
 
 const rateLimitMock = {
@@ -70,7 +70,7 @@ describe("Invitations Controller", () => {
     dbMock.invitation.findMany.mock.resetCalls();
     dbMock.invitation.update.mock.resetCalls();
     dbMock.user.findFirst.mock.resetCalls();
-    emailMock.sendDriverInviteEmail.mock.resetCalls();
+    emailMock.sendCompanyInviteEmail.mock.resetCalls();
     rateLimitMock.rateLimit.mock.resetCalls();
     checkPermissionMock.checkPermission.mock.resetCalls();
 
@@ -92,6 +92,7 @@ describe("Invitations Controller", () => {
       companyId: "comp-1",
       status: "PENDING",
       company: { name: "Acme Fleet" },
+      role: { id: "role_driver" },
     };
 
     it("should_MintNewTokenAndResetExpiry_WhenInvitationIsPending", async () => {
@@ -110,7 +111,7 @@ describe("Invitations Controller", () => {
       expect(updateArgs.data.expiresAt.getTime()).toBeGreaterThan(Date.now());
 
       // Email carries the NEW raw token, not the stored hash
-      const [to, url] = emailMock.sendDriverInviteEmail.mock.calls[0].arguments;
+      const [to, url] = emailMock.sendCompanyInviteEmail.mock.calls[0].arguments;
       expect(to).toBe("driver@test.com");
       expect(url).toContain("token=raw-token-xyz");
     });
@@ -142,7 +143,7 @@ describe("Invitations Controller", () => {
       await expect(manage.resendInvitation(admin, "inv-1")).rejects.toThrow(
         /already been accepted/i
       );
-      expect(emailMock.sendDriverInviteEmail.mock.calls.length).toBe(0);
+      expect(emailMock.sendCompanyInviteEmail.mock.calls.length).toBe(0);
     });
 
     it("should_Reject_WhenInvitationBelongsToAnotherCompany", async () => {
@@ -155,7 +156,7 @@ describe("Invitations Controller", () => {
       );
       const where = dbMock.invitation.findFirst.mock.calls[0].arguments[0].where;
       expect(where.companyId).toBe("comp-1");
-      expect(emailMock.sendDriverInviteEmail.mock.calls.length).toBe(0);
+      expect(emailMock.sendCompanyInviteEmail.mock.calls.length).toBe(0);
     });
 
     it("should_Reject_WhenRateLimited", async () => {
@@ -165,7 +166,7 @@ describe("Invitations Controller", () => {
 
       // Act + Assert — the limiter must fire before any mail goes out
       await expect(manage.resendInvitation(admin, "inv-1")).rejects.toThrow();
-      expect(emailMock.sendDriverInviteEmail.mock.calls.length).toBe(0);
+      expect(emailMock.sendCompanyInviteEmail.mock.calls.length).toBe(0);
     });
 
     it("should_Reject_WhenRecipientJoinedAnotherCompany", async () => {
@@ -179,7 +180,7 @@ describe("Invitations Controller", () => {
       await expect(manage.resendInvitation(admin, "inv-1")).rejects.toThrow(
         /another company/i
       );
-      expect(emailMock.sendDriverInviteEmail.mock.calls.length).toBe(0);
+      expect(emailMock.sendCompanyInviteEmail.mock.calls.length).toBe(0);
     });
   });
 

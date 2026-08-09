@@ -55,6 +55,7 @@ function DataTable<TRow extends { id: string }>({
   onRequestSort,
   tableTitle,
   wrapCard = false,
+  getRowDisabled,
   sx,
 }: DataTableProps<TRow>) {
   const theme = useTheme();
@@ -330,12 +331,17 @@ function DataTable<TRow extends { id: string }>({
                   </TableCell>
                 </TableRow>
               ) : (
-                table.getRowModel().rows.map((row) => (
+                table.getRowModel().rows.map((row) => {
+                  const isDisabled = getRowDisabled?.(row.original) ?? false;
+                  return (
                   <TableRow
                     key={row.id}
-                    hover
+                    hover={!isDisabled}
                     sx={{
                       cursor: "default",
+                      opacity: isDisabled ? 0.5 : 1,
+                      pointerEvents: isDisabled ? "none" : "auto",
+                      transition: "opacity 0.15s ease, background-color 0.15s",
                       "& td": {
                         borderColor: theme.palette.divider_alpha.main_10,
                         fontSize: 13,
@@ -345,7 +351,6 @@ function DataTable<TRow extends { id: string }>({
                           theme.palette.primary._alpha.main_08 + " !important",
                         transition: "background-color 0.2s",
                       },
-                      transition: "background-color 0.15s",
                     }}
                   >
                     {row.getVisibleCells().map((cell) => {
@@ -369,7 +374,8 @@ function DataTable<TRow extends { id: string }>({
                       );
                     })}
                   </TableRow>
-                ))
+                  );
+                })
               )}
             </TableBody>
           </Table>

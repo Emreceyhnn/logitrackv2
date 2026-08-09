@@ -310,16 +310,20 @@ export const addCompanyUser = authenticatedAction(
 /**
  * tr-şirket üyesinin bilgilerini günceller
  * en-updates the information of a company member
- * input (user: AuthenticatedUser, targetUserId: string, data: { name: string, surname: string, roleId: string, status: UserStatus })
+ * input (user: AuthenticatedUser, targetUserId: string, data: { name: string, surname: string, roleId: string, status: UserStatus, warehouseId?: string })
  * output (Promise<User>)
  */
 export const updateCompanyMember = authenticatedAction(
   async (
     user,
     targetUserId: string,
-    data: { name: string; surname: string; roleId: string; status: UserStatus }
+    data: { name: string; surname: string; roleId: string; status: UserStatus; warehouseId?: string }
   ) => {
     const companyId = user?.companyId || "";
+
+    // tr-Depo ataması gerektiren roller: operatör (çalışan) ve depo yöneticisi
+    // en-Roles that require a warehouse assignment: operator (staff) and warehouse manager
+    const isWarehouseRole = data.roleId === "role_warehouse" || data.roleId === "role_manager";
 
     return controllerGuard("updateCompanyMember", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
@@ -331,17 +335,68 @@ export const updateCompanyMember = authenticatedAction(
 
       await ensureStandardRoles();
 
-      const updatedUser = await db.user.update({
-        where: { id: targetUserId },
-        data: {
-          name: data.name,
-          surname: data.surname,
-          roleId: data.roleId,
-          status: data.status,
-        },
+      let warehouseId: string | null = null;
+      if (isWarehouseRole) {
+        if (!data.warehouseId) {
+          throw new Error("Warehouse assignment is required for this role");
+        }
+        const warehouse = await db.warehouse.findFirst({
+          where: { id: data.warehouseId, companyId },
+          select: { id: true },
+        });
+        if (!warehouse) {
+          throw new Error("Warehouse not found or not in your company");
+        }
+        warehouseId = warehouse.id;
+      }
+
+      const previousWarehouseId = targetUser.assignedWarehouseId;
+
+      const updatedUser = await db.$transaction(async (tx) => {
+        // tr-Rol artık depo gerektirmiyorsa veya farklı bir depoya taşındıysa,
+        //    kullanıcının önceki depodaki yöneticilik bağı düşürülmeli.
+        // en-If the role no longer requires a warehouse, or moved to a different
+        //    one, drop the user's manager link on the previous warehouse.
+        if (previousWarehouseId && previousWarehouseId !== warehouseId) {
+          await tx.warehouse.updateMany({
+            where: { id: previousWarehouseId, companyId, managerId: targetUserId },
+            data: { managerId: null },
+          });
+        }
+
+        const userUpdate = await tx.user.update({
+          where: { id: targetUserId },
+          data: {
+            name: data.name,
+            surname: data.surname,
+            roleId: data.roleId,
+            status: data.status,
+            assignedWarehouseId: warehouseId,
+          },
+        });
+
+        if (data.roleId === "role_manager" && warehouseId) {
+          await tx.warehouse.update({
+            where: { id: warehouseId },
+            data: { managerId: targetUserId },
+          });
+        } else if (warehouseId) {
+          // tr-Operatör olarak atandıysa ve önceden bu deponun yöneticisiyse bağ düşürülür
+          // en-If assigned as an operator and was previously this warehouse's manager, drop the link
+          await tx.warehouse.updateMany({
+            where: { id: warehouseId, companyId, managerId: targetUserId },
+            data: { managerId: null },
+          });
+        }
+
+        return userUpdate;
       });
 
       await invalidateCompanyCache(companyId);
+      await invalidateWarehouseCache(companyId);
+      if (previousWarehouseId) await invalidateWarehouseCache(companyId, previousWarehouseId);
+      if (warehouseId) await invalidateWarehouseCache(companyId, warehouseId);
+
       return updatedUser;
     });
   }

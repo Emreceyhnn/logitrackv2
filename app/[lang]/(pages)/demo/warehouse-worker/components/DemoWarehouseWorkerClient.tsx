@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Stack, Snackbar, Alert, useTheme } from "@mui/material";
+import { Avatar, Box, Stack, Snackbar, Alert, Typography, useTheme } from "@mui/material";
 import { useState } from "react";
 import WWSidebar from "@/app/components/warehouse-worker/WWSidebar";
 import WWHeader from "@/app/components/warehouse-worker/WWHeader";
@@ -90,7 +90,27 @@ export default function DemoWarehouseWorkerClient({
           setSelectedWarehouseId={setSelectedWarehouseId}
           warehouse={warehouse}
           warehouseOptions={warehouseOptions}
-          worker={worker}
+          accountSlot={
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <Avatar
+                sx={{
+                  background: "linear-gradient(135deg,#1e293b,#0f172a)",
+                  border: `1px solid ${theme.palette.divider}`,
+                  fontWeight: 800,
+                }}
+              >
+                {worker.initials}
+              </Avatar>
+              <Box>
+                <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                  {worker.name}
+                </Typography>
+                <Typography sx={{ fontSize: 11, color: theme.palette.text.secondary }}>
+                  {worker.role}
+                </Typography>
+              </Box>
+            </Stack>
+          }
         />
 
         <Box

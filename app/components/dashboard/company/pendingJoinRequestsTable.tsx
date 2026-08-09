@@ -381,6 +381,9 @@ export default function PendingJoinRequestsTable() {
         rowActions={rowActions}
         wrapCard={true}
         tableTitle={dict.company.joinRequests.title}
+        getRowDisabled={(row) =>
+          row.status === "ACCEPTED" || row.status === "REJECTED" || row.status === "REVOKED"
+        }
       />
 
       <Dialog open={!!acceptTarget} onClose={closeAccept} maxWidth="xs" fullWidth>

@@ -21,6 +21,14 @@ interface InvitationDriverData {
   licenseExpiry: string | null;
 }
 
+interface InvitationWarehouseData {
+  warehouseId: string;
+}
+
+// tr-Depo ataması gerektiren roller: operatör (çalışan) ve depo yöneticisi
+// en-Roles that require a warehouse assignment: operator (staff) and warehouse manager
+const isWarehouseRole = (roleId: string) => roleId === "role_warehouse" || roleId === "role_manager";
+
 /**
  * tr-belirtilen token'a sahip davetiyenin detaylarını getirir (kayıt öncesi doğrulama için)
  * en-retrieves the details of the invitation with the specified token (for pre-registration validation)
@@ -42,8 +50,12 @@ export async function getInvitationByToken(
 }
 
 /**
- * tr-yeni bir kullanıcının sürücü davetini kabul etmesini sağlar ve hesabını oluşturur
- * en-allows a new user to accept a driver invitation and creates their account
+ * tr-yeni bir kullanıcının şirket davetini kabul etmesini sağlar ve hesabını oluşturur.
+ *    Davetin rolüne göre sürücü kaydı veya depo ataması yapılır; diğer roller için
+ *    sade bir kullanıcı hesabı oluşturulur.
+ * en-allows a new user to accept a company invitation and creates their account.
+ *    Depending on the invitation's role, this creates a driver record or a warehouse
+ *    assignment; other roles simply get a plain user account.
  * input (user: unknown, rawToken: string, name: string, surname: string, password: string)
  * output (Promise<{ user?: object, error?: string, field?: string }>)
  */
@@ -75,13 +87,29 @@ export const acceptDriverInvitation = maybeAuthenticatedAction(
       if (isExist) return { error: "An account with this email already exists. Please sign in instead." };
 
       const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
-      const driverData = invitation.driverData as unknown as InvitationDriverData;
+      const isDriverRole = invitation.roleId === "role_driver";
+      const driverData = isDriverRole
+        ? (invitation.driverData as unknown as InvitationDriverData)
+        : null;
+      const warehouseData = isWarehouseRole(invitation.roleId)
+        ? (invitation.driverData as unknown as InvitationWarehouseData)
+        : null;
 
       const newUser = await db.$transaction(async (tx) => {
-        const existingEmployee = await tx.driver.findFirst({
-          where: { companyId: invitation.companyId, employeeId: driverData.employeeId },
-        });
-        if (existingEmployee) throw new Error("A driver with this Employee ID already exists");
+        if (driverData) {
+          const existingEmployee = await tx.driver.findFirst({
+            where: { companyId: invitation.companyId, employeeId: driverData.employeeId },
+          });
+          if (existingEmployee) throw new Error("A driver with this Employee ID already exists");
+        }
+
+        if (warehouseData?.warehouseId) {
+          const warehouse = await tx.warehouse.findFirst({
+            where: { id: warehouseData.warehouseId, companyId: invitation.companyId },
+            select: { id: true },
+          });
+          if (!warehouse) throw new Error("The assigned warehouse no longer exists");
+        }
 
         const created = await tx.user.create({
           data: {
@@ -92,27 +120,37 @@ export const acceptDriverInvitation = maybeAuthenticatedAction(
             currency: "USD",
             companyId: invitation.companyId,
             roleId: invitation.roleId,
+            assignedWarehouseId: warehouseData?.warehouseId ?? null,
             // Reaching this point required clicking a link sent to this exact
             // address, which already proves ownership — no second mail needed.
             emailVerifiedAt: new Date(),
           },
         });
 
-        await tx.driver.create({
-          data: {
-            companyId: invitation.companyId,
-            userId: created.id,
-            phone: driverData.phone,
-            employeeId: driverData.employeeId,
-            licenseType: driverData.licenseType,
-            licenseNumber: driverData.licenseNumber,
-            licenseExpiry: driverData.licenseExpiry ? new Date(driverData.licenseExpiry) : null,
-            status: "OFF_DUTY",
-            safetyScore: 100,
-            efficiencyScore: 100,
-            rating: 5.0,
-          },
-        });
+        if (driverData) {
+          await tx.driver.create({
+            data: {
+              companyId: invitation.companyId,
+              userId: created.id,
+              phone: driverData.phone,
+              employeeId: driverData.employeeId,
+              licenseType: driverData.licenseType,
+              licenseNumber: driverData.licenseNumber,
+              licenseExpiry: driverData.licenseExpiry ? new Date(driverData.licenseExpiry) : null,
+              status: "OFF_DUTY",
+              safetyScore: 100,
+              efficiencyScore: 100,
+              rating: 5.0,
+            },
+          });
+        }
+
+        if (invitation.roleId === "role_manager" && warehouseData?.warehouseId) {
+          await tx.warehouse.update({
+            where: { id: warehouseData.warehouseId },
+            data: { managerId: created.id },
+          });
+        }
 
         await tx.invitation.update({
           where: { id: invitation.id },
@@ -122,7 +160,9 @@ export const acceptDriverInvitation = maybeAuthenticatedAction(
         return created;
       });
 
-      await invalidatePattern(driverCacheKeys.companyPattern(invitation.companyId));
+      if (isDriverRole) {
+        await invalidatePattern(driverCacheKeys.companyPattern(invitation.companyId));
+      }
       await invalidateCompanyCache(invitation.companyId);
 
       await createSession(newUser, userAgent, ip);

@@ -7,8 +7,9 @@ import { authenticatedAction } from "../../auth-middleware";
 import { controllerGuard } from "../utils/controllerGuard";
 import { rateLimit } from "../../rate-limiter";
 import { generateRefreshToken, hashToken } from "../session/internal";
-import { sendDriverInviteEmail } from "../../services/email";
+import { sendCompanyInviteEmail } from "../../services/email";
 import { getBaseUrl } from "../../utils/baseUrl";
+import { getRoleLabel } from "../company/roleLabels";
 import { NotFoundError, RateLimitError, ValidationError } from "../../errors";
 
 const INVITE_EXPIRY_DAYS = 7;
@@ -80,7 +81,7 @@ export const resendInvitation = authenticatedAction(
     return controllerGuard("resendInvitation", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      // Sends mail on the user's behalf — same guard as createDriverInvitation,
+      // Sends mail on the user's behalf — same guard as createCompanyInvitation,
       // so an unverified account cannot use us as a mail relay.
       await requireVerifiedEmail(user);
 
@@ -89,7 +90,7 @@ export const resendInvitation = authenticatedAction(
 
       const invitation = await db.invitation.findFirst({
         where: { id: invitationId, companyId },
-        include: { company: { select: { name: true } } },
+        include: { company: { select: { name: true } }, role: { select: { id: true } } },
       });
       if (!invitation) throw new NotFoundError("Invitation not found");
 
@@ -133,10 +134,11 @@ export const resendInvitation = authenticatedAction(
       //    e-postanın gitmesiydi, "başarılı" demek yanıltıcı olur.
       // en-Unlike creation, a failure here must surface: sending the mail IS the entire point of
       //    the action, so reporting success when it failed would be a lie.
-      await sendDriverInviteEmail(
+      await sendCompanyInviteEmail(
         invitation.email,
         inviteUrl,
         invitation.company.name,
+        getRoleLabel(invitation.role.id, lang),
         lang,
         INVITE_EXPIRY_DAYS
       );

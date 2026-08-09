@@ -6,45 +6,69 @@ import { requireVerifiedEmail } from "../utils/requireVerifiedEmail";
 import { authenticatedAction } from "../../auth-middleware";
 import { controllerGuard } from "../utils/controllerGuard";
 import { ensureStandardRoles } from "../company/shared";
+import { getRoleLabel } from "../company/roleLabels";
 import { rateLimit } from "../../rate-limiter";
 import { generateRefreshToken, hashToken } from "../session/internal";
-import { sendDriverInviteEmail } from "../../services/email";
+import { sendCompanyInviteEmail } from "../../services/email";
 import { getBaseUrl } from "../../utils/baseUrl";
-import { createDriverInvitationSchema } from "../../validation/serverSchemas";
+import { createDriverInvitationSchema, createCompanyInvitationSchema } from "../../validation/serverSchemas";
 import { ConflictError, RateLimitError, ValidationError } from "../../errors";
 import { logger } from "../../logger";
 
 const INVITE_EXPIRY_DAYS = 7;
 
+// tr-Depo ataması gerektiren roller: operatör (çalışan) ve depo yöneticisi
+// en-Roles that require a warehouse assignment: operator (staff) and warehouse manager
+const isWarehouseRole = (roleId: string) => roleId === "role_warehouse" || roleId === "role_manager";
+
 /**
- * tr-yeni bir sürücü davetiyesi oluşturur ve davet e-postası gönderir
- * en-creates a new driver invitation and sends an invitation email
- * input (user: AuthenticatedUser, email: string, driverData: object)
+ * tr-yeni bir şirket davetiyesi oluşturur ve davet e-postası gönderir. Sürücü rolü
+ *    driverData, depo rolleri warehouseId gerektirir; diğer roller ikisini de gerektirmez.
+ * en-creates a new company invitation and sends an invitation email. The driver role
+ *    requires driverData, warehouse roles require warehouseId; other roles require neither.
+ * input (user: AuthenticatedUser, email: string, roleId: string, driverData?: object, warehouseId?: string)
  * output (Promise<{ id: string, email: string, expiresAt: Date }>)
  */
-export const createDriverInvitation = authenticatedAction(
+export const createCompanyInvitation = authenticatedAction(
   async (
     user,
     email: string,
-    driverData: {
+    roleId: string,
+    driverData?: {
       employeeId: string;
       phone: string;
       licenseType?: string;
       licenseNumber?: string;
       licenseExpiry?: string;
-    }
+    },
+    warehouseId?: string
   ) => {
     const companyId = user?.companyId || "";
-    return controllerGuard("createDriverInvitation", async () => {
+    return controllerGuard("createCompanyInvitation", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       // This action sends mail on the user's behalf. Requiring a proven address
       // first stops an unverified account from using us as a mail relay.
       await requireVerifiedEmail(user);
 
-      const parsed = createDriverInvitationSchema.safeParse({ email, ...driverData });
-      if (!parsed.success) {
-        throw new ValidationError(parsed.error.issues[0]?.message ?? "Invalid data");
+      const parsedBase = createCompanyInvitationSchema.safeParse({ email, roleId });
+      if (!parsedBase.success) {
+        throw new ValidationError(parsedBase.error.issues[0]?.message ?? "Invalid data");
+      }
+      const normalizedEmail = parsedBase.data.email;
+
+      let parsedDriverData: import("zod").infer<typeof createDriverInvitationSchema> | null = null;
+
+      if (roleId === "role_driver") {
+        const parsed = createDriverInvitationSchema.safeParse({ email, ...driverData });
+        if (!parsed.success) {
+          throw new ValidationError(parsed.error.issues[0]?.message ?? "Invalid data");
+        }
+        parsedDriverData = parsed.data;
+      }
+
+      if (isWarehouseRole(roleId) && !warehouseId) {
+        throw new ValidationError("Warehouse assignment is required for this role");
       }
 
       const limit = await rateLimit(user.id, 20, 3600, "rate-limit:send-invite:");
@@ -52,20 +76,32 @@ export const createDriverInvitation = authenticatedAction(
 
       await ensureStandardRoles();
 
-      const existingUser = await db.user.findFirst({ where: { email: parsed.data.email } });
+      const existingUser = await db.user.findFirst({ where: { email: normalizedEmail } });
       if (existingUser?.companyId) {
         throw new ConflictError("This email is already associated with a company");
       }
 
       const existingInvite = await db.invitation.findFirst({
-        where: { companyId, email: parsed.data.email, status: "PENDING", expiresAt: { gt: new Date() } },
+        where: { companyId, email: normalizedEmail, status: "PENDING", expiresAt: { gt: new Date() } },
       });
       if (existingInvite) throw new ConflictError("An invitation is already pending for this email");
 
-      const existingEmployee = await db.driver.findFirst({
-        where: { companyId, employeeId: parsed.data.employeeId },
-      });
-      if (existingEmployee) throw new Error("A driver with this Employee ID already exists");
+      if (parsedDriverData) {
+        const existingEmployee = await db.driver.findFirst({
+          where: { companyId, employeeId: parsedDriverData.employeeId },
+        });
+        if (existingEmployee) throw new Error("A driver with this Employee ID already exists");
+      }
+
+      let resolvedWarehouseId: string | null = null;
+      if (isWarehouseRole(roleId) && warehouseId) {
+        const warehouse = await db.warehouse.findFirst({
+          where: { id: warehouseId, companyId },
+          select: { id: true },
+        });
+        if (!warehouse) throw new ValidationError("Warehouse not found or not in your company");
+        resolvedWarehouseId = warehouse.id;
+      }
 
       const rawToken = generateRefreshToken();
       const tokenHash = hashToken(rawToken);
@@ -73,17 +109,21 @@ export const createDriverInvitation = authenticatedAction(
 
       const invitation = await db.invitation.create({
         data: {
-          email: parsed.data.email,
+          email: normalizedEmail,
           companyId,
-          roleId: "role_driver",
+          roleId,
           tokenHash,
-          driverData: {
-            employeeId: parsed.data.employeeId,
-            phone: parsed.data.phone,
-            licenseType: parsed.data.licenseType || null,
-            licenseNumber: parsed.data.licenseNumber || null,
-            licenseExpiry: parsed.data.licenseExpiry || null,
-          },
+          driverData: parsedDriverData
+            ? {
+                employeeId: parsedDriverData.employeeId,
+                phone: parsedDriverData.phone,
+                licenseType: parsedDriverData.licenseType || null,
+                licenseNumber: parsedDriverData.licenseNumber || null,
+                licenseExpiry: parsedDriverData.licenseExpiry || null,
+              }
+            : resolvedWarehouseId
+              ? { warehouseId: resolvedWarehouseId }
+              : {},
           invitedById: user.id,
           expiresAt,
         },
@@ -100,17 +140,18 @@ export const createDriverInvitation = authenticatedAction(
       // Email failure must NOT abort the invitation — the DB record is already written.
       // Log the error so it's visible in the terminal/monitoring, but continue.
       try {
-        await sendDriverInviteEmail(
-          parsed.data.email,
+        await sendCompanyInviteEmail(
+          normalizedEmail,
           inviteUrl,
           company?.name || "Your company",
+          getRoleLabel(roleId, lang),
           lang,
           INVITE_EXPIRY_DAYS
         );
       } catch (emailError) {
         const msg = emailError instanceof Error ? emailError.message : String(emailError);
         logger.warn(
-          `[createDriverInvitation] Email delivery failed for ${parsed.data.email}. ` +
+          `[createCompanyInvitation] Email delivery failed for ${normalizedEmail}. ` +
           `The invitation was saved (id: ${invitation.id}) but the email was not sent. ` +
           `Reason: ${msg}`
         );

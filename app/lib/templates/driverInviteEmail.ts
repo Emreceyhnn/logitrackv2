@@ -1,5 +1,5 @@
 /**
- * Driver Invitation Email Template
+ * Company Invitation Email Template
  * Supports TR (Turkish) and EN (English).
  * Uses inline CSS for maximum email-client compatibility (Gmail, Outlook, Apple Mail, etc.)
  */
@@ -7,6 +7,7 @@
 interface DriverInviteEmailData {
   companyName: string;
   inviteUrl: string;
+  roleName: string;
   expiryDays?: number;
   lang?: "tr" | "en";
 }
@@ -35,19 +36,19 @@ const strings: Record<"en" | "tr", DriverInviteEmailStrings> = {
   en: {
     subject: "You've been invited to join {companyName} on LogiTrack",
     previewText:
-      "Accept your invitation to join {companyName} as a driver on LogiTrack — your link expires in {expiryDays} days.",
-    badgeLabel: "Driver Invitation",
+      "Accept your invitation to join {companyName} as a {roleName} on LogiTrack — your link expires in {expiryDays} days.",
+    badgeLabel: "{roleName} Invitation",
     headline: "You've been invited!",
     subheadline: "Join {companyName} on LogiTrack",
     bodyLine1:
-      "<strong>{companyName}</strong> has invited you to join their fleet as a <strong>Driver</strong> on LogiTrack.",
+      "<strong>{companyName}</strong> has invited you to join their fleet as a <strong>{roleName}</strong> on LogiTrack.",
     bodyLine2:
-      "Click the button below to accept your invitation and set up your driver account. This link is valid for <strong>{expiryDays} days</strong>.",
+      "Click the button below to accept your invitation and set up your account. This link is valid for <strong>{expiryDays} days</strong>.",
     ctaButton: "Accept Invitation",
     orLabel: "Or copy and paste this URL into your browser:",
     urlLabel: "Invitation Link",
     expiryNote:
-      "This invitation link expires in {expiryDays} days. After that, ask your fleet manager to send a new one.",
+      "This invitation link expires in {expiryDays} days. After that, ask your admin to send a new one.",
     ignoreNote:
       "If you weren't expecting this invitation, you can safely ignore this email. No account will be created without your action.",
     footerTagline: "The smart logistics platform for modern fleets.",
@@ -59,19 +60,19 @@ const strings: Record<"en" | "tr", DriverInviteEmailStrings> = {
   tr: {
     subject: "{companyName} şirketinin LogiTrack'e davetini aldınız",
     previewText:
-      "{companyName} şirketine sürücü olarak katılmak için daveti kabul edin — bağlantınız {expiryDays} gün içinde sona eriyor.",
-    badgeLabel: "Sürücü Daveti",
+      "{companyName} şirketine {roleName} olarak katılmak için daveti kabul edin — bağlantınız {expiryDays} gün içinde sona eriyor.",
+    badgeLabel: "{roleName} Daveti",
     headline: "Davet Edildiniz!",
     subheadline: "{companyName} şirketine LogiTrack'te katılın",
     bodyLine1:
-      "<strong>{companyName}</strong> şirketi, sizi LogiTrack'teki filolarına <strong>Sürücü</strong> olarak katılmaya davet etti.",
+      "<strong>{companyName}</strong> şirketi, sizi LogiTrack'teki filolarına <strong>{roleName}</strong> olarak katılmaya davet etti.",
     bodyLine2:
-      "Davetinizi kabul etmek ve sürücü hesabınızı oluşturmak için aşağıdaki butona tıklayın. Bu bağlantı <strong>{expiryDays} gün</strong> boyunca geçerlidir.",
+      "Davetinizi kabul etmek ve hesabınızı oluşturmak için aşağıdaki butona tıklayın. Bu bağlantı <strong>{expiryDays} gün</strong> boyunca geçerlidir.",
     ctaButton: "Daveti Kabul Et",
     orLabel: "Veya bu URL'yi tarayıcınıza kopyalayıp yapıştırın:",
     urlLabel: "Davet Bağlantısı",
     expiryNote:
-      "Bu davet bağlantısı {expiryDays} gün içinde sona erecektir. Sonrasında filo yöneticinizden yeni bir davet göndermesini talep edin.",
+      "Bu davet bağlantısı {expiryDays} gün içinde sona erecektir. Sonrasında yöneticinizden yeni bir davet göndermesini talep edin.",
     ignoreNote:
       "Bu daveti beklemiyorsanız bu e-postayı güvenle yok sayabilirsiniz. Siz işlem yapana kadar herhangi bir hesap oluşturulmayacaktır.",
     footerTagline: "Modern filolar için akıllı lojistik platformu.",
@@ -101,6 +102,7 @@ export function buildDriverInviteEmail(data: DriverInviteEmailData): {
   const interpolate = (str: string): string =>
     str
       .replace(/{companyName}/g, data.companyName)
+      .replace(/{roleName}/g, data.roleName)
       .replace(/{expiryDays}/g, String(expiryDays))
       .replace(/{lang}/g, lang);
 
@@ -200,7 +202,7 @@ export function buildDriverInviteEmail(data: DriverInviteEmailData): {
                 <!-- Badge -->
                 <div style="margin-top:20px;">
                   <span style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:#e0e7ff;letter-spacing:0.5px;text-transform:uppercase;">
-                    🚛 ${t.badgeLabel}
+                    🚛 ${interpolate(t.badgeLabel)}
                   </span>
                 </div>
 
@@ -338,7 +340,7 @@ export function buildDriverInviteEmail(data: DriverInviteEmailData): {
   const text = lang === "tr"
     ? `Merhaba,
 
-${data.companyName} şirketi, sizi LogiTrack'teki filolarına Sürücü olarak katılmaya davet etti.
+${data.companyName} şirketi, sizi LogiTrack'teki filolarına ${data.roleName} olarak katılmaya davet etti.
 
 Daveti kabul etmek için aşağıdaki bağlantıya tıklayın:
 ${data.inviteUrl}
@@ -351,7 +353,7 @@ Teşekkürler,
 LogiTrack Ekibi`
     : `Hello,
 
-${data.companyName} has invited you to join their fleet on LogiTrack as a Driver.
+${data.companyName} has invited you to join their fleet on LogiTrack as a ${data.roleName}.
 
 Click the link below to accept your invitation:
 ${data.inviteUrl}

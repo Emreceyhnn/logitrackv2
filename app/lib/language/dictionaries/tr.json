@@ -2517,15 +2517,17 @@
     },
     "roles": {
       "Admin": "Yönetici",
-      "Manager": "Müdür",
+      "Manager": "Depo Müdürü",
       "Warehouse Worker": "Depo Çalışanı",
       "Driver": "Sürücü",
-      "Customer": "Müşteri",
+      "Customer": "Personel",
       "read-only": "salt-okunur",
       "Administrator": "Yönetici",
       "Warehouse Manager": "Depo Müdürü",
       "Dispatcher": "Sevkiyat Sorumlusu",
-      "Warehouse Operator": "Depo Çalışanı"
+      "Warehouse Operator": "Depo Çalışanı",
+      "Warehouse": "Depo Çalışanı",
+      "Default": "Personel"
     },
     "branding": {
       "title": "Şirket Kimliği",
@@ -2571,7 +2573,7 @@
       "employeeIdHelper": "Şirket tarafından atanan benzersiz kimlik",
       "phoneHelper": "Sürücü iletişimi için gereklidir",
       "existingUser": "Mevcut kullanıcı ekle",
-      "inviteByEmail": "Şoförü email ile davet et",
+      "inviteByEmail": "Kullanıcıyı email ile davet et",
       "inviteEmailPlaceholder": "sofor@ornek.com",
       "sendInvite": "Davet Gönder",
       "domainLabel": "Şirket Email Domain'i",

@@ -26,6 +26,7 @@ export interface CompanyMember {
   status: string;
   roleId: string | null;
   roleName: string | null;
+  assignedWarehouseId: string | null;
   createdAt: string;
 }
 

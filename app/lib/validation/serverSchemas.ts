@@ -76,6 +76,20 @@ export const createDriverInvitationSchema = z.object({
   licenseExpiry: z.string().optional(),
 });
 
+export const VALID_INVITATION_ROLES = [
+  "role_admin",
+  "role_manager",
+  "role_dispatcher",
+  "role_warehouse",
+  "role_default",
+  "role_driver",
+] as const;
+
+export const createCompanyInvitationSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
+  roleId: z.enum(VALID_INVITATION_ROLES),
+});
+
 export const acceptInvitationSchema = registerUserSchema.pick({
   name: true,
   surname: true,

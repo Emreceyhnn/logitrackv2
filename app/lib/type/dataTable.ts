@@ -95,6 +95,9 @@ export interface DataTableProps<TRow extends { id: string }> {
   // Row actions rendered as a MoreVert context menu in the last column
   rowActions?: DataTableRowAction<TRow>[] | undefined;
 
+  /** Rows for which this returns true render dimmed with hover disabled (e.g. completed/finalized records). */
+  getRowDisabled?: ((row: TRow) => boolean) | undefined;
+
   // Pagination support
   meta?: PaginationMeta | undefined;
   onPageChange?: ((page: number) => void) | undefined;

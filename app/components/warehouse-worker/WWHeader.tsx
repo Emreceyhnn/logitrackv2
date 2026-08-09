@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import {
   Stack,
   Button,
@@ -16,6 +17,7 @@ import type {
 } from "@/app/lib/type/warehouseWorkerClient";
 import { buildDashboardHomeHref } from "@/app/lib/language/navigation";
 import { Ico } from "./Ico";
+import UserAccountNav from "../nav/UserAccountNav";
 
 interface WWHeaderProps {
   ww: WarehouseWorkerDict;
@@ -25,7 +27,8 @@ interface WWHeaderProps {
   setSelectedWarehouseId: (id: string) => void;
   warehouse: { name: string; code: string; city: string };
   warehouseOptions: WarehouseOption[];
-  worker: { name: string; initials: string; role: string };
+  /** Overrides the default profile menu — used by the demo panel to swap in a mutation-safe stand-in. */
+  accountSlot?: ReactNode;
 }
 
 export default function WWHeader({
@@ -36,7 +39,7 @@ export default function WWHeader({
   setSelectedWarehouseId,
   warehouse,
   warehouseOptions,
-  worker,
+  accountSlot,
 }: WWHeaderProps) {
   const theme = useTheme();
   // Demo visitors must return to the demo overview — the real one is
@@ -167,31 +170,7 @@ export default function WWHeader({
         </Box>
       </Stack>
       <Stack direction="row" alignItems="center" spacing={2}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1.5}
-        >
-          <Avatar
-            sx={{
-              background: "linear-gradient(135deg,#1e293b,#0f172a)",
-              border: `1px solid ${theme.palette.divider}`,
-              fontWeight: 800,
-            }}
-          >
-            {worker.initials}
-          </Avatar>
-          <Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
-              {worker.name}
-            </Typography>
-            <Typography
-              sx={{ fontSize: 11, color: theme.palette.text.secondary }}
-            >
-              {worker.role}
-            </Typography>
-          </Box>
-        </Stack>
+        {accountSlot ?? <UserAccountNav user={null} />}
       </Stack>
     </Stack>
   );
