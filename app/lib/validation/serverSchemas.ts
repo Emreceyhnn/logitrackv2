@@ -155,7 +155,7 @@ export const trailerSchema = z.object({
 });
 
 // ─── Shipments ──────────────────────────────────────────────────────────────
-export const createShipmentSchema = z.object({
+const shipmentBaseSchema = z.object({
   customerId: z.string().optional().nullable(),
   origin: z.string().min(1, "Origin is required"),
   destination: z.string().min(1, "Destination is required"),
@@ -204,7 +204,32 @@ export const createShipmentSchema = z.object({
   })).optional(),
 });
 
-export const updateShipmentSchema = createShipmentSchema.partial();
+// Selecting real inventory implies stock is coming out of a specific
+// warehouse — without originWarehouseId the allocation, the
+// InventoryMovement, and the warehouse worker's pick task never get
+// created, so the shipment silently never shows up on the warehouse floor
+// even though it "succeeded". Applied to both schemas so this can't be
+// bypassed by going through the update path with inventoryItems.
+const requireOriginWarehouseWithInventory = (
+  data: { inventoryItems?: unknown[] | undefined; originWarehouseId?: string | undefined },
+  ctx: z.RefinementCtx
+) => {
+  if ((data.inventoryItems?.length ?? 0) > 0 && !data.originWarehouseId) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["originWarehouseId"],
+      message: "Origin warehouse is required when inventory items are selected",
+    });
+  }
+};
+
+export const createShipmentSchema = shipmentBaseSchema.superRefine(
+  requireOriginWarehouseWithInventory
+);
+
+export const updateShipmentSchema = shipmentBaseSchema
+  .partial()
+  .superRefine(requireOriginWarehouseWithInventory);
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 export const createRouteSchema = z.object({

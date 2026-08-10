@@ -114,7 +114,7 @@ export const MaintenanceAdditionalInfoSection = ({
               <input
                 type="file"
                 hidden
-                accept="image/*,application/pdf"
+                accept="image/*"
                 onChange={onFileChange}
                 ref={fileInputRef}
               />

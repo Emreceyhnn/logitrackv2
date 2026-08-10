@@ -16,7 +16,7 @@ import { sendMyEmailVerification } from "@/app/lib/controllers/users";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface VerifyEmailGateProps {
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 /**
@@ -102,18 +102,20 @@ export default function VerifyEmailGate({ onClose }: VerifyEmailGateProps) {
 
       <DialogActions sx={{ px: { xs: 3, md: 5 }, pb: 3, pt: 0 }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end" width="100%">
-          <Button
-            onClick={onClose}
-            sx={{
-              color: "text.secondary",
-              textTransform: "none",
-              fontWeight: 600,
-              borderRadius: 2,
-              px: 2,
-            }}
-          >
-            {dict.common.close}
-          </Button>
+          {onClose && (
+            <Button
+              onClick={onClose}
+              sx={{
+                color: "text.secondary",
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: 2,
+                px: 2,
+              }}
+            >
+              {dict.common.close}
+            </Button>
+          )}
           <Button
             variant="contained"
             onClick={handleSend}

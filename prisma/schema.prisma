@@ -339,6 +339,7 @@ model WarehouseTask {
   companyId    String
   kind         WarehouseTaskKind
   name         String
+  sku          String?
   orderRef     String
   zone         String
   doneUnits    Int                   @default(0)

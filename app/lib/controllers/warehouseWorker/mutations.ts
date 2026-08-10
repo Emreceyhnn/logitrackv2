@@ -184,6 +184,18 @@ export const adjustWarehouseStock = authenticatedAction(
 );
 
 /**
+ * Maps a task's kind to the ledger entry its progress represents. PACK is
+ * ledger-only (the units already left on-hand stock at PICK time, see
+ * logWarehouseMovement), so it never touches Inventory quantities — only
+ * PICK (removes on-hand + allocated) and PUT (putaway, adds on-hand) do.
+ */
+const TASK_KIND_TO_MOVEMENT_TYPE: Record<string, "PICK" | "PACK" | "PUTAWAY"> = {
+  PICK: "PICK",
+  PACK: "PACK",
+  PUT: "PUTAWAY",
+};
+
+/**
  * tr-bir depo görevinin (task) ilerlemesini kaydeder; tamamlanan birimler toplamı aşarsa görevi otomatik tamamlandı işaretler
  * en-advances the progress of a warehouse task; auto-completes it if done units reach the total
  * input (user: AuthenticatedUser, taskId: string, delta?: number)
@@ -192,6 +204,7 @@ export const adjustWarehouseStock = authenticatedAction(
 export const advanceWarehouseTask = authenticatedAction(
   async (user, taskId: string, delta?: number) => {
     const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     return controllerGuard("advanceWarehouseTask", async () => {
       await checkPermission(user, companyId, WW_ROLES);
 
@@ -206,13 +219,66 @@ export const advanceWarehouseTask = authenticatedAction(
         delta && delta > 0 ? delta : Math.max(1, Math.ceil(task.totalUnits / 5));
       const nextDone = Math.min(task.totalUnits, task.doneUnits + step);
       const complete = nextDone >= task.totalUnits;
+      const advancedUnits = nextDone - task.doneUnits;
 
-      await db.warehouseTask.update({
-        where: { id: taskId },
-        data: {
-          doneUnits: nextDone,
-          status: complete ? "COMPLETED" : "IN_PROGRESS",
-        },
+      await db.$transaction(async (tx) => {
+        await tx.warehouseTask.update({
+          where: { id: taskId },
+          data: {
+            doneUnits: nextDone,
+            status: complete ? "COMPLETED" : "IN_PROGRESS",
+          },
+        });
+
+        // Older tasks created before this column existed carry no sku — the
+        // progress still records, it just can't move inventory or feed the
+        // Pick/Pack KPIs (which is the same degraded state they were already
+        // in before this fix).
+        if (!task.sku || advancedUnits <= 0) return;
+
+        const movementType = TASK_KIND_TO_MOVEMENT_TYPE[task.kind];
+        if (!movementType) return;
+
+        await tx.inventoryMovement.create({
+          data: {
+            warehouseId: task.warehouseId,
+            sku: task.sku,
+            quantity: movementType === "PICK" ? -advancedUnits : advancedUnits,
+            type: movementType,
+            zone: task.zone,
+            notes: task.name,
+            userId,
+            companyId,
+            date: new Date(),
+          },
+        });
+
+        if (movementType === "PICK") {
+          const inventoryNode = await tx.inventory.findFirst({
+            where: { warehouseId: task.warehouseId, sku: task.sku, companyId },
+          });
+          if (inventoryNode) {
+            await tx.inventory.update({
+              where: { id: inventoryNode.id },
+              data: {
+                quantity: { decrement: Math.min(advancedUnits, inventoryNode.quantity) },
+                allocatedQuantity: {
+                  decrement: Math.min(advancedUnits, inventoryNode.allocatedQuantity),
+                },
+              },
+            });
+          }
+        } else if (movementType === "PUTAWAY") {
+          const inventoryNode = await tx.inventory.findFirst({
+            where: { warehouseId: task.warehouseId, sku: task.sku, companyId },
+          });
+          if (inventoryNode) {
+            await tx.inventory.update({
+              where: { id: inventoryNode.id },
+              data: { quantity: { increment: advancedUnits } },
+            });
+          }
+        }
       });
 
       revalidatePath("/", "layout");

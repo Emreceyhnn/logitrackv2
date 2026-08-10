@@ -88,12 +88,43 @@ describe("useShipments Hook", () => {
   describe("useShipmentMutations()", () => {
     it("should_ProcessCreateShipmentAndShowToastFromDict", async () => {
       shipmentsControllerMock.createShipment.mock.mockImplementation(async () => true);
-      
+
       const { createShipment } = useShipmentsMod.useShipmentMutations();
       await createShipment.mutateAsync({ customerId: "c-1", origin: "O", destination: "D", status: "PENDING" });
 
       expect(shipmentsControllerMock.createShipment.mock.calls.length).toBe(1);
       expect(sonnerMock.toast.success.mock.calls[0].arguments[0]).toBe("Added");
+    });
+
+    it("should_ForwardWarehouseAndAssignmentFields_ToCreateShipmentController", async () => {
+      // Regression guard: these fields were previously dropped by the
+      // mutationFn on their way to the server action, so a warehouse/trailer/
+      // driver picked in the dialog silently never reached createShipment —
+      // no stock allocation, no warehouse task, and (once
+      // requireOriginWarehouseWithInventory was added) an unexplained
+      // "Origin warehouse is required" rejection despite the user having
+      // selected one.
+      shipmentsControllerMock.createShipment.mock.mockImplementation(async () => true);
+
+      const { createShipment } = useShipmentsMod.useShipmentMutations();
+      await createShipment.mutateAsync({
+        customerId: "c-1",
+        origin: "O",
+        destination: "D",
+        status: "PENDING",
+        originWarehouseId: "wh-1",
+        referenceNumber: "REF-1",
+        trailerId: "trailer-1",
+        driverId: "driver-1",
+        stops: [{ address: "A", lat: 1, lng: 2, sequence: 1 }],
+      });
+
+      const forwarded = shipmentsControllerMock.createShipment.mock.calls[0].arguments[0];
+      expect(forwarded.originWarehouseId).toBe("wh-1");
+      expect(forwarded.referenceNumber).toBe("REF-1");
+      expect(forwarded.trailerId).toBe("trailer-1");
+      expect(forwarded.driverId).toBe("driver-1");
+      expect(forwarded.stops).toEqual([{ address: "A", lat: 1, lng: 2, sequence: 1 }]);
     });
   });
 });

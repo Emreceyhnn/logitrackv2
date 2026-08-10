@@ -325,6 +325,24 @@ export const createShipment = authenticatedAction(
                       companyId,
                     },
                   });
+
+                  // Allocating stock for a shipment is the trigger for a
+                  // warehouse worker to actually pick it — without this the
+                  // worker dashboard never reflects shipment activity, even
+                  // though stock was reserved. One task per line item so a
+                  // worker can pick/complete them independently.
+                  await tx.warehouseTask.create({
+                    data: {
+                      warehouseId: finalWarehouseId,
+                      companyId: companyId!,
+                      kind: "PICK",
+                      name: item.name,
+                      sku: item.sku,
+                      orderRef: shipment.trackingId,
+                      zone: invItem.zone || "UNASSIGNED",
+                      totalUnits: baseUnitQuantity,
+                    },
+                  });
                 }
               })
             );

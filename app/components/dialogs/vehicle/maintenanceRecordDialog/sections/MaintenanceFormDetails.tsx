@@ -70,7 +70,7 @@ export default function MaintenanceFormDetails({ dict, formData, setFormData, te
               sx={{ height: 80, borderStyle: "dashed", borderRadius: 2, textTransform: "none", color: "text.secondary", borderColor: "divider", "&:hover": { borderColor: "primary.main", bgcolor: "primary._alpha.main_05" } }}
             >
               {uploading ? dict.toasts.loading : dict.vehicles.dialogs.newFileUpload}
-              <input type="file" hidden accept="image/*,application/pdf" onChange={handleFileChange} ref={fileInputRef} />
+              <input type="file" hidden accept="image/*" onChange={handleFileChange} ref={fileInputRef} />
             </Button>
           ) : (
             <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", bgcolor: "background.paper", display: "flex", alignItems: "center", gap: 2 }}>

@@ -1,5 +1,6 @@
 import VerifyEmailView from "@/app/components/forms/verifyEmailView";
 import { verifyEmailToken } from "@/app/lib/controllers/users/emailVerification";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 
 export default async function VerifyEmailPage({
   searchParams,
@@ -20,7 +21,18 @@ export default async function VerifyEmailPage({
     result && "alreadyVerified" in result && result.alreadyVerified
   );
 
+  // If the browser already carries a session (verifying in the same browser
+  // that was mid-onboarding, rather than a fresh device via the emailed
+  // link), send the "continue" action straight back to onboarding so the
+  // user can resume creating/joining a company instead of being detoured
+  // through sign-in.
+  const sessionUser = verified ? await getAuthenticatedUser() : null;
+
   return (
-    <VerifyEmailView verified={verified} alreadyVerified={alreadyVerified} />
+    <VerifyEmailView
+      verified={verified}
+      alreadyVerified={alreadyVerified}
+      continueHref={sessionUser ? "/onboarding" : undefined}
+    />
   );
 }

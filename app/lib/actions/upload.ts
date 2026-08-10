@@ -49,9 +49,12 @@ const SIGNED_URL_TTL_SECONDS = 3600;
 // Any "data:image/<subtype>" is accepted — Cloudinary itself validates and
 // transcodes the actual image bytes, so pinning an exhaustive subtype list
 // here only means legitimate formats (avif, heic, bmp, svg+xml, tiff, ...)
-// get rejected before ever reaching that check. PDFs are the one non-image
-// type this app stores, so they're matched explicitly.
-const ALLOWED_MIME_PATTERN = /^data:(image\/[a-zA-Z0-9.+-]+|application\/pdf);/;
+// get rejected before ever reaching that check.
+//
+// PDF uploads are temporarily disabled service-wide (application/pdf is
+// deliberately excluded here) — re-add `|application\/pdf` to ALLOWED_MIME_PATTERN
+// to restore them once the service issue is resolved.
+const ALLOWED_MIME_PATTERN = /^data:image\/[a-zA-Z0-9.+-]+;/;
 
 /**
  * tr-base64 formatındaki görüntü verisinin geçerliliğini ve boyutunu kontrol eder
@@ -66,7 +69,9 @@ function validateBase64Image(fileData: string): void {
 
   if (!ALLOWED_MIME_PATTERN.test(fileData)) {
     throw new Error(
-      "Unsupported file type. Only image files and PDFs are allowed."
+      fileData.startsWith("data:application/pdf")
+        ? "PDF uploads are temporarily unavailable. Please try again later."
+        : "Unsupported file type. Only image files are allowed."
     );
   }
 

@@ -69,6 +69,15 @@ export default function MaintenanceDetailDialog({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // PDF uploads are temporarily disabled service-wide; catch it here too
+    // (not just server-side in uploadImageAction) so the user sees why
+    // immediately instead of after picking a file and waiting on the upload.
+    if (file.type === "application/pdf") {
+      setError(dict.vehicles.dialogs.pdfUploadDisabled || "PDF uploads are temporarily unavailable. Please try again later.");
+      e.target.value = "";
+      return;
+    }
+
     setUploading(true);
     setError(null);
 

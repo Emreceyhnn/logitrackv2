@@ -116,15 +116,16 @@ describe("Upload Actions", () => {
       // resource_type must never be "auto": getSignedUrlAction reconstructs it
       // from the stored URL, so an unobservable server-side choice would break
       // signature generation for private documents.
+      //
+      // PDF uploads are temporarily disabled service-wide (see
+      // should_RejectPdfUpload_WhileServiceIsDisabled below), so only image
+      // formats are exercised here.
       const formats = [
         { mime: "image/jpeg", expected: "image" },
         { mime: "image/jpg", expected: "image" },
         { mime: "image/png", expected: "image" },
         { mime: "image/webp", expected: "image" },
         { mime: "image/gif", expected: "image" },
-        // PDFs must be "raw": delivery under "image" is blocked by account
-        // security settings and 401s even with a valid signature.
-        { mime: "application/pdf", expected: "raw" },
       ];
 
       for (const { mime, expected } of formats) {
@@ -140,18 +141,29 @@ describe("Upload Actions", () => {
       }
     });
 
+    it("should_RejectPdfUpload_WhileServiceIsDisabled", async () => {
+      await expect(
+        uploadActions.uploadImageAction(
+          mockUser,
+          "data:application/pdf;base64,JVBERi0=",
+          "documents"
+        )
+      ).rejects.toThrow(/PDF uploads are temporarily unavailable/);
+      expect(uploaderMock.upload.mock.calls.length).toBe(0);
+    });
+
     it("should_RoundTripResourceType_FromUploadToSignedUrl", async () => {
-      // End-to-end guard: whatever resource_type a PDF is stored under must be
-      // the one used to sign it back, or every document read 404s.
+      // End-to-end guard: whatever resource_type an asset is stored under must
+      // be the one used to sign it back, or every document read 404s.
       uploaderMock.upload.mock.mockImplementationOnce(async () => ({
         secure_url:
-          "https://res.cloudinary.com/daeiwh3qr/raw/authenticated/v1712345678/documents/invoice.pdf",
+          "https://res.cloudinary.com/daeiwh3qr/image/authenticated/v1712345678/documents/invoice.png",
         public_id: "documents/invoice",
       }));
 
       const uploaded = await uploadActions.uploadImageAction(
         mockUser,
-        "data:application/pdf;base64,JVBERi0=",
+        mockBase64,
         "documents"
       );
       const uploadResourceType =
@@ -177,19 +189,19 @@ describe("Upload Actions", () => {
       // check — so the stored URL must be the bare, unsigned reference.
       uploaderMock.upload.mock.mockImplementationOnce(async () => ({
         secure_url:
-          "https://res.cloudinary.com/daeiwh3qr/image/authenticated/s--AbC123--/v1712345678/documents/secret.pdf",
+          "https://res.cloudinary.com/daeiwh3qr/image/authenticated/s--AbC123--/v1712345678/documents/secret.png",
         public_id: "documents/secret",
       }));
 
       const result = await uploadActions.uploadImageAction(
         mockUser,
-        "data:application/pdf;base64,JVBERi0=",
+        mockBase64,
         "documents"
       );
 
       expect(result.url).not.toMatch(/\/s--[^/]+--\//);
       expect(result.url).toBe(
-        "https://res.cloudinary.com/daeiwh3qr/image/authenticated/v1712345678/documents/secret.pdf"
+        "https://res.cloudinary.com/daeiwh3qr/image/authenticated/v1712345678/documents/secret.png"
       );
     });
 

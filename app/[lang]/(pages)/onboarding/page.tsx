@@ -21,9 +21,10 @@ import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyD
 import JoinCompanyDialog from "@/app/components/dialogs/company/JoinCompanyDialog";
 import { getMyJoinRequest, cancelJoinRequest } from "@/app/lib/controllers/joinRequests";
 import { getMyInvitations, acceptExistingUserInvitation, declineExistingUserInvitation } from "@/app/lib/controllers/invitations";
-import { checkAndSyncCompany, canCreateCompany } from "./actions";
+import { checkAndSyncCompany, canCreateCompany, getEmailVerificationGate } from "./actions";
 import { toast } from "sonner";
 import Tooltip from "@mui/material/Tooltip";
+import VerifyEmailGate from "@/app/components/dialogs/company/VerifyEmailGate";
 
 export default function OnboardingPage() {
   const theme = useTheme();
@@ -34,6 +35,7 @@ export default function OnboardingPage() {
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [checkingPending, setCheckingPending] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
+  const [needsEmailVerification, setNeedsEmailVerification] = useState(false);
   const [pendingRequest, setPendingRequest] = useState<{ id: string; companyName: string } | null>(null);
   const [pendingInvitations, setPendingInvitations] = useState<{ id: string; company: { name: string }; role: { name: string } }[]>([]);
 
@@ -48,11 +50,17 @@ export default function OnboardingPage() {
         window.location.href = `/${locale}/overview`;
         return;
       }
-      return Promise.all([getMyJoinRequest(), getMyInvitations(), canCreateCompany()])
-        .then(([req, invs, createAllowed]) => {
+      return Promise.all([
+        getMyJoinRequest(),
+        getMyInvitations(),
+        canCreateCompany(),
+        getEmailVerificationGate(),
+      ])
+        .then(([req, invs, createAllowed, verificationGate]) => {
           if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
           if (invs) setPendingInvitations(invs);
           setCanCreate(createAllowed);
+          setNeedsEmailVerification(verificationGate.needsVerification);
         })
         .finally(() => setCheckingPending(false));
     }).catch(() => setCheckingPending(false));
@@ -154,6 +162,17 @@ export default function OnboardingPage() {
           <Stack alignItems="center" py={6}>
             <CircularProgress size={32} />
           </Stack>
+        ) : needsEmailVerification ? (
+          <Card
+            sx={{
+              maxWidth: 480,
+              mx: "auto",
+              borderRadius: 4,
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <VerifyEmailGate />
+          </Card>
         ) : pendingRequest ? (
           <Card
             sx={{

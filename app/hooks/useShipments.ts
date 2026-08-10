@@ -349,6 +349,11 @@ export function useShipmentMutations() {
         contactEmail: data.contactEmail || "",
         billingAccount: data.billingAccount || "",
         inventoryItems: data.inventoryItems || [],
+        originWarehouseId: data.originWarehouseId || undefined,
+        referenceNumber: data.referenceNumber || undefined,
+        trailerId: data.trailerId || undefined,
+        driverId: data.driverId || undefined,
+        stops: data.stops || undefined,
       }),
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: shipmentKeys.all });

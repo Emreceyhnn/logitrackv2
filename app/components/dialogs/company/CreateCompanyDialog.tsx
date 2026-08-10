@@ -78,7 +78,9 @@ export default function CreateCompanyDialog({
   // pre-existing behaviour. `loading` is still honoured so an unresolved user
   // never flashes the gate.
   const { user, loading: userLoading } = useOptionalUserContext();
-  const needsEmailVerification = !userLoading && !!user && !user.emailVerified;
+  const [emailVerificationBlocked, setEmailVerificationBlocked] = useState(false);
+  const needsEmailVerification =
+    (!userLoading && !!user && !user.emailVerified) || emailVerificationBlocked;
 
   // Hoisted out of the Formik prop: that JSX now sits behind the gate branch,
   // and a hook called conditionally breaks the rules of hooks.
@@ -97,51 +99,69 @@ export default function CreateCompanyDialog({
     setActiveStep((prev) => prev - 1);
   };
 
-  const handleSubmit = async (values: CompanyFormData) => {
-    // 1. Close dialog immediately
+  // Reset the gate on the way out so a later reopen (e.g. after the user
+  // verifies their email and comes back) starts from the form again rather
+  // than being stuck showing the gate from the previous rejected attempt.
+  const handleClose = () => {
+    setEmailVerificationBlocked(false);
     onClose();
+  };
+
+  const handleSubmit = async (values: CompanyFormData) => {
     setActiveStep(0);
 
-    // 2. Run upload and create behind a loading toast
-    await toast.promise(
-      (async () => {
-        let logoUrl = values.logo;
+    // Run upload and create behind a loading toast. The dialog stays open
+    // until we know the outcome: an EMAIL_NOT_VERIFIED rejection needs to
+    // swap the form for VerifyEmailGate in place, which isn't possible if
+    // we've already closed the dialog before awaiting the result.
+    try {
+      await toast.promise(
+        (async () => {
+          let logoUrl = values.logo;
 
-        if (logoUrl && logoUrl.startsWith("data:image")) {
-          const uploadResult = await uploadImageAction(
-            logoUrl,
-            "general",
-            "logos"
+          if (logoUrl && logoUrl.startsWith("data:image")) {
+            const uploadResult = await uploadImageAction(
+              logoUrl,
+              "general",
+              "logos"
+            );
+            logoUrl = uploadResult.url;
+          }
+
+          await createCompany(
+            values.name,
+            logoUrl || "",
+            {
+              timezone: values.timezone,
+              currency: values.currency,
+              language: values.language,
+            },
+            values.domain || undefined
           );
-          logoUrl = uploadResult.url;
+          if (values.language !== locale) {
+            changeLanguage(values.language);
+          }
+          onSuccess?.(values.language);
+        })(),
+        {
+          loading: dict.toasts?.loading || "Creating company...",
+          success: dict.toasts.successAdd,
+          error: (err: unknown) =>
+            isEmailNotVerifiedError(err)
+              ? dict.auth.emailNotVerifiedAction
+              : err instanceof Error
+                ? err.message
+                : dict.toasts.errorGeneric,
         }
-
-        await createCompany(
-          values.name,
-          logoUrl || "",
-          {
-            timezone: values.timezone,
-            currency: values.currency,
-            language: values.language,
-          },
-          values.domain || undefined
-        );
-        if (values.language !== locale) {
-          changeLanguage(values.language);
-        }
-        onSuccess?.(values.language);
-      })(),
-      {
-        loading: dict.toasts?.loading || "Creating company...",
-        success: dict.toasts.successAdd,
-        error: (err: unknown) =>
-          isEmailNotVerifiedError(err)
-            ? dict.auth.emailNotVerifiedAction
-            : err instanceof Error
-              ? err.message
-              : dict.toasts.errorGeneric,
+      );
+      onClose();
+    } catch (err) {
+      if (isEmailNotVerifiedError(err)) {
+        setEmailVerificationBlocked(true);
+      } else {
+        onClose();
       }
-    );
+    }
   };
 
   const variants = {
@@ -169,7 +189,7 @@ export default function CreateCompanyDialog({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       maxWidth="md"
       fullWidth
       PaperProps={{
@@ -193,7 +213,7 @@ export default function CreateCompanyDialog({
             sx={{ px: 4, pt: 3, flexShrink: 0 }}
           >
             <IconButton
-              onClick={onClose}
+              onClick={handleClose}
               sx={{
                 color: "text.secondary",
                 bgcolor: theme.palette.text.secondary_alpha.main_05,
@@ -207,7 +227,7 @@ export default function CreateCompanyDialog({
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>
-          <VerifyEmailGate onClose={onClose} />
+          <VerifyEmailGate onClose={handleClose} />
         </>
       ) : (
       <Formik
@@ -242,7 +262,7 @@ export default function CreateCompanyDialog({
                   </Typography>
                 </Stack>
                 <IconButton
-                  onClick={onClose}
+                  onClick={handleClose}
                   sx={{
                     color: "text.secondary",
                     bgcolor: theme.palette.text.secondary_alpha.main_05,
@@ -374,7 +394,7 @@ export default function CreateCompanyDialog({
               }}
             >
               <Button
-                onClick={activeStep === 0 ? onClose : handleBack}
+                onClick={activeStep === 0 ? handleClose : handleBack}
                 sx={{
                   color: "text.secondary",
                   textTransform: "none",
