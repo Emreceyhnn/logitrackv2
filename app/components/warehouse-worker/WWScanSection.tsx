@@ -69,7 +69,7 @@ export default function WWScanSection({
   };
 
   return (
-    <Box sx={{ p: 2.5 }}>
+    <Box sx={{ p: { xs: 2, md: 2.5 } }}>
       {!scanResult ? (
         <>
           <Stack direction="row" spacing={1.5}>
@@ -94,7 +94,8 @@ export default function WWScanSection({
               sx={{
                 borderRadius: 3,
                 bgcolor: theme.palette.primary.main,
-                px: 4,
+                px: { xs: 2.5, md: 4 },
+                flexShrink: 0,
               }}
             >
               {ww.ui.scanBtn}
@@ -124,9 +125,10 @@ export default function WWScanSection({
       ) : (
         <>
           <Stack
-            direction="row"
+            direction={{ xs: "column", sm: "row" }}
             justifyContent="space-between"
-            alignItems="center"
+            alignItems={{ xs: "stretch", sm: "center" }}
+            spacing={{ xs: 1.5, sm: 0 }}
             sx={{
               p: 2,
               bgcolor: "rgba(255,255,255,0.04)",
@@ -134,8 +136,14 @@ export default function WWScanSection({
               border: `1px solid ${theme.palette.divider}`,
             }}
           >
-            <Box>
-              <Stack direction="row" spacing={1} alignItems="center">
+            <Box sx={{ minWidth: 0 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                flexWrap="wrap"
+                useFlexGap
+              >
                 <Typography
                   sx={{
                     color: theme.palette.primary.main,

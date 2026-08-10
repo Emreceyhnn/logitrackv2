@@ -92,6 +92,8 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   const [scanResult, setScanResult] = useState<SkuInfo | null>(null);
   const [scanQty, setScanQty] = useState(1);
   const [toast, setToast] = useState<{ msg: string; tone: "success" | "warning" | "error" | "info" } | null>(null);
+  // Drives the item+quantity picker behind the control panel's restock action.
+  const [restockOpen, setRestockOpen] = useState(false);
   // Session-local tally of logged movements, used only to warn (never block)
   // when a task is completed without any scan/log activity this session.
   const [scanActivityCount, setScanActivityCount] = useState(0);
@@ -226,28 +228,26 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     }
   };
 
-  // With an item, files a SKU-specific request (this product ran low, N units);
-  // without one, the legacy zone-wide request for the active zone.
-  const onRestock = async (item?: {
+  // Files a SKU-specific replenishment request: this product, this many units.
+  // A request without an item is not actionable on the floor (a replenisher
+  // can't work "zone A" — they move a pallet of one SKU to one pick face), so
+  // every caller goes through the item picker; see WWRestockDialog.
+  const onRestock = async (item: {
     sku: string;
     zone: string;
     suggestedQty?: number;
   }) => {
     if (!warehouseId) return;
     try {
-      if (item) {
-        await requestRestockMutation.mutateAsync({
-          warehouseId,
-          zone: item.zone,
-          sku: item.sku,
-          quantity: item.suggestedQty,
-        });
-        const qtyPart = item.suggestedQty ? ` × ${item.suggestedQty}` : "";
-        showToast(`${ww.restockRequested} · ${item.sku}${qtyPart}`, "info");
-      } else {
-        await requestRestockMutation.mutateAsync({ warehouseId, zone: currentZone });
-        showToast(`${ww.restockRequested} · Zone ${currentZone}`, "info");
-      }
+      await requestRestockMutation.mutateAsync({
+        warehouseId,
+        zone: item.zone,
+        sku: item.sku,
+        quantity: item.suggestedQty,
+      });
+      const qtyPart = item.suggestedQty ? ` × ${item.suggestedQty}` : "";
+      showToast(`${ww.restockRequested} · ${item.sku}${qtyPart}`, "info");
+      setRestockOpen(false);
     } catch {
       showToast(ww.couldNotRequestRestock, "error");
     }
@@ -319,6 +319,10 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     advanceTask,
     onRestock,
     onReport,
+    catalog,
+    restockOpen,
+    setRestockOpen,
+    restockPending: requestRestockMutation.isPending,
     NAV,
     handleHelpClick,
   };

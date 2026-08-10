@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { Stack, Box, Typography, useTheme } from "@mui/material";
 import { Ico } from "@/app/components/warehouse-worker/Ico";
 import type { DriverConsoleState } from "@/app/hooks/useDriverConsoleState";
@@ -5,13 +6,28 @@ import { DUTY_ORDER } from "@/app/lib/utils/driverConsoleUi";
 import LanguageSwitcher from "../nav/LanguageSwitcher";
 import UserAccountNav from "../nav/UserAccountNav";
 
+// Mirrors DashboardHeader: the bell pulls the firebase SDK (~237 kB) in via
+// useNotifications, so it is lazy-loaded to keep it out of this route's First
+// Load JS. The 40px placeholder holds its slot while the chunk streams in.
+const NotificationBell = dynamic(
+  () => import("../notifications/NotificationBell"),
+  { ssr: false, loading: () => <Box sx={{ width: 40, height: 40 }} /> }
+);
+
 const DUTY_COLORS: Record<string, { fg: string; bg: string; dot: string }> = {
   ON_JOB: { fg: "#0B0F19", bg: "#34D399", dot: "#34D399" },
   OFF_DUTY: { fg: "#fff", bg: "rgba(255,255,255,0.14)", dot: "#94a3b8" },
   ON_LEAVE: { fg: "#0B0F19", bg: "#f59e0b", dot: "#f59e0b" },
 };
 
-export default function DCHeader({ state }: { state: DriverConsoleState }) {
+export default function DCHeader({
+  state,
+  showNotifications = true,
+}: {
+  state: DriverConsoleState;
+  /** Demo panel opts out: it has no signed-in user, so the bell would render permanently empty. */
+  showNotifications?: boolean;
+}) {
   const theme = useTheme();
   const { dc, driver, licenseWarning, licenseDaysLeft, requestDutyChange } = state;
 
@@ -128,8 +144,9 @@ export default function DCHeader({ state }: { state: DriverConsoleState }) {
         })}
       </Stack>
 
-      {/* Profile & Language */}
+      {/* Notifications, profile & language */}
       <Stack direction="row" spacing={2} alignItems="center" sx={{ ml: 1, flexShrink: 0 }}>
+        {showNotifications && <NotificationBell user={null} />}
         <LanguageSwitcher />
         <UserAccountNav user={null} />
       </Stack>

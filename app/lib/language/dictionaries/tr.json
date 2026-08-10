@@ -490,7 +490,12 @@
     "sendResetLink": "Sıfırlama Bağlantısı Gönder",
     "sending": "Gönderiliyor...",
     "backToSignIn": "Girişe Dön",
-    "tagline": "Küresel tedarik zincirlerini gerçek zamanlı zeka ve kusursuz koordinasyonla güçlendiriyoruz."
+    "tagline": "Küresel tedarik zincirlerini gerçek zamanlı zeka ve kusursuz koordinasyonla güçlendiriyoruz.",
+    "verifyEmailGateTitle": "Önce e-posta adresinizi doğrulayın",
+    "verifyEmailGateBody": "Şirket kurmadan önce e-posta adresinizin size ait olduğunu doğrulamamız gerekiyor. Doğrulama bağlantısını göndermek için aşağıdaki butona basın.",
+    "verifyEmailGateSend": "Doğrulama E-postası Gönder",
+    "verifyEmailGateSending": "Gönderiliyor…",
+    "verifyEmailGateSent": "Doğrulama bağlantısı {email} adresine gönderildi. Bağlantıya tıkladıktan sonra şirketinizi kurabilirsiniz."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
@@ -2465,7 +2470,7 @@
       "unitValue": "Birim Değer",
       "weight": "Ağırlık",
       "volume": "Hacim",
-      "pallets": "Palet Sayısı",
+      "pallets": "Palet Başına Adet",
       "unit": "Birim"
     },
     "categories": {
@@ -3683,6 +3688,19 @@
       "activePickZone": "Aktif toplama bölgesi",
       "quickActions": "Hızlı işlemler",
       "requestRestockZone": "Besleme talebi — Bölge",
+      "restockDialogTitle": "Besleme talebi",
+      "restockDialogSubtitle": "Azalan ürünü ve kaç adet gerektiğini seçin",
+      "restockDialogZone": "Bölge",
+      "restockDialogItem": "Ürün",
+      "restockDialogItemPlaceholder": "SKU veya ürün adı ile ara…",
+      "restockDialogNoMatch": "Eşleşen ürün yok — başka bir SKU veya ad deneyin",
+      "restockDialogNoItemsInZone": "Bu bölgede kayıtlı ürün yok",
+      "restockDialogQty": "Adet",
+      "restockDialogAvailable": "mevcut",
+      "restockDialogMin": "min",
+      "restockDialogSuggested": "Önerilen",
+      "restockDialogSubmit": "Talebi gönder",
+      "restockDialogSelectItem": "Devam etmek için bir ürün seçin",
       "reportIssue": "Sorun bildir",
       "lowStockTitle": "Düşük stok",
       "lowStockNone": "Tüm ürünler yeniden sipariş noktasının üzerinde.",

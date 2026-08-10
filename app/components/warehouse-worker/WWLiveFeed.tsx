@@ -54,7 +54,7 @@ export default function WWLiveFeed({ fd, ww }: WWLiveFeedProps) {
         direction="row"
         alignItems="center"
         spacing={1.5}
-        sx={{ p: 2.5, borderBottom: `1px solid ${theme.palette.divider}` }}
+        sx={{ p: { xs: 2, md: 2.5 }, borderBottom: `1px solid ${theme.palette.divider}` }}
       >
         <Avatar
           sx={{ bgcolor: `${theme.palette.kpi.purple}1f`, color: theme.palette.kpi.purple, borderRadius: 2 }}
@@ -65,10 +65,13 @@ export default function WWLiveFeed({ fd, ww }: WWLiveFeedProps) {
           {ww.ui.liveMovements}
         </Typography>
       </Stack>
+      {/* Column headers belong to the desktop table only — on mobile each row
+          becomes a self-labelling card, so a header strip would be dead weight. */}
       <Stack
         direction="row"
         spacing={2}
         sx={{
+          display: { xs: "none", md: "flex" },
           px: 3,
           py: 1.5,
           borderBottom: `1px solid ${theme.palette.divider}`,
@@ -85,7 +88,9 @@ export default function WWLiveFeed({ fd, ww }: WWLiveFeedProps) {
         <Box sx={{ width: 120 }}>{ww.ui.by}</Box>
         <Box sx={{ width: 90, textAlign: "right" }}>{ww.ui.time}</Box>
       </Stack>
-      <Box sx={{ maxHeight: 320, overflowY: "auto" }}>
+      {/* Cards are taller than table rows, so the mobile viewport gets more
+          room before it starts scrolling internally. */}
+      <Box sx={{ maxHeight: { xs: 440, md: 320 }, overflowY: "auto" }}>
         {fd.length === 0 ? (
           <Stack 
             alignItems="center" 
@@ -124,91 +129,172 @@ export default function WWLiveFeed({ fd, ww }: WWLiveFeedProps) {
         ) : (
           fd.map((mv) => {
             const mm = getMoveMetaFor(mv.type, theme, ww);
+            const qty = mv.qty > 0 ? `+${mv.qty}` : String(mv.qty);
             return (
-              <Stack
+              <Box
                 key={mv.id}
-                direction="row"
-                spacing={2}
-                alignItems="center"
-                sx={{
-                  px: 3,
-                  py: 1.5,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                }}
+                sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}
               >
-                <Box
-                  sx={{
-                    width: 90,
-                    textAlign: "center",
-                    bgcolor: mm.bg,
-                    color: mm.color,
-                    py: 0.5,
-                    borderRadius: 2,
-                    fontSize: 10,
-                    fontWeight: 800,
-                  }}
+                {/* Desktop: the six-column table row, matching the header strip. */}
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ display: { xs: "none", md: "flex" }, px: 3, py: 1.5 }}
                 >
-                  {mm.label}
-                </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography noWrap sx={{ fontSize: 13, fontWeight: 600 }}>
-                    {mv.name}
-                  </Typography>
-                  <Typography
-                    noWrap
+                  <Box
                     sx={{
-                      fontSize: 11,
+                      width: 90,
+                      textAlign: "center",
+                      bgcolor: mm.bg,
+                      color: mm.color,
+                      py: 0.5,
+                      borderRadius: 2,
+                      fontSize: 10,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {mm.label}
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography noWrap sx={{ fontSize: 13, fontWeight: 600 }}>
+                      {mv.name}
+                    </Typography>
+                    <Typography
+                      noWrap
+                      sx={{
+                        fontSize: 11,
+                        fontFamily: "monospace",
+                        color: theme.palette.text.secondary,
+                      }}
+                    >
+                      {mv.sku}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 80,
+                      textAlign: "right",
+                      color: mm.color,
+                      fontFamily: "monospace",
+                      fontSize: 14,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {qty}
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 80,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    {mv.zone}
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 120,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: mv.self ? theme.palette.primary.main : theme.palette.text.secondary,
+                    }}
+                  >
+                    {mv.who}
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 90,
+                      textAlign: "right",
+                      fontSize: 12,
                       fontFamily: "monospace",
                       color: theme.palette.text.secondary,
                     }}
                   >
-                    {mv.sku}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    width: 80,
-                    textAlign: "right",
-                    color: mm.color,
-                    fontFamily: "monospace",
-                    fontSize: 14,
-                    fontWeight: 800,
-                  }}
+                    {mv.t}
+                  </Box>
+                </Stack>
+
+                {/* Mobile: the same record as a card. Type, item and quantity
+                    lead; zone/who/time drop to a labelled meta line so nothing
+                    needs horizontal scrolling to read. */}
+                <Stack
+                  spacing={1}
+                  sx={{ display: { xs: "flex", md: "none" }, px: 2, py: 1.75 }}
                 >
-                  {mv.qty > 0 ? `+${mv.qty}` : mv.qty}
-                </Box>
-                <Box
-                  sx={{
-                    width: 80,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: theme.palette.text.secondary,
-                  }}
-                >
-                  {mv.zone}
-                </Box>
-                <Box
-                  sx={{
-                    width: 120,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: mv.self ? theme.palette.primary.main : theme.palette.text.secondary,
-                  }}
-                >
-                  {mv.who}
-                </Box>
-                <Box
-                  sx={{
-                    width: 90,
-                    textAlign: "right",
-                    fontSize: 12,
-                    fontFamily: "monospace",
-                    color: theme.palette.text.secondary,
-                  }}
-                >
-                  {mv.t}
-                </Box>
-              </Stack>
+                  <Stack direction="row" alignItems="flex-start" spacing={1.5}>
+                    <Box
+                      sx={{
+                        flexShrink: 0,
+                        minWidth: 68,
+                        textAlign: "center",
+                        bgcolor: mm.bg,
+                        color: mm.color,
+                        px: 0.75,
+                        py: 0.5,
+                        borderRadius: 2,
+                        fontSize: 10,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {mm.label}
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 700 }}>
+                        {mv.name}
+                      </Typography>
+                      <Typography
+                        noWrap
+                        sx={{
+                          fontSize: 11,
+                          fontFamily: "monospace",
+                          color: theme.palette.text.secondary,
+                        }}
+                      >
+                        {mv.sku}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        flexShrink: 0,
+                        color: mm.color,
+                        fontFamily: "monospace",
+                        fontSize: 15,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {qty}
+                    </Box>
+                  </Stack>
+                  <Stack
+                    direction="row"
+                    flexWrap="wrap"
+                    sx={{
+                      gap: 1.5,
+                      pl: "80px",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Box component="span">
+                      {ww.ui.zone}: {mv.zone || "—"}
+                    </Box>
+                    <Box
+                      component="span"
+                      sx={{
+                        color: mv.self ? theme.palette.primary.main : "inherit",
+                      }}
+                    >
+                      {ww.ui.by}: {mv.who}
+                    </Box>
+                    <Box component="span" sx={{ fontFamily: "monospace" }}>
+                      {mv.t}
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Box>
             );
           })
         )}

@@ -27,8 +27,8 @@ export default function CapacityUtilization({ warehouse }: CapacityUtilizationPr
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
   const t = dict.warehouses.dialogs.details;
 
-  const usedPallets =
-    warehouse.usedPallets ?? (warehouse._count?.inventory || 0) * 10;
+  // See capacityUtilization: never guess occupancy from SKU count.
+  const usedPallets = warehouse.usedPallets ?? 0;
   const totalPallets = warehouse.capacityPallets || 5000;
   const usedVolume =
     warehouse.usedVolume ?? (warehouse._count?.inventory || 0) * 5;

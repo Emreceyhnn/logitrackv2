@@ -33,7 +33,7 @@ export default function WWLowStockCard({
         bgcolor: theme.palette.background.paper,
         color: theme.palette.text.primary,
         borderRadius: 3,
-        p: 2.5,
+        p: { xs: 2, md: 2.5 },
       }}
     >
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
@@ -80,6 +80,11 @@ export default function WWLowStockCard({
               direction="row"
               alignItems="center"
               spacing={1.5}
+              // Below ~360px the item name and the Restock button can't share a
+              // line without truncating the name past recognition — let the
+              // button drop instead.
+              flexWrap="wrap"
+              useFlexGap
               sx={{
                 p: 1.25,
                 borderRadius: 2,

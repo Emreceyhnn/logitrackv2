@@ -29,6 +29,8 @@ import {
 } from "@/app/lib/type/create-company";
 import Step1Branding from "./Step1Branding";
 import Step2Regional from "./Step2Regional";
+import VerifyEmailGate from "./VerifyEmailGate";
+import { useOptionalUserContext } from "@/app/lib/context/UserContext";
 import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { createCompany } from "@/app/lib/controllers/company";
@@ -64,6 +66,26 @@ export default function CreateCompanyDialog({
 
   const [activeStep, setActiveStep] = useState(0);
   const [direction, setDirection] = useState(0); // For framer-motion slide direction
+
+  // createCompany rejects an unverified founder (requireVerifiedEmail), so the
+  // form is pointless for them — the gate replaces it rather than letting them
+  // fill in two steps and a logo upload before being turned away.
+  //
+  // Optional context, not useUser(): this dialog also renders on /onboarding,
+  // which sits outside UserProvider, and the strict hook throws there (it broke
+  // the prerender of /[lang]/onboarding). A null user means "can't tell from
+  // here" — show the form and let the server-side check decide, which is the
+  // pre-existing behaviour. `loading` is still honoured so an unresolved user
+  // never flashes the gate.
+  const { user, loading: userLoading } = useOptionalUserContext();
+  const needsEmailVerification = !userLoading && !!user && !user.emailVerified;
+
+  // Hoisted out of the Formik prop: that JSX now sits behind the gate branch,
+  // and a hook called conditionally breaks the rules of hooks.
+  const validationSchema = useMemo(
+    () => createCompanyValidationSchema(dict),
+    [dict]
+  );
 
   /* -------------------------------- Handlers -------------------------------- */
   const handleNext = () => {
@@ -163,12 +185,34 @@ export default function CreateCompanyDialog({
         },
       }}
     >
+      {needsEmailVerification ? (
+        <>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            sx={{ px: 4, pt: 3, flexShrink: 0 }}
+          >
+            <IconButton
+              onClick={onClose}
+              sx={{
+                color: "text.secondary",
+                bgcolor: theme.palette.text.secondary_alpha.main_05,
+                "&:hover": {
+                  bgcolor: theme.palette.error._alpha.main_10,
+                  color: theme.palette.error.main,
+                },
+              }}
+              aria-label="close"
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+          <VerifyEmailGate onClose={onClose} />
+        </>
+      ) : (
       <Formik
         initialValues={initialFormData}
-        validationSchema={useMemo(
-          () => createCompanyValidationSchema(dict),
-          [dict]
-        )}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
         validateOnMount
       >
@@ -391,6 +435,7 @@ export default function CreateCompanyDialog({
           </>
         )}
       </Formik>
+      )}
     </Dialog>
   );
 }

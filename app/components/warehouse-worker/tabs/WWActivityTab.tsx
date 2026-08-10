@@ -9,7 +9,7 @@ export default function WWActivityTab({ state }: { state: WWState }) {
   return (
     <Stack spacing={2.5}>
       <Box>
-        <Typography sx={{ fontSize: 22, fontWeight: 800 }}>{ww.ui.liveActivity}</Typography>
+        <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 800 }}>{ww.ui.liveActivity}</Typography>
         <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 1 }}>{ww.ui.liveActivitySubtitle}</Typography>
       </Box>
       <Box data-tour="ww-activity-feed">

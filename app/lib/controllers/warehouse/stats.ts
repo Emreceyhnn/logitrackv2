@@ -16,6 +16,7 @@ import {
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
+import { palletUsageByWarehouse } from "../../utils/palletOccupancy";
 
 /**
  * tr-kullanıcının şirketindeki depolara ait temel istatistikleri (kapasite, toplam kalem, SKU vb.) hesaplar
@@ -152,7 +153,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           inventoryStats,
           movements,
           prevTotalWarehouses,
-          palletSums,
+          inventoryRows,
         ] = await Promise.all([
           checkPermission(user, companyId, ["role_admin", "role_manager"]),
           db.warehouse.findMany({
@@ -199,10 +200,16 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           db.warehouse.count({
             where: { companyId, createdAt: { lt: daysAgo(30) } },
           }),
-          db.inventory.groupBy({
-            by: ["warehouseId"],
+          // Rows, not a groupBy _sum: occupancy is quantity ÷ units-per-pallet
+          // per row (see palletOccupancy).
+          db.inventory.findMany({
             where: { companyId },
-            _sum: { palletCount: true, volumeM3: true },
+            select: {
+              warehouseId: true,
+              quantity: true,
+              palletCount: true,
+              volumeM3: true,
+            },
           }),
         ]);
 
@@ -235,14 +242,8 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           })
         );
 
-        const palletMap = new Map(
-          (Array.isArray(palletSums) ? palletSums : []).map((p) => [
-            p.warehouseId,
-            {
-              pallets: p._sum?.palletCount ?? 0,
-              volume: p._sum?.volumeM3 ?? 0,
-            },
-          ])
+        const palletMap = palletUsageByWarehouse(
+          Array.isArray(inventoryRows) ? inventoryRows : []
         );
 
         const typedWarehouses: WarehouseWithRelations[] = warehouses.map(

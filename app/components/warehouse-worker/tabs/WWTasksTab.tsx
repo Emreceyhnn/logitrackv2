@@ -11,7 +11,7 @@ export default function WWTasksTab({ state }: { state: WWState }) {
   return (
     <Stack spacing={2.5}>
       <Box>
-        <Typography sx={{ fontSize: 22, fontWeight: 800 }}>
+        <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 800 }}>
           {ww.ui.myTaskQueue}
         </Typography>
         <Typography

@@ -245,11 +245,16 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         },
       }),
 
-      // 6b. Parallel Warehouse Pallet Sums (Eliminate waterfall)
-      db.inventory.groupBy({
-        by: ["warehouseId"],
+      // 6b. Parallel warehouse pallet rows (eliminate waterfall). Rows, not a
+      // groupBy _sum: occupancy is quantity ÷ units-per-pallet per row.
+      db.inventory.findMany({
         where: { companyId },
-        _sum: { palletCount: true, volumeM3: true },
+        select: {
+          warehouseId: true,
+          quantity: true,
+          palletCount: true,
+          volumeM3: true,
+        },
       }),
 
       // 7. Low Stock Items

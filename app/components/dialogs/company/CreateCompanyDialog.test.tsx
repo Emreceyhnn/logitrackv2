@@ -56,8 +56,27 @@ mock.module("sonner", {
 
 // useParams drives locale-based regional defaults; default to Turkish here.
 const useParamsMock = mock.fn(() => ({ lang: "tr" }));
+// `redirect` is here because the gate's server action reaches auth-middleware,
+// which imports it at module load; without the export the whole suite fails to
+// instantiate rather than failing a test.
 mock.module("next/navigation", {
-  namedExports: { useParams: useParamsMock },
+  namedExports: {
+    useParams: useParamsMock,
+    redirect: mock.fn(),
+    useRouter: mock.fn(() => ({ push: mock.fn(), refresh: mock.fn() })),
+    usePathname: mock.fn(() => "/"),
+  },
+});
+
+// The dialog reads the signed-in user to decide between the company form and
+// the email-verification gate. Verified by default here; the gate has its own
+// test file.
+const useOptionalUserContextMock = mock.fn(() => ({
+  user: { id: "user-1", emailVerified: true },
+  loading: false,
+}));
+mock.module("../../../lib/context/UserContext.tsx", {
+  namedExports: { useOptionalUserContext: useOptionalUserContextMock },
 });
 
 const createCompanyMock = mock.fn(async () => ({}));

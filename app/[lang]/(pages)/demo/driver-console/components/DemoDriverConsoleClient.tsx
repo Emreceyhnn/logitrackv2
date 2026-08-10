@@ -78,7 +78,7 @@ export default function DemoDriverConsoleClient({ lang = "en" }: { lang?: string
       />
 
       <Stack sx={{ flex: 1, overflow: "hidden" }}>
-        <DCHeader state={state} />
+        <DCHeader state={state} showNotifications={false} />
 
         <Box
           sx={{

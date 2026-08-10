@@ -56,8 +56,10 @@ const CapacityUtilization = ({
         }}
       >
         {warehouses.map((warehouse) => {
-          const usedPallets =
-            warehouse.usedPallets ?? (warehouse._count?.inventory || 0) * 10;
+          // No invented fallback: the server derives occupancy from
+          // quantity ÷ units-per-pallet, and multiplying the SKU count by a
+          // magic 10 reported a number unrelated to real rack usage.
+          const usedPallets = warehouse.usedPallets ?? 0;
           const totalPallets = warehouse.capacityPallets || 5000;
           const capacityPct = Math.min(
             100,

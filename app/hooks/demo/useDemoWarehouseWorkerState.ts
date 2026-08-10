@@ -122,6 +122,9 @@ export function useDemoWarehouseWorkerState(
     msg: string;
     tone: "success" | "warning" | "error" | "info";
   } | null>(null);
+  // Drives the restock item picker; the demo opens it for real and only the
+  // submit is stubbed, so visitors still see the dialog.
+  const [restockOpen, setRestockOpen] = useState(false);
 
   const zonesKey = zones.map((z) => z.name).join(",");
   const [prevZonesKey, setPrevZonesKey] = useState<string | null>(null);
@@ -226,13 +229,14 @@ export function useDemoWarehouseWorkerState(
     notifyDisabled();
   };
 
-  const onRestock = async (_item?: {
+  const onRestock = async (_item: {
     sku: string;
     zone: string;
     suggestedQty?: number;
   }) => {
     void _item;
     notifyDisabled();
+    setRestockOpen(false);
   };
 
   const onReport = async () => {
@@ -291,6 +295,13 @@ export function useDemoWarehouseWorkerState(
     advanceTask,
     onRestock,
     onReport,
+    // Mirrors the real hook: WWDashboardTab reads these to drive the restock
+    // item picker, and `catalog` must be a real array — the dialog filters it
+    // on mount, before it is ever opened.
+    catalog,
+    restockOpen,
+    setRestockOpen,
+    restockPending: false,
     NAV,
     handleHelpClick,
   };

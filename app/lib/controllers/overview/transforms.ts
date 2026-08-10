@@ -7,6 +7,10 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import type { Document, FuelLog, Issue } from "@prisma/client";
 import { IssueType } from "@prisma/client";
+import {
+  palletUsageByWarehouse,
+  type WarehouseScopedInventoryRow,
+} from "../../utils/palletOccupancy";
 import type {
   ActionRequiredItems,
   FuelStat,
@@ -172,27 +176,21 @@ interface WarehouseCapacityInput {
   capacityVolumeM3: number | null;
 }
 
-interface PalletSumRow {
-  warehouseId: string;
-  _sum: { palletCount: number | null; volumeM3: number | null };
-}
-
 /**
  * tr-depoların hacim ve palet bazında kapasite kullanım oranlarını hesaplar
  * en-calculates warehouse capacity utilization rates based on volume and pallets
- * input (warehousesRaw: WarehouseCapacityInput[], palletSumsRaw: PalletSumRow[])
+ *
+ *    Takes raw inventory rows rather than a groupBy _sum: pallet occupancy is
+ *    quantity ÷ units-per-pallet per row (see palletOccupancy), which SQL can't
+ *    aggregate for us.
+ * input (warehousesRaw: WarehouseCapacityInput[], inventoryRows: WarehouseScopedInventoryRow[])
  * output (WarehouseCapacityStat[])
  */
 export function buildWarehouseCapacity(
   warehousesRaw: WarehouseCapacityInput[],
-  palletSumsRaw: PalletSumRow[]
+  inventoryRows: WarehouseScopedInventoryRow[]
 ): WarehouseCapacityStat[] {
-  const palletMap = new Map(
-    palletSumsRaw.map((p) => [
-      p.warehouseId,
-      { pallets: p._sum.palletCount ?? 0, volume: p._sum.volumeM3 ?? 0 },
-    ])
-  );
+  const palletMap = palletUsageByWarehouse(inventoryRows);
 
   return warehousesRaw.map((w) => {
     const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };

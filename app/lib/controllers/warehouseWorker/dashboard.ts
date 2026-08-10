@@ -20,6 +20,10 @@ import {
   zonePct,
   resolveWarehouse,
 } from "./shared";
+import {
+  palletsUsedFor,
+  totalPalletsUsed,
+} from "../../utils/palletOccupancy";
 
 /**
  * tr-depo çalışanı (warehouse worker) gösterge paneli için görevler, hedefler, stok hareketleri ve düşük stok uyarıları dahil tüm verileri getirir
@@ -151,7 +155,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
     for (const it of inventoryRaw) {
       const z = resolveZone(it.zone);
       skuZone.set(it.sku, z);
-      usedByZone.set(z, (usedByZone.get(z) ?? 0) + (it.palletCount ?? 0));
+      usedByZone.set(z, (usedByZone.get(z) ?? 0) + palletsUsedFor(it));
     }
 
     const zones: WWZone[] = zonesRaw.map((z) => {
@@ -179,9 +183,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       });
     }
 
-    const used = Math.round(
-      inventoryRaw.reduce((a, it) => a + (it.palletCount ?? 0), 0)
-    );
+    const used = totalPalletsUsed(inventoryRaw);
     const total = warehouse.capacityPallets || 5000;
 
     const tasks: WWTask[] = tasksRaw.map((t) => ({

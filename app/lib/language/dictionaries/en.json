@@ -490,7 +490,12 @@
     "sendResetLink": "Send Reset Link",
     "sending": "Sending...",
     "backToSignIn": "Back to Sign In",
-    "tagline": "Empowering global supply chains with real-time intelligence and seamless coordination."
+    "tagline": "Empowering global supply chains with real-time intelligence and seamless coordination.",
+    "verifyEmailGateTitle": "Verify your email first",
+    "verifyEmailGateBody": "Before creating a company we need to confirm your email address belongs to you. Press the button below to send the verification link.",
+    "verifyEmailGateSend": "Send Verification Email",
+    "verifyEmailGateSending": "Sending…",
+    "verifyEmailGateSent": "Verification link sent to {email}. Once you follow it you can create your company."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Logistics Management Platform",
@@ -2464,7 +2469,7 @@
       "unitValue": "Unit Value",
       "weight": "Weight",
       "volume": "Volume",
-      "pallets": "Pallets",
+      "pallets": "Units per Pallet",
       "unit": "Unit"
     },
     "categories": {
@@ -3682,6 +3687,19 @@
       "activePickZone": "Active pick zone",
       "quickActions": "Quick actions",
       "requestRestockZone": "Request restock — Zone",
+      "restockDialogTitle": "Request restock",
+      "restockDialogSubtitle": "Pick the item that ran low and how many units you need",
+      "restockDialogZone": "Zone",
+      "restockDialogItem": "Item",
+      "restockDialogItemPlaceholder": "Search by SKU or name…",
+      "restockDialogNoMatch": "No item matches — try another SKU or name",
+      "restockDialogNoItemsInZone": "No items recorded in this zone",
+      "restockDialogQty": "Quantity",
+      "restockDialogAvailable": "available",
+      "restockDialogMin": "min",
+      "restockDialogSuggested": "Suggested",
+      "restockDialogSubmit": "Send request",
+      "restockDialogSelectItem": "Select an item to continue",
       "reportIssue": "Report an issue",
       "lowStockTitle": "Low stock",
       "lowStockNone": "All items above reorder point.",

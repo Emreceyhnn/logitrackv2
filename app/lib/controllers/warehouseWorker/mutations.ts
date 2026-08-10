@@ -6,6 +6,7 @@ import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
 import { controllerGuard } from "../utils/controllerGuard";
 import { WW_ROLES } from "./shared";
+import { notifyManagerOfRestockRequest } from "./notifyRestock";
 
 /**
  * Log a stock movement from the warehouse floor. PICK removes on-hand stock;
@@ -274,6 +275,19 @@ export const requestRestock = authenticatedAction(
           userId,
           companyId,
         },
+      });
+
+      // A replenishment request is only actionable once someone is told to act on
+      // it, so the warehouse manager is notified. Awaited but non-throwing: the
+      // movement above is already committed and a bounced notification must not
+      // fail the request the worker just filed.
+      await notifyManagerOfRestockRequest({
+        warehouseId,
+        companyId,
+        zone: zone?.trim() || "",
+        sku: targetSku,
+        quantity: qty,
+        requestedByName: [user?.name, user?.surname].filter(Boolean).join(" "),
       });
 
       revalidatePath("/", "layout");

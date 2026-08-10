@@ -12,7 +12,7 @@ export default function WWScanTab({ state }: { state: WWState }) {
   return (
     <Stack spacing={2.5}>
       <Box>
-        <Typography sx={{ fontSize: 22, fontWeight: 800 }}>{ww.ui.scanLogMovements}</Typography>
+        <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 800 }}>{ww.ui.scanLogMovements}</Typography>
         <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 1 }}>{ww.ui.scanSubtitle}</Typography>
       </Box>
       <Stack direction="row" spacing={2.5} alignItems="flex-start">

@@ -12,7 +12,7 @@ export default function WWCapacityTab({ state }: { state: WWState }) {
   return (
     <Stack spacing={2.5}>
       <Box>
-        <Typography sx={{ fontSize: 22, fontWeight: 800 }}>{ww.ui.siteCapacity}</Typography>
+        <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 800 }}>{ww.ui.siteCapacity}</Typography>
         <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 1 }}>
           {capUsed.toLocaleString()} / {capTotal.toLocaleString()} {ww.ui.palletPositionsUsed}
         </Typography>
@@ -53,8 +53,27 @@ export default function WWCapacityTab({ state }: { state: WWState }) {
           </Stack>
         </Card>
       )}
-      <Stack direction="row" spacing={2.5} alignItems="flex-start">
-        <Card data-tour="ww-capacity-chart" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 3, flexShrink: 0, width: 320, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={2.5}
+        alignItems={{ xs: "stretch", md: "flex-start" }}
+      >
+        {/* The dial is a fixed 320px rail on desktop; on mobile a fixed width
+            would overflow the viewport, so it becomes a full-width card. */}
+        <Card
+          data-tour="ww-capacity-chart"
+          sx={{
+            bgcolor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            borderRadius: 3,
+            p: { xs: 2.5, md: 3 },
+            flexShrink: 0,
+            width: { xs: "100%", md: 320 },
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Box sx={{ position: "relative", display: "inline-flex", mb: 3 }}>
             <CircularProgress variant="determinate" value={100} size={168} sx={{ color: "rgba(255,255,255,0.08)" }} />
             <CircularProgress variant="determinate" value={capacityPct} size={168} sx={{ color: zoneColor(capacityPct, theme), position: "absolute", left: 0 }} />
@@ -65,7 +84,7 @@ export default function WWCapacityTab({ state }: { state: WWState }) {
           <Typography sx={{ fontSize: 20, fontWeight: 800 }}>{(capTotal - capUsed).toLocaleString()}</Typography>
           <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary }}>{ww.ui.positionsFree}</Typography>
         </Card>
-        <Card data-tour="ww-zone-list" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 3, flex: 1 }}>
+        <Card data-tour="ww-zone-list" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: { xs: 2, md: 3 }, flex: 1, minWidth: 0 }}>
           <Stack spacing={2.5}>
             {zones.map((z) => {
               // The unassigned bucket isn't a real, fillable location — its

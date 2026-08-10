@@ -2,7 +2,10 @@
 
 import { headers } from "next/headers";
 import { db } from "../../db";
-import { maybeAuthenticatedAction } from "../../auth-middleware";
+import {
+  authenticatedAction,
+  maybeAuthenticatedAction,
+} from "../../auth-middleware";
 import { rateLimit } from "../../rate-limiter";
 import { generateRefreshToken, hashToken } from "../session/internal";
 import { logAuditEvent, invalidateUserSessionCache } from "../session";
@@ -182,6 +185,64 @@ export const verifyEmailToken = maybeAuthenticatedAction(
     }
   }
 );
+
+/**
+ * tr-Oturum açmış kullanıcının kendi adresine doğrulama e-postası gönderir ve adresi geri döner.
+ *    Adres oturumdan çözülür; çağıranın e-postayı bilmesi (veya göndermesi) gerekmez.
+ * en-Sends a verification email to the signed-in user's own address, and returns that address.
+ *    The address is resolved from the session, so the caller never has to know or supply it —
+ *    which matters because the session token doesn't carry `email`.
+ *
+ *    Unlike resendEmailVerification this can be specific about the outcome: the caller has already
+ *    proven who they are, so "already verified" or "no address on file" leaks nothing. It is still
+ *    rate-limited per user to keep it from becoming a mail relay.
+ * input (user: AuthenticatedUser)
+ * output (Promise<{ success: true; email: string } | { error: string }>)
+ */
+export const sendMyEmailVerification = authenticatedAction(async (user) => {
+  const limit = await rateLimit(user.id, 3, 3600, "rate-limit:verify-self:");
+  if (!limit.success) {
+    return { error: "Too many requests. Please try again later." };
+  }
+
+  try {
+    const record = await db.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        language: true,
+        emailVerifiedAt: true,
+      },
+    });
+
+    if (!record?.email) return { error: "No email address on file." };
+    if (record.emailVerifiedAt) {
+      return { success: true as const, email: record.email };
+    }
+
+    const lang: "en" | "tr" = record.language === "tr" ? "tr" : "en";
+    await issueEmailVerification(record.id, record.email, record.name, lang);
+
+    const headerStore = await headers();
+    await logAuditEvent({
+      userId: record.id,
+      action: "EMAIL_VERIFICATION_SENT",
+      ipAddress:
+        headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        headerStore.get("x-real-ip") ||
+        "127.0.0.1",
+      deviceInfo: headerStore.get("user-agent") || "Unknown Device",
+      metadata: { email: record.email, self: true },
+    });
+
+    return { success: true as const, email: record.email };
+  } catch (error) {
+    logger.error("[sendMyEmailVerification] Failed:", error);
+    return { error: "Could not send the verification email." };
+  }
+});
 
 /**
  * tr-Doğrulama e-postasını yeniden gönderir. Hesabın var olup olmadığını sızdırmamak için

@@ -15,6 +15,10 @@ import {
 } from "../../redis";
 import { invalidateWarehouseCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import {
+  palletUsageByWarehouse,
+  totalPalletsUsed,
+} from "../../utils/palletOccupancy";
 
 /**
  * tr-sisteme yeni bir depo ekler ve oluşturulduğuna dair bildirim gönderir
@@ -158,23 +162,22 @@ export const getWarehouses = authenticatedAction(async (user) => {
       });
 
       const warehouseIds = warehouses.map((w) => w.id);
-      const palletSums = warehouseIds.length
-        ? await db.inventory.groupBy({
-            by: ["warehouseId"],
+      // Occupancy is quantity ÷ units-per-pallet per line (see palletOccupancy),
+      // so it can't be a groupBy _sum of palletCount — the rows are fetched and
+      // folded here instead.
+      const inventoryRows = warehouseIds.length
+        ? await db.inventory.findMany({
             where: { warehouseId: { in: warehouseIds } },
-            _sum: { palletCount: true, volumeM3: true },
+            select: {
+              warehouseId: true,
+              quantity: true,
+              palletCount: true,
+              volumeM3: true,
+            },
           })
         : [];
 
-      const palletMap = new Map(
-        palletSums.map((p) => [
-          p.warehouseId,
-          {
-            pallets: p._sum.palletCount ?? 0,
-            volume: p._sum.volumeM3 ?? 0,
-          },
-        ])
-      );
+      const palletMap = palletUsageByWarehouse(inventoryRows);
 
       return warehouses.map((w) => {
         const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };
@@ -226,9 +229,7 @@ export const getWarehouseById = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      const usedPallets = Math.round(
-        warehouse.inventory.reduce((acc, i) => acc + (i.palletCount ?? 0), 0)
-      );
+      const usedPallets = totalPalletsUsed(warehouse.inventory);
       const usedVolume = Math.round(
         warehouse.inventory.reduce((acc, i) => acc + (i.volumeM3 ?? 0), 0)
       );

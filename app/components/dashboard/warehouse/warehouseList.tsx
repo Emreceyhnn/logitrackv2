@@ -132,8 +132,8 @@ const WarehouseListTable = ({
         label: dict.dashboard.warehouse.capacityPallets,
         width: "20%",
         render: (row) => {
-          const usedPallets =
-            row.usedPallets ?? (row._count?.inventory || 0) * 10;
+          // See capacityUtilization: never guess occupancy from SKU count.
+          const usedPallets = row.usedPallets ?? 0;
           const totalPallets = row.capacityPallets || 5000;
           const palletPct = Math.min(
             100,

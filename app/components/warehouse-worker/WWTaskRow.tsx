@@ -81,7 +81,7 @@ export default function WWTaskRow({ t, advanceTask, ww, currentZone }: WWTaskRow
       alignItems="center"
       flexWrap="wrap"
       sx={{
-        p: 2.5,
+        p: { xs: 1.75, md: 2.5 },
         bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#ffffff",
         borderRadius: "16px",
         border: `1px solid ${theme.palette.divider}`,
@@ -136,7 +136,10 @@ export default function WWTaskRow({ t, advanceTask, ww, currentZone }: WWTaskRow
           </Typography>
         </Box>
       </Stack>
-      <Box sx={{ flex: "0 0 150px" }}>
+      {/* Fixed 150px on desktop keeps the bars aligned down the list; on a
+          wrapped mobile row that rigid basis would leave an awkward gap, so it
+          takes the full width of its own line instead. */}
+      <Box sx={{ flex: { xs: "1 1 100%", md: "0 0 150px" } }}>
         <Stack
           direction="row"
           justifyContent="space-between"
