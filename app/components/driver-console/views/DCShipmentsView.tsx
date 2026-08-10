@@ -33,11 +33,12 @@ export default function DCShipmentsView({ state }: { state: DriverConsoleState }
               type="button"
               onClick={() => setShipmentFilter(f)}
               sx={{
-                px: 2,
+                px: { xs: 1.5, sm: 2 },
                 py: 1.1,
                 borderRadius: 2.5,
                 fontSize: 12,
                 fontWeight: 800,
+                whiteSpace: "nowrap",
                 cursor: "pointer",
                 border: "none",
                 font: "inherit",
@@ -61,7 +62,7 @@ export default function DCShipmentsView({ state }: { state: DriverConsoleState }
               sx={{
                 bgcolor: theme.palette.background.paper,
                 borderRadius: 3,
-                p: 2.25,
+                p: { xs: 2, sm: 2.25 },
                 borderLeft: `3px solid ${priority.color}`,
               }}
             >
@@ -69,11 +70,16 @@ export default function DCShipmentsView({ state }: { state: DriverConsoleState }
                 direction="row"
                 justifyContent="space-between"
                 alignItems="flex-start"
-                spacing={2}
-                flexWrap="wrap"
+                spacing={{ xs: 1, sm: 2 }}
               >
                 <Box sx={{ minWidth: 0 }}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    flexWrap="wrap"
+                    useFlexGap
+                  >
                     <Typography sx={{ fontSize: 15, fontWeight: 800 }}>{sh.trackingId}</Typography>
                     <Box
                       sx={{
@@ -115,6 +121,7 @@ export default function DCShipmentsView({ state }: { state: DriverConsoleState }
                 </Box>
                 <Box
                   sx={{
+                    flexShrink: 0,
                     fontSize: 11,
                     fontWeight: 800,
                     color: priority.color,

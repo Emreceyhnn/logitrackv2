@@ -60,7 +60,9 @@ export default function DCRouteView({ state }: { state: DriverConsoleState }) {
   const showDeviationBanner = deviation && (deviation.status === "anomaly" || deviation.status === "muted");
 
   return (
-    <Stack spacing={2} sx={{ height: "100%" }}>
+    // On mobile the whole view scrolls in the page container, so the inner
+    // stop-list scroller is dropped in favour of one natural scroll.
+    <Stack spacing={2} sx={{ height: { xs: "auto", md: "100%" } }}>
       {shapeFailed && (
         <Box
           sx={{
@@ -100,8 +102,10 @@ export default function DCRouteView({ state }: { state: DriverConsoleState }) {
 
       <Card
         sx={{
-          height: "55vh",
-          minHeight: 320,
+          // Shorter on a phone: the fixed header and bottom nav already claim
+          // vertical space, and the stop list below is the primary control.
+          height: { xs: "38vh", sm: "55vh" },
+          minHeight: { xs: 240, sm: 320 },
           bgcolor: theme.palette.background.paper,
           borderRadius: 3,
           position: "relative",
@@ -112,15 +116,25 @@ export default function DCRouteView({ state }: { state: DriverConsoleState }) {
           backgroundSize: "28px 28px",
         }}
       >
+        {/* Two pills side by side do not fit a phone's width — they wrap into a
+            column, so neither overlaps the route corridor beneath. */}
         <Stack
-          direction="row"
+          direction={{ xs: "column", sm: "row" }}
           justifyContent="space-between"
-          alignItems="center"
-          sx={{ position: "absolute", top: 16, left: 16, right: 16, zIndex: 3 }}
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          gap={1}
+          sx={{
+            position: "absolute",
+            top: { xs: 10, sm: 16 },
+            left: { xs: 10, sm: 16 },
+            right: { xs: 10, sm: 16 },
+            zIndex: 3,
+          }}
         >
           <Box
             sx={{
-              fontSize: 12,
+              maxWidth: "100%",
+              fontSize: { xs: 11, sm: 12 },
               fontWeight: 800,
               color: "rgba(255,255,255,0.55)",
               bgcolor: "rgba(11,15,25,0.7)",
@@ -134,7 +148,9 @@ export default function DCRouteView({ state }: { state: DriverConsoleState }) {
           </Box>
           <Box
             sx={{
-              display: "flex",
+              // A disabled "coming soon" teaser is the first thing to drop when
+              // the overlay competes with the map itself.
+              display: { xs: "none", sm: "flex" },
               alignItems: "center",
               gap: 0.75,
               fontSize: 12,
@@ -208,7 +224,14 @@ export default function DCRouteView({ state }: { state: DriverConsoleState }) {
         })}
       </Card>
 
-      <Stack sx={{ flex: 1, overflowY: "auto", gap: 1.25, pb: 1 }}>
+      <Stack
+        sx={{
+          flex: 1,
+          overflowY: { xs: "visible", md: "auto" },
+          gap: 1.25,
+          pb: 1,
+        }}
+      >
         {activeRoute.stops.map((s) => (
           <Card
             key={s.id}
@@ -220,13 +243,19 @@ export default function DCRouteView({ state }: { state: DriverConsoleState }) {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 2,
+              gap: { xs: 1.25, sm: 2 },
               border: `1px solid ${!s.isDone && s.id === activeRoute.nextStop?.id ? "rgba(56,189,248,0.4)" : "transparent"}`,
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={1.75} sx={{ minWidth: 0 }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={{ xs: 1.25, sm: 1.75 }}
+              sx={{ minWidth: 0 }}
+            >
               <Avatar
                 sx={{
+                  flexShrink: 0,
                   width: 32,
                   height: 32,
                   borderRadius: 2,
@@ -239,7 +268,19 @@ export default function DCRouteView({ state }: { state: DriverConsoleState }) {
                 {s.isDone ? <Ico d="M20 6 9 17l-5-5" size={16} sw={3} /> : null}
               </Avatar>
               <Box sx={{ minWidth: 0 }}>
-                <Typography sx={{ fontSize: 14, fontWeight: 700 }} noWrap>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    // Two lines on a phone rather than a hard truncation that
+                    // could hide the street number.
+                    display: "-webkit-box",
+                    WebkitLineClamp: { xs: 2, sm: 1 },
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    wordBreak: "break-word",
+                  }}
+                >
                   {s.address}
                 </Typography>
                 <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mt: 0.25 }}>

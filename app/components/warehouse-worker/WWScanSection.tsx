@@ -72,7 +72,9 @@ export default function WWScanSection({
     <Box sx={{ p: { xs: 2, md: 2.5 } }}>
       {!scanResult ? (
         <>
-          <Stack direction="row" spacing={1.5}>
+          {/* The barcode field needs the full width on a phone, so the scan
+              button drops below it instead of squeezing the input. */}
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
             <TextField
               fullWidth
               value={scanInput}
@@ -95,6 +97,7 @@ export default function WWScanSection({
                 borderRadius: 3,
                 bgcolor: theme.palette.primary.main,
                 px: { xs: 2.5, md: 4 },
+                height: { xs: 48, sm: "auto" },
                 flexShrink: 0,
               }}
             >
@@ -105,18 +108,23 @@ export default function WWScanSection({
             direction="row"
             justifyContent="space-between"
             alignItems="center"
+            spacing={1}
             sx={{ mt: 1.5 }}
           >
             <Typography
               variant="caption"
-              sx={{ color: theme.palette.text.secondary }}
+              sx={{ color: theme.palette.text.secondary, minWidth: 0 }}
             >
               {ww.ui.scanHint}
             </Typography>
             <Button
               size="small"
               onClick={simScan}
-              sx={{ textTransform: "none", color: theme.palette.primary.main }}
+              sx={{
+                textTransform: "none",
+                color: theme.palette.primary.main,
+                flexShrink: 0,
+              }}
             >
               {ww.ui.simScan}
             </Button>
@@ -198,16 +206,24 @@ export default function WWScanSection({
                 {scanResult.name}
               </Typography>
             </Box>
+            {/* Full-width on mobile with 44px targets — this gets tapped with
+                gloves on, so the buttons stay thumb-sized. */}
             <Stack
               direction="row"
               alignItems="center"
+              justifyContent={{ xs: "space-between", sm: "flex-start" }}
               spacing={1}
-              sx={{ bgcolor: "rgba(0,0,0,0.25)", p: 0.5, borderRadius: 3 }}
+              sx={{
+                bgcolor: "rgba(0,0,0,0.25)",
+                p: 0.5,
+                borderRadius: 3,
+                alignSelf: { xs: "stretch", sm: "center" },
+                flexShrink: 0,
+              }}
             >
               <IconButton
-                size="small"
                 onClick={() => setScanQty((q) => Math.max(1, q - 1))}
-                sx={{ color: "#fff" }}
+                sx={{ color: "#fff", width: 44, height: 44, fontSize: 20 }}
               >
                 −
               </IconButton>
@@ -223,9 +239,8 @@ export default function WWScanSection({
                 {scanQty}
               </Typography>
               <IconButton
-                size="small"
                 onClick={() => setScanQty((q) => q + 1)}
-                sx={{ color: "#fff" }}
+                sx={{ color: "#fff", width: 44, height: 44, fontSize: 20 }}
               >
                 +
               </IconButton>
@@ -255,7 +270,7 @@ export default function WWScanSection({
                   mt: 1.5,
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
-                  gap: 1.5,
+                  gap: { xs: 1, sm: 1.5 },
                 }}
               >
                 {(
@@ -271,11 +286,19 @@ export default function WWScanSection({
                     fullWidth
                     onClick={() => log(b.kind)}
                     sx={{
-                      height: 54,
+                      minHeight: 54,
+                      px: 1,
                       borderRadius: 3,
                       bgcolor: b.bg,
                       color: "#000",
                       fontWeight: 800,
+                      // Turkish labels ("Stok Girişi") are long for a half-width
+                      // cell — let them wrap instead of clipping.
+                      fontSize: { xs: 13, sm: 14 },
+                      lineHeight: 1.25,
+                      textAlign: "center",
+                      whiteSpace: "normal",
+                      hyphens: "auto",
                       "&:hover": { bgcolor: b.bg, filter: "brightness(1.05)" },
                     }}
                   >
@@ -372,6 +395,7 @@ function AdjustForm({
 
   const cellSx = {
     flex: 1,
+    minWidth: 0,
     p: 1.5,
     borderRadius: 2,
     bgcolor: "rgba(255,255,255,0.04)",
@@ -392,7 +416,11 @@ function AdjustForm({
         </Typography>
       ) : (
         <>
-          <Stack direction="row" spacing={1.5} alignItems="stretch">
+          <Stack
+            direction="row"
+            spacing={{ xs: 1, sm: 1.5 }}
+            alignItems="stretch"
+          >
             <Box sx={cellSx}>
               <Typography
                 variant="caption"
@@ -439,6 +467,7 @@ function AdjustForm({
               direction="row"
               justifyContent="space-between"
               alignItems="center"
+              spacing={1}
               sx={{
                 mt: 1.5,
                 px: 1.5,
@@ -449,11 +478,18 @@ function AdjustForm({
             >
               <Typography
                 variant="caption"
-                sx={{ color: theme.palette.text.secondary }}
+                sx={{ color: theme.palette.text.secondary, flexShrink: 0 }}
               >
                 {ww.ui.adjustDiff}
               </Typography>
-              <Typography sx={{ color: diffMeta.color, fontWeight: 800 }}>
+              <Typography
+                sx={{
+                  color: diffMeta.color,
+                  fontWeight: 800,
+                  textAlign: "right",
+                  minWidth: 0,
+                }}
+              >
                 {diffMeta.sign}
                 {diff} · {diffMeta.label}
               </Typography>
@@ -473,12 +509,13 @@ function AdjustForm({
         </>
       )}
 
-      <Stack direction="row" spacing={1.5} sx={{ mt: 1.5 }}>
+      <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} sx={{ mt: 1.5 }}>
         <Button
           fullWidth
           onClick={onCancel}
           sx={{
             height: 48,
+            whiteSpace: "nowrap",
             borderRadius: 3,
             border: `1px solid ${theme.palette.divider}`,
             color: theme.palette.text.secondary,

@@ -17,10 +17,12 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
     <Card
       sx={{
         flex: 1,
-        minWidth: 180,
+        // Two-up on a phone rather than a 180px floor that would force the row
+        // to overflow horizontally at 375px.
+        minWidth: { xs: 140, sm: 180 },
         bgcolor: theme.palette.background.paper,
         color: theme.palette.text.primary,
-        p: 2.5,
+        p: { xs: 2, sm: 2.5 },
         borderRadius: 3,
         position: "relative",
         overflow: "hidden",
@@ -44,7 +46,9 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
           <Ico d={icon} size={19} />
         </Avatar>
       </Stack>
-      <Typography sx={{ fontSize: 32, fontWeight: 900, mt: 1.25 }}>{value}</Typography>
+      <Typography sx={{ fontSize: { xs: 26, sm: 32 }, fontWeight: 900, mt: 1.25 }}>
+        {value}
+      </Typography>
       <Typography sx={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.4)", mt: 1.25 }}>
         {sub}
       </Typography>
@@ -56,17 +60,17 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
       <Card
         sx={{
           borderRadius: 4,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           background: "linear-gradient(120deg,rgba(56,189,248,0.14),rgba(99,102,241,0.1))",
           border: "1px solid rgba(56,189,248,0.25)",
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           alignItems: { sm: "center" },
           justifyContent: "space-between",
-          gap: 3,
+          gap: { xs: 2, sm: 3 },
         }}
       >
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography
             variant="overline"
             sx={{ fontWeight: 800, letterSpacing: 0.4, color: "rgba(255,255,255,0.55)" }}
@@ -82,12 +86,14 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
                 bgcolor: driver ? DUTY_DOT[driver.status] : "#94a3b8",
               }}
             />
-            <Typography sx={{ fontSize: 26, fontWeight: 900 }}>
+            <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900 }}>
               {driver ? dc.duty[driver.status] : "—"}
             </Typography>
           </Stack>
         </Box>
-        <Stack direction="row" spacing={1.25}>
+        {/* This is the only duty switcher on mobile — the header hides its copy
+            below md — so the pills split the width evenly instead of overflowing. */}
+        <Stack direction="row" spacing={{ xs: 1, sm: 1.25 }} sx={{ minWidth: 0 }}>
           {(["ON_JOB", "OFF_DUTY", "ON_LEAVE"] as const).map((k) => {
             const active = driver?.status === k;
             return (
@@ -95,10 +101,14 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
                 key={k}
                 onClick={() => void requestDutyChange(k)}
                 sx={{
-                  px: 2.75,
+                  flex: { xs: 1, sm: "none" },
+                  minWidth: 0,
+                  px: { xs: 1, sm: 2.75 },
                   py: 1.5,
                   borderRadius: 3,
                   fontWeight: 800,
+                  fontSize: { xs: 12.5, sm: 14 },
+                  lineHeight: 1.2,
                   textTransform: "none",
                   color: active ? "#0B0F19" : "rgba(255,255,255,0.7)",
                   bgcolor: active
@@ -125,22 +135,22 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
               bgcolor: theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: 3,
-              p: 2.5,
+              p: { xs: 2, sm: 2.5 },
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
               alignItems: { sm: "center" },
               justifyContent: "space-between",
-              gap: 3,
+              gap: { xs: 2, sm: 3 },
             }}
           >
-            <Box sx={{ flex: 1, minWidth: 200 }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
                 variant="overline"
                 sx={{ fontWeight: 800, color: theme.palette.text.secondary }}
               >
                 {dc.dashboard.todaysActiveRoute}
               </Typography>
-              <Typography sx={{ fontSize: 20, fontWeight: 800, mt: 0.75 }}>
+              <Typography sx={{ fontSize: { xs: 18, sm: 20 }, fontWeight: 800, mt: 0.75 }}>
                 {activeRoute.distanceKm?.toFixed(1) ?? "—"} km · {formatDuration(activeRoute.durationMin)}
               </Typography>
               <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 0.5 }}>
@@ -161,6 +171,8 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
                 bgcolor: "rgba(56,189,248,0.1)",
                 border: "1px solid rgba(56,189,248,0.3)",
                 whiteSpace: "nowrap",
+                flexShrink: 0,
+                alignSelf: { xs: "stretch", sm: "auto" },
               }}
             >
               {dc.dashboard.viewRoute}
@@ -192,7 +204,13 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
           </Stack>
 
           {activeRoute.nextStop && (
-            <Card sx={{ bgcolor: theme.palette.background.paper, borderRadius: 3, p: 2.5 }}>
+            <Card
+              sx={{
+                bgcolor: theme.palette.background.paper,
+                borderRadius: 3,
+                p: { xs: 2, sm: 2.5 },
+              }}
+            >
               <Typography
                 variant="overline"
                 sx={{ fontWeight: 800, color: theme.palette.text.secondary, mb: 1.5, display: "block" }}
@@ -200,11 +218,11 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
                 {dc.dashboard.nextStop}
               </Typography>
               <Stack
-                direction="row"
-                alignItems="center"
+                direction={{ xs: "column", sm: "row" }}
+                alignItems={{ xs: "stretch", sm: "center" }}
                 justifyContent="space-between"
                 spacing={2}
-                flexWrap="wrap"
+                useFlexGap
               >
                 <Stack direction="row" alignItems="center" spacing={1.75} sx={{ minWidth: 0 }}>
                   <Avatar
@@ -219,7 +237,18 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
                     {activeRoute.nextStop.sequence}
                   </Avatar>
                   <Box sx={{ minWidth: 0 }}>
-                    <Typography sx={{ fontSize: 16, fontWeight: 700 }} noWrap>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: 15, sm: 16 },
+                        fontWeight: 700,
+                        // Truncating an address to one line on a phone can hide
+                        // the part the driver needs; allow a second line.
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
                       {activeRoute.nextStop.address}
                     </Typography>
                   </Box>
@@ -235,6 +264,7 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
                     color: "#0B0F19",
                     bgcolor: theme.palette.primary.main,
                     whiteSpace: "nowrap",
+                    flexShrink: 0,
                   }}
                 >
                   {dc.dashboard.arrived}
@@ -248,7 +278,7 @@ export default function DCDashboardView({ state }: { state: DriverConsoleState }
           sx={{
             bgcolor: theme.palette.background.paper,
             borderRadius: 3,
-            p: 6,
+            p: { xs: 3, sm: 6 },
             display: "flex",
             flexDirection: "column",
             alignItems: "center",

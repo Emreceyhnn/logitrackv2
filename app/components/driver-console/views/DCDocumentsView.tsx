@@ -19,13 +19,13 @@ export default function DCDocumentsView({ state }: { state: DriverConsoleState }
         sx={{
           bgcolor: theme.palette.background.paper,
           borderRadius: 3,
-          p: 2.5,
+          p: { xs: 2, sm: 2.5 },
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          gap: 3,
+          gap: { xs: 2, sm: 3 },
         }}
       >
-        <Box sx={{ flex: 1, minWidth: 220 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="overline" sx={{ fontWeight: 800, color: theme.palette.text.secondary }}>
             {dc.documentsView.profile}
           </Typography>
@@ -69,17 +69,23 @@ export default function DCDocumentsView({ state }: { state: DriverConsoleState }
               sx={{
                 bgcolor: theme.palette.background.paper,
                 borderRadius: 3,
-                px: 2.25,
+                px: { xs: 2, sm: 2.25 },
                 py: 2,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                gap: 2,
+                gap: { xs: 1.25, sm: 2 },
               }}
             >
-              <Stack direction="row" alignItems="center" spacing={1.75} sx={{ minWidth: 0 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={{ xs: 1.25, sm: 1.75 }}
+                sx={{ minWidth: 0 }}
+              >
                 <Avatar
                   sx={{
+                    flexShrink: 0,
                     width: 38,
                     height: 38,
                     borderRadius: 2.5,
@@ -90,7 +96,9 @@ export default function DCDocumentsView({ state }: { state: DriverConsoleState }
                   <Ico d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" size={18} />
                 </Avatar>
                 <Box sx={{ minWidth: 0 }}>
-                  <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{doc.name}</Typography>
+                  <Typography sx={{ fontSize: 14, fontWeight: 700, wordBreak: "break-word" }}>
+                    {doc.name}
+                  </Typography>
                   <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mt: 0.25 }}>
                     {dc.documentsView.expiresOn}:{" "}
                     {doc.expiryDate ? new Date(doc.expiryDate).toLocaleDateString("tr-TR") : "—"}
@@ -99,6 +107,7 @@ export default function DCDocumentsView({ state }: { state: DriverConsoleState }
               </Stack>
               <Box
                 sx={{
+                  flexShrink: 0,
                   fontSize: 11,
                   fontWeight: 800,
                   color: colors.color,
