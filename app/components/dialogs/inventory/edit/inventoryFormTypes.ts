@@ -5,6 +5,7 @@ export type InventoryFormData = {
   name: string;
   sku?: string;
   warehouseId: string;
+  zone?: string | null;
   imageUrl?: string | null;
   quantity: number;
   minStock: number;

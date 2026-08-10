@@ -45,6 +45,7 @@ export interface CreateInventoryInput {
   warehouseId: string;
   sku: string;
   name: string;
+  zone?: string | null;
   quantity: number;
   minStock?: number;
   weightKg?: number | null;
@@ -97,6 +98,8 @@ import { PaginationMeta } from "./dataTable";
 export interface InventoryTableProps {
   items: InventoryWithRelations[];
   loading: boolean;
+  /** Background refetch with rows already on screen — dim, don't blank. */
+  refreshing?: boolean | undefined;
   onSelect: (id: string) => void;
   onEdit?: ((item: InventoryWithRelations) => void) | undefined;
   onDelete: (id: string) => void;

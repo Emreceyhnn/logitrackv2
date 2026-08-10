@@ -7,10 +7,11 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
-import { isWarehouseOnlyRole } from "@/app/lib/roles";
+import { isWarehouseOnlyRole, hasNoDashboardAccess } from "@/app/lib/roles";
 import { getWarehouseWorkerDashboard } from "@/app/lib/controllers/warehouseWorker";
 import { warehouseWorkerKeys } from "@/app/lib/query-keys/warehouseWorker.keys";
 import { GuidedTourProvider } from "@/app/lib/context/GuidedTourContext";
+import { UserProvider } from "@/app/lib/context/UserContext";
 import WarehouseWorkerClient from "./WarehouseWorkerClient";
 import { logger } from "@/app/lib/logger";
 
@@ -36,6 +37,9 @@ export default async function WarehouseWorkerPage({
   if (!user) {
     redirect(`/${lang}/auth/sign-in`);
   }
+  if (user && hasNoDashboardAccess(user.roleName)) {
+    redirect(`/${lang}?landing=true`);
+  }
 
   const locked = isWarehouseOnlyRole(user.roleName);
 
@@ -57,9 +61,11 @@ export default async function WarehouseWorkerPage({
   return (
     <HydrationBoundary state={dehydratedState}>
       <Suspense fallback={null}>
-        <GuidedTourProvider>
-          <WarehouseWorkerClient locked={locked} lang={lang} />
-        </GuidedTourProvider>
+        <UserProvider initialUser={user}>
+          <GuidedTourProvider>
+            <WarehouseWorkerClient locked={locked} lang={lang} />
+          </GuidedTourProvider>
+        </UserProvider>
       </Suspense>
     </HydrationBoundary>
   );

@@ -93,13 +93,21 @@ export default function SettingsDialog({ open, onClose }: Props) {
             pushDelayAlerts: user.notifPushDelay ?? true,
           };
 
-          const needsUpdate =
-            s.regional.currency !== newRegional.currency ||
-            s.regional.timezone !== newRegional.timezone ||
-            s.notifications.emailShipmentUpdates !==
-              newNotifications.emailShipmentUpdates;
+          // Compare EVERY field, not a hand-picked subset. This guard only
+          // exists to avoid a pointless re-render, so anything it fails to
+          // compare silently keeps stale state on screen: previously it
+          // checked currency, timezone and one notification flag, so changing
+          // only the time or date format left the dialog showing the old
+          // value — it looked like the save had been reverted.
+          const regionalChanged = (
+            Object.keys(newRegional) as (keyof typeof newRegional)[]
+          ).some((key) => s.regional[key] !== newRegional[key]);
 
-          if (!needsUpdate) return s;
+          const notificationsChanged = (
+            Object.keys(newNotifications) as (keyof typeof newNotifications)[]
+          ).some((key) => s.notifications[key] !== newNotifications[key]);
+
+          if (!regionalChanged && !notificationsChanged) return s;
 
           return {
             ...s,
@@ -166,11 +174,17 @@ export default function SettingsDialog({ open, onClose }: Props) {
         setState((s) => ({ ...s, isSaving: false }));
         showToast("success", dict.settings.dialogs.success.regional);
         onClose();
+
+        // Timezone and the date/time formats are read from the server session,
+        // so the dashboard keeps rendering the old ones until it re-renders.
+        // The save marks the session's claims stale, which makes this request
+        // re-mint the token — refresh so the new values are actually applied.
+        router.refresh();
       } catch {
         setState((s) => ({ ...s, isSaving: false }));
         showToast("error", "Failed to save settings");
       }
-    }, [state.regional, currentLang, changeLanguage, onClose, showToast, dict.settings.dialogs.success.regional]),
+    }, [state.regional, currentLang, changeLanguage, onClose, showToast, dict.settings.dialogs.success.regional, router]),
     saveNotifications: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
       try {

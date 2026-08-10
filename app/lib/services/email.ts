@@ -67,7 +67,7 @@ async function dispatchEmail(
       from:
         payload.from ||
         process.env.RESEND_FROM_EMAIL ||
-        "LogiTrack <onboarding@resend.dev>",
+        "LogiTrack <noreply@resend.dev>",
       to: payload.to,
       subject: payload.subject,
       html: payload.html,
@@ -127,10 +127,11 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
  * output (Promise<void>)
  *
  */
-export async function sendDriverInviteEmail(
+export async function sendCompanyInviteEmail(
   to: string,
   inviteUrl: string,
   companyName: string,
+  roleName: string,
   lang: "en" | "tr" = "en",
   expiryDays: number = 7
 ): Promise<void> {
@@ -144,20 +145,21 @@ export async function sendDriverInviteEmail(
     const { subject, html, text } = buildDriverInviteEmail({
       companyName,
       inviteUrl,
+      roleName,
       lang,
       expiryDays,
     });
 
     const id = await dispatchEmail(
       { to, subject, html, text },
-      "sendDriverInviteEmail"
+      "sendCompanyInviteEmail"
     );
 
-    logger.info(`[email] Driver invite sent → ${to} (id: ${id})`);
+    logger.info(`[email] Company invite sent → ${to} (id: ${id})`);
   } catch (error) {
     // Re-throw with the original message so callers can see the real cause
     const msg = error instanceof Error ? error.message : String(error);
-    logger.error("[email] sendDriverInviteEmail failed:", msg);
+    logger.error("[email] sendCompanyInviteEmail failed:", msg);
     throw new Error(msg);
   }
 }

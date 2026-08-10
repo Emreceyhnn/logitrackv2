@@ -74,6 +74,7 @@ export const getCompanyProfile = authenticatedAction(async (user) => {
         status: u.status,
         roleId: u.role?.id ?? null,
         roleName: u.role?.name ?? null,
+        assignedWarehouseId: u.assignedWarehouseId ?? null,
         createdAt: u.createdAt.toISOString(),
       })),
     };

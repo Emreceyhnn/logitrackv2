@@ -1,8 +1,11 @@
 "use client";
 
-import { Box, Stack, Snackbar, Alert, useTheme } from "@mui/material";
+import { Avatar, Box, Stack, Snackbar, Alert, Typography, useTheme } from "@mui/material";
 import { useState } from "react";
 import WWSidebar from "@/app/components/warehouse-worker/WWSidebar";
+import WWBottomNav, {
+  WW_BOTTOM_NAV_HEIGHT,
+} from "@/app/components/warehouse-worker/WWBottomNav";
 import WWHeader from "@/app/components/warehouse-worker/WWHeader";
 import GuidedTourOverlay from "@/app/components/guidedTour/GuidedTourOverlay";
 import { useDemoWarehouseWorkerState } from "@/app/hooks/demo/useDemoWarehouseWorkerState";
@@ -90,14 +93,45 @@ export default function DemoWarehouseWorkerClient({
           setSelectedWarehouseId={setSelectedWarehouseId}
           warehouse={warehouse}
           warehouseOptions={warehouseOptions}
-          worker={worker}
+          accountSlot={
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <Avatar
+                sx={{
+                  background: "linear-gradient(135deg,#1e293b,#0f172a)",
+                  border: `1px solid ${theme.palette.divider}`,
+                  fontWeight: 800,
+                  flexShrink: 0,
+                }}
+              >
+                {worker.initials}
+              </Avatar>
+              {/* Name and role would crowd out the warehouse name in the
+                  narrow mobile header — the avatar carries identity there. */}
+              <Box sx={{ display: { xs: "none", md: "block" }, minWidth: 0 }}>
+                <Typography noWrap sx={{ fontSize: 13, fontWeight: 700 }}>
+                  {worker.name}
+                </Typography>
+                <Typography
+                  noWrap
+                  sx={{ fontSize: 11, color: theme.palette.text.secondary }}
+                >
+                  {worker.role}
+                </Typography>
+              </Box>
+            </Stack>
+          }
         />
 
         <Box
           sx={{
             flex: 1,
             overflowY: "auto",
-            p: 3,
+            p: { xs: 1.5, sm: 2, md: 3 },
+            // Clears the fixed bottom nav (and the iOS home indicator).
+            pb: {
+              xs: `calc(${WW_BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom) + 16px)`,
+              md: 3,
+            },
             "&::-webkit-scrollbar": { width: 9, height: 9 },
             "&::-webkit-scrollbar-thumb": {
               bgcolor: "rgba(255,255,255,0.12)",
@@ -113,6 +147,16 @@ export default function DemoWarehouseWorkerClient({
           {view === "activity" && <WWActivityTab state={state} />}
         </Box>
       </Stack>
+
+      <WWBottomNav
+        locked={false}
+        lang={lang}
+        view={view}
+        setView={setView}
+        NAV={NAV}
+        onHelpClick={handleHelpClick}
+        dict={dict}
+      />
 
       <Snackbar
         open={!!toast}

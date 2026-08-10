@@ -44,8 +44,8 @@ export const getAddRouteValidationSchema = (dict: Dictionary) =>
     stops: Yup.array().of(
       Yup.object().shape({
         address: Yup.string().required(formatMessage(dict.validation.required, { field: dict.routes?.fields?.address || "Address" })),
-        lat: Yup.number().required(),
-        lng: Yup.number().required(),
+        lat: Yup.number().nullable().optional(),
+        lng: Yup.number().nullable().optional(),
       })
     ).optional(),
     // Optional override: an empty field means "use the default corridor", so

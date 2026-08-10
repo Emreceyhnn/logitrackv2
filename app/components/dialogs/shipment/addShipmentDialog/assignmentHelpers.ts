@@ -34,7 +34,7 @@ export function annotateTrailers(
     const availableWeight = trailer.maxLoadKg - (trailer.currentWeightKg || 0);
     const availableVolume =
       trailer.capacityVolumeM3 - (trailer.currentVolumeM3 || 0);
-    const isAvailable = trailer.status === "AVAILABLE";
+    const isAvailable = trailer.status === "AVAILABLE" || trailer.status === "IN_USE";
     // maxLoadKg 0 = capacity untracked → don't block on it.
     const weightOk =
       trailer.maxLoadKg <= 0 ||

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refreshSession } from "@/app/lib/controllers/session";
 import { DEFAULT_LOCALE, SIGN_IN_ROUTE } from "@/app/lib/constants";
+import { COOKIE_OPTIONS } from "@/app/lib/controllers/session/internal";
 import { buildLocalizedHref } from "@/app/lib/language/navigation";
 
 export async function GET(request: NextRequest) {
@@ -45,9 +46,18 @@ export async function GET(request: NextRequest) {
   url.search = "";
   
   // Optionally clear cookies here as a fallback, though refreshSession handles it usually
+  // Clearing must mirror how the cookies were SET (same path/secure/sameSite),
+  // otherwise the browser treats it as a different cookie, keeps the original,
+  // and the proxy sees `refreshToken` again on the very next request — which
+  // sends it straight back here. That is an infinite sign-in ⇄ refresh loop,
+  // not a cosmetic leak, so the attributes below are load-bearing.
   const response = NextResponse.redirect(url);
-  response.cookies.delete("token");
-  response.cookies.delete("refreshToken");
+  for (const name of ["token", "refreshToken"] as const) {
+    response.cookies.set(name, "", {
+      ...COOKIE_OPTIONS,
+      maxAge: 0,
+    });
+  }
 
   return response;
 }

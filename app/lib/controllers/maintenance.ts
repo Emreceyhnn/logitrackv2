@@ -102,7 +102,7 @@ export const createMaintenanceRecord = authenticatedAction(
           message: `${newRecord.vehicle.plate} plakalı araç için ${parsed.type} bakımı planlandı.`,
           type: "INFO",
           category: "MAINTENANCE_ALERT",
-          link: `/dashboard/vehicles/${parsed.vehicleId}`,
+          link: `/vehicle?id=${parsed.vehicleId}`,
         }
       );
 
@@ -271,7 +271,7 @@ export const updateMaintenanceRecord = authenticatedAction(
             message,
             type,
             category: "MAINTENANCE_ALERT",
-            link: `/dashboard/vehicles/${updatedRecord.vehicle.id}`,
+            link: `/vehicle?id=${updatedRecord.vehicle.id}`,
           }
         );
       }
@@ -316,7 +316,7 @@ export const deleteMaintenanceRecord = authenticatedAction(
           message: `${existingRecord.vehicle.plate} plakalı araca ait ${existingRecord.type} bakımı kaydı sistemden silindi.`,
           type: "WARNING",
           category: "MAINTENANCE_ALERT",
-          link: `/dashboard/vehicles/${existingRecord.vehicleId}`,
+          link: `/vehicle?id=${existingRecord.vehicleId}`,
         }
       );
 
@@ -400,7 +400,7 @@ export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
           message: `${record.vehicle.plate} plakalı aracın ${record.type} bakımı yaklaşıyor (Tarih: ${dayjs(record.date).format("DD.MM.YYYY")}).`,
           type: "WARNING",
           category: "MAINTENANCE_ALERT",
-          link: `/dashboard/vehicles/${record.vehicle.id}`,
+          link: `/vehicle?id=${record.vehicle.id}`,
         }
       );
     }

@@ -5,6 +5,7 @@ import { Dayjs } from "dayjs";
 import { useEffect, useState, ChangeEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useFormikContext } from "formik";
+import { toast } from "sonner";
 import { AddDriverDocument, DriverFormValues, EditDriverFormValues } from "@/app/lib/type/driver";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
@@ -15,6 +16,7 @@ import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
 import { logger } from "@/app/lib/logger";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import { OperationalAssignmentSection } from "./sections/OperationalAssignmentSection";
 import { SettingsSection } from "./sections/SettingsSection";
@@ -35,6 +37,7 @@ const DriverFormSecondStep = ({
   userSummary,
 }: DriverFormSecondStepProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const { user } = useUser();
   const pathname = usePathname();
   const isDemo = pathname?.includes("/demo");
@@ -90,7 +93,20 @@ const DriverFormSecondStep = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newDocs: AddDriverDocument[] = Array.from(e.target.files).map(
+      // PDF uploads are temporarily disabled service-wide; the actual
+      // upload happens later via uploadImageAction (which also rejects
+      // PDFs), but filtering here surfaces the reason immediately.
+      const selectedFiles = Array.from(e.target.files);
+      const pdfCount = selectedFiles.filter((f) => f.type === "application/pdf").length;
+      const acceptedFiles = selectedFiles.filter((f) => f.type !== "application/pdf");
+      if (pdfCount > 0) {
+        toast.error(dict.vehicles.dialogs.pdfUploadDisabled || "PDF uploads are temporarily unavailable. Please try again later.");
+      }
+      if (acceptedFiles.length === 0) {
+        e.target.value = "";
+        return;
+      }
+      const newDocs: AddDriverDocument[] = acceptedFiles.map(
         (file: File) => {
           const previewUrl = file.type.startsWith("image/")
             ? URL.createObjectURL(file)

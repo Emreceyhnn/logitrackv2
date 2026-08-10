@@ -100,6 +100,12 @@ const AddWarehouseDialog = ({
     handleSubmit: async () => {
       if (!user || !user.companyId) return;
 
+      // Close first: the mutation applies an optimistic cache update and toasts
+      // its own success/error, so holding the dialog open until the round-trip
+      // finishes only makes the app feel slow. A failure is reported by the
+      // toast and the optimistic row rolls back.
+      actions.closeDialog();
+
       try {
         await createWarehouse.mutateAsync({
           name: state.data.basicInfo.name,
@@ -110,7 +116,9 @@ const AddWarehouseDialog = ({
           country: state.data.location.country,
           lat: state.data.location.lat,
           lng: state.data.location.lng,
-          managerId: state.data.location.managerId || "",
+          // The "unassigned" menu item carries an empty string; send null so the
+          // warehouse is created with no manager instead of an unmatchable id.
+          managerId: state.data.location.managerId || null,
           capacityPallets: state.data.capacity.capacityPallets,
           capacityVolumeM3: state.data.capacity.capacityVolumeM3,
           operatingHours: state.data.basicInfo.is247
@@ -121,7 +129,6 @@ const AddWarehouseDialog = ({
         });
 
         onSuccess?.();
-        actions.closeDialog();
       } catch (error) {
         logger.error("Failed to add warehouse:", error);
       }

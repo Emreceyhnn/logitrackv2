@@ -143,6 +143,11 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
                 <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
                 <InfoRow label={dict.inventory.fields.minStock} value={storageLevels.minStockLevel || 0} />
                 <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
+                <InfoRow
+                  label={dict.warehouses.dialogs.zones.code}
+                  value={storageLevels.zone || dict.warehouses.dialogs.fields.unassigned}
+                />
+                <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
                 <InfoRow label={dict.inventory.fields.pallets} value={itemDetails.palletCount || 0} />
               </Box>
             </Stack>

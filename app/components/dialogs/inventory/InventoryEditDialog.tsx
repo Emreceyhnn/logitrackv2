@@ -40,7 +40,7 @@ export default function InventoryEditDialog({
     () =>
       yup.object({
         name: yup.string().required(dict.common.noData),
-        sku: yup.string().optional(),
+        sku: yup.string().required(dict.common.noData),
         warehouseId: yup.string().required(dict.common.noData),
         imageUrl: yup.string().optional().nullable(),
         quantity: yup
@@ -79,6 +79,7 @@ export default function InventoryEditDialog({
       name: item?.name || "",
       sku: item?.sku || "",
       warehouseId: item?.warehouseId || "",
+      zone: item?.zone || "",
       imageUrl: item?.imageUrl || "",
       quantity: item?.quantity || 0,
       minStock: item?.minStock || 0,

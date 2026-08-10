@@ -34,22 +34,30 @@ export default function DCVehicleView({ state }: { state: DriverConsoleState }) 
         sx={{
           bgcolor: theme.palette.background.paper,
           borderRadius: 3,
-          p: 2.5,
+          p: { xs: 2, sm: 2.5 },
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          gap: 3,
+          gap: { xs: 2, sm: 3 },
         }}
       >
-        <Box sx={{ flex: 1, minWidth: 220 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="overline" sx={{ fontWeight: 800, color: theme.palette.text.secondary }}>
             {dc.vehicleView.assignedVehicle}
           </Typography>
-          <Typography sx={{ fontSize: 24, fontWeight: 900, mt: 0.75 }}>{vehicle?.plate ?? "—"}</Typography>
+          <Typography sx={{ fontSize: { xs: 22, sm: 24 }, fontWeight: 900, mt: 0.75 }}>
+            {vehicle?.plate ?? "—"}
+          </Typography>
           <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 0.25 }}>
             {vehicle ? `${vehicle.brand} ${vehicle.model} · ${vehicle.fleetNo}` : "—"}
           </Typography>
         </Box>
-        <Stack direction="row" spacing={4} flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={{ xs: 3, sm: 4 }}
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ flexShrink: 0 }}
+        >
           <Box>
             <Typography variant="overline" sx={{ fontWeight: 800, color: theme.palette.text.secondary }}>
               {dc.vehicleView.fuel}
@@ -81,8 +89,24 @@ export default function DCVehicleView({ state }: { state: DriverConsoleState }) 
         </Stack>
       </Card>
 
-      <Stack direction="row" spacing={2.5} flexWrap="wrap" alignItems="flex-start" useFlexGap>
-        <Card sx={{ flex: 1, minWidth: 280, bgcolor: theme.palette.background.paper, borderRadius: 3, p: 2.5 }}>
+      {/* minWidth 280 would overflow a 375px viewport once page padding is
+          taken; the cards stack instead and only pair up from sm. */}
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2.5}
+        flexWrap="wrap"
+        alignItems="stretch"
+        useFlexGap
+      >
+        <Card
+          sx={{
+            flex: 1,
+            minWidth: { sm: 280 },
+            bgcolor: theme.palette.background.paper,
+            borderRadius: 3,
+            p: { xs: 2, sm: 2.5 },
+          }}
+        >
           <Typography sx={{ fontSize: 15, fontWeight: 800, mb: 1.75 }}>{dc.vehicleView.addFuelLog}</Typography>
           <Stack spacing={1.5}>
             <TextField
@@ -126,6 +150,7 @@ export default function DCVehicleView({ state }: { state: DriverConsoleState }) 
                 key={fl.id}
                 direction="row"
                 justifyContent="space-between"
+                spacing={1}
                 sx={{
                   fontSize: 12,
                   color: theme.palette.text.secondary,
@@ -133,16 +158,26 @@ export default function DCVehicleView({ state }: { state: DriverConsoleState }) 
                   borderTop: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <span>{new Date(fl.date).toLocaleDateString("tr-TR")}</span>
-                <span>
+                <Box component="span" sx={{ flexShrink: 0 }}>
+                  {new Date(fl.date).toLocaleDateString("tr-TR")}
+                </Box>
+                <Box component="span" sx={{ textAlign: "right", minWidth: 0 }}>
                   {fl.volumeLiter} L · {fl.cost.toFixed(2)} {fl.currency}
-                </span>
+                </Box>
               </Stack>
             ))}
           </Stack>
         </Card>
 
-        <Card sx={{ flex: 1, minWidth: 280, bgcolor: theme.palette.background.paper, borderRadius: 3, p: 2.5 }}>
+        <Card
+          sx={{
+            flex: 1,
+            minWidth: { sm: 280 },
+            bgcolor: theme.palette.background.paper,
+            borderRadius: 3,
+            p: { xs: 2, sm: 2.5 },
+          }}
+        >
           <Typography sx={{ fontSize: 15, fontWeight: 800, mb: 1.75 }}>{dc.vehicleView.reportIssue}</Typography>
           <Stack spacing={1.5}>
             <TextField
@@ -200,6 +235,7 @@ export default function DCVehicleView({ state }: { state: DriverConsoleState }) 
                 direction="row"
                 justifyContent="space-between"
                 alignItems="center"
+                spacing={1}
                 sx={{
                   fontSize: 12,
                   color: theme.palette.text.secondary,
@@ -207,8 +243,18 @@ export default function DCVehicleView({ state }: { state: DriverConsoleState }) 
                   borderTop: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <span>{is.title}</span>
-                <Box component="span" sx={{ fontSize: 10, fontWeight: 800, color: theme.palette.warning.main }}>
+                <Box component="span" sx={{ minWidth: 0, wordBreak: "break-word" }}>
+                  {is.title}
+                </Box>
+                <Box
+                  component="span"
+                  sx={{
+                    flexShrink: 0,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    color: theme.palette.warning.main,
+                  }}
+                >
                   {is.status}
                 </Box>
               </Stack>

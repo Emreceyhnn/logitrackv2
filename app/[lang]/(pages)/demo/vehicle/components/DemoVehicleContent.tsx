@@ -36,6 +36,7 @@ export default function DemoVehicleContent() {
     isVehiclesFetching,
     isVehiclesError,
     refetchVehicleWithDashboard,
+    isTrailersLoading,
     isTrailersFetching,
     isTrailersError,
     refetchTrailers,
@@ -91,13 +92,14 @@ export default function DemoVehicleContent() {
           <QueryErrorState onRetry={() => refetchTrailers()} />
         ) : activeTab === 0 ? (
           <VehicleTable
-            state={{ ...state, vehicles: vehicles ?? [], dashboardData: dashboardData ?? null, loading: isVehiclesFetching, error: null } as VehiclePageState}
+            state={{ ...state, vehicles: vehicles ?? [], dashboardData: dashboardData ?? null, loading: isVehiclesLoading, refreshing: isVehiclesFetching, error: null } as VehiclePageState}
             actions={{ ...actions, onEdit: handleEdit, onDelete: handleDelete }}
           />
         ) : (
           <TrailerTable
             trailers={trailers || []}
-            loading={isTrailersFetching}
+            loading={isTrailersLoading}
+            refreshing={isTrailersFetching}
             onEdit={handleTrailerEdit}
             onDelete={handleTrailerDelete}
             onAssign={handleTrailerAssign}

@@ -37,7 +37,10 @@ export default function WWSidebar({
     <Stack
       data-tour="ww-sidebar"
       sx={{
+        // Below md the rail is replaced by WWBottomNav — see that file for why.
+        display: { xs: "none", md: "flex" },
         width: 86,
+        flexShrink: 0,
         bgcolor: theme.palette.background.sidebar,
         borderRight: `1px solid ${theme.palette.divider}`,
         alignItems: "center",

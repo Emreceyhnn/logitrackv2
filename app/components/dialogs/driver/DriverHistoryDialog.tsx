@@ -215,7 +215,7 @@ export default function DriverHistoryDialog({
             </Typography>
           </Box>
         ) : (
-          <Stack spacing={4}>
+          <Stack spacing={4} sx={{ pt: 1 }}>
             {/* KPI Summary */}
             <Stack direction="row" spacing={2}>
               <KPICard

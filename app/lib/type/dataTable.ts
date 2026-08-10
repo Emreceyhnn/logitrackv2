@@ -71,7 +71,15 @@ export interface DataTableProps<TRow extends { id: string }> {
   columns: DataTableColumn<TRow>[];
 
   // Loading / empty
+  /** First load only: there are no rows to show yet, so render the skeleton. */
   loading?: boolean | undefined;
+  /**
+   * A background refetch is in flight while previous rows are still on screen
+   * (filter, sort or page change under keepPreviousData). The table stays
+   * readable and only dims slightly — replacing it with a skeleton here throws
+   * away data the user can still use and makes filtering feel like a reload.
+   */
+  refreshing?: boolean | undefined;
   emptyMessage?: string | undefined;
 
   // Search
@@ -86,6 +94,9 @@ export interface DataTableProps<TRow extends { id: string }> {
 
   // Row actions rendered as a MoreVert context menu in the last column
   rowActions?: DataTableRowAction<TRow>[] | undefined;
+
+  /** Rows for which this returns true render dimmed with hover disabled (e.g. completed/finalized records). */
+  getRowDisabled?: ((row: TRow) => boolean) | undefined;
 
   // Pagination support
   meta?: PaginationMeta | undefined;

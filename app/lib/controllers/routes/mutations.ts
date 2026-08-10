@@ -191,7 +191,7 @@ export const createRoute = authenticatedAction(
               message: `${finalName} numaralı rota size atandı.`,
               type: "SUCCESS",
               category: "NEW_ASSIGNMENT",
-              link: `/dashboard/routes/${newRoute.id}`,
+              link: `/routes`,
             }
           );
         }
@@ -204,7 +204,7 @@ export const createRoute = authenticatedAction(
           message: `${finalName} numaralı yeni bir rota planlandı. Sürücü: ${driverId ? 'Atandı' : 'Bekleniyor'}.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
-          link: `/dashboard/routes/${newRoute.id}`,
+          link: `/routes`,
         }
       );
 
@@ -299,14 +299,39 @@ export const deleteRoute = authenticatedAction(
 
       const existingRoute = await db.route.findFirst({
         where: { id: routeId, companyId },
+        include: { shipments: { select: { id: true, status: true } } },
       });
 
       if (!existingRoute) {
         throw new NotFoundError("Route");
       }
 
-      await db.route.delete({ where: { id: routeId } });
-      await invalidateRouteCache(companyId, routeId);
+      // shipments.routeId is a Restrict FK — deleting the route with linked
+      // shipments still attached would 500 on the DB constraint. Release them
+      // first: a shipment mid-lifecycle (not yet delivered/returned/cancelled)
+      // goes back to the unassigned PENDING pool per the same "route canceled"
+      // transition the status-update path already allows (see
+      // shipmentTransitions.ts); a terminal shipment just loses the now-gone
+      // route reference without its (already-final) status being touched.
+      await db.$transaction(async (tx) => {
+        for (const shipment of existingRoute.shipments) {
+          const isTerminal = ["DELIVERED", "RETURNED", "CANCELLED"].includes(
+            shipment.status
+          );
+          await tx.shipment.update({
+            where: { id: shipment.id },
+            data: isTerminal
+              ? { routeId: null }
+              : { routeId: null, status: "PENDING" },
+          });
+        }
+        await tx.route.delete({ where: { id: routeId } });
+      });
+
+      await Promise.all([
+        invalidateRouteCache(companyId, routeId),
+        invalidateShipmentCache(companyId),
+      ]);
       return { success: true };
     });
   }

@@ -22,4 +22,5 @@ export {
 export {
   verifyEmailToken,
   resendEmailVerification,
+  sendMyEmailVerification,
 } from "./users/emailVerification";

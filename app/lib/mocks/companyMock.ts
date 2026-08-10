@@ -45,6 +45,7 @@ function buildMember(index: number): CompanyMember {
     status: m.status,
     roleId: `demo-role-${m.role}`,
     roleName: m.role,
+    assignedWarehouseId: null,
     createdAt,
   };
 }

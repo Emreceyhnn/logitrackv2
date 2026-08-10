@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../../db";
+import { INCLUDE_DELETED } from "../../softDelete";
 import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { createSession, revokeSession } from "../session";
@@ -35,11 +36,19 @@ export const createCompany = authenticatedAction(
     // founder's address must be proven before it exists.
     await requireVerifiedEmail(user);
 
-    const existingCompany = await db.company.findUnique({ where: { name } });
+    // INCLUDE_DELETED makes these checks see soft-deleted companies too.
+    // `name` and `domain` stay `@unique` at the database level regardless of
+    // deletion, so skipping them here would turn a clear message into a P2002
+    // crash on the create below.
+    const existingCompany = await db.company.findFirst({
+      where: { name, ...INCLUDE_DELETED },
+    });
     if (existingCompany) throw new Error("Company name already exists");
 
     if (domain) {
-      const existingDomain = await db.company.findUnique({ where: { domain } });
+      const existingDomain = await db.company.findFirst({
+        where: { domain, ...INCLUDE_DELETED },
+      });
       if (existingDomain) throw new Error("This domain is already registered to another company");
     }
 

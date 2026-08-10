@@ -2,7 +2,6 @@
 // (not a "use server" boundary) so it may export constants and sync/async helpers.
 
 import { db } from "../../db";
-import type { DocumentStatus } from "@prisma/client";
 
 export const DC_ROLES = [
   "role_admin",
@@ -37,20 +36,9 @@ export async function getDriverForUser(userId: string, companyId: string) {
   });
 }
 
-/**
- * Live document-expiry status, extracted from the inline logic in
- * app/lib/controllers/documents.ts's createDocument so it can be reused for a
- * point-in-time read (e.g. the driver console) instead of only computed once
- * at creation time.
- */
-export function computeDocumentStatus(
-  expiryDate: Date | null
-): DocumentStatus {
-  const now = new Date();
-  if (!expiryDate) return "MISSING";
-  if (expiryDate < now) return "EXPIRED";
-  const oneMonthLater = new Date();
-  oneMonthLater.setMonth(now.getMonth() + 1);
-  if (expiryDate <= oneMonthLater) return "EXPIRING_SOON";
-  return "ACTIVE";
-}
+// tr-Artık app/lib/utils/documentStatus.ts'de yaşıyor; sürücü konsolu dışındaki okumaların
+//    da aynı mantığı kullanması gerektiği için oraya taşındı. Mevcut içe aktarımlar
+//    bozulmasın diye buradan yeniden dışa aktarılıyor.
+// en-Now lives in app/lib/utils/documentStatus.ts, moved there because reads outside the
+//    driver console need the same logic. Re-exported here so existing imports keep working.
+export { computeDocumentStatus } from "../../utils/documentStatus";

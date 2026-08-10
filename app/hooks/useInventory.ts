@@ -341,6 +341,7 @@ function buildOptimisticInventoryItem(
     unitValue?: number;
     imageUrl?: string | null;
     currency?: string;
+    zone?: string | undefined;
   },
   warehouse?: { code: string; name: string }
 ): InventoryWithRelations {
@@ -349,6 +350,7 @@ function buildOptimisticInventoryItem(
     warehouseId: data.warehouseId,
     sku: data.sku,
     name: data.name,
+    zone: data.zone ?? null,
     quantity: data.quantity,
     allocatedQuantity: 0,
     minStock: data.minStock ?? 0,
@@ -434,6 +436,7 @@ export function useInventoryMutations() {
       imageUrl?: string;
       unitValue?: number;
       currency?: string;
+      zone?: string | undefined;
     }) =>
       addInventoryItem(
         data.warehouseId,
@@ -447,7 +450,8 @@ export function useInventoryMutations() {
         data.cargoType,
         data.imageUrl,
         data.unitValue,
-        data.currency
+        data.currency,
+        data.zone
       ),
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: inventoryKeys.all });

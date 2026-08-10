@@ -17,7 +17,16 @@ export const useUploadDocument = (vehicleId: string, onSuccess: () => void, onCl
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
+      // PDF uploads are temporarily disabled service-wide; catch it here too
+      // (not just server-side in uploadImageAction) so the user sees why
+      // immediately instead of after picking a file and clicking upload.
+      if (selectedFile.type === "application/pdf") {
+        setError(dict.vehicles.dialogs.pdfUploadDisabled || "PDF uploads are temporarily unavailable. Please try again later.");
+        e.target.value = "";
+        return;
+      }
       setFile(selectedFile);
+      setError(null);
       if (!name) setName(selectedFile.name);
       if (selectedFile.type.startsWith("image/")) {
         const reader = new FileReader();

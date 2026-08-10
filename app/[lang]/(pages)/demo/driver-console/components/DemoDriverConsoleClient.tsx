@@ -14,6 +14,9 @@ import {
   useTheme,
 } from "@mui/material";
 import DCSidebar from "@/app/components/driver-console/DCSidebar";
+import DCBottomNav, {
+  DC_BOTTOM_NAV_HEIGHT,
+} from "@/app/components/driver-console/DCBottomNav";
 import DCHeader from "@/app/components/driver-console/DCHeader";
 import GuidedTourOverlay from "@/app/components/guidedTour/GuidedTourOverlay";
 import { useDemoDriverConsoleState } from "@/app/hooks/demo/useDemoDriverConsoleState";
@@ -78,13 +81,19 @@ export default function DemoDriverConsoleClient({ lang = "en" }: { lang?: string
       />
 
       <Stack sx={{ flex: 1, overflow: "hidden" }}>
-        <DCHeader state={state} />
+        <DCHeader state={state} showNotifications={false} />
 
         <Box
           sx={{
             flex: 1,
             overflowY: "auto",
-            p: 3,
+            p: { xs: 1.5, sm: 2, md: 3 },
+            // The bottom nav is fixed, so the last card would sit under it
+            // without this reserved gutter (plus the iOS home indicator).
+            pb: {
+              xs: `calc(${DC_BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom) + 16px)`,
+              md: 3,
+            },
             "&::-webkit-scrollbar": { width: 9, height: 9 },
             "&::-webkit-scrollbar-thumb": {
               bgcolor: "rgba(255,255,255,0.12)",
@@ -100,6 +109,16 @@ export default function DemoDriverConsoleClient({ lang = "en" }: { lang?: string
           {view === "documents" && <DCDocumentsTab state={state} />}
         </Box>
       </Stack>
+
+      <DCBottomNav
+        locked={false}
+        lang={lang}
+        view={view}
+        setView={setView}
+        NAV={NAV}
+        onHelpClick={handleHelpClick}
+        dict={state.dict}
+      />
 
       <Dialog open={!!pendingDutyChange} onClose={cancelDutyChange}>
         <DialogTitle>{dc.dashboard.confirmDutyChangeTitle}</DialogTitle>

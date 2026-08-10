@@ -2,7 +2,7 @@ import DashboardLayoutClient from "@/app/components/dashboard/DashboardLayoutCli
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
-import { isWarehouseOnlyRole, isDriverOnlyRole } from "@/app/lib/roles";
+import { isWarehouseOnlyRole, isDriverOnlyRole, hasNoDashboardAccess } from "@/app/lib/roles";
 import { UserProvider } from "@/app/lib/context/UserContext";
 
 export const metadata: Metadata = {
@@ -34,6 +34,11 @@ export default async function DashboardLayout({
   // dashboard.
   if (user && isDriverOnlyRole(user.roleName)) {
     redirect(`/${lang}/driver-console`);
+  }
+  // Default-role (Staff) users have no dashboard access whatsoever and are
+  // confined to the landing page.
+  if (user && hasNoDashboardAccess(user.roleName)) {
+    redirect(`/${lang}?landing=true`);
   }
 
   // UserProvider lives here (not in the root [lang] layout) so the session

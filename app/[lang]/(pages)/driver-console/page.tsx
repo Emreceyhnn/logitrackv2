@@ -7,7 +7,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
-import { isDriverOnlyRole } from "@/app/lib/roles";
+import { isDriverOnlyRole, hasNoDashboardAccess } from "@/app/lib/roles";
 import { getDriverConsoleDashboard } from "@/app/lib/controllers/driverConsole";
 import { driverConsoleKeys } from "@/app/lib/query-keys/driverConsole.keys";
 import { GuidedTourProvider } from "@/app/lib/context/GuidedTourContext";
@@ -35,6 +35,9 @@ export default async function DriverConsolePage({
   const user = await getAuthenticatedUser();
   if (!user) {
     redirect(`/${lang}/auth/sign-in`);
+  }
+  if (user && hasNoDashboardAccess(user.roleName)) {
+    redirect(`/${lang}?landing=true`);
   }
 
   const locked = isDriverOnlyRole(user.roleName);

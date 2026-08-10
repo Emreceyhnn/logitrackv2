@@ -8,4 +8,6 @@ export const warehouseKeys = {
   dashboard: () => [...warehouseKeys.all, "dashboard"] as const,
   dashboardWithFilters: (page: number, pageSize: number) =>
     [...warehouseKeys.dashboard(), { page, pageSize }] as const,
+  zonesAll: () => [...warehouseKeys.all, "zones"] as const,
+  zones: (warehouseId: string) => [...warehouseKeys.zonesAll(), warehouseId] as const,
 };

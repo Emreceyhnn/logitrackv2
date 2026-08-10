@@ -55,6 +55,13 @@
     },
     "actions": "Actions",
     "status": "Status",
+    "statusLabels": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
     "date": "Date",
     "technician": "Technician",
     "next": "Next",
@@ -162,7 +169,12 @@
     "searchPlaceholder": "Search...",
     "underDevelopment": "This feature is currently under development.",
     "comingSoon": "Coming Soon",
-    "manualEntry": "Manual Entry"
+    "manualEntry": "Manual Entry",
+    "timeUnits": {
+      "day": "d",
+      "hour": "h",
+      "minute": "m"
+    }
   },
   "guidedTour": {
     "overview": {
@@ -459,6 +471,7 @@
     "emailVerifiedSuccess": "Your email address has been verified.",
     "emailAlreadyVerified": "This email address is already verified.",
     "continueToSignIn": "Continue to Sign In",
+    "continueToOnboarding": "Continue",
     "verifyEmailInvalid": "This verification link is invalid or has expired.",
     "verifyEmailError": "Something went wrong. Please try again.",
     "verifyEmailResendTitle": "Request a new link",
@@ -478,7 +491,12 @@
     "sendResetLink": "Send Reset Link",
     "sending": "Sending...",
     "backToSignIn": "Back to Sign In",
-    "tagline": "Empowering global supply chains with real-time intelligence and seamless coordination."
+    "tagline": "Empowering global supply chains with real-time intelligence and seamless coordination.",
+    "verifyEmailGateTitle": "Verify your email first",
+    "verifyEmailGateBody": "Before creating a company we need to confirm your email address belongs to you. Press the button below to send the verification link.",
+    "verifyEmailGateSend": "Send Verification Email",
+    "verifyEmailGateSending": "Sending…",
+    "verifyEmailGateSent": "Verification link sent to {email}. Once you follow it you can create your company."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Logistics Management Platform",
@@ -1658,7 +1676,7 @@
     "howItWorks": "How It Works",
     "contact": "Contact",
     "dashboard": "Dashboard",
-    "setupOrg": "Setup Org",
+    "setupOrg": "Complete Setup",
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "startPro": "Start Pro"
@@ -1829,6 +1847,7 @@
     },
     "docTypes": {
       "REGISTRATION": "Registration",
+      "TRAILER_REGISTRATION": "Trailer Registration",
       "INSURANCE": "Insurance",
       "LICENSE": "License/Permit",
       "INSPECTION": "Inspection",
@@ -1853,6 +1872,7 @@
       "uploadNotes": "SVG, PNG, JPG or GIF",
       "dragAndDrop": "or drag and drop",
       "fileFormats": "JPG or PNG (Max. 10MB)",
+      "pdfUploadDisabled": "PDF uploads are temporarily unavailable. Please try again later.",
       "complianceDates": "Compliance Dates",
       "registrationExpiry": "Registration Expiry Date",
       "inspectionExpiry": "Inspection Expiry Date",
@@ -1979,6 +1999,18 @@
       "onTrip": "On Trip",
       "openIssues": "Open Issues",
       "docsExpiring": "Docs Expiring"
+    },
+    "docStats": {
+      "summary": "Document Summary",
+      "valid": "Valid",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired",
+      "noExpiry": "No expiry",
+      "lastUpload": "Last upload",
+      "never": "Nothing uploaded yet",
+      "totalDocs": "{count} documents",
+      "uploadNew": "Upload New Document",
+      "allValid": "All documents valid"
     },
     "tabs": {
       "vehicles": "Vehicles",
@@ -2263,6 +2295,13 @@
       "lastName": "Last Name",
       "status": "Status",
       "locationName": "Location Name"
+    },
+    "activityStatus": {
+      "PENDING": "Shipment created",
+      "ASSIGNED": "Route created",
+      "IN_TRANSIT": "In transit",
+      "DELIVERED": "Successful",
+      "CANCELLED": "Cancelled"
     }
   },
   "industries": {
@@ -2392,6 +2431,7 @@
       "storageDesc": "Define where this inventory will be stored and its stock thresholds.",
       "warehouseLocation": "Warehouse Location",
       "selectFacility": "SELECT FACILITY *",
+      "warehouseLockedHint": "Warehouse preselected because you are adding from this warehouse.",
       "stockConfig": "Stock Configuration",
       "initialQuantity": "INITIAL QUANTITY",
       "minStockAlert": "MIN. STOCK LEVEL (ALERT)",
@@ -2431,7 +2471,7 @@
       "unitValue": "Unit Value",
       "weight": "Weight",
       "volume": "Volume",
-      "pallets": "Pallets",
+      "pallets": "Units per Pallet",
       "unit": "Unit"
     },
     "categories": {
@@ -2463,29 +2503,37 @@
       "active": "Active"
     },
     "joinRequests": {
-      "title": "Pending Join Requests",
+      "title": "Invitations & Join Requests",
       "empty": "No pending join requests.",
       "columns": {
         "requester": "Name",
         "email": "Email",
-        "requestedAt": "Requested"
+        "requestedAt": "Requested",
+        "type": "Type",
+        "status": "Status",
+        "request": "Request",
+        "invitation": "Invitation"
       },
       "actions": {
         "accept": "Accept",
-        "reject": "Reject"
+        "reject": "Reject",
+        "resend": "Resend",
+        "revoke": "Revoke"
       }
     },
     "roles": {
       "Admin": "Admin",
-      "Manager": "Manager",
+      "Manager": "Warehouse Manager",
       "Warehouse Worker": "Warehouse Worker",
       "Driver": "Driver",
-      "Customer": "Customer",
+      "Customer": "Staff",
       "read-only": "read-only",
       "Administrator": "Administrator",
       "Warehouse Manager": "Warehouse Manager",
       "Dispatcher": "Dispatcher",
-      "Warehouse Operator": "Warehouse Operator"
+      "Warehouse Operator": "Warehouse Operator",
+      "Warehouse": "Warehouse Worker",
+      "Default": "Staff"
     },
     "branding": {
       "title": "Company Identity",
@@ -2531,7 +2579,7 @@
       "employeeIdHelper": "Company assigned unique identifier",
       "phoneHelper": "Required for driver contact",
       "existingUser": "Add existing user",
-      "inviteByEmail": "Invite driver by email",
+      "inviteByEmail": "Invite user by email",
       "inviteEmailPlaceholder": "driver@example.com",
       "sendInvite": "Send Invite",
       "domainLabel": "Company Email Domain",
@@ -2539,6 +2587,10 @@
       "acceptJoinRequestTitle": "Accept Join Request",
       "rejectJoinRequestTitle": "Reject Join Request",
       "rejectJoinRequestDescription": "This person will need to submit a new request to join later.",
+      "revokeInvitationTitle": "Revoke Invitation",
+      "revokeInvitationDesc": "Are you sure you want to revoke this invitation? The link that was sent will stop working.",
+      "resendInvitationTitle": "Resend Invitation",
+      "resendInvitationDesc": "Are you sure you want to resend this invitation? A new link will be generated and the old one will stop working.",
       "steps": {
         "branding": "Branding",
         "regional": "Regional",
@@ -2836,6 +2888,7 @@
     "table": {
       "title": "Route List",
       "noRoutes": "No routes found.",
+      "notSyncedYet": "This route hasn't been saved yet. Please wait a moment and try again.",
       "searchPlaceholder": "Search route...",
       "columns": {
         "routeId": "Route ID",
@@ -3016,6 +3069,7 @@
       "details": {
         "overview": "Overview",
         "inventory": "Inventory",
+        "zones": "Zones",
         "locationDetails": "Location Details",
         "address": "Address",
         "cityCountry": "City / Country",
@@ -3072,6 +3126,26 @@
         "specifications": "Facility Specifications",
         "guidance": "Operational Guidance Notes",
         "guidanceText": "Ensure that hazardous material certifications are up-to-date and facility complies with local safety standards before finalizing."
+      },
+      "zones": {
+        "title": "Warehouse Zones",
+        "subtitle": "Define the physical zones (A, B, C…) in this warehouse and their pallet capacity. Inventory and the warehouse worker panel locate items against these zones.",
+        "empty": "No zones defined yet",
+        "emptyDesc": "Create at least one zone (e.g. A, B, C) before you can assign locations to items.",
+        "addZone": "Add Zone",
+        "editZone": "Edit Zone",
+        "deleteZone": "Delete Zone",
+        "deleteZoneConfirm": "Are you sure you want to delete zone \"{code}\"?",
+        "code": "Zone Code",
+        "codePlaceholder": "e.g. A, B1, COLD-01",
+        "name": "Zone Name (Optional)",
+        "namePlaceholder": "e.g. Ground Floor Shelving",
+        "capacityPallets": "Pallet Capacity",
+        "capacityPalletsPlaceholder": "e.g. 500",
+        "usedOfCapacity": "{used} / {capacity} pallets",
+        "codeRequired": "Zone code is required",
+        "save": "Save",
+        "cancel": "Cancel"
       }
     },
     "fields": {
@@ -3326,7 +3400,18 @@
         "allClear": "All clear! No urgent actions required.",
         "ISSUE_ALERT": "{priority} · {status}",
         "DOC_EXPIRES": "Expires {date}",
-        "DOC_EXPIRY_APPROACHING": "Expiry approaching"
+        "DOC_EXPIRY_APPROACHING": "Expiry approaching",
+        "DOC_EXPIRED_DETAIL": "The {docType} document for vehicle {owner} expired on {date}",
+        "DOC_EXPIRED_DETAIL_DRIVER": "The {docType} document for driver {owner} expired on {date}",
+        "DOC_EXPIRED_DETAIL_NONE": "The {docType} document expired on {date}",
+        "DOC_EXPIRING_DETAIL": "The {docType} document for vehicle {owner} expires on {date}",
+        "DOC_EXPIRING_DETAIL_DRIVER": "The {docType} document for driver {owner} expires on {date}",
+        "DOC_EXPIRING_DETAIL_NONE": "The {docType} document expires on {date}",
+        "badgeExpired": "EXPIRED",
+        "badgeExpiringSoon": "EXPIRING SOON",
+        "expiredDaysAgo": "{days} days overdue",
+        "expiresInDays": "{days} days left",
+        "expiresToday": "Expires today"
       },
       "dailyOperations": {
         "title": "Today's Operations",
@@ -3591,6 +3676,8 @@
       "nextTaskStart": "Start",
       "nextTaskAllClear": "All caught up",
       "nextTaskAllClearSub": "No open tasks — nice work.",
+      "taskCompleteNoScan": "Task completed — but no items were scanned this session",
+      "taskZoneMismatch": "you're in a different zone",
       "allAssignedTasks": "All assigned tasks",
       "siteCapacity": "Site capacity",
       "zoneNearFull": "Zone near full",
@@ -3606,6 +3693,19 @@
       "activePickZone": "Active pick zone",
       "quickActions": "Quick actions",
       "requestRestockZone": "Request restock — Zone",
+      "restockDialogTitle": "Request restock",
+      "restockDialogSubtitle": "Pick the item that ran low and how many units you need",
+      "restockDialogZone": "Zone",
+      "restockDialogItem": "Item",
+      "restockDialogItemPlaceholder": "Search by SKU or name…",
+      "restockDialogNoMatch": "No item matches — try another SKU or name",
+      "restockDialogNoItemsInZone": "No items recorded in this zone",
+      "restockDialogQty": "Quantity",
+      "restockDialogAvailable": "available",
+      "restockDialogMin": "min",
+      "restockDialogSuggested": "Suggested",
+      "restockDialogSubmit": "Send request",
+      "restockDialogSelectItem": "Select an item to continue",
       "reportIssue": "Report an issue",
       "lowStockTitle": "Low stock",
       "lowStockNone": "All items above reorder point.",
@@ -3803,7 +3903,12 @@
     "accepting": "Accepting...",
     "declining": "Declining...",
     "invitationAccepted": "Invitation accepted!",
-    "invitationDeclined": "Invitation declined."
+    "invitationDeclined": "Invitation declined.",
+    "requestDemoButton": "Request a Demo",
+    "verifyGateTitle": "Verify your email to continue",
+    "verifyGateBody": "We sent a verification link to {email}. Confirm it before creating or joining a company.",
+    "verifyGateResendButton": "Resend verification email",
+    "verifyGateResent": "Verification email sent — check your inbox."
   },
   "pendingAccess": {
     "title": "Setting up your access",
@@ -3820,5 +3925,377 @@
     "title": "User Management",
     "subtitle": "Manage company users, roles, and access permissions",
     "comingSoonDescription": "The User Management module is currently under development. Soon you will be able to invite team members, assign specific roles (e.g. Dispatcher, Manager, Admin), and track user activity logs."
+  },
+  "admin": {
+    "title": "Admin Console",
+    "subtitle": "Platform administration and service diagnostics",
+    "badge": "Platform Admin",
+    "nav": {
+      "overview": "Overview",
+      "platform": "Platform",
+      "tenants": "Tenants",
+      "users": "Users",
+      "sessions": "Sessions",
+      "audit": "Audit Logs",
+      "observability": "Observability",
+      "health": "Health Checks",
+      "database": "Database",
+      "sandbox": "Service Sandbox",
+      "sandboxApi": "API Tester",
+      "sandboxWebsocket": "WebSocket & SSE",
+      "sandboxEmail": "Email & SMTP",
+      "sandboxQueue": "Queue Monitor",
+      "sandboxNotifications": "Notifications",
+      "system": "System",
+      "flags": "Feature Flags",
+      "settings": "Environment",
+      "deleted": "Deleted Records",
+      "demoRequests": "Demo Requests"
+    },
+    "header": {
+      "search": "Search or jump to…",
+      "commandHint": "Ctrl K",
+      "allSystems": "All systems operational",
+      "degraded": "Degraded performance",
+      "outage": "Service outage",
+      "checking": "Checking services…",
+      "backToApp": "Back to app",
+      "signOut": "Sign out"
+    },
+    "palette": {
+      "placeholder": "Type a command or search…",
+      "empty": "No results found.",
+      "groupNavigation": "Navigation",
+      "groupActions": "Actions",
+      "close": "Close"
+    },
+    "status": {
+      "up": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "Unknown"
+    },
+    "common": {
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "loading": "Loading…",
+      "error": "Something went wrong",
+      "noData": "No data available",
+      "lastChecked": "Last checked",
+      "latency": "Latency",
+      "sensitive": "Sensitive",
+      "readOnly": "Read only",
+      "simulated": "Simulated"
+    },
+    "overview": {
+      "kpi": {
+        "tenants": "Tenants",
+        "users": "Total Users",
+        "activeSessions": "Active Sessions",
+        "signIns": "Sign-ins",
+        "shipments": "Shipments Created",
+        "failedSignIns": "Failed Sign-ins"
+      },
+      "ranges": {
+        "1h": "1H",
+        "24h": "24H",
+        "7d": "7D",
+        "30d": "30D"
+      },
+      "charts": {
+        "activityTitle": "Platform Activity",
+        "activitySubtitle": "Sign-ins and new users over the selected range",
+        "signIns": "Sign-ins",
+        "signups": "New users",
+        "subscriptionsTitle": "Subscription Mix",
+        "subscriptionsSubtitle": "Distribution across all accounts",
+        "tenantsTitle": "Most Active Tenants",
+        "tenantsSubtitle": "Ranked by shipment volume"
+      },
+      "table": {
+        "tenant": "Tenant",
+        "users": "Users",
+        "shipments": "Shipments",
+        "created": "Created"
+      },
+      "telemetryNotice": "Host metrics (CPU, memory, request rate, p99 latency) are not shown — this deployment has no APM data source connected.",
+      "generatedAt": "Updated"
+    },
+    "sandbox": {
+      "api": {
+        "title": "API Tester",
+        "subtitle": "Replay this application's own REST endpoints",
+        "presets": "Presets",
+        "method": "Method",
+        "path": "Path",
+        "headers": "Headers",
+        "query": "Query Params",
+        "body": "Body (JSON)",
+        "send": "Send Request",
+        "sending": "Sending…",
+        "reset": "Reset",
+        "response": "Response",
+        "status": "Status",
+        "duration": "Time",
+        "size": "Size",
+        "noResponse": "Send a request to see the response here.",
+        "keyPlaceholder": "Header name",
+        "valuePlaceholder": "Value",
+        "queryKeyPlaceholder": "Param name",
+        "addRow": "Add row",
+        "scopeNotice": "Only this app's /api/* routes can be called. Absolute URLs and external hosts are rejected by the server.",
+        "bodyInvalid": "Body must be valid JSON"
+      },
+      "email": {
+        "title": "Email & SMTP Tester",
+        "subtitle": "Send a real message through Resend using production templates",
+        "recipient": "Recipient",
+        "recipientPlaceholder": "you@example.com",
+        "template": "Template",
+        "language": "Language",
+        "subject": "Subject",
+        "html": "HTML body",
+        "send": "Send Test Email",
+        "sending": "Sending…",
+        "warning": "This sends a REAL email through Resend. Use an address you control.",
+        "templates": {
+          "verification": "Email verification",
+          "passwordReset": "Password reset",
+          "companyWelcome": "Company welcome",
+          "securityAlert": "Security alert",
+          "notification": "Notification",
+          "custom": "Custom HTML"
+        },
+        "success": "Email dispatched",
+        "failure": "Delivery failed"
+      },
+      "queue": {
+        "title": "Queue & Cache Monitor",
+        "subtitle": "Live Redis keyspace and rate-limit state",
+        "totalKeys": "Keys scanned",
+        "namespaces": "Namespaces",
+        "rateLimitKeys": "Active rate-limit windows",
+        "latency": "Probe latency",
+        "unreachable": "Redis is unreachable",
+        "truncated": "Scan capped — the keyspace is larger than shown.",
+        "live": "Live",
+        "noBullmq": "This application does not use BullMQ or a job queue library, so there are no jobs to retry or drain. What is shown is the real Redis cache and rate-limiter state.",
+        "namespace": "Namespace",
+        "keyCount": "Keys"
+      },
+      "stream": {
+        "title": "Event Stream Tester",
+        "subtitle": "Connect to a live Server-Sent Events endpoint",
+        "connect": "Connect",
+        "disconnect": "Disconnect",
+        "clear": "Clear",
+        "status": "Status",
+        "events": "Events",
+        "noEvents": "No events yet. Connect to start receiving.",
+        "statuses": {
+          "idle": "Idle",
+          "connecting": "Connecting…",
+          "open": "Connected",
+          "closed": "Closed",
+          "error": "Error"
+        },
+        "wsNotice": "This tester uses Server-Sent Events (SSE). A raw WebSocket tester is not included because this deployment exposes no WebSocket endpoint."
+      },
+      "notImplemented": {
+        "payments": "Payment Gateway Sandbox",
+        "paymentsBody": "No payment provider (Stripe, Iyzico) is integrated in this codebase, so there is nothing to test. This page is intentionally left unimplemented rather than simulated, so the console never implies coverage that does not exist."
+      }
+    },
+    "data": {
+      "tenants": {
+        "title": "Tenants",
+        "subtitle": "Every company on the platform",
+        "name": "Name",
+        "domain": "Domain",
+        "users": "Users",
+        "vehicles": "Vehicles",
+        "shipments": "Shipments",
+        "created": "Created"
+      },
+      "users": {
+        "title": "Users",
+        "subtitle": "Manage accounts across all tenants",
+        "search": "Search by name or email",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "user": "User",
+        "email": "Email",
+        "role": "Role",
+        "tenant": "Tenant",
+        "sessions": "Sessions",
+        "lastLogin": "Last login",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "never": "Never",
+        "actions": "Actions",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "suspend": "Suspend",
+        "revokeSessions": "Sign out everywhere",
+        "statuses": {
+          "ACTIVE": "Active",
+          "INACTIVE": "Inactive",
+          "SUSPENDED": "Suspended"
+        },
+        "confirmSuspend": "Suspend this account? All active sessions will be terminated immediately.",
+        "confirmRevoke": "Sign this user out of every device?",
+        "selfActionBlocked": "You cannot change your own account status."
+      },
+      "sessions": {
+        "title": "Sessions",
+        "subtitle": "Live sessions across the platform",
+        "user": "User",
+        "device": "Device",
+        "ip": "IP address",
+        "lastActivity": "Last activity",
+        "expires": "Expires",
+        "state": "State",
+        "active": "Active",
+        "revoked": "Revoked",
+        "expired": "Expired",
+        "kill": "Revoke",
+        "confirmKill": "Revoke this session? The user will be signed out immediately.",
+        "unknownDevice": "Unknown device"
+      },
+      "audit": {
+        "title": "Audit Logs",
+        "subtitle": "Immutable record of security-relevant events",
+        "action": "Action",
+        "allActions": "All actions",
+        "search": "Search by email or IP",
+        "actor": "Actor",
+        "ip": "IP",
+        "when": "When",
+        "metadata": "Metadata",
+        "immutableNotice": "This log is append-only. The console provides no way to edit or delete entries.",
+        "system": "System",
+        "noLiveLogsNotice": "There is no separate live log stream: app/lib/logger.ts writes only to the process console (stdout/stderr) and persists nothing, so there is no store this console could read from. This audit trail is the real, persisted, queryable record of security-relevant events."
+      },
+      "database": {
+        "title": "Database Browser",
+        "subtitle": "Read-only view of platform records",
+        "model": "Table",
+        "readOnlyNotice": "No editing. Rows can be soft-deleted (hidden and restorable) but never edited or erased, and tables holding credentials (users, sessions, tokens) are excluded entirely.",
+        "rows": "rows"
+      },
+      "flags": {
+        "title": "Feature Flags",
+        "subtitle": "Toggle platform capabilities without a deploy",
+        "flag": "Flag",
+        "state": "State",
+        "updated": "Last changed",
+        "never": "Never changed",
+        "enabled": "On",
+        "disabled": "Off"
+      },
+      "env": {
+        "title": "Environment",
+        "subtitle": "Deployment configuration",
+        "variable": "Variable",
+        "value": "Value",
+        "notSet": "(not set)",
+        "maskNotice": "Secret values are masked server-side and never sent to the browser. Only the last four characters of long values are shown, so two keys can be told apart without either being readable."
+      },
+      "masquerade": {
+        "title": "User Masquerade",
+        "unavailable": "Not available",
+        "body": "Signing in as another user is not implemented. The session token in this application carries no impersonation marker, so a masquerade session would be indistinguishable from a genuine login — in the audit trail, to the tenant's own users, and to any downstream service. Shipping it without that marker would make every action taken while impersonating unattributable. Implementing it safely requires an `impersonatedBy` claim in the JWT, a shortened token lifetime, a persistent banner in the app shell, and dedicated audit actions."
+      },
+      "announcement": {
+        "title": "Announcement Banner",
+        "subtitle": "Broadcast a message to every signed-in user",
+        "message": "Message",
+        "messagePlaceholder": "Scheduled maintenance tonight at 22:00 UTC…",
+        "severity": "Severity",
+        "severities": {
+          "info": "Info",
+          "warning": "Warning",
+          "critical": "Critical"
+        },
+        "publish": "Publish",
+        "clear": "Take down",
+        "active": "Live",
+        "inactive": "Not published",
+        "updated": "Last changed",
+        "preview": "Preview",
+        "charCount": "characters",
+        "plainTextNotice": "The banner is rendered as plain text. HTML and markup are not interpreted."
+      },
+      "demoRequests": {
+        "title": "Demo Requests",
+        "subtitle": "Review incoming demo requests and grant trial access",
+        "requester": "Requester",
+        "type": "Type",
+        "account": "Account",
+        "status": "Status",
+        "received": "Received",
+        "trialDays": "Trial",
+        "days": "{days} days",
+        "approve": "Approve",
+        "regrant": "Re-grant",
+        "reject": "Reject",
+        "reopen": "Reopen",
+        "until": "until",
+        "noAccount": "No account",
+        "noAccountHint": "No account exists for this email yet, so approving cannot grant a trial. They will receive one when they sign up.",
+        "noRequests": "No requests here.",
+        "invalidDays": "Trial length must be a whole number between 1 and 365 days.",
+        "approvedWithTrial": "Approved — {days}-day trial granted",
+        "approvedNoAccount": "Approved, but no account exists for that email yet — nothing was granted.",
+        "statusUpdated": "Status updated",
+        "filters": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected",
+          "ALL": "All requests"
+        },
+        "statuses": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected"
+        }
+      },
+      "deletion": {
+        "delete": "Delete",
+        "restore": "Restore",
+        "deleted": "Deleted",
+        "deletedAt": "Deleted at",
+        "confirmTitle": "Delete this record?",
+        "confirmBody": "The record will be hidden everywhere in the application. It is not erased from the database and can be restored later.",
+        "confirmCompanyTitle": "Delete this tenant?",
+        "confirmCompanyBody": "This hides the company AND every one of its users, and signs them all out immediately. Vehicles, shipments and other records become unreachable with it. This can be restored, but the affected users must sign in again.",
+        "typeToConfirm": "Type the company name to confirm:",
+        "cancel": "Cancel",
+        "confirmDelete": "Yes, delete",
+        "softDeleteNotice": "Deletes are reversible. Records are hidden from the application, not erased — the audit trail and referential integrity stay intact.",
+        "restoreTitle": "Deleted Records",
+        "restoreSubtitle": "Review and restore soft-deleted records",
+        "entity": "Type",
+        "record": "Record",
+        "noDeleted": "Nothing has been deleted.",
+        "deleteSuccess": "Record deleted",
+        "restoreSuccess": "Record restored",
+        "cascadeUsers": "users also hidden and signed out",
+        "cannotDeleteSelf": "You cannot delete your own account",
+        "cannotDeleteAdmin": "Platform administrators cannot be deleted",
+        "entities": {
+          "user": "User",
+          "company": "Tenant",
+          "vehicle": "Vehicle",
+          "trailer": "Trailer",
+          "shipment": "Shipment",
+          "route": "Route",
+          "warehouse": "Warehouse",
+          "customer": "Customer",
+          "driver": "Driver",
+          "inventory": "Inventory"
+        }
+      }
+    }
   }
 }

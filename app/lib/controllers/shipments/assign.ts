@@ -85,7 +85,7 @@ export const assignDriverToShipment = authenticatedAction(
             message: `${updatedShipment.trackingId} numaralı sevkiyat size atandı.`,
             type: "SUCCESS",
             category: "NEW_ASSIGNMENT",
-            link: `/dashboard/shipments/${updatedShipment.id}`,
+            link: `/shipments?id=${updatedShipment.id}`,
           }
         );
       }
@@ -98,7 +98,7 @@ export const assignDriverToShipment = authenticatedAction(
           message: `${updatedShipment.trackingId} numaralı sevkiyata bir sürücü atandı.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
-          link: `/dashboard/shipments/${updatedShipment.id}`,
+          link: `/shipments?id=${updatedShipment.id}`,
         }
       );
 
@@ -179,7 +179,7 @@ export const assignRouteToShipment = authenticatedAction(
           message: `${updatedShipment.trackingId} numaralı sevkiyat bir rotaya dahil edildi.`,
           type: "SUCCESS",
           category: "NEW_ASSIGNMENT",
-          link: `/dashboard/shipments/${updatedShipment.id}`,
+          link: `/shipments?id=${updatedShipment.id}`,
         }
       );
 
@@ -262,7 +262,7 @@ export const updateShipmentStatus = authenticatedAction(
               status === ShipmentStatus.DELAYED
                 ? "DELAY_ALERT"
                 : "SHIPMENT_UPDATE",
-            link: `/dashboard/shipments/${updatedShipment.id}`,
+            link: `/shipments?id=${updatedShipment.id}`,
           }
         );
       } else if (status === ShipmentStatus.DELIVERED) {
@@ -273,7 +273,7 @@ export const updateShipmentStatus = authenticatedAction(
             message: `${updatedShipment.trackingId} numaralı sevkiyat başarıyla teslim edildi.`,
             type: "SUCCESS",
             category: "SHIPMENT_UPDATE",
-            link: `/dashboard/shipments/${updatedShipment.id}`,
+            link: `/shipments?id=${updatedShipment.id}`,
           }
         );
       } else if (
@@ -290,7 +290,7 @@ export const updateShipmentStatus = authenticatedAction(
             message: `${updatedShipment.trackingId} numaralı sevkiyat ${status === ShipmentStatus.PROCESSING ? "işleme alındı" : "yola çıktı"}.`,
             type: "INFO",
             category: "SHIPMENT_UPDATE",
-            link: `/dashboard/shipments/${updatedShipment.id}`,
+            link: `/shipments?id=${updatedShipment.id}`,
           }
         );
       }

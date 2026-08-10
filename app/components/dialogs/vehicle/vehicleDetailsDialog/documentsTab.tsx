@@ -31,7 +31,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [loadingDoc, setLoadingDoc] = useState(false);
-  const [selectedDoc, setSelectedDoc] = useState<{ url: string; title: string; } | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<{ url: string; sourceUrl: string; title: string; fileType?: string; } | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [docToDelete, setDocToDelete] = useState<{ id: string; name: string; } | null>(null);
   const [isDeletingDoc, setIsDeletingDoc] = useState(false);
@@ -51,7 +51,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
       setLoadingDoc(true);
       const result = await getSignedUrlAction(url);
       if (result.success && result.url) {
-        setSelectedDoc({ url: result.url, title });
+        setSelectedDoc({
+          url: result.url,
+          sourceUrl: url,
+          title,
+          fileType: result.resourceType === "raw" ? "application/pdf" : "image",
+        });
         setViewerOpen(true);
       } else {
         toast.error(dict.toasts.errorNoPermission);
@@ -69,7 +74,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
     if (!url) return toast.error(dict.toasts.errorNoConnection);
     if (isDemo) return toast.info(dict.toasts.demoActionDisabled);
     try {
-      const result = await getSignedUrlAction(url);
+      const result = await getSignedUrlAction(url, "documents", true);
       if (result.success && result.url) {
         window.open(result.url, "_blank", "noopener,noreferrer");
       } else {
@@ -114,17 +119,27 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const oneMonthLater = new Date();
   oneMonthLater.setMonth(now.getMonth() + 1);
 
-  const activeCount = vehicle.documents.filter((d) => d.expiryDate && new Date(d.expiryDate) > now).length;
-  const expiringSoonCount = vehicle.documents.filter((d) => {
-    if (!d.expiryDate) return false;
-    const expiry = new Date(d.expiryDate);
-    return expiry > now && expiry <= oneMonthLater;
-  }).length;
-  const missingOrExpiredCount = vehicle.documents.filter((d) => {
-    if (!d.expiryDate) return true;
-    const expiry = new Date(d.expiryDate);
-    return expiry <= now;
-  }).length;
+  // Every document lands in exactly ONE bucket. The previous split double
+  // counted: `activeCount` included everything not yet expired — the expiring
+  // ones as well — so the tiles summed to more than the document count and
+  // "valid" quietly contradicted "expiring soon". A document with no expiry
+  // date is its own state rather than being lumped in with expired ones,
+  // which had made undated files look like a compliance failure.
+  const buckets = vehicle.documents.reduce(
+    (acc, d) => {
+      if (!d.expiryDate) {
+        acc.noExpiry += 1;
+        return acc;
+      }
+      const expiry = new Date(d.expiryDate);
+      if (expiry <= now) acc.expired += 1;
+      else if (expiry <= oneMonthLater) acc.expiringSoon += 1;
+      else acc.valid += 1;
+      return acc;
+    },
+    { valid: 0, expiringSoon: 0, expired: 0, noExpiry: 0 }
+  );
+
   const lastUploadDate = vehicle.documents.reduce((latest, d) => {
     const created = new Date(d.createdAt);
     return created > latest ? created : latest;
@@ -132,13 +147,15 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
 
   return (
     <>
-      <Stack spacing={2} direction={"row"} maxHeight={450} height={"100%"} alignItems={"start"}>
+      <Stack spacing={2} direction={"row"} maxHeight={450} height={"100%"} alignItems={"stretch"}>
         <DocumentStatsCards
           dict={dict}
           dateSettings={dateSettings}
-          activeCount={activeCount}
-          expiringSoonCount={expiringSoonCount}
-          missingOrExpiredCount={missingOrExpiredCount}
+          validCount={buckets.valid}
+          expiringSoonCount={buckets.expiringSoon}
+          expiredCount={buckets.expired}
+          noExpiryCount={buckets.noExpiry}
+          totalCount={vehicle.documents.length}
           lastUploadDate={lastUploadDate}
           onUploadClick={() => setUploadDialogOpen(true)}
         />
@@ -156,7 +173,16 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
         <CircularProgress color="inherit" />
       </Backdrop>
       <UploadDocumentDialog open={uploadDialogOpen} onClose={() => setUploadDialogOpen(false)} vehicleId={vehicle.id} onSuccess={handleUploadSuccess} />
-      {selectedDoc && <DocumentViewerDialog open={viewerOpen} onClose={() => setViewerOpen(false)} url={selectedDoc.url} title={selectedDoc.title} />}
+      {selectedDoc && (
+        <DocumentViewerDialog
+          open={viewerOpen}
+          onClose={() => setViewerOpen(false)}
+          url={selectedDoc.url}
+          title={selectedDoc.title}
+          fileType={selectedDoc.fileType}
+          onDownload={() => handleDownloadDoc(selectedDoc.sourceUrl)}
+        />
+      )}
     </>
   );
 };

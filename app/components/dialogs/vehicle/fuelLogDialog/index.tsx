@@ -12,7 +12,6 @@ import {
   Stack,
   Alert,
   InputAdornment,
-  CircularProgress,
   IconButton,
   Typography,
   Box,
@@ -61,7 +60,8 @@ export default function AddFuelLogDialog({
     fuelType: "DIESEL",
     driverId: currentDriverId || "",
   });
-  const [loading, setLoading] = useState(false);
+  // No loading flag: the dialog closes as soon as validation passes, so a
+  // "saving…" state would never be visible.
   const [error, setError] = useState<string | null>(null);
 
   /* -------------------------------- handlers -------------------------------- */
@@ -76,29 +76,30 @@ export default function AddFuelLogDialog({
       return;
     }
 
-    setLoading(true);
     setError(null);
 
-    try {
-      await addFuelLog.mutateAsync({
-        vehicleId,
-        driverId: formData.driverId,
-        date: formData.date.toDate(),
-        volumeLiter: parseFloat(formData.volumeLiter),
-        cost: parseFloat(formData.cost),
-        odometerKm: parseInt(formData.odometerKm),
-        location: formData.location || undefined,
-        fuelType: formData.fuelType as import("@/app/lib/type/enums").FuelType,
-        currency: userCurrency,
-      });
+    // Validation above runs while the dialog is still open; once the input is
+    // accepted the dialog closes immediately and the mutation reports its own
+    // outcome by toast. Keeping it open for the round-trip only delayed the
+    // user for a result they see either way.
+    const payload = {
+      vehicleId,
+      driverId: formData.driverId,
+      date: formData.date.toDate(),
+      volumeLiter: parseFloat(formData.volumeLiter),
+      cost: parseFloat(formData.cost),
+      odometerKm: parseInt(formData.odometerKm),
+      location: formData.location || undefined,
+      fuelType: formData.fuelType as import("@/app/lib/type/enums").FuelType,
+      currency: userCurrency,
+    };
+    handleClose();
 
+    try {
+      await addFuelLog.mutateAsync(payload);
       onSuccess();
-      handleClose();
     } catch (err) {
       logger.error(err);
-      setError(dict.fuel.dialogs.error || "Failed to add fuel log");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -353,7 +354,6 @@ export default function AddFuelLogDialog({
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button
             onClick={handleClose}
-            disabled={loading}
             sx={{
               color: "text.secondary",
               textTransform: "none",
@@ -365,7 +365,7 @@ export default function AddFuelLogDialog({
           <Button
             variant="contained"
             onClick={handleSubmit}
-            disabled={loading || !currentDriverId}
+            disabled={!currentDriverId}
             sx={{
               textTransform: "none",
               borderRadius: 2,
@@ -375,14 +375,7 @@ export default function AddFuelLogDialog({
               minWidth: 140,
             }}
           >
-            {loading ? (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <CircularProgress size={16} color="inherit" />
-                <span>{dict.common.saving}</span>
-              </Stack>
-            ) : (
-              dict.common.save
-            )}
+            {dict.common.save}
           </Button>
         </Stack>
       </Box>

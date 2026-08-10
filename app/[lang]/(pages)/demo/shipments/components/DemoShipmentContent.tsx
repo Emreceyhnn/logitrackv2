@@ -101,13 +101,6 @@ export default function DemoShipmentContent() {
   );
 
   /* -------------------------- COMPATIBILITY LAYER --------------------------- */
-  // Memoised, and the `|| []` fallbacks replaced with shared frozen constants:
-  // rebuilding this object (and fresh [] literals) on every render handed
-  // DemoShipmentTable a new `shipments` reference each time, which re-fired its
-  // deep-link effect -> setSelectedShipment(new object) -> new `shipment` prop
-  // on the detail dialog -> its Valhalla effect refired -> render -> repeat.
-  // That loop also burned through the demo routing rate limit (30 req/60s),
-  // which is why the route line stopped drawing.
   const state: ShipmentPageState = useMemo(
     () => ({
       shipments: dashboardData?.shipments || EMPTY_SHIPMENTS,
@@ -118,10 +111,11 @@ export default function DemoShipmentContent() {
         dashboardData?.statusDistribution || EMPTY_STATUS_DISTRIBUTION,
       selectedShipmentId,
       filters: EMPTY_FILTERS,
-      loading: isFetching,
+      loading: isLoading,
+      refreshing: isFetching,
       error: isError ? "error" : null,
     }),
-    [dashboardData, selectedShipmentId, isFetching, isError]
+    [dashboardData, selectedShipmentId, isLoading, isFetching, isError]
   );
 
   /* --------------------------------- RENDER --------------------------------- */

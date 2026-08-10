@@ -53,12 +53,21 @@ const nextCacheMock = {
   revalidatePath: mock.fn(),
 };
 
+// The restock notifier is exercised on its own (see notifyRestock.test.ts); here
+// it is stubbed so the mutation tests don't reach Firebase.
+const notifyRestockMock = {
+  notifyManagerOfRestockRequest: mock.fn(async () => {}),
+};
+
 mock.module("../db.ts", { namedExports: { db: dbMock } });
 mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 mock.module("./utils/checkPermission.ts", { namedExports: checkPermissionMock });
 mock.module("next/cache", { namedExports: nextCacheMock });
+mock.module("./warehouseWorker/notifyRestock.ts", {
+  namedExports: notifyRestockMock,
+});
 
-const user = { id: "user-1", companyId: "company-1" };
+const user = { id: "user-1", companyId: "company-1", name: "Ayşe", surname: "Yılmaz" };
 
 // 2. TEST GRUPLARI
 describe("WarehouseWorker Controller", () => {
@@ -82,6 +91,7 @@ describe("WarehouseWorker Controller", () => {
     txMock.inventory.update.mock.resetCalls();
     checkPermissionMock.checkPermission.mock.resetCalls();
     nextCacheMock.revalidatePath.mock.resetCalls();
+    notifyRestockMock.notifyManagerOfRestockRequest.mock.resetCalls();
   });
 
   describe("logWarehouseMovement()", () => {
@@ -353,7 +363,10 @@ describe("WarehouseWorker Controller", () => {
       const createArg =
         dbMock.inventoryMovement.create.mock.calls[0].arguments[0];
       expect(createArg.data.type).toBe("RESTOCK_REQUEST");
-      expect(createArg.data.sku).toBe("ZONE-A1");
+      // Zone-wide requests (no sku given) carry no item — sku is empty rather
+      // than a synthetic "ZONE-*" placeholder that could collide with a real SKU.
+      expect(createArg.data.sku).toBe("");
+      expect(createArg.data.zone).toBe("A1");
     });
 
     it("SKU + miktar verilince ürün bazlı talep yazar", async () => {
@@ -382,6 +395,42 @@ describe("WarehouseWorker Controller", () => {
         dbMock.inventoryMovement.create.mock.calls[0].arguments[0];
       expect(createArg.data.sku).toBe("SKU-9");
       expect(createArg.data.quantity).toBe(0);
+    });
+
+    // A request nobody is told about is just a ledger row, so the manager
+    // notification is part of the contract, not a side effect.
+    it("depo yöneticisine bildirim gönderir", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+
+      await controller.requestRestock(user, "wh-1", "A1", "SKU-9", 12);
+
+      const calls = notifyRestockMock.notifyManagerOfRestockRequest.mock.calls;
+      expect(calls.length).toBe(1);
+      expect(calls[0].arguments[0]).toEqual({
+        warehouseId: "wh-1",
+        companyId: "company-1",
+        zone: "A1",
+        sku: "SKU-9",
+        quantity: 12,
+        requestedByName: "Ayşe Yılmaz",
+      });
+    });
+
+    // The notifier swallows its own failures (see notifyRestock.ts), so the
+    // movement is written and the worker still gets a success — the request
+    // must never appear to have failed because a notification bounced.
+    it("bildirim sessizce başarısız olsa da talep başarılı döner", async () => {
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+        companyId: "company-1",
+      }));
+
+      const res = await controller.requestRestock(user, "wh-1", "A1", "SKU-9", 12);
+      expect(res).toEqual({ success: true });
+      expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(1);
     });
   });
 

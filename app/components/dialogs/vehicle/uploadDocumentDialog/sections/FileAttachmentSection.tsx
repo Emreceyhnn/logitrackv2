@@ -28,7 +28,7 @@ export default function FileAttachmentSection({ dict, theme, file, handleFileCha
             <Typography variant="body2" fontWeight={700} color="text.primary">{file ? file.name : dict.vehicles.dialogs.selectOrDragFile}</Typography>
             <Typography variant="caption" color="text.secondary" fontWeight={500}>{dict.vehicles.dialogs.fileFormats}</Typography>
           </Stack>
-          <input type="file" hidden onChange={handleFileChange} accept=".jpg,.jpeg,.png,.pdf" />
+          <input type="file" hidden onChange={handleFileChange} accept=".jpg,.jpeg,.png" />
         </Button>
       </Box>
 

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, Button, Stack, Alert, CircularProgress, IconButton, Typography, Box, useTheme } from "@mui/material";
+import { Dialog, DialogContent, Button, Stack, Alert, IconButton, Typography, Box, useTheme } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useRef } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -47,13 +47,24 @@ export default function MaintenanceRecordDialog({ open, onClose, vehicleId, onSu
   const { addMaintenanceRecord } = useVehicleMutations();
 
   const [formData, setFormData] = useState<MaintenanceFormData>({ type: "", date: dayjs() as Dayjs, cost: "", status: MaintenanceStatus.SCHEDULED, description: "", documentUrl: "" });
-  const [loading, setLoading] = useState(false);
+  // No loading flag: the dialog closes as soon as validation passes, so a
+  // "saving…" state would never be visible.
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // PDF uploads are temporarily disabled service-wide; catch it here too
+    // (not just server-side in uploadImageAction) so the user sees why
+    // immediately instead of after picking a file and waiting on the upload.
+    if (file.type === "application/pdf") {
+      setError(dict.vehicles.dialogs.pdfUploadDisabled || "PDF uploads are temporarily unavailable. Please try again later.");
+      e.target.value = "";
+      return;
+    }
+
     setUploading(true);
     setError(null);
     try {
@@ -82,20 +93,21 @@ export default function MaintenanceRecordDialog({ open, onClose, vehicleId, onSu
       setError(dict.common.fillAllFields);
       return;
     }
-    setLoading(true);
     setError(null);
+
+    // Validation above runs while the dialog is open; past that point it closes
+    // immediately and the mutation reports its own outcome by toast.
+    const payload = {
+      vehicleId,
+      data: { type: formData.type as import("@/app/lib/type/enums").MaintenanceType, date: formData.date.toDate(), cost: parseFloat(formData.cost), currency: userCurrency, status: formData.status, description: formData.description, documentUrl: formData.documentUrl },
+    };
+    handleClose();
+
     try {
-      await addMaintenanceRecord.mutateAsync({
-        vehicleId,
-        data: { type: formData.type as import("@/app/lib/type/enums").MaintenanceType, date: formData.date.toDate(), cost: parseFloat(formData.cost), currency: userCurrency, status: formData.status, description: formData.description, documentUrl: formData.documentUrl },
-      });
+      await addMaintenanceRecord.mutateAsync(payload);
       onSuccess();
-      handleClose();
     } catch (err) {
       logger.error(err);
-      setError(dict.vehicles.dialogs.failedToCreateRecord || "Failed to create maintenance record");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -127,9 +139,9 @@ export default function MaintenanceRecordDialog({ open, onClose, vehicleId, onSu
 
       <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button onClick={handleClose} disabled={loading} sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}>{dict.common.cancel}</Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={loading} sx={{ textTransform: "none", borderRadius: 2, px: 4, boxShadow: `0 8px 24px ${paletteTheme.primary?._alpha?.main_20}`, fontWeight: 700, minWidth: 140 }}>
-            {loading ? <Stack direction="row" spacing={1} alignItems="center"><CircularProgress size={16} color="inherit" /><span>{dict.common.saving}</span></Stack> : dict.vehicles.dialogs.saveRecord}
+          <Button onClick={handleClose} sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}>{dict.common.cancel}</Button>
+          <Button variant="contained" onClick={handleSubmit} sx={{ textTransform: "none", borderRadius: 2, px: 4, boxShadow: `0 8px 24px ${paletteTheme.primary?._alpha?.main_20}`, fontWeight: 700, minWidth: 140 }}>
+            {dict.vehicles.dialogs.saveRecord}
           </Button>
         </Stack>
       </Box>

@@ -117,7 +117,14 @@ export const getActionRequired = authenticatedAction(async (user) => {
         where: {
           companyId: user.companyId,
           expiryDate: { not: null, lte: thirtyDaysFromNow },
-          status: { not: "EXPIRED" },
+          // tr-`status: { not: "EXPIRED" }` filtresi kaldırıldı: saklı durum hiç güncellenmiyor,
+          //    süresi dolmuş belgeler de ACTIVE kayıtlı olduğu için bu koşul hiçbir şeyi
+          //    elemiyordu — yalnızca listeyi "sadece yaklaşanlar" gibi gösteriyordu. Aciliyet
+          //    `expiryDate`ten türetilir (bkz. overview.ts'deki aynı düzeltme).
+          // en-Dropped `status: { not: "EXPIRED" }`: the stored status is never updated, so
+          //    lapsed documents are still recorded as ACTIVE and the condition filtered
+          //    nothing — it only made the list look like it held upcoming renewals only.
+          //    Urgency comes from `expiryDate` (same fix as in overview.ts).
         },
         select: {
           name: true,

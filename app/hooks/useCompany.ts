@@ -12,6 +12,7 @@ import {
 } from "@/app/lib/controllers/company";
 import {
   getPendingJoinRequests,
+  getAllJoinRequests,
   acceptJoinRequest,
   rejectJoinRequest,
 } from "@/app/lib/controllers/joinRequests";
@@ -233,10 +234,13 @@ export function useCompanyMutations() {
     }: {
       id: string;
       data: Parameters<typeof updateCompanyMember>[1];
+      optimisticRoleName?: string | null;
     }) => updateCompanyMember(id, data),
-    onMutate: async ({ id, data }) => {
+    onMutate: async ({ id, data, optimisticRoleName }) => {
       await queryClient.cancelQueries({ queryKey: companyKeys.dashboard() });
-      const previous = patchCachedCompanyMember(queryClient, id, data as Partial<CompanyMember>);
+      const patch: Partial<CompanyMember> = { ...data };
+      if (optimisticRoleName) patch.roleName = optimisticRoleName;
+      const previous = patchCachedCompanyMember(queryClient, id, patch);
       return { previous };
     },
     onError: (error: Error, _vars, context) => {
@@ -279,6 +283,14 @@ export function usePendingJoinRequests() {
   return useQuery({
     queryKey: companyKeys.joinRequests(),
     queryFn: () => getPendingJoinRequests(),
+    staleTime: 1000 * 30,
+  });
+}
+
+export function useAllJoinRequests() {
+  return useQuery({
+    queryKey: [...companyKeys.joinRequests(), "ALL"],
+    queryFn: () => getAllJoinRequests(),
     staleTime: 1000 * 30,
   });
 }
@@ -360,7 +372,7 @@ export function useJoinRequestMutations() {
 }
 
 export function useCompanyInvitations(
-  status?: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED"
+  status?: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED" | "ALL"
 ) {
   return useQuery({
     queryKey: [...companyKeys.invitations(), status ?? "ALL"],

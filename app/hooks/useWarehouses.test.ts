@@ -40,6 +40,10 @@ const warehouseControllerMock = {
   updateWarehouse: mock.fn(),
   deleteWarehouse: mock.fn(),
   assignManagerToWarehouse: mock.fn(),
+  getWarehouseZones: mock.fn(),
+  createWarehouseZone: mock.fn(),
+  updateWarehouseZone: mock.fn(),
+  deleteWarehouseZone: mock.fn(),
 };
 
 

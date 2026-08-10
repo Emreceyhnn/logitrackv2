@@ -44,7 +44,7 @@ export const updateShipment = authenticatedAction(
 
       const existingShipment = await db.shipment.findFirst({
         where: { id: shipmentId, companyId: companyId! },
-        select: { companyId: true, status: true },
+        select: { companyId: true, status: true, originWarehouseId: true },
       });
 
       if (!existingShipment) {
@@ -156,6 +156,24 @@ export const updateShipment = authenticatedAction(
       if (items) {
         delete updateData.inventoryItems;
 
+        // Selecting real inventory implies stock is coming out of a specific
+        // warehouse — without one, the allocation, the InventoryMovement, and
+        // the warehouse worker's pick task never get created, and the
+        // shipment silently never shows up on the warehouse floor. Check
+        // against the incoming value if the caller is setting it, otherwise
+        // the shipment's existing one (a partial update might only touch
+        // items while origin was set earlier).
+        if (items.length > 0) {
+          const nextOriginWarehouseId =
+            (updateData as { originWarehouseId?: string | null }).originWarehouseId ??
+            existingShipment.originWarehouseId;
+          if (!nextOriginWarehouseId) {
+            throw new Error(
+              "Origin warehouse is required when inventory items are selected"
+            );
+          }
+        }
+
         // Use a transaction for safety
         const updatedShipment = await db.$transaction(
           async (tx) => {
@@ -218,6 +236,20 @@ export const updateShipment = authenticatedAction(
                   }
                 })
               );
+
+              // Drop the pick tasks these items generated. Only tasks a
+              // worker hasn't started yet (still OPEN) are removed — one
+              // already IN_PROGRESS/COMPLETED reflects real picking work
+              // that happened and shouldn't silently disappear because the
+              // shipment's item list changed.
+              await tx.warehouseTask.deleteMany({
+                where: {
+                  warehouseId: oldWarehouseId,
+                  companyId: companyId!,
+                  orderRef: oldShipment.trackingId,
+                  status: "OPEN",
+                },
+              });
             }
 
             // 3. Delete existing shipment items and stops
@@ -303,6 +335,19 @@ export const updateShipment = authenticatedAction(
                       type: "ALLOCATION",
                       userId,
                       companyId: companyId!,
+                    },
+                  });
+
+                  await tx.warehouseTask.create({
+                    data: {
+                      warehouseId: newWarehouseId,
+                      companyId: companyId!,
+                      kind: "PICK",
+                      name: item.name,
+                      sku: item.sku,
+                      orderRef: updated.trackingId,
+                      zone: invItem.zone || "UNASSIGNED",
+                      totalUnits: baseUnitQuantity,
                     },
                   });
                 }
@@ -427,6 +472,17 @@ export const deleteShipment = authenticatedAction(
               });
             }
           }
+
+          // Same OPEN-only rule as the update path: an in-progress/completed
+          // pick is real work already done and shouldn't vanish silently.
+          await tx.warehouseTask.deleteMany({
+            where: {
+              warehouseId,
+              companyId: companyId!,
+              orderRef: existingShipment.trackingId,
+              status: "OPEN",
+            },
+          });
         }
 
         await tx.shipment.delete({

@@ -10,7 +10,7 @@ const mockNextResponse = {
   redirect: mock.fn((url: Record<string, unknown>) => ({
     _redirect: url.toString(),
     _status: 302,
-    cookies: { delete: mock.fn() },
+    cookies: { delete: mock.fn(), set: mock.fn() },
   })),
 };
 mock.module("next/server", {

@@ -32,6 +32,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const {
     vehicles = [],
     loading = false,
+    refreshing = false,
     filters = {},
     meta: apiMeta,
   } = state || {};
@@ -306,6 +307,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         rows={paginatedVehicles}
         columns={columns}
         loading={loading}
+        refreshing={refreshing}
         emptyMessage={dict.vehicles.table.emptyMessage}
         searchValue={filters.search ?? ""}
         searchPlaceholder={dict.vehicles.table.searchPlaceholder}

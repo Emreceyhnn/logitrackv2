@@ -30,7 +30,7 @@ import {
 export const registerUserSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
   surname: z.string().trim().min(2, "Surname must be at least 2 characters").max(100),
-  email: z.string().trim().email("Invalid email address").max(254),
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -43,7 +43,7 @@ export const registerUserSchema = z.object({
 });
 
 export const loginUserSchema = z.object({
-  email: z.string().trim().email().max(254),
+  email: z.string().trim().toLowerCase().email().max(254),
   password: z.string().min(1).max(1024),
 });
 
@@ -74,6 +74,20 @@ export const createDriverInvitationSchema = z.object({
   licenseType: z.string().optional(),
   licenseNumber: z.string().optional(),
   licenseExpiry: z.string().optional(),
+});
+
+export const VALID_INVITATION_ROLES = [
+  "role_admin",
+  "role_manager",
+  "role_dispatcher",
+  "role_warehouse",
+  "role_default",
+  "role_driver",
+] as const;
+
+export const createCompanyInvitationSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
+  roleId: z.enum(VALID_INVITATION_ROLES),
 });
 
 export const acceptInvitationSchema = registerUserSchema.pick({
@@ -141,7 +155,7 @@ export const trailerSchema = z.object({
 });
 
 // ─── Shipments ──────────────────────────────────────────────────────────────
-export const createShipmentSchema = z.object({
+const shipmentBaseSchema = z.object({
   customerId: z.string().optional().nullable(),
   origin: z.string().min(1, "Origin is required"),
   destination: z.string().min(1, "Destination is required"),
@@ -190,7 +204,32 @@ export const createShipmentSchema = z.object({
   })).optional(),
 });
 
-export const updateShipmentSchema = createShipmentSchema.partial();
+// Selecting real inventory implies stock is coming out of a specific
+// warehouse — without originWarehouseId the allocation, the
+// InventoryMovement, and the warehouse worker's pick task never get
+// created, so the shipment silently never shows up on the warehouse floor
+// even though it "succeeded". Applied to both schemas so this can't be
+// bypassed by going through the update path with inventoryItems.
+const requireOriginWarehouseWithInventory = (
+  data: { inventoryItems?: unknown[] | undefined; originWarehouseId?: string | undefined },
+  ctx: z.RefinementCtx
+) => {
+  if ((data.inventoryItems?.length ?? 0) > 0 && !data.originWarehouseId) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["originWarehouseId"],
+      message: "Origin warehouse is required when inventory items are selected",
+    });
+  }
+};
+
+export const createShipmentSchema = shipmentBaseSchema.superRefine(
+  requireOriginWarehouseWithInventory
+);
+
+export const updateShipmentSchema = shipmentBaseSchema
+  .partial()
+  .superRefine(requireOriginWarehouseWithInventory);
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 export const createRouteSchema = z.object({
@@ -308,6 +347,7 @@ export const createInventorySchema = z.object({
   warehouseId: z.string().min(1, "Warehouse ID is required"),
   sku: z.string().optional(),
   name: z.string().min(1, "Name is required"),
+  zone: z.string().nullable().optional(),
   quantity: z.number().int().nonnegative(),
   minStock: z.number().int().nonnegative().optional().default(0),
   weightKg: z.number().nonnegative().optional().default(0),

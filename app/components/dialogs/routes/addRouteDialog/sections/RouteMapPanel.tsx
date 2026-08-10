@@ -21,6 +21,31 @@ interface RouteMapPanelProps {
   bufferError?: string | undefined;
 }
 
+const formatDuration = (minutes: number, dict: Dictionary) => {
+  if (minutes <= 0) return "--";
+  // tr-`common.timeUnits` her iki sözlükte de tanımlı; cast/fallback gerekmiyor.
+  // en-`common.timeUnits` exists in both dictionaries; no cast or fallback needed.
+  const units = dict.common.timeUnits;
+  
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  const mins = minutes % 60;
+  
+  if (days > 0) {
+    let result = `${days} ${units.day}`;
+    if (hours > 0) result += ` ${hours} ${units.hour}`;
+    return result;
+  }
+  
+  if (hours > 0) {
+    let result = `${hours} ${units.hour}`;
+    if (mins > 0) result += ` ${mins} ${units.minute}`;
+    return result;
+  }
+  
+  return `${mins} ${units.minute}`;
+};
+
 export default function RouteMapPanel({ values, data, dict, isLoading = false, bufferError }: RouteMapPanelProps) {
   const theme = useTheme();
   const paletteTheme = theme.palette as unknown as ExtendedPalette;
@@ -34,7 +59,7 @@ export default function RouteMapPanel({ values, data, dict, isLoading = false, b
     },
     {
       label: dict.routes.dialogs.durationMinLabel,
-      value: values.durationMin > 0 ? `${values.durationMin} dk` : "--",
+      value: formatDuration(values.durationMin, dict),
       color: "#10b981",
     },
     {

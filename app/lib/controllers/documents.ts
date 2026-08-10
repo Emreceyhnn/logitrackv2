@@ -3,7 +3,11 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { DocumentStatus, DocumentType, Prisma } from "@prisma/client";
+import { DocumentType, Prisma } from "@prisma/client";
+import {
+  computeDocumentStatus,
+  withLiveDocumentStatus,
+} from "../utils/documentStatus";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { driverCacheKeys, invalidatePattern, vehicleCacheKeys } from "../redis";
 import { controllerGuard } from "./utils/controllerGuard";
@@ -57,20 +61,11 @@ export const createDocument = authenticatedAction(
           throw new NotFoundError("Vehicle");
       }
 
-      const now = new Date();
-      let docStatus: DocumentStatus = DocumentStatus.ACTIVE;
-
-      if (!expiryDate) {
-        docStatus = DocumentStatus.MISSING;
-      } else if (expiryDate < now) {
-        docStatus = DocumentStatus.EXPIRED;
-      } else {
-        const oneMonthLater = new Date();
-        oneMonthLater.setMonth(now.getMonth() + 1);
-        if (expiryDate <= oneMonthLater) {
-          docStatus = DocumentStatus.EXPIRING_SOON;
-        }
-      }
+      // tr-Aynı mantık okuma tarafında da kullanılıyor; tek kaynaktan gelsin diye ortak
+      //    yardımcıya taşındı (bkz. app/lib/utils/documentStatus.ts).
+      // en-The same logic runs on the read path too, so it comes from one shared helper
+      //    (see app/lib/utils/documentStatus.ts).
+      const docStatus = computeDocumentStatus(expiryDate ?? null);
 
       const newDocument = await db.document.create({
         data: {
@@ -102,7 +97,12 @@ export const createDocument = authenticatedAction(
                 : "Belge Süresi Yaklaşıyor! ⏳",
             message: `${name} isimli belgenin durumu: ${docStatus}. Lütfen yenileyiniz.`,
             type: docStatus === "EXPIRED" ? "ERROR" : "WARNING",
-            link: "/dashboard/documents",
+            // tr-Ayrı bir "documents" sayfası yok; belgeler araç detayının bir sekmesi.
+            //    Bu bildirimde araç kimliği bağlamı bulunmadığı için araç listesine gider.
+            // en-There is no standalone "documents" page; documents are a tab inside the
+            //    vehicle detail dialog. This notification has no vehicle id in scope, so it
+            //    lands on the vehicle list instead.
+            link: "/vehicle",
           }
         );
       }
@@ -146,7 +146,11 @@ export const getDocuments = authenticatedAction(
         },
         orderBy: { createdAt: "desc" },
       });
-      return documents;
+      // tr-Saklı durum yalnızca oluşturmada yazılır; okurken tarihten yeniden türetilir,
+      //    aksi halde süresi dolmuş bir belge ACTIVE görünmeye devam eder.
+      // en-The stored status is only written at creation; re-derive it on read, otherwise a
+      //    lapsed document keeps reporting ACTIVE.
+      return withLiveDocumentStatus(documents);
     });
   }
 );
@@ -176,7 +180,9 @@ export const getDocumentById = authenticatedAction(
 
       if (!document) throw new NotFoundError("Document");
 
-      return document;
+      // tr-Bkz. getDocuments: saklı durum bayat, tarihten türetiliyor.
+      // en-See getDocuments: the stored status is stale, so derive it from the date.
+      return { ...document, status: computeDocumentStatus(document.expiryDate) };
     });
   }
 );

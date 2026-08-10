@@ -3,6 +3,9 @@
 import { Box, Stack, Snackbar, Alert, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import WWSidebar from "@/app/components/warehouse-worker/WWSidebar";
+import WWBottomNav, {
+  WW_BOTTOM_NAV_HEIGHT,
+} from "@/app/components/warehouse-worker/WWBottomNav";
 import WWHeader from "@/app/components/warehouse-worker/WWHeader";
 import GuidedTourOverlay from "@/app/components/guidedTour/GuidedTourOverlay";
 import { useWarehouseWorkerState } from "@/app/hooks/useWarehouseWorkerState";
@@ -106,14 +109,19 @@ export default function WarehouseWorkerClient({
           setSelectedWarehouseId={setSelectedWarehouseId}
           warehouse={warehouse}
           warehouseOptions={warehouseOptions}
-          worker={worker}
         />
 
         <Box
           sx={{
             flex: 1,
             overflowY: "auto",
-            p: 3,
+            p: { xs: 1.5, sm: 2, md: 3 },
+            // The bottom nav is fixed, so the last card would sit under it
+            // without this reserved gutter (plus the iOS home indicator).
+            pb: {
+              xs: `calc(${WW_BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom) + 16px)`,
+              md: 3,
+            },
             "&::-webkit-scrollbar": { width: 9, height: 9 },
             "&::-webkit-scrollbar-thumb": {
               bgcolor: "rgba(255,255,255,0.12)",
@@ -129,6 +137,16 @@ export default function WarehouseWorkerClient({
           {view === "activity" && <WWActivityTab state={state} />}
         </Box>
       </Stack>
+
+      <WWBottomNav
+        locked={locked}
+        lang={lang}
+        view={view}
+        setView={setView}
+        NAV={NAV}
+        onHelpClick={handleHelpClick}
+        dict={dict}
+      />
 
       <Snackbar
         open={!!toast}

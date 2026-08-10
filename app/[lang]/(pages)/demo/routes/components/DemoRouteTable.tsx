@@ -37,6 +37,8 @@ const VISIBLE_ROUTE_STATUSES: RouteStatus[] = [
 ];
 
 interface DemoRouteTableProps extends RouteTableProps {
+  /** Background refetch with rows already on screen — dim, don't blank. */
+  refreshing?: boolean | undefined;
   onRefresh?: () => void;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -52,6 +54,7 @@ interface DemoRouteTableProps extends RouteTableProps {
 const DemoRouteTable = ({
   routes,
   loading = false,
+  refreshing = false,
   pagination,
   onPageChange,
   onEdit,
@@ -250,6 +253,7 @@ const DemoRouteTable = ({
       columns={columns}
       rowActions={rowActions}
       loading={loading}
+      refreshing={refreshing}
       emptyMessage={dict.routes.table.noRoutes}
       searchValue={filters?.search ?? ""}
       searchPlaceholder={

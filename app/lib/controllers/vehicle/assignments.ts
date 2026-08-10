@@ -94,7 +94,7 @@ export const assignDriverToVehicle = authenticatedAction(
               message: `${vehicle?.plate} plakalı araç size atandı. Yolculuğa başlamaya hazır mısınız?`,
               type: "SUCCESS",
               category: "NEW_ASSIGNMENT",
-              link: `/dashboard/vehicles/${vehicleId}`,
+              link: `/vehicle?id=${vehicleId}`,
             }
           );
         }

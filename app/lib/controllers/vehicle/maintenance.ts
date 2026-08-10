@@ -5,10 +5,8 @@ import { MaintenanceStatus, MaintenanceType } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
-import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
-import { logger } from "../../logger";
 
 /**
  * tr-araca yeni bir bakım kaydı ekler, para birimini dönüştürür ve bildirim gönderir
@@ -48,27 +46,17 @@ export const addMaintenanceRecord = authenticatedAction(
         throw new Error("Vehicle not found or unauthorized");
       }
 
-      // Normalize cost to USD
-      let normalizedCost = recordData.cost;
-      if (recordData.currency && recordData.currency !== "USD") {
-        try {
-          const rates = await getExchangeRates();
-          const rate = rates.rates[recordData.currency] || 1;
-          normalizedCost = recordData.cost / rate;
-        } catch (err) {
-          logger.warn("[vehicle] Currency conversion failed", err);
-        }
-      }
-
+      // Store the cost exactly as the user entered it, in their chosen currency.
+      // The UI uses formatFrom(cost, currency) to convert to the viewer's currency at render time.
       const record = await db.maintenanceRecord.create({
         data: {
           vehicleId,
           companyId,
           ...recordData,
-          cost: normalizedCost,
+          cost: recordData.cost,
           originalCost: recordData.cost,
           originalCurrency: recordData.currency || "USD",
-          currency: "USD",
+          currency: recordData.currency || "USD",
         },
       });
 
@@ -82,7 +70,7 @@ export const addMaintenanceRecord = authenticatedAction(
           message: `${foundVehicle.plate} plakalı araç bakıma alındı. Tür: ${recordData.type}`,
           type: "INFO",
           category: "MAINTENANCE_ALERT",
-          link: `/dashboard/vehicles/${vehicleId}`,
+          link: `/vehicle?id=${vehicleId}`,
         }
       );
 
@@ -136,22 +124,11 @@ export const updateMaintenanceRecord = authenticatedAction(
         throw new Error("Record not found or unauthorized");
       }
 
-      // Normalize cost to USD if provided
+      // Store the cost exactly as the user entered it, in their chosen currency.
       const finalData = { ...data };
-      if (data.cost !== undefined && data.currency && data.currency !== "USD") {
-        try {
-          const rates = await getExchangeRates();
-          const rate = rates.rates[data.currency] || 1;
-          finalData.cost = data.cost / rate;
-          finalData.currency = "USD";
-        } catch (err) {
-          logger.warn("[vehicle] Currency conversion failed in update", err);
-        }
-      } else if (data.currency) {
-        // If currency is provided but cost is not, we might need more complex logic,
-        // but usually they come together from the dialog.
-        // For now, if currency is USD, just set it.
-        finalData.currency = "USD";
+      if (data.cost !== undefined && data.currency) {
+        finalData.cost = data.cost;
+        finalData.currency = data.currency;
       }
 
       const updatedRecord = await db.maintenanceRecord.update({
@@ -198,7 +175,7 @@ export const updateMaintenanceRecord = authenticatedAction(
             title,
             message,
             type,
-            link: `/dashboard/vehicles/${updatedRecord.vehicle.id}`,
+            link: `/vehicle?id=${updatedRecord.vehicle.id}`,
           }
         );
       }

@@ -22,6 +22,7 @@ import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { ShipmentItem } from "@/app/lib/type/enums";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { Dictionary } from "@/app/lib/language/language";
 import { decodeShape } from "@/app/lib/valhalla";
 import { DEFAULT_ROUTE_BUFFER_METERS } from "@/app/lib/type/routeDeviation";
 import { logger } from "@/app/lib/logger";
@@ -47,6 +48,31 @@ interface ShipmentDetailDialogProps {
   /** Opens the status-update flow for this shipment (optional). */
   onUpdateStatus?: (shipment: ShipmentWithRelations) => void;
 }
+
+const formatDuration = (minutes: number, dict: Dictionary) => {
+  if (minutes <= 0) return "--";
+  // tr-`common.timeUnits` her iki sözlükte de tanımlı; cast/fallback gerekmiyor.
+  // en-`common.timeUnits` exists in both dictionaries; no cast or fallback needed.
+  const units = dict.common.timeUnits;
+  
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  const mins = Math.floor(minutes % 60);
+  
+  if (days > 0) {
+    let result = `${days} ${units.day}`;
+    if (hours > 0) result += ` ${hours} ${units.hour}`;
+    return result;
+  }
+  
+  if (hours > 0) {
+    let result = `${hours} ${units.hour}`;
+    if (mins > 0) result += ` ${mins} ${units.minute}`;
+    return result;
+  }
+  
+  return `${mins} ${units.minute}`;
+};
 
 /* ── Pill tab button ── */
 const PillTab = ({
@@ -500,9 +526,10 @@ export default function ShipmentDetailDialog({
                   fontWeight={800}
                   color="text.primary"
                 >
-                  {shipment.route?.distanceKm
-                    ? `${shipment.route.distanceKm} km`
-                    : dict.shipments.details.tbd}
+                  {(() => {
+                    const dist = shipment.route?.distanceKm ?? data?.summary?.length;
+                    return dist ? `${dist.toFixed(1)} km` : dict.shipments.details.tbd;
+                  })()}
                 </Typography>
               </Stack>
               <Divider
@@ -519,9 +546,10 @@ export default function ShipmentDetailDialog({
                   fontWeight={800}
                   color="text.primary"
                 >
-                  {shipment.route?.durationMin
-                    ? `${shipment.route.durationMin} min`
-                    : dict.shipments.details.tbd}
+                  {(() => {
+                    const dur = shipment.route?.durationMin ?? (data?.summary?.time ? Math.round(data.summary.time / 60) : undefined);
+                    return dur ? formatDuration(dur, dict) : dict.shipments.details.tbd;
+                  })()}
                 </Typography>
               </Stack>
               <Divider
@@ -538,9 +566,10 @@ export default function ShipmentDetailDialog({
                   fontWeight={800}
                   color="error.main"
                 >
-                  {shipment.route?.distanceKm
-                    ? `${(shipment.route.distanceKm * 0.9).toFixed(1)} kg`
-                    : dict.shipments.details.tbd}
+                  {(() => {
+                    const dist = shipment.route?.distanceKm ?? data?.summary?.length;
+                    return dist ? `${(dist * 0.9).toFixed(1)} kg` : dict.shipments.details.tbd;
+                  })()}
                 </Typography>
               </Stack>
             </Box>

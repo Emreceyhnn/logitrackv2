@@ -54,7 +54,18 @@ export const getEditShipmentValidationSchema = (dict: Dictionary) =>
       .oneOf(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
     type: Yup.string().optional(),
     slaDeadline: Yup.date().nullable().optional(),
-    originWarehouseId: Yup.string().optional(),
+    // Selecting real inventory implies stock is coming out of a specific
+    // warehouse — without it the allocation, movement, and warehouse
+    // worker pick task never get created (see requireOriginWarehouseWithInventory
+    // in serverSchemas.ts, which enforces the same rule server-side).
+    originWarehouseId: Yup.string().when("inventoryItems", {
+      is: (items: unknown[] | undefined) => (items?.length ?? 0) > 0,
+      then: (schema) =>
+        schema.required(
+          formatMessage(dict.validation.required, { field: dict.shipments?.fields?.originWarehouse || "Origin Warehouse" })
+        ),
+      otherwise: (schema) => schema.optional(),
+    }),
     destination: Yup.string().optional(),
     customerId: Yup.string().optional(),
     customerLocationId: Yup.string().optional(),

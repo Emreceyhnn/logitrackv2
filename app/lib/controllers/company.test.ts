@@ -6,6 +6,9 @@ import { expect } from "expect";
 const dbMock = {
   company: {
     findUnique: mock.fn(),
+    // createCompany's uniqueness checks use findFirst so they can spread
+    // INCLUDE_DELETED (findUnique rejects non-unique fields in `where`).
+    findFirst: mock.fn(),
     create: mock.fn(),
     update: mock.fn(),
     delete: mock.fn(),
@@ -94,7 +97,7 @@ describe("Company Controller", () => {
   });
 
   beforeEach(() => {
-    dbMock.company.findUnique.mock.resetCalls();
+    dbMock.company.findFirst.mock.resetCalls();
     dbMock.company.create.mock.resetCalls();
     dbMock.user.update.mock.resetCalls();
     dbMock.role.upsert.mock.resetCalls();
@@ -117,7 +120,7 @@ describe("Company Controller", () => {
 
     it("should_CreateCompanyAndUpdateUserRole_WhenNameIsUnique", async () => {
       // Arrange
-      dbMock.company.findUnique.mock.mockImplementation(async () => null); // Name is not taken
+      dbMock.company.findFirst.mock.mockImplementation(async () => null); // Name is not taken
       
       const newCompany = { id: "comp-1", name: "Logi Co" };
       dbMock.company.create.mock.mockImplementation(async () => newCompany);
@@ -142,7 +145,7 @@ describe("Company Controller", () => {
 
     it("should_ThrowError_WhenCompanyNameAlreadyExists", async () => {
       // Arrange
-      dbMock.company.findUnique.mock.mockImplementation(async () => ({ id: "existing" }));
+      dbMock.company.findFirst.mock.mockImplementation(async () => ({ id: "existing" }));
 
       // Act & Assert
       await expect(

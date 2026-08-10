@@ -11,6 +11,7 @@ model Company {
   name               String              @unique
   domain             String?             @unique
   avatarUrl          String?
+  deletedAt          DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   customers          Customer[]
@@ -62,51 +63,52 @@ model Role {
 }
 
 model User {
-  id                     String              @id @default(cuid())
-  email                  String              @unique
-  name                   String
-  surname                String
-  password               String?
-  provider               String              @default("local")
-  googleId               String?             @unique
+  id                      String                   @id @default(cuid())
+  email                   String                   @unique
+  name                    String
+  surname                 String
+  password                String?
+  provider                String                   @default("local")
+  googleId                String?                  @unique
   /// Null until the address is proven. Google sign-ups are stamped at creation
   /// because Google already asserts email_verified.
-  emailVerifiedAt        DateTime?
-  avatarUrl              String?
-  roleId                 String?
-  assignedWarehouseId    String?
-  status                 UserStatus          @default(ACTIVE)
-  lastLoginAt            DateTime?
-  companyId              String?
-  timezone               String              @default("UTC")
-  dateFormat             String              @default("DD/MM/YYYY")
-  timeFormat             String              @default("24h")
-  currency               String
-  notifEmailShipment     Boolean             @default(true)
-  notifEmailMaint        Boolean             @default(true)
-  notifEmailWeekly       Boolean             @default(false)
-  notifEmailAssignment   Boolean             @default(true)
-  notifEmailDelay        Boolean             @default(true)
-  notifPushAssignment    Boolean             @default(true)
-  notifPushDelay         Boolean             @default(true)
-  createdAt              DateTime            @default(now())
-  updatedAt              DateTime            @updatedAt
-  language               String              @default("en")
-  auditLogs              AuditLog[]
-  driver                 Driver?
-  inventoryMovements     InventoryMovement[]
-  sessions               Session[]
-  subscription           Subscription?
-  shipmentHistoryEntries ShipmentHistory[]   @relation("ShipmentHistoryCreatedBy")
-  company                Company?            @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  role                   Role?               @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  managedWarehouses      Warehouse[]         @relation("WarehouseManager")
-  assignedWarehouse      Warehouse?          @relation("WarehouseStaff", fields: [assignedWarehouseId], references: [id], onDelete: SetNull)
-  assignedWarehouseTasks WarehouseTask[]
-  sentInvitations        Invitation[]        @relation("InvitationInvitedBy")
-  joinRequests           JoinRequest[]       @relation("JoinRequestUser")
-  decidedJoinRequests    JoinRequest[]       @relation("JoinRequestDecidedBy")
-  passwordResetTokens    PasswordResetToken[]
+  emailVerifiedAt         DateTime?
+  avatarUrl               String?
+  roleId                  String?
+  assignedWarehouseId     String?
+  status                  UserStatus               @default(ACTIVE)
+  lastLoginAt             DateTime?
+  companyId               String?
+  timezone                String                   @default("UTC")
+  dateFormat              String                   @default("DD/MM/YYYY")
+  timeFormat              String                   @default("24h")
+  currency                String
+  notifEmailShipment      Boolean                  @default(true)
+  notifEmailMaint         Boolean                  @default(true)
+  notifEmailWeekly        Boolean                  @default(false)
+  notifEmailAssignment    Boolean                  @default(true)
+  notifEmailDelay         Boolean                  @default(true)
+  notifPushAssignment     Boolean                  @default(true)
+  notifPushDelay          Boolean                  @default(true)
+  deletedAt               DateTime?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  language                String                   @default("en")
+  auditLogs               AuditLog[]
+  driver                  Driver?
+  inventoryMovements      InventoryMovement[]
+  sessions                Session[]
+  subscription            Subscription?
+  shipmentHistoryEntries  ShipmentHistory[]        @relation("ShipmentHistoryCreatedBy")
+  company                 Company?                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  role                    Role?                    @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  managedWarehouses       Warehouse[]              @relation("WarehouseManager")
+  assignedWarehouse       Warehouse?               @relation("WarehouseStaff", fields: [assignedWarehouseId], references: [id], onDelete: SetNull)
+  assignedWarehouseTasks  WarehouseTask[]
+  sentInvitations         Invitation[]             @relation("InvitationInvitedBy")
+  joinRequests            JoinRequest[]            @relation("JoinRequestUser")
+  decidedJoinRequests     JoinRequest[]            @relation("JoinRequestDecidedBy")
+  passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
 
   @@index([companyId])
@@ -132,6 +134,7 @@ model Driver {
   currentVehicleId    String?      @unique
   companyId           String
   homeBaseWarehouseId String?
+  deletedAt           DateTime?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
   documents           Document[]
@@ -292,6 +295,7 @@ model Warehouse {
   specifications   String[]            @default([])
   managerId        String?
   companyId        String
+  deletedAt        DateTime?
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
   drivers          Driver[]
@@ -338,6 +342,7 @@ model WarehouseTask {
   companyId    String
   kind         WarehouseTaskKind
   name         String
+  sku          String?
   orderRef     String
   zone         String
   doneUnits    Int                   @default(0)
@@ -366,6 +371,7 @@ model Customer {
   email     String?
   phone     String?
   companyId String
+  deletedAt DateTime?
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   locations CustomerLocation[]
@@ -418,6 +424,7 @@ model Inventory {
   cargoType         String?
   updatedAt         DateTime  @updatedAt
   companyId         String
+  deletedAt         DateTime?
   createdAt         DateTime  @default(now())
   company           Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
   warehouse         Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
@@ -433,6 +440,7 @@ model InventoryMovement {
   sku         String
   quantity    Int
   type        MovementType
+  zone        String?
   notes       String?
   date        DateTime     @default(now())
   userId      String?
@@ -476,6 +484,7 @@ model Shipment {
   billingAccount     String?
   routeId            String?
   companyId          String
+  deletedAt          DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   originWarehouseId  String?
@@ -589,6 +598,7 @@ model Route {
   driverId     String?
   vehicleId    String?
   companyId    String
+  deletedAt    DateTime?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   // Valhalla-encoded polyline of the planned corridor centre line, stored at

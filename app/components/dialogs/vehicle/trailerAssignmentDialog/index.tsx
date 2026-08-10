@@ -39,12 +39,13 @@ export default function TrailerAssignmentDialog({
 
   const handleSubmit = async () => {
     if (!trailer || !selectedVehicleId) return;
+
+    // Close first; the mutation toasts its own success/failure.
+    const payload = { trailerId: trailer.id, vehicleId: selectedVehicleId };
+    onClose();
+
     try {
-      await assignTrailer.mutateAsync({
-        trailerId: trailer.id,
-        vehicleId: selectedVehicleId,
-      });
-      onClose();
+      await assignTrailer.mutateAsync(payload);
     } catch (error) {
       logger.error("Failed to assign trailer:", error);
     }

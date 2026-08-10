@@ -188,7 +188,7 @@ export const createUserForCompany = authenticatedAction(
           title: "Yeni Ekip Üyesi! 👋",
           message: `${userData.name} ${userData.surname} ekibe katıldı. Rol: ${userData.role}`,
           type: "SUCCESS",
-          link: `/dashboard/users`,
+          link: `/users`,
         }
       );
 

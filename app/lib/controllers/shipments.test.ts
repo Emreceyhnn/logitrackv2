@@ -317,7 +317,7 @@ describe("Shipments Controller", () => {
       const payload =
         notificationsMock.sendNotificationAction.mock.calls[0].arguments[1];
       expect(payload.type).toBe("SUCCESS");
-      expect(payload.link).toBe("/dashboard/shipments/shipment-1");
+      expect(payload.link).toBe("/shipments?id=shipment-1");
     });
 
     it("should_NotSendNotification_WhenStatusIsPending", async () => {

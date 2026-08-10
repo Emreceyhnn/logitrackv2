@@ -118,7 +118,7 @@ function buildCsp(nonce: string, strict: boolean): string {
     // Google Identity Services renders the button/One Tap prompt in its own
     // iframe and posts back via this origin — without it the GSI script loads
     // but the sign-in UI never mounts.
-    "frame-src https://accounts.google.com",
+    "frame-src https://accounts.google.com https://res.cloudinary.com",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -317,7 +317,12 @@ export default async function middleware(request: NextRequest) {
   // If the access token is invalid/expired — or still valid but holding stale
   // claims — and a refresh token exists, redirect to the refresh endpoint
   // before hitting any Server Components.
-  if ((!isTokenValid || hasStaleClaims) && refreshToken) {
+  // Auth routes are excluded on purpose. Sign-in is where a FAILED refresh
+  // lands the user, so routing it back through /api/auth/refresh closes a
+  // cycle: refresh fails → sign-in → proxy sees the still-present refresh
+  // cookie → refresh again. The user never sees the form, just a hanging tab.
+  // On an auth route we let the page render and the cookie be cleared there.
+  if ((!isTokenValid || hasStaleClaims) && refreshToken && !isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = `/api/auth/refresh`;
     url.searchParams.set(
@@ -400,7 +405,13 @@ export default async function middleware(request: NextRequest) {
   // ── 5. Root Path Redirect ───────────────────────────────────────────────────
   // Authenticated users skip the marketing page; anonymous visitors (and
   // crawlers) must reach the landing page, so no redirect for them.
-  if (currentPath === "/" && isTokenValid) {
+  // Exception: If an explicit landing parameter (?landing=true or ?home=true) is present,
+  // allow reaching the landing page even when authenticated.
+  const isExplicitLanding =
+    request.nextUrl.searchParams.get("landing") === "true" ||
+    request.nextUrl.searchParams.get("home") === "true";
+
+  if (currentPath === "/" && isTokenValid && !isExplicitLanding) {
     const url = request.nextUrl.clone();
     url.pathname = authedHome.pathname;
     url.search = authedHome.search;

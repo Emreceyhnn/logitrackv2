@@ -23,9 +23,11 @@ import { resendEmailVerification } from "@/app/lib/controllers/users/emailVerifi
 export default function VerifyEmailView({
   verified,
   alreadyVerified,
+  continueHref,
 }: {
   verified: boolean;
   alreadyVerified: boolean;
+  continueHref?: string | undefined;
 }) {
   const dict = useDictionary();
   const params = useParams();
@@ -76,13 +78,15 @@ export default function VerifyEmailView({
           </Alert>
           <Button
             component={Link}
-            href={`/${lang}/auth/sign-in`}
+            href={continueHref ? `/${lang}${continueHref}` : `/${lang}/auth/sign-in`}
             variant="contained"
             fullWidth
             size="large"
             sx={{ py: 1.5, borderRadius: 2, textTransform: "none", fontWeight: 600 }}
           >
-            {dict.auth?.continueToSignIn || "Continue to Sign In"}
+            {continueHref
+              ? dict.auth?.continueToOnboarding || "Continue"
+              : dict.auth?.continueToSignIn || "Continue to Sign In"}
           </Button>
         </Stack>
       </Box>

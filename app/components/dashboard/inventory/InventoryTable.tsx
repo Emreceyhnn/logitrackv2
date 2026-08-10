@@ -41,6 +41,7 @@ const getStockColor = (status: string) => {
 const InventoryTable = ({
   items,
   loading = false,
+  refreshing = false,
   onSelect,
   onEdit,
   onDelete,
@@ -293,6 +294,7 @@ const InventoryTable = ({
       rows={paginatedItems}
       columns={columns}
       loading={loading}
+      refreshing={refreshing}
       emptyMessage={dict.inventory.noItems}
       meta={currentMeta}
       onPageChange={handlePageChange}

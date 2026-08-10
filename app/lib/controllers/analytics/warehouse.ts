@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
 import { controllerGuard } from "../utils/controllerGuard";
+import { palletUsageByWarehouse } from "../../utils/palletOccupancy";
 
 /**
  * tr-depo kapasite ve doluluk oranlarını getirir
@@ -28,21 +29,19 @@ export const getWarehouseCapacity = authenticatedAction(async (user) => {
 
     const warehouseIds = warehouses.map((w) => w.id);
 
-    const palletSums = await db.inventory.groupBy({
-      by: ["warehouseId"],
+    // Occupancy is quantity ÷ units-per-pallet per row, so it can't be a SQL
+    // _sum of palletCount — see palletOccupancy.
+    const inventoryRows = await db.inventory.findMany({
       where: { warehouseId: { in: warehouseIds } },
-      _sum: { palletCount: true, volumeM3: true },
+      select: {
+        warehouseId: true,
+        quantity: true,
+        palletCount: true,
+        volumeM3: true,
+      },
     });
 
-    const palletMap = new Map(
-      palletSums.map((p) => [
-        p.warehouseId,
-        {
-          pallets: p._sum.palletCount ?? 0,
-          volume: p._sum.volumeM3 ?? 0,
-        },
-      ])
-    );
+    const palletMap = palletUsageByWarehouse(inventoryRows);
 
     return warehouses.map((w) => {
       const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };

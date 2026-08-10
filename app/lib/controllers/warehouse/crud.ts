@@ -15,11 +15,15 @@ import {
 } from "../../redis";
 import { invalidateWarehouseCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import {
+  palletUsageByWarehouse,
+  totalPalletsUsed,
+} from "../../utils/palletOccupancy";
 
 /**
  * tr-sisteme yeni bir depo ekler ve oluşturulduğuna dair bildirim gönderir
  * en-adds a new warehouse to the system and dispatches a creation notification
- * input (user: AuthenticatedUser, name: string, code: string, type: WarehouseType, address: string, city: string, country: string, lat?: number, lng?: number, managerId?: string, capacityPallets?: number, capacityVolumeM3?: number, operatingHours?: string, timezone?: string, specifications?: string[])
+ * input (user: AuthenticatedUser, name: string, code: string, type: WarehouseType, address: string, city: string, country: string, lat?: number, lng?: number, managerId?: string | null, capacityPallets?: number, capacityVolumeM3?: number, operatingHours?: string, timezone?: string, specifications?: string[])
  * output (Promise<{ warehouse: Warehouse }>)
  */
 export const createWarehouse = authenticatedAction(
@@ -33,7 +37,7 @@ export const createWarehouse = authenticatedAction(
     country: string,
     lat?: number,
     lng?: number,
-    managerId?: string,
+    managerId?: string | null,
     capacityPallets?: number,
     capacityVolumeM3?: number,
     operatingHours?: string,
@@ -58,6 +62,30 @@ export const createWarehouse = authenticatedAction(
         throw new Error("Warehouse code already exists");
       }
 
+      // tr-"Atanmamış" seçeneği boş string gönderir; `?? null` bunu yakalamaz ve
+      //    veritabanına managerId="" gider — hiçbir kullanıcıyla eşleşmediği için
+      //    foreign key hatası verir. Boş/whitespace değerleri burada null'a çeviriyoruz.
+      // en-The "unassigned" option submits an empty string, which `?? null` does not
+      //    catch — the empty value reaches Postgres, matches no user, and trips the
+      //    managerId foreign key. Normalise blank values to null here.
+      const normalizedManagerId = managerId?.trim() ? managerId.trim() : null;
+
+      // tr-Yönetici bu şirkete ait olmalı: aksi halde başka bir kiracının kullanıcısı
+      //    depoya yönetici olarak bağlanabilirdi. Geçersiz kimlik de burada anlaşılır
+      //    ve ham veritabanı hatası yerine anlamlı bir mesaj döner.
+      // en-The manager must belong to this company: otherwise another tenant's user
+      //    could be attached as a warehouse manager. This also catches a bogus id and
+      //    surfaces a readable message instead of a raw foreign-key error.
+      if (normalizedManagerId) {
+        const manager = await db.user.findFirst({
+          where: { id: normalizedManagerId, companyId },
+          select: { id: true },
+        });
+        if (!manager) {
+          throw new Error("Manager not found or not in your company");
+        }
+      }
+
       const newWarehouse = await db.warehouse.create({
         data: {
           name,
@@ -69,7 +97,7 @@ export const createWarehouse = authenticatedAction(
           lat: lat ?? null,
           lng: lng ?? null,
           companyId: companyId,
-          managerId: managerId ?? null,
+          managerId: normalizedManagerId,
           capacityPallets: capacityPallets || 5000,
           capacityVolumeM3: capacityVolumeM3 || 100000,
           operatingHours: operatingHours || "08:00 - 18:00",
@@ -87,7 +115,7 @@ export const createWarehouse = authenticatedAction(
           title: "Yeni Depo Oluşturuldu 🏗️",
           message: `${name} (${warehouseCode}) isimli yeni depo sisteme tanımlandı.`,
           type: "SUCCESS",
-          link: `/dashboard/warehouses/${newWarehouse.id}`,
+          link: `/warehouses?id=${newWarehouse.id}`,
         }
       );
 
@@ -134,23 +162,22 @@ export const getWarehouses = authenticatedAction(async (user) => {
       });
 
       const warehouseIds = warehouses.map((w) => w.id);
-      const palletSums = warehouseIds.length
-        ? await db.inventory.groupBy({
-            by: ["warehouseId"],
+      // Occupancy is quantity ÷ units-per-pallet per line (see palletOccupancy),
+      // so it can't be a groupBy _sum of palletCount — the rows are fetched and
+      // folded here instead.
+      const inventoryRows = warehouseIds.length
+        ? await db.inventory.findMany({
             where: { warehouseId: { in: warehouseIds } },
-            _sum: { palletCount: true, volumeM3: true },
+            select: {
+              warehouseId: true,
+              quantity: true,
+              palletCount: true,
+              volumeM3: true,
+            },
           })
         : [];
 
-      const palletMap = new Map(
-        palletSums.map((p) => [
-          p.warehouseId,
-          {
-            pallets: p._sum.palletCount ?? 0,
-            volume: p._sum.volumeM3 ?? 0,
-          },
-        ])
-      );
+      const palletMap = palletUsageByWarehouse(inventoryRows);
 
       return warehouses.map((w) => {
         const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };
@@ -202,9 +229,7 @@ export const getWarehouseById = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      const usedPallets = Math.round(
-        warehouse.inventory.reduce((acc, i) => acc + (i.palletCount ?? 0), 0)
-      );
+      const usedPallets = totalPalletsUsed(warehouse.inventory);
       const usedVolume = Math.round(
         warehouse.inventory.reduce((acc, i) => acc + (i.volumeM3 ?? 0), 0)
       );
@@ -333,7 +358,7 @@ export const assignManagerToWarehouse = authenticatedAction(
           title: "Depo Yöneticisi Atandınız 👤",
           message: `${updatedWarehouse.name} deposu için yönetici olarak görevlendirildiniz.`,
           type: "INFO",
-          link: `/dashboard/warehouses/${updatedWarehouse.id}`,
+          link: `/warehouses?id=${updatedWarehouse.id}`,
         }
       );
 

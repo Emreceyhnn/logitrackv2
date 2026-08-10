@@ -3,7 +3,7 @@
 import { db } from "../../db";
 import { checkPermission } from "../utils/checkPermission";
 import { stripUndefined } from "../../utils/stripUndefined";
-import { DocumentType, DocumentStatus } from "@prisma/client";
+import { DocumentType } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { authenticatedAction } from "../../auth-middleware";
 import { CreateDriverFormData } from "../../type/driver";
@@ -11,6 +11,10 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { createDriverSchema, updateDriverSchema } from "../../validation/serverSchemas";
 import { ConflictError, NotFoundError } from "../../errors";
 import { driverCache } from "./shared";
+import {
+  computeDocumentStatus,
+  withLiveDocumentStatus,
+} from "../../utils/documentStatus";
 
 /**
  * tr-belirtilen kimliğe sahip sürücünün detaylarını getirir
@@ -44,7 +48,12 @@ export const getDriverById = authenticatedAction(
         throw new NotFoundError("Driver");
       }
 
-      return foundDriver;
+      // tr-Saklı belge durumu bayat; tarihten türetilenle değiştir (bkz. documentStatus.ts)
+      // en-Stored document status is stale; swap in the date-derived one
+      return {
+        ...foundDriver,
+        documents: withLiveDocumentStatus(foundDriver.documents),
+      };
     });
   }
 );
@@ -130,17 +139,28 @@ export const createDriver = authenticatedAction(
                         name: "License Scan",
                         url: parsed.licensePhotoUrl,
                         companyId,
-                        status: DocumentStatus.ACTIVE,
+                        // tr-Ehliyetin bitiş tarihi sürücüde zaten var; belgeye de yazılmazsa
+                        //    kayıt tarihsiz kalıp süresi dolduğunda da geçerli görünürdü.
+                        // en-The licence expiry already exists on the driver; without copying it
+                        //    the document stays undated and reads valid even once it lapses.
+                        expiryDate: parsed.licenseExpiry ?? null,
+                        status: computeDocumentStatus(
+                          parsed.licenseExpiry ?? null
+                        ),
                       },
                     ]
                   : []),
+                // tr-Sabit ACTIVE yazmak yanlıştı: geçmiş tarihli bir belge yüklendiğinde de
+                //    geçerli görünüyordu. Durum tarihten hesaplanır.
+                // en-Hard-coding ACTIVE was wrong: uploading an already-lapsed document still
+                //    read as valid. Compute the status from the date.
                 ...(parsed.documents?.map((doc) => ({
                   type: doc.type as DocumentType,
                   name: doc.name,
                   url: doc.url,
                   expiryDate: doc.expiryDate ?? null,
                   companyId: user.companyId!,
-                  status: DocumentStatus.ACTIVE,
+                  status: computeDocumentStatus(doc.expiryDate ?? null),
                 })) ?? []),
               ],
             },
@@ -163,7 +183,7 @@ export const createDriver = authenticatedAction(
           title: "Yeni Sürücü Aramıza Katıldı! 🚛",
           message: `${driverUser?.name} ${driverUser?.surname} sisteme yeni sürücü olarak eklendi.`,
           type: "SUCCESS",
-          link: `/dashboard/drivers`,
+          link: `/drivers`,
         }
       );
 
@@ -243,7 +263,13 @@ export const updateDriver = authenticatedAction(
                       name: "License Scan",
                       url: parsed.licensePhotoUrl,
                       companyId: user.companyId!,
-                      status: DocumentStatus.ACTIVE,
+                      // tr-Bkz. createDriver: ehliyet bitiş tarihi belgeye de yazılır.
+                      // en-See createDriver: the licence expiry is copied onto the document.
+                      expiryDate:
+                        parsed.licenseExpiry ?? foundDriver.licenseExpiry ?? null,
+                      status: computeDocumentStatus(
+                        parsed.licenseExpiry ?? foundDriver.licenseExpiry ?? null
+                      ),
                     },
                   ],
                 },
@@ -258,7 +284,9 @@ export const updateDriver = authenticatedAction(
                     url: doc.url,
                     expiryDate: doc.expiryDate ?? null,
                     companyId: user.companyId!,
-                    status: DocumentStatus.ACTIVE,
+                    // tr-Bkz. createDriver: durum tarihten hesaplanır, sabit ACTIVE değil.
+                    // en-See createDriver: status comes from the date, not a hard-coded ACTIVE.
+                    status: computeDocumentStatus(doc.expiryDate ?? null),
                   })),
                 },
               }

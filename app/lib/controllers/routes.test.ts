@@ -135,6 +135,7 @@ describe("Routes Controller", () => {
     dbMock.route.findUnique.mock.resetCalls();
     dbMock.route.create.mock.resetCalls();
     dbMock.route.findMany.mock.resetCalls();
+    dbMock.route.delete.mock.resetCalls();
     dbMock.warehouse.findUnique.mock.resetCalls();
     dbMock.customer.findUnique.mock.resetCalls();
     dbMock.driver.update.mock.resetCalls();
@@ -216,6 +217,59 @@ describe("Routes Controller", () => {
       ).rejects.toThrow("Route name already exists");
 
       expect(dbMock.route.create.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe("deleteRoute() metodu", () => {
+    const mockUser = { id: "user-1", companyId: "company-1" };
+
+    it("should_ThrowError_WhenRouteNotFound", async () => {
+      dbMock.route.findFirst.mock.mockImplementationOnce(async () => null);
+
+      await expect(
+        routesController.deleteRoute(mockUser, "route-missing")
+      ).rejects.toThrow("Route");
+    });
+
+    it("should_ReleaseNonTerminalShipments_ToUnassignedPendingBeforeDeleting", async () => {
+      // Regression guard: shipments.routeId is a Restrict FK, so deleting a
+      // route with shipments still attached used to 500 on the DB constraint.
+      // Non-terminal shipments must go back to the unassigned PENDING pool.
+      dbMock.route.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "route-1",
+        companyId: "company-1",
+        shipments: [
+          { id: "shipment-assigned", status: "ASSIGNED" },
+          { id: "shipment-in-transit", status: "IN_TRANSIT" },
+        ],
+      }));
+
+      await routesController.deleteRoute(mockUser, "route-1");
+
+      const updateCalls = dbMock.shipment.update.mock.calls;
+      expect(updateCalls.length).toBe(2);
+      for (const call of updateCalls) {
+        expect(call.arguments[0].data).toEqual({ routeId: null, status: "PENDING" });
+      }
+      expect(dbMock.route.delete.mock.calls.length).toBe(1);
+      expect(shipmentsCacheMock.invalidateShipmentCache.mock.calls.length).toBe(1);
+    });
+
+    it("should_OnlyClearRouteId_ForTerminalShipments_WithoutTouchingStatus", async () => {
+      // A delivered/returned/cancelled shipment is already in its final
+      // state — releasing it from the deleted route must not resurrect it
+      // into PENDING (that would violate the lifecycle state machine).
+      dbMock.route.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "route-1",
+        companyId: "company-1",
+        shipments: [{ id: "shipment-delivered", status: "DELIVERED" }],
+      }));
+
+      await routesController.deleteRoute(mockUser, "route-1");
+
+      const updateCalls = dbMock.shipment.update.mock.calls;
+      expect(updateCalls.length).toBe(1);
+      expect(updateCalls[0].arguments[0].data).toEqual({ routeId: null });
     });
   });
 

@@ -15,6 +15,7 @@ import {
   Select,
   FormControl,
 } from "@mui/material";
+import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -79,7 +80,20 @@ const DocumentsStep = () => {
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files).map((file) => ({
+      // PDF uploads are temporarily disabled service-wide; the actual
+      // upload happens later via uploadImageAction (which also rejects
+      // PDFs), but filtering here surfaces the reason immediately.
+      const selectedFiles = Array.from(e.target.files);
+      const pdfCount = selectedFiles.filter((f) => f.type === "application/pdf").length;
+      const acceptedFiles = selectedFiles.filter((f) => f.type !== "application/pdf");
+      if (pdfCount > 0) {
+        toast.error(dict.vehicles.dialogs.pdfUploadDisabled || "PDF uploads are temporarily unavailable. Please try again later.");
+      }
+      if (acceptedFiles.length === 0) {
+        e.target.value = "";
+        return;
+      }
+      const newFiles = acceptedFiles.map((file) => ({
         id: Math.random().toString(36).substr(2, 9),
         type: "OTHER",
         name: file.name,

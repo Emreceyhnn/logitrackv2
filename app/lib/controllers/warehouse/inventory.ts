@@ -8,11 +8,12 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { invalidateWarehouseCache } from "./cache";
 import { invalidateInventoryCache } from "../inventory/cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { INCLUDE_DELETED } from "../../softDelete";
 
 /**
  * tr-depoya yeni bir envanter/stok kalemi ekler ve ilk giriş hareketini (putaway) kaydeder
  * en-adds a new inventory/stock item to the warehouse and records the initial putaway movement
- * input (user: AuthenticatedUser, warehouseId: string, sku: string, name: string, quantity: number, minStock?: number, weightKg?: number, volumeM3?: number, palletCount?: number, cargoType?: string, imageUrl?: string, unitValue?: number, currency?: string)
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, name: string, quantity: number, minStock?: number, weightKg?: number, volumeM3?: number, palletCount?: number, cargoType?: string, imageUrl?: string, unitValue?: number, currency?: string, zone?: string)
  * output (Promise<Inventory>)
  */
 export const addInventoryItem = authenticatedAction(
@@ -29,7 +30,8 @@ export const addInventoryItem = authenticatedAction(
     cargoType: string = "General Cargo",
     imageUrl?: string,
     unitValue?: number,
-    currency: string = "USD"
+    currency: string = "USD",
+    zone?: string
   ) => {
     return controllerGuard("addInventoryItem", async () => {
       await checkPermission(user, user.companyId, [
@@ -52,16 +54,45 @@ export const addInventoryItem = authenticatedAction(
         sku ||
         `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
+      // tr-Silinmiş kayıtlar da aranmalı: benzersizlik kısıtı
+      //    @@unique([warehouseId, sku]) veritabanı seviyesinde ve `deletedAt`
+      //    dikkate almıyor. Varsayılan sorgu yumuşak silinmiş satırı görmediği
+      //    için kontrol boş dönüyor, ekleme deneniyor ve kullanıcı anlaşılır bir
+      //    mesaj yerine ham "Unique constraint failed" hatası alıyordu.
+      // en-Include deleted rows: the @@unique([warehouseId, sku]) constraint is
+      //    enforced by Postgres and knows nothing about `deletedAt`. The default
+      //    query hides a soft-deleted row, so this guard came back empty, the
+      //    insert went ahead and the user saw a raw "Unique constraint failed"
+      //    instead of an explanation.
       const existingItem = await db.inventory.findFirst({
         where: {
           warehouseId,
           sku: itemSku,
           companyId: user.companyId!,
+          ...INCLUDE_DELETED,
         },
+        select: { id: true, deletedAt: true },
       });
 
       if (existingItem) {
-        throw new Error("Item with this SKU already exists in this warehouse");
+        // A deleted item still holds the SKU, so "already exists" would send the
+        // user hunting for a row they cannot see. Name the actual situation.
+        throw new Error(
+          existingItem.deletedAt
+            ? "A deleted item in this warehouse still uses this SKU. Restore it, or choose a different SKU."
+            : "Item with this SKU already exists in this warehouse"
+        );
+      }
+
+      const trimmedZone = zone?.trim().toLocaleUpperCase("en-US") || null;
+      if (trimmedZone) {
+        const zoneExists = await db.warehouseZone.findFirst({
+          where: { warehouseId, code: trimmedZone },
+          select: { id: true },
+        });
+        if (!zoneExists) {
+          throw new Error("Selected zone does not exist in this warehouse");
+        }
       }
 
       const result = await db.$transaction(async (tx) => {
@@ -70,6 +101,7 @@ export const addInventoryItem = authenticatedAction(
             warehouseId,
             sku: itemSku,
             name,
+            zone: trimmedZone,
             quantity,
             minStock,
             weightKg,
@@ -89,8 +121,8 @@ export const addInventoryItem = authenticatedAction(
             warehouseId,
             sku: itemSku,
             quantity,
-            type: "PUTAWAY",
-            notes: "Initial inventory entry",
+            type: "STOCK_IN",
+            notes: "Açılış Bakiyesi (Initial Stock)",
             userId: user.id,
             companyId: user.companyId!,
           },
@@ -110,7 +142,7 @@ export const addInventoryItem = authenticatedAction(
             title: "Düşük Stok Uyarısı! ⚠️",
             message: `${result.name} (SKU: ${result.sku}) kritik stok seviyesinde kaydedildi.`,
             type: "WARNING",
-            link: `/dashboard/inventory?warehouseId=${result.warehouseId}`,
+            link: `/inventory?warehouseId=${result.warehouseId}`,
           }
         );
       }
@@ -154,6 +186,20 @@ export const updateInventoryItem = authenticatedAction(
         updateData.sku = `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }
 
+      if (typeof updateData.zone === "string") {
+        const trimmedZone = updateData.zone.trim().toLocaleUpperCase("en-US");
+        if (trimmedZone) {
+          const zoneExists = await db.warehouseZone.findFirst({
+            where: { warehouseId: currentItem.warehouseId, code: trimmedZone },
+            select: { id: true },
+          });
+          if (!zoneExists) {
+            throw new Error("Selected zone does not exist in this warehouse");
+          }
+        }
+        updateData.zone = trimmedZone || null;
+      }
+
       const updatedItem = await db.$transaction(async (tx) => {
         const item = await tx.inventory.update({
           where: { id: inventoryId },
@@ -192,7 +238,7 @@ export const updateInventoryItem = authenticatedAction(
             title: "Kritik Stok Seviyesi! 🚨",
             message: `${updatedItem.name} (SKU: ${updatedItem.sku}) stok seviyesi ${updatedItem.quantity}'e düştü. (Min: ${updatedItem.minStock})`,
             type: "ERROR",
-            link: `/dashboard/inventory?warehouseId=${updatedItem.warehouseId}`,
+            link: `/inventory?warehouseId=${updatedItem.warehouseId}`,
           }
         );
       }

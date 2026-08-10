@@ -6,6 +6,13 @@ export interface ActionRequiredItems {
   messageKey?: string;
   messageParams?: Record<string, string | number> | undefined;
   link?: string | undefined;
+  /**
+   * Severity of a document alert, derived from its expiry date rather than the
+   * stored `Document.status` (which is never updated to EXPIRED). Drives both
+   * the ordering and the visual treatment — an already-lapsed document must
+   * not look like an upcoming renewal.
+   */
+  urgency?: "EXPIRED" | "EXPIRING_SOON" | undefined;
 }
 
 export interface OverviewStats {

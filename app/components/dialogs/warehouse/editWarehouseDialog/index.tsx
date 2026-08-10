@@ -155,7 +155,13 @@ const EditWarehouseDialog = ({
     handleSubmit: async () => {
       if (!user || !user.companyId || !warehouseData) return;
 
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      // Close first: useWarehouseMutations() patches the cache optimistically
+      // and toasts success/error itself, so blocking the dialog on the
+      // round-trip adds a wait with nothing to show for it. The inline
+      // isLoading/error state is therefore no longer set here — a failure
+      // surfaces as a toast and the optimistic change is rolled back.
+      actions.closeDialog();
+
       try {
         await updateWarehouse.mutateAsync({
           id: warehouseData.id,
@@ -180,15 +186,8 @@ const EditWarehouseDialog = ({
         });
 
         onSuccess?.();
-        actions.closeDialog();
-      } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : dict.toasts.errorGeneric;
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: errorMessage,
-        }));
+      } catch {
+        // useWarehouseMutations() already toasted the error and rolled back.
       }
     },
     closeDialog: () => {

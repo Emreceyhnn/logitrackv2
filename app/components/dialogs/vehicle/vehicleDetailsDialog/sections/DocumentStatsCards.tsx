@@ -1,76 +1,204 @@
 "use client";
 
-import { Box, Card, Stack, Typography, Button, useTheme } from "@mui/material";
+import { Box, Stack, Typography, Button, Divider, useTheme } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
-import WarningIcon from "@mui/icons-material/Warning";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 import { formatDisplayDate, DateSettings } from "@/app/lib/utils/date";
 
 import { Dictionary } from "@/app/lib/language/language";
 
-interface ExtendedPalette {
-  primary?: {
-    _alpha?: Record<string, string>;
-  };
-}
-
 interface DocumentStatsCardsProps {
   dict: Dictionary;
   dateSettings: DateSettings;
-  activeCount: number;
+  validCount: number;
   expiringSoonCount: number;
-  missingOrExpiredCount: number;
+  expiredCount: number;
+  noExpiryCount: number;
+  totalCount: number;
   lastUploadDate: Date;
   onUploadClick: () => void;
 }
 
-export default function DocumentStatsCards({ dict, dateSettings, activeCount, expiringSoonCount, missingOrExpiredCount, lastUploadDate, onUploadClick }: DocumentStatsCardsProps) {
+/**
+ * tr-Araç belgelerinin durum özeti ve yükleme aksiyonu.
+ * en-Status summary for a vehicle's documents, plus the upload action.
+ *
+ *    Laid out as one panel of rows rather than four equal tiles. The counts are
+ *    mutually exclusive states of the same set, so they belong on a shared
+ *    scale where they can be compared at a glance — four separate cards gave
+ *    equal visual weight to "valid" and "expired" and made the group read as
+ *    unrelated metrics. "Last upload" is a timestamp, not a count, so it sits
+ *    in the footer instead of masquerading as a fifth KPI.
+ * input (DocumentStatsCardsProps)
+ * output (JSX.Element)
+ */
+export default function DocumentStatsCards({
+  dict,
+  dateSettings,
+  validCount,
+  expiringSoonCount,
+  expiredCount,
+  noExpiryCount,
+  totalCount,
+  lastUploadDate,
+  onUploadClick,
+}: DocumentStatsCardsProps) {
   const theme = useTheme();
-  const paletteTheme = theme.palette as unknown as ExtendedPalette;
+  const t = dict.vehicles.docStats;
 
-  const cardStyle = { p: 2, borderRadius: "8px", width: "100%", gap: 2, bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", backgroundImage: "none", boxShadow: "none", border: `1px solid ${theme.palette.divider}` };
-  const iconBoxStyle = { borderRadius: "8px", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", color: "white" };
+  const rows = [
+    {
+      key: "expired",
+      label: t.expired,
+      count: expiredCount,
+      color: theme.palette.error.main,
+      icon: <ErrorOutlineIcon sx={{ fontSize: 16 }} />,
+    },
+    {
+      key: "expiringSoon",
+      label: t.expiringSoon,
+      count: expiringSoonCount,
+      color: theme.palette.warning.main,
+      icon: <QueryBuilderIcon sx={{ fontSize: 16 }} />,
+    },
+    {
+      key: "valid",
+      label: t.valid,
+      count: validCount,
+      color: theme.palette.success.main,
+      icon: <CheckCircleIcon sx={{ fontSize: 16 }} />,
+    },
+    {
+      key: "noExpiry",
+      label: t.noExpiry,
+      count: noExpiryCount,
+      color: theme.palette.text.disabled,
+      icon: <HelpOutlineIcon sx={{ fontSize: 16 }} />,
+    },
+  ];
+
+  // A state with nothing in it is noise. Keep the two that always carry meaning
+  // (expired / valid) so the panel never collapses to a single line.
+  const visibleRows = rows.filter(
+    (r) => r.count > 0 || r.key === "expired" || r.key === "valid"
+  );
+
+  const hasUpload = lastUploadDate.getTime() > 0;
 
   return (
-    <Stack spacing={2} sx={{ flexGrow: 1 }}>
-      <Stack spacing={2} direction={"row"}>
-        <Card sx={cardStyle}>
-          <Box sx={{ ...iconBoxStyle, bgcolor: "success.main" }}>
-            <CheckCircleIcon sx={{ width: 18, height: 19 }} />
-          </Box>
-          <Typography sx={{ fontSize: 22, color: "text.secondary" }}>{dict.common.active}</Typography>
-          <Typography sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}>{activeCount}</Typography>
-        </Card>
-        <Card sx={cardStyle}>
-          <Box sx={{ ...iconBoxStyle, bgcolor: "warning.main" }}>
-            <QueryBuilderIcon sx={{ width: 18, height: 19 }} />
-          </Box>
-          <Typography sx={{ fontSize: 22, color: "text.secondary" }}>{dict.common.expiring}</Typography>
-          <Typography sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}>{expiringSoonCount}</Typography>
-        </Card>
+    <Stack
+      spacing={0}
+      sx={{
+        width: 260,
+        flexShrink: 0,
+        borderRadius: "12px",
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor:
+          theme.palette.mode === "dark"
+            ? "rgba(255,255,255,0.02)"
+            : "rgba(0,0,0,0.015)",
+        overflow: "hidden",
+      }}
+    >
+      <Stack
+        direction="row"
+        alignItems="baseline"
+        justifyContent="space-between"
+        sx={{ px: 2, pt: 1.75, pb: 1.25 }}
+      >
+        <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+          {t.summary}
+        </Typography>
+        <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+          {t.totalDocs.replace("{count}", String(totalCount))}
+        </Typography>
       </Stack>
-      <Stack spacing={2} direction={"row"}>
-        <Card sx={cardStyle}>
-          <Box sx={{ ...iconBoxStyle, bgcolor: "error.main" }}>
-            <WarningIcon sx={{ width: 18, height: 19 }} />
-          </Box>
-          <Typography sx={{ fontSize: 22, color: "text.secondary" }}>{dict.common.missing}</Typography>
-          <Typography sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}>{missingOrExpiredCount}</Typography>
-        </Card>
-        <Card sx={cardStyle}>
-          <Box sx={{ ...iconBoxStyle, bgcolor: "info.main" }}>
-            <FileUploadIcon sx={{ width: 18, height: 19 }} />
-          </Box>
-          <Typography sx={{ fontSize: 22, color: "text.secondary" }}>{dict.common.upload}</Typography>
-          <Typography sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}>
-            {lastUploadDate.getTime() > 0 ? formatDisplayDate(lastUploadDate.toISOString(), dateSettings) : dict.common.na}
-          </Typography>
-        </Card>
+
+      <Divider />
+
+      <Stack sx={{ px: 1, py: 0.5 }}>
+        {visibleRows.map((row) => {
+          // Zero is stated plainly rather than highlighted — "0 expired" is
+          // good news and must not compete with a real count.
+          const isZero = row.count === 0;
+          return (
+            <Stack
+              key={row.key}
+              direction="row"
+              alignItems="center"
+              spacing={1.25}
+              sx={{ px: 1, py: 0.875, borderRadius: "8px" }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: isZero ? theme.palette.text.disabled : row.color,
+                }}
+              >
+                {row.icon}
+              </Box>
+              <Typography
+                sx={{
+                  fontSize: 12.5,
+                  color: "text.secondary",
+                  flexGrow: 1,
+                  minWidth: 0,
+                }}
+              >
+                {row.label}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 15,
+                  fontWeight: 800,
+                  fontVariantNumeric: "tabular-nums",
+                  color: isZero ? theme.palette.text.disabled : row.color,
+                }}
+              >
+                {row.count}
+              </Typography>
+            </Stack>
+          );
+        })}
       </Stack>
-      <Button variant="contained" sx={{ borderRadius: "8px", bgcolor: "#246BFD", textTransform: "none", "&:hover": { bgcolor: paletteTheme.primary?._alpha?.main_90 } }} onClick={onUploadClick} startIcon={<FileUploadIcon />}>
-        {dict.common.uploadNew}
-      </Button>
+
+      <Divider />
+
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={0.75}
+        sx={{ px: 2, py: 1.25 }}
+      >
+        <ScheduleIcon sx={{ fontSize: 14, color: "text.disabled" }} />
+        <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+          {hasUpload
+            ? `${t.lastUpload}: ${formatDisplayDate(
+                lastUploadDate.toISOString(),
+                dateSettings
+              )}`
+            : t.never}
+        </Typography>
+      </Stack>
+
+      <Box sx={{ px: 1.5, pb: 1.5 }}>
+        <Button
+          fullWidth
+          variant="contained"
+          disableElevation
+          sx={{ borderRadius: "8px", textTransform: "none", fontWeight: 600 }}
+          onClick={onUploadClick}
+          startIcon={<FileUploadIcon sx={{ fontSize: 18 }} />}
+        >
+          {t.uploadNew}
+        </Button>
+      </Box>
     </Stack>
   );
 }

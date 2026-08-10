@@ -46,7 +46,8 @@ export default function EditTrailerDialog({
     isColdChain: false,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // No submitting flag: the dialog closes on submit, so a "saving…" disabled
+  // state would never actually be visible.
 
   useEffect(() => {
     if (trailer) {
@@ -73,22 +74,23 @@ export default function EditTrailerDialog({
     e.preventDefault();
     if (!trailer) return;
     
-    setIsSubmitting(true);
+    // Close first: the mutation toasts its own outcome and patches the cache,
+    // so there is nothing to wait for on screen.
+    const payload = {
+      id: trailer.id,
+      data: {
+        ...formData,
+        capacityVolumeM3: parseFloat(formData.capacityVolumeM3.toString()) || 0,
+        maxLoadKg: parseInt(formData.maxLoadKg.toString()) || 0,
+      },
+    };
+    onClose();
+
     try {
-      await updateTrailer.mutateAsync({
-        id: trailer.id,
-        data: {
-          ...formData,
-          capacityVolumeM3: parseFloat(formData.capacityVolumeM3.toString()) || 0,
-          maxLoadKg: parseInt(formData.maxLoadKg.toString()) || 0,
-        },
-      });
+      await updateTrailer.mutateAsync(payload);
       onSuccess?.();
-      onClose();
     } catch (error) {
       logger.error("Failed to update trailer:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -185,7 +187,6 @@ export default function EditTrailerDialog({
           <Button
             type="submit"
             variant="contained"
-            disabled={isSubmitting}
             sx={{ textTransform: "none", borderRadius: 2 }}
           >
             {dict.common.save}

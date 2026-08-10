@@ -25,6 +25,10 @@ import {
   accessibleWarehouseIds,
   resolveWarehouse,
 } from "./shared";
+import {
+  palletsUsedFor,
+  totalPalletsUsed,
+} from "../../utils/palletOccupancy";
 
 /**
  * tr-depo çalışanı (warehouse worker) gösterge paneli için görevler, hedefler, stok hareketleri ve düşük stok uyarıları dahil tüm verileri getirir
@@ -175,7 +179,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       const z =
         it.zone && zoneCodes.includes(it.zone) ? it.zone : UNASSIGNED_ZONE;
       skuZone.set(it.sku, z);
-      usedByZone.set(z, (usedByZone.get(z) ?? 0) + (it.palletCount ?? 0));
+      usedByZone.set(z, (usedByZone.get(z) ?? 0) + palletsUsedFor(it));
     }
 
     const zones: WWZone[] = zonesRaw.map((z) => {
@@ -187,14 +191,27 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         pct: zonePct(usedPallets, z.capacityPallets),
       };
     });
+    // Surface unlocated pallets as their own entry rather than letting them
+    // vanish from the per-zone breakdown. Marked isUnassigned so the capacity
+    // tab still lists it (so the worker knows to go fix the data) without
+    // zoneCapacityAdvice treating it as a real zone that's "critically full"
+    // and telling the worker to stop putting stock away here / divert to it.
+    const unassignedPallets = Math.round(usedByZone.get(UNASSIGNED_ZONE) ?? 0);
+    if (unassignedPallets > 0) {
+      zones.push({
+        code: UNASSIGNED_ZONE,
+        capacityPallets: unassignedPallets,
+        usedPallets: unassignedPallets,
+        pct: 100,
+        isUnassigned: true,
+      });
+    }
 
     // Pallets sitting in stock with no valid zone — the signal that used to be
     // hidden behind a hashed placeholder zone.
     const unassignedPallets = Math.round(usedByZone.get(UNASSIGNED_ZONE) ?? 0);
 
-    const used = Math.round(
-      inventoryRaw.reduce((a, it) => a + (it.palletCount ?? 0), 0)
-    );
+    const used = totalPalletsUsed(inventoryRaw);
     const total = warehouse.capacityPallets || 5000;
 
     const tasks: WWTask[] = tasksRaw.map((t) => ({
@@ -221,7 +238,10 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       name: m.notes || skuName.get(m.sku) || m.sku,
       sku: m.sku,
       qty: m.quantity,
-      zone: skuZone.get(m.sku) ?? UNASSIGNED_ZONE,
+      // The zone recorded on the movement itself (as of the moment it
+      // happened) is authoritative; only fall back to the SKU's *current*
+      // zone for movements logged before this column existed.
+      zone: m.zone ?? skuZone.get(m.sku) ?? UNASSIGNED_ZONE,
       who: m.user ? `${m.user.name} ${m.user.surname}`.trim() : "System",
       self: m.userId === userId,
       at: m.date.toISOString(),

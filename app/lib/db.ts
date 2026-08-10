@@ -30,8 +30,30 @@ const TENANT_MODELS = new Set<string>([
   "TrailerAssignment",
 ]);
 
-/** Models with a `deletedAt` column: reads hide soft-deleted rows by default. */
-const SOFT_DELETE_MODELS = new Set<string>(["Vehicle", "Trailer"]);
+/**
+ * Models with a `deletedAt` column: reads hide soft-deleted rows by default.
+ *
+ * Adding a model here makes soft-deleted rows disappear from EVERY read across
+ * the app — dashboards, lists, counts and relations — without each call site
+ * remembering to filter. That is the point: a "deleted" record that still shows
+ * up in one forgotten query is worse than no delete feature at all.
+ *
+ * A caller that genuinely needs deleted rows (the admin console's restore view)
+ * must pass `deletedAt` explicitly in its `where`, which suppresses the
+ * injection below.
+ */
+const SOFT_DELETE_MODELS = new Set<string>([
+  "Vehicle",
+  "Trailer",
+  "User",
+  "Company",
+  "Shipment",
+  "Route",
+  "Warehouse",
+  "Customer",
+  "Driver",
+  "Inventory",
+]);
 
 const READ_OPS = new Set<string>([
   "findFirst",
@@ -170,11 +192,27 @@ function createPrismaClient() {
               extra.companyId = companyId;
             }
 
-            if (
-              isSoftDelete &&
-              READ_OPS.has(operation) &&
-              current.where?.deletedAt === undefined
-            ) {
+            // Opt-out is by KEY PRESENCE, not by value: a caller that has
+            // constrained `deletedAt` itself — directly, or inside a top-level
+            // OR as `INCLUDE_DELETED` does — owns the filter, and injecting
+            // `deletedAt: null` on top would silently override their intent.
+            //
+            // Testing `where.deletedAt !== undefined` instead would treat an
+            // explicit `deletedAt: undefined` as "not provided" and re-apply
+            // the filter, defeating the opt-out.
+            const where = current.where;
+            const constrainsDeletedAt =
+              where !== undefined &&
+              (Object.prototype.hasOwnProperty.call(where, "deletedAt") ||
+                (Array.isArray(where.OR) &&
+                  (where.OR as Record<string, unknown>[]).some(
+                    (clause) =>
+                      clause !== null &&
+                      typeof clause === "object" &&
+                      Object.prototype.hasOwnProperty.call(clause, "deletedAt")
+                  )));
+
+            if (isSoftDelete && READ_OPS.has(operation) && !constrainsDeletedAt) {
               extra.deletedAt = null;
             }
 

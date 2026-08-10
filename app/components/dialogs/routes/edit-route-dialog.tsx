@@ -134,9 +134,12 @@ const EditRouteDialog = ({
       : undefined;
     const endUTC = values.endTime ? toUTC(values.endTime, userTz) : undefined;
 
+    // Close first, then submit: useRouteMutations() already toasts success/error
+    // and applies the optimistic cache update, so there is nothing on screen
+    // that needs the dialog to stay open for the round-trip.
+    closeDialog();
+
     try {
-      // useRouteMutations() already toasts success/error and applies the
-      // optimistic cache update; just await the submission.
       await updateRoute.mutateAsync({
         id: route.id,
         data: {
@@ -155,8 +158,6 @@ const EditRouteDialog = ({
       });
 
       onSuccess?.();
-      onClose();
-      setCurrentStep(1);
     } catch (error) {
       logger.error(error);
     }

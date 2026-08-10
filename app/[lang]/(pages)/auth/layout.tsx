@@ -1,8 +1,10 @@
 "use client";
 
-import { Box, Stack, Typography, useTheme, Grid } from "@mui/material";
+import { Box, Stack, Typography, useTheme, Grid, Button } from "@mui/material";
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import Image from "next/image";
-import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import Link from "next/link";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { useEffect } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -14,8 +16,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const theme = useTheme();
-  const dict = useDictionary();
-  const { lang } = useLanguage();
+  const { dict, lang } = useLanguage();
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -38,6 +39,36 @@ export default function AuthLayout({
         zIndex: 1000,
       }}
     >
+      {/* Every auth page (sign-in, sign-up, forgot-password, ...) shares this
+          layout, so one back-to-home affordance here covers all of them. */}
+      <Button
+        component={Link}
+        href={`/${lang}?landing=true`}
+        startIcon={<HomeRoundedIcon sx={{ fontSize: 18 }} />}
+        sx={{
+          position: "fixed",
+          top: { xs: 12, sm: 20 },
+          left: { xs: 12, sm: 20 },
+          zIndex: 1100,
+          textTransform: "none",
+          fontWeight: 700,
+          fontSize: "0.8rem",
+          borderRadius: "999px",
+          px: 1.75,
+          py: 0.5,
+          color: "rgba(255, 255, 255, 0.85)",
+          bgcolor: "rgba(255, 255, 255, 0.06)",
+          border: "1px solid rgba(255, 255, 255, 0.12)",
+          backdropFilter: "blur(8px)",
+          "&:hover": {
+            bgcolor: "rgba(255, 255, 255, 0.12)",
+            borderColor: "rgba(255, 255, 255, 0.2)",
+          },
+        }}
+      >
+        {dict.common.backToHome || "Back to Home"}
+      </Button>
+
       <Grid container sx={{ height: "100dvh", overflow: "hidden", m: 0, width: "100%" }}>
         {/* Left Side: Feature Visual (Desktop Only) */}
         <Grid

@@ -55,6 +55,13 @@
     },
     "actions": "İşlemler",
     "status": "Durum",
+    "statusLabels": {
+      "pending": "Beklemede",
+      "accepted": "Kabul Edildi",
+      "rejected": "Reddedildi",
+      "expired": "Süresi Doldu",
+      "revoked": "İptal Edildi"
+    },
     "date": "Tarih",
     "technician": "Teknisyen",
     "next": "İleri",
@@ -162,7 +169,12 @@
     "searchPlaceholder": "Ara...",
     "underDevelopment": "Bu özellik şu anda geliştirme aşamasındadır.",
     "comingSoon": "Çok Yakında",
-    "manualEntry": "Manuel Giriş"
+    "manualEntry": "Manuel Giriş",
+    "timeUnits": {
+      "day": "gün",
+      "hour": "saat",
+      "minute": "dk"
+    }
   },
   "guidedTour": {
     "overview": {
@@ -459,6 +471,7 @@
     "emailVerifiedSuccess": "E-posta adresiniz doğrulandı.",
     "emailAlreadyVerified": "Bu e-posta adresi zaten doğrulanmış.",
     "continueToSignIn": "Girişe Devam Et",
+    "continueToOnboarding": "Devam Et",
     "verifyEmailInvalid": "Bu doğrulama bağlantısı geçersiz veya süresi dolmuş.",
     "verifyEmailError": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
     "verifyEmailResendTitle": "Yeni bağlantı talep edin",
@@ -478,7 +491,12 @@
     "sendResetLink": "Sıfırlama Bağlantısı Gönder",
     "sending": "Gönderiliyor...",
     "backToSignIn": "Girişe Dön",
-    "tagline": "Küresel tedarik zincirlerini gerçek zamanlı zeka ve kusursuz koordinasyonla güçlendiriyoruz."
+    "tagline": "Küresel tedarik zincirlerini gerçek zamanlı zeka ve kusursuz koordinasyonla güçlendiriyoruz.",
+    "verifyEmailGateTitle": "Önce e-posta adresinizi doğrulayın",
+    "verifyEmailGateBody": "Şirket kurmadan önce e-posta adresinizin size ait olduğunu doğrulamamız gerekiyor. Doğrulama bağlantısını göndermek için aşağıdaki butona basın.",
+    "verifyEmailGateSend": "Doğrulama E-postası Gönder",
+    "verifyEmailGateSending": "Gönderiliyor…",
+    "verifyEmailGateSent": "Doğrulama bağlantısı {email} adresine gönderildi. Bağlantıya tıkladıktan sonra şirketinizi kurabilirsiniz."
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
@@ -1658,7 +1676,7 @@
     "howItWorks": "Nasıl Çalışır",
     "contact": "İletişim",
     "dashboard": "Panel",
-    "setupOrg": "Organizasyonu Kur",
+    "setupOrg": "Kuruluma Git",
     "signIn": "Giriş Yap",
     "signUp": "Kayıt Ol",
     "startPro": "Hemen Başla"
@@ -1793,6 +1811,7 @@
     },
     "docTypes": {
       "REGISTRATION": "Ruhsat",
+      "TRAILER_REGISTRATION": "Dorse Ruhsatı",
       "INSURANCE": "Sigorta",
       "LICENSE": "Lisans/İzin",
       "INSPECTION": "Muayene",
@@ -1817,6 +1836,7 @@
       "uploadNotes": "SVG, PNG, JPG veya GIF",
       "dragAndDrop": "veya sürükleyip bırakın",
       "fileFormats": "JPG veya PNG (Maks. 10MB)",
+      "pdfUploadDisabled": "PDF yükleme şu anda geçici olarak devre dışı. Lütfen daha sonra tekrar deneyin.",
       "complianceDates": "Uyumluluk Tarihleri",
       "registrationExpiry": "Ruhsat Geçerlilik Tarihi",
       "inspectionExpiry": "Muayene Geçerlilik Tarihi",
@@ -1948,6 +1968,18 @@
       "onTrip": "Seferde",
       "openIssues": "Açık Sorunlar",
       "docsExpiring": "Süresi Dolanlar"
+    },
+    "docStats": {
+      "summary": "Belge Özeti",
+      "valid": "Geçerli",
+      "expiringSoon": "Yakında Doluyor",
+      "expired": "Süresi Dolmuş",
+      "noExpiry": "Tarihsiz",
+      "lastUpload": "Son yükleme",
+      "never": "Henüz yükleme yok",
+      "totalDocs": "{count} belge",
+      "uploadNew": "Yeni Belge Yükle",
+      "allValid": "Tüm belgeler geçerli"
     },
     "dashboard": {
       "expiringSoon": "Süresi Yaklaşanlar",
@@ -2264,6 +2296,13 @@
       "lastName": "Soyad",
       "status": "Durum",
       "locationName": "Lokasyon Adı"
+    },
+    "activityStatus": {
+      "PENDING": "Sevkiyat oluşturuldu",
+      "ASSIGNED": "Rota oluşturuldu",
+      "IN_TRANSIT": "Yolda",
+      "DELIVERED": "Başarılı",
+      "CANCELLED": "İptal edildi"
     }
   },
   "industries": {
@@ -2393,6 +2432,7 @@
       "storageDesc": "Bu envanterin nerede saklanacağını ve stok eşiklerini tanımlayın.",
       "warehouseLocation": "Depo Konumu",
       "selectFacility": "TESİS SEÇİN *",
+      "warehouseLockedHint": "Bu depodan eklediğiniz için depo otomatik seçildi.",
       "stockConfig": "Stok Yapılandırması",
       "initialQuantity": "BAŞLANGIÇ MİKTARI",
       "minStockAlert": "MİN. STOK SEVİYESİ (UYARI)",
@@ -2432,7 +2472,7 @@
       "unitValue": "Birim Değer",
       "weight": "Ağırlık",
       "volume": "Hacim",
-      "pallets": "Palet Sayısı",
+      "pallets": "Palet Başına Adet",
       "unit": "Birim"
     },
     "categories": {
@@ -2464,29 +2504,37 @@
       "active": "Aktif"
     },
     "joinRequests": {
-      "title": "Bekleyen Katılma İstekleri",
+      "title": "Davet ve Katılma İstekleri",
       "empty": "Bekleyen katılma isteği yok.",
       "columns": {
         "requester": "İsim",
         "email": "Email",
-        "requestedAt": "İstek Tarihi"
+        "requestedAt": "İstek Tarihi",
+        "type": "Tür",
+        "status": "Durum",
+        "request": "İstek",
+        "invitation": "Davet"
       },
       "actions": {
         "accept": "Kabul Et",
-        "reject": "Reddet"
+        "reject": "Reddet",
+        "resend": "Yeniden Gönder",
+        "revoke": "İptal Et"
       }
     },
     "roles": {
       "Admin": "Yönetici",
-      "Manager": "Müdür",
+      "Manager": "Depo Müdürü",
       "Warehouse Worker": "Depo Çalışanı",
       "Driver": "Sürücü",
-      "Customer": "Müşteri",
+      "Customer": "Personel",
       "read-only": "salt-okunur",
       "Administrator": "Yönetici",
       "Warehouse Manager": "Depo Müdürü",
       "Dispatcher": "Sevkiyat Sorumlusu",
-      "Warehouse Operator": "Depo Çalışanı"
+      "Warehouse Operator": "Depo Çalışanı",
+      "Warehouse": "Depo Çalışanı",
+      "Default": "Personel"
     },
     "branding": {
       "title": "Şirket Kimliği",
@@ -2532,7 +2580,7 @@
       "employeeIdHelper": "Şirket tarafından atanan benzersiz kimlik",
       "phoneHelper": "Sürücü iletişimi için gereklidir",
       "existingUser": "Mevcut kullanıcı ekle",
-      "inviteByEmail": "Şoförü email ile davet et",
+      "inviteByEmail": "Kullanıcıyı email ile davet et",
       "inviteEmailPlaceholder": "sofor@ornek.com",
       "sendInvite": "Davet Gönder",
       "domainLabel": "Şirket Email Domain'i",
@@ -2540,6 +2588,10 @@
       "acceptJoinRequestTitle": "Katılma İsteğini Kabul Et",
       "rejectJoinRequestTitle": "Katılma İsteğini Reddet",
       "rejectJoinRequestDescription": "Bu kişi tekrar katılmak için yeni bir istek göndermesi gerekecek.",
+      "revokeInvitationTitle": "Daveti İptal Et",
+      "revokeInvitationDesc": "Bu daveti iptal etmek istediğinize emin misiniz? Gönderilen bağlantı geçersiz hale gelecek.",
+      "resendInvitationTitle": "Daveti Yeniden Gönder",
+      "resendInvitationDesc": "Bu daveti yeniden göndermek istediğinize emin misiniz? Yeni bir bağlantı üretilecek ve eski bağlantı geçersiz olacak.",
       "steps": {
         "branding": "Markalama",
         "regional": "Bölgesel",
@@ -2837,6 +2889,7 @@
     "table": {
       "title": "Rota Listesi",
       "noRoutes": "Rota bulunamadı.",
+      "notSyncedYet": "Rota henüz kaydedilmedi. Lütfen bir saniye bekleyip tekrar deneyin.",
       "searchPlaceholder": "Rota ara...",
       "columns": {
         "routeId": "Rota No",
@@ -3017,6 +3070,7 @@
       "details": {
         "overview": "Genel Bakış",
         "inventory": "Envanter",
+        "zones": "Bölgeler",
         "locationDetails": "Konum Bilgileri",
         "address": "Adres",
         "cityCountry": "Şehir / Ülke",
@@ -3073,6 +3127,26 @@
         "specifications": "Tesis Özellikleri",
         "guidance": "Operasyonel Rehber Notlar",
         "guidanceText": "Hazardous materyal sertifikalarının güncel olduğundan ve tesisin yerel güvenlik standartlarına uygun olduğundan emin olun."
+      },
+      "zones": {
+        "title": "Depo Bölgeleri",
+        "subtitle": "Bu depodaki fiziksel bölgeleri (A, B, C…) ve palet kapasitelerini tanımlayın. Envanter ve depo çalışanı paneli, ürünleri buradaki bölgelere göre konumlandırır.",
+        "empty": "Henüz bölge tanımlanmadı",
+        "emptyDesc": "Ürünlere konum atayabilmek için önce en az bir bölge oluşturun (örn. A, B, C).",
+        "addZone": "Bölge Ekle",
+        "editZone": "Bölgeyi Düzenle",
+        "deleteZone": "Bölgeyi Sil",
+        "deleteZoneConfirm": "\"{code}\" bölgesini silmek istediğinizden emin misiniz?",
+        "code": "Bölge Kodu",
+        "codePlaceholder": "Örn. A, B1, SOĞUK-01",
+        "name": "Bölge Adı (Opsiyonel)",
+        "namePlaceholder": "Örn. Zemin Kat Raf Alanı",
+        "capacityPallets": "Palet Kapasitesi",
+        "capacityPalletsPlaceholder": "Örn. 500",
+        "usedOfCapacity": "{used} / {capacity} palet",
+        "codeRequired": "Bölge kodu zorunludur",
+        "save": "Kaydet",
+        "cancel": "İptal"
       }
     },
     "fields": {
@@ -3326,8 +3400,19 @@
         "pendingCount": "{count} Bekleyen",
         "allClear": "Her şey yolunda! Acil aksiyon gerekmiyor.",
         "ISSUE_ALERT": "{priority} · {status}",
-        "DOC_EXPIRES": "Son Tüketim {date}",
-        "DOC_EXPIRY_APPROACHING": "Süresi yaklaşıyor"
+        "DOC_EXPIRES": "Geçerlilik: {date}",
+        "DOC_EXPIRY_APPROACHING": "Süresi yaklaşıyor",
+        "DOC_EXPIRED_DETAIL": "{owner} aracının {docType} belgesinin süresi {date} tarihinde doldu",
+        "DOC_EXPIRED_DETAIL_DRIVER": "{owner} adlı sürücünün {docType} belgesinin süresi {date} tarihinde doldu",
+        "DOC_EXPIRED_DETAIL_NONE": "{docType} belgesinin süresi {date} tarihinde doldu",
+        "DOC_EXPIRING_DETAIL": "{owner} aracının {docType} belgesinin süresi {date} tarihinde dolacak",
+        "DOC_EXPIRING_DETAIL_DRIVER": "{owner} adlı sürücünün {docType} belgesinin süresi {date} tarihinde dolacak",
+        "DOC_EXPIRING_DETAIL_NONE": "{docType} belgesinin süresi {date} tarihinde dolacak",
+        "badgeExpired": "SÜRESİ DOLDU",
+        "badgeExpiringSoon": "YAKINDA DOLUYOR",
+        "expiredDaysAgo": "{days} gün geçti",
+        "expiresInDays": "{days} gün kaldı",
+        "expiresToday": "Bugün doluyor"
       },
       "dailyOperations": {
         "title": "Bugünkü Operasyonlar",
@@ -3592,6 +3677,8 @@
       "nextTaskStart": "Başla",
       "nextTaskAllClear": "Hepsi tamam",
       "nextTaskAllClearSub": "Açık görev yok — eline sağlık.",
+      "taskCompleteNoScan": "Görev tamamlandı — ama bu oturumda hiç ürün taranmadı",
+      "taskZoneMismatch": "farklı bölgedesin",
       "allAssignedTasks": "Tüm atanan görevler",
       "siteCapacity": "Tesis kapasitesi",
       "zoneNearFull": "Bölge dolmak üzere",
@@ -3607,6 +3694,19 @@
       "activePickZone": "Aktif toplama bölgesi",
       "quickActions": "Hızlı işlemler",
       "requestRestockZone": "Besleme talebi — Bölge",
+      "restockDialogTitle": "Besleme talebi",
+      "restockDialogSubtitle": "Azalan ürünü ve kaç adet gerektiğini seçin",
+      "restockDialogZone": "Bölge",
+      "restockDialogItem": "Ürün",
+      "restockDialogItemPlaceholder": "SKU veya ürün adı ile ara…",
+      "restockDialogNoMatch": "Eşleşen ürün yok — başka bir SKU veya ad deneyin",
+      "restockDialogNoItemsInZone": "Bu bölgede kayıtlı ürün yok",
+      "restockDialogQty": "Adet",
+      "restockDialogAvailable": "mevcut",
+      "restockDialogMin": "min",
+      "restockDialogSuggested": "Önerilen",
+      "restockDialogSubmit": "Talebi gönder",
+      "restockDialogSelectItem": "Devam etmek için bir ürün seçin",
       "reportIssue": "Sorun bildir",
       "lowStockTitle": "Düşük stok",
       "lowStockNone": "Tüm ürünler yeniden sipariş noktasının üzerinde.",
@@ -3804,7 +3904,12 @@
     "accepting": "Kabul ediliyor...",
     "declining": "Reddediliyor...",
     "invitationAccepted": "Davet kabul edildi!",
-    "invitationDeclined": "Davet reddedildi."
+    "invitationDeclined": "Davet reddedildi.",
+    "requestDemoButton": "Demo Talep Et",
+    "verifyGateTitle": "Devam etmek için e-postanızı doğrulayın",
+    "verifyGateBody": "{email} adresine bir doğrulama bağlantısı gönderdik. Şirket oluşturmadan veya bir şirkete katılmadan önce onaylayın.",
+    "verifyGateResendButton": "Doğrulama e-postasını yeniden gönder",
+    "verifyGateResent": "Doğrulama e-postası gönderildi — gelen kutunuzu kontrol edin."
   },
   "pendingAccess": {
     "title": "Erişiminiz hazırlanıyor",
@@ -3821,5 +3926,377 @@
     "title": "Kullanıcı Yönetimi",
     "subtitle": "Şirket kullanıcılarını, rollerini ve erişim izinlerini yönetin",
     "comingSoonDescription": "Kullanıcı Yönetimi modülü şu anda geliştirilme aşamasında. Yakında ekip üyelerini davet edebilecek, belirli roller (ör. Sevkiyatçı, Yönetici, Yönetici) atayabilecek ve kullanıcı etkinlik günlüklerini takip edebileceksiniz."
+  },
+  "admin": {
+    "title": "Yönetim Konsolu",
+    "subtitle": "Platform yönetimi ve servis tanılama",
+    "badge": "Platform Yöneticisi",
+    "nav": {
+      "overview": "Genel Bakış",
+      "platform": "Platform",
+      "tenants": "Kiracılar",
+      "users": "Kullanıcılar",
+      "sessions": "Oturumlar",
+      "audit": "Denetim Kayıtları",
+      "observability": "Gözlemlenebilirlik",
+      "health": "Sağlık Kontrolleri",
+      "database": "Veritabanı",
+      "sandbox": "Servis Test Merkezi",
+      "sandboxApi": "API Test Aracı",
+      "sandboxWebsocket": "WebSocket & SSE",
+      "sandboxEmail": "E-posta & SMTP",
+      "sandboxQueue": "Kuyruk İzleyici",
+      "sandboxNotifications": "Bildirimler",
+      "system": "Sistem",
+      "flags": "Özellik Anahtarları",
+      "settings": "Ortam Değişkenleri",
+      "deleted": "Silinmiş Kayıtlar",
+      "demoRequests": "Demo Talepleri"
+    },
+    "header": {
+      "search": "Ara veya sayfaya git…",
+      "commandHint": "Ctrl K",
+      "allSystems": "Tüm sistemler çalışıyor",
+      "degraded": "Performans düşük",
+      "outage": "Servis kesintisi",
+      "checking": "Servisler kontrol ediliyor…",
+      "backToApp": "Uygulamaya dön",
+      "signOut": "Çıkış yap"
+    },
+    "palette": {
+      "placeholder": "Bir komut yazın veya arayın…",
+      "empty": "Sonuç bulunamadı.",
+      "groupNavigation": "Gezinme",
+      "groupActions": "Eylemler",
+      "close": "Kapat"
+    },
+    "status": {
+      "up": "Çalışıyor",
+      "degraded": "Yavaş",
+      "down": "Kapalı",
+      "unknown": "Bilinmiyor"
+    },
+    "common": {
+      "refresh": "Yenile",
+      "retry": "Tekrar dene",
+      "loading": "Yükleniyor…",
+      "error": "Bir hata oluştu",
+      "noData": "Veri bulunamadı",
+      "lastChecked": "Son kontrol",
+      "latency": "Gecikme",
+      "sensitive": "Hassas",
+      "readOnly": "Salt okunur",
+      "simulated": "Simülasyon"
+    },
+    "overview": {
+      "kpi": {
+        "tenants": "Kiracılar",
+        "users": "Toplam Kullanıcı",
+        "activeSessions": "Aktif Oturumlar",
+        "signIns": "Girişler",
+        "shipments": "Oluşturulan Sevkiyat",
+        "failedSignIns": "Başarısız Girişler"
+      },
+      "ranges": {
+        "1h": "1S",
+        "24h": "24S",
+        "7d": "7G",
+        "30d": "30G"
+      },
+      "charts": {
+        "activityTitle": "Platform Aktivitesi",
+        "activitySubtitle": "Seçili aralıkta girişler ve yeni kullanıcılar",
+        "signIns": "Girişler",
+        "signups": "Yeni kullanıcılar",
+        "subscriptionsTitle": "Abonelik Dağılımı",
+        "subscriptionsSubtitle": "Tüm hesaplar arasındaki dağılım",
+        "tenantsTitle": "En Aktif Kiracılar",
+        "tenantsSubtitle": "Sevkiyat hacmine göre sıralı"
+      },
+      "table": {
+        "tenant": "Kiracı",
+        "users": "Kullanıcı",
+        "shipments": "Sevkiyat",
+        "created": "Oluşturulma"
+      },
+      "telemetryNotice": "Sunucu metrikleri (CPU, bellek, istek sayısı, p99 gecikme) gösterilmiyor — bu dağıtımda bağlı bir APM veri kaynağı yok.",
+      "generatedAt": "Güncellendi"
+    },
+    "sandbox": {
+      "api": {
+        "title": "API Test Aracı",
+        "subtitle": "Bu uygulamanın kendi REST uç noktalarını çalıştırın",
+        "presets": "Hazır Şablonlar",
+        "method": "Metot",
+        "path": "Yol",
+        "headers": "Başlıklar",
+        "query": "Sorgu Parametreleri",
+        "body": "Gövde (JSON)",
+        "send": "İstek Gönder",
+        "sending": "Gönderiliyor…",
+        "reset": "Sıfırla",
+        "response": "Yanıt",
+        "status": "Durum",
+        "duration": "Süre",
+        "size": "Boyut",
+        "noResponse": "Yanıtı burada görmek için bir istek gönderin.",
+        "keyPlaceholder": "Başlık adı",
+        "valuePlaceholder": "Değer",
+        "queryKeyPlaceholder": "Parametre adı",
+        "addRow": "Satır ekle",
+        "scopeNotice": "Yalnızca bu uygulamanın /api/* rotaları çağrılabilir. Mutlak URL'ler ve dış adresler sunucu tarafından reddedilir.",
+        "bodyInvalid": "Gövde geçerli JSON olmalı"
+      },
+      "email": {
+        "title": "E-posta & SMTP Test Aracı",
+        "subtitle": "Üretim şablonlarıyla Resend üzerinden gerçek mesaj gönderin",
+        "recipient": "Alıcı",
+        "recipientPlaceholder": "siz@ornek.com",
+        "template": "Şablon",
+        "language": "Dil",
+        "subject": "Konu",
+        "html": "HTML gövde",
+        "send": "Test E-postası Gönder",
+        "sending": "Gönderiliyor…",
+        "warning": "Bu, Resend üzerinden GERÇEK bir e-posta gönderir. Kendinize ait bir adres kullanın.",
+        "templates": {
+          "verification": "E-posta doğrulama",
+          "passwordReset": "Şifre sıfırlama",
+          "companyWelcome": "Şirket karşılama",
+          "securityAlert": "Güvenlik uyarısı",
+          "notification": "Bildirim",
+          "custom": "Özel HTML"
+        },
+        "success": "E-posta gönderildi",
+        "failure": "Gönderim başarısız"
+      },
+      "queue": {
+        "title": "Kuyruk & Önbellek İzleyici",
+        "subtitle": "Canlı Redis anahtar uzayı ve oran sınırlama durumu",
+        "totalKeys": "Taranan anahtar",
+        "namespaces": "Ad alanları",
+        "rateLimitKeys": "Aktif oran sınırlama penceresi",
+        "latency": "Probe gecikmesi",
+        "unreachable": "Redis'e ulaşılamıyor",
+        "truncated": "Tarama sınırlandı — anahtar uzayı gösterilenden büyük.",
+        "live": "Canlı",
+        "noBullmq": "Bu uygulama BullMQ veya bir iş kuyruğu kütüphanesi kullanmıyor; bu yüzden yeniden denenecek veya temizlenecek bir iş yok. Gösterilen, gerçek Redis önbellek ve oran sınırlayıcı durumudur.",
+        "namespace": "Ad alanı",
+        "keyCount": "Anahtar"
+      },
+      "stream": {
+        "title": "Olay Akışı Test Aracı",
+        "subtitle": "Canlı bir Server-Sent Events uç noktasına bağlanın",
+        "connect": "Bağlan",
+        "disconnect": "Bağlantıyı kes",
+        "clear": "Temizle",
+        "status": "Durum",
+        "events": "Olaylar",
+        "noEvents": "Henüz olay yok. Almaya başlamak için bağlanın.",
+        "statuses": {
+          "idle": "Beklemede",
+          "connecting": "Bağlanıyor…",
+          "open": "Bağlandı",
+          "closed": "Kapandı",
+          "error": "Hata"
+        },
+        "wsNotice": "Bu araç Server-Sent Events (SSE) kullanır. Bu dağıtımda bir WebSocket uç noktası bulunmadığı için ham WebSocket test aracı dahil edilmemiştir."
+      },
+      "notImplemented": {
+        "payments": "Ödeme Ağ Geçidi Test Alanı",
+        "paymentsBody": "Bu kod tabanında entegre bir ödeme sağlayıcısı (Stripe, Iyzico) yok; bu yüzden test edilecek bir şey de yok. Konsolun var olmayan bir kapsamı ima etmemesi için bu sayfa simüle edilmek yerine bilinçli olarak boş bırakılmıştır."
+      }
+    },
+    "data": {
+      "tenants": {
+        "title": "Kiracılar",
+        "subtitle": "Platformdaki tüm şirketler",
+        "name": "Ad",
+        "domain": "Alan adı",
+        "users": "Kullanıcı",
+        "vehicles": "Araç",
+        "shipments": "Sevkiyat",
+        "created": "Oluşturulma"
+      },
+      "users": {
+        "title": "Kullanıcılar",
+        "subtitle": "Tüm kiracılardaki hesapları yönetin",
+        "search": "Ad veya e-posta ile ara",
+        "status": "Durum",
+        "allStatuses": "Tüm durumlar",
+        "user": "Kullanıcı",
+        "email": "E-posta",
+        "role": "Rol",
+        "tenant": "Kiracı",
+        "sessions": "Oturum",
+        "lastLogin": "Son giriş",
+        "verified": "Doğrulanmış",
+        "unverified": "Doğrulanmamış",
+        "never": "Hiç",
+        "actions": "İşlemler",
+        "activate": "Aktifleştir",
+        "deactivate": "Pasifleştir",
+        "suspend": "Askıya al",
+        "revokeSessions": "Her yerden çıkış yaptır",
+        "statuses": {
+          "ACTIVE": "Aktif",
+          "INACTIVE": "Pasif",
+          "SUSPENDED": "Askıda"
+        },
+        "confirmSuspend": "Bu hesap askıya alınsın mı? Tüm aktif oturumlar anında sonlandırılacak.",
+        "confirmRevoke": "Bu kullanıcı tüm cihazlardan çıkarılsın mı?",
+        "selfActionBlocked": "Kendi hesabınızın durumunu değiştiremezsiniz."
+      },
+      "sessions": {
+        "title": "Oturumlar",
+        "subtitle": "Platform genelindeki canlı oturumlar",
+        "user": "Kullanıcı",
+        "device": "Cihaz",
+        "ip": "IP adresi",
+        "lastActivity": "Son etkinlik",
+        "expires": "Bitiş",
+        "state": "Durum",
+        "active": "Aktif",
+        "revoked": "İptal edildi",
+        "expired": "Süresi doldu",
+        "kill": "İptal et",
+        "confirmKill": "Bu oturum iptal edilsin mi? Kullanıcı anında çıkış yapmış olacak.",
+        "unknownDevice": "Bilinmeyen cihaz"
+      },
+      "audit": {
+        "title": "Denetim Kayıtları",
+        "subtitle": "Güvenlikle ilgili olayların değiştirilemez kaydı",
+        "action": "Eylem",
+        "allActions": "Tüm eylemler",
+        "search": "E-posta veya IP ile ara",
+        "actor": "Aktör",
+        "ip": "IP",
+        "when": "Zaman",
+        "metadata": "Üstveri",
+        "immutableNotice": "Bu kayıt yalnızca eklemeye açıktır. Konsol, girdileri düzenleme veya silme imkânı sunmaz.",
+        "system": "Sistem",
+        "noLiveLogsNotice": "Ayrı bir canlı log akışı yok: app/lib/logger.ts yalnızca süreç konsoluna (stdout/stderr) yazar ve hiçbir şeyi kalıcı tutmaz; bu yüzden konsolun okuyabileceği bir depo yoktur. Bu denetim izi, güvenlikle ilgili olayların gerçek, kalıcı ve sorgulanabilir kaydıdır."
+      },
+      "database": {
+        "title": "Veritabanı Tarayıcı",
+        "subtitle": "Platform kayıtlarının salt okunur görünümü",
+        "model": "Tablo",
+        "readOnlyNotice": "Düzenleme yok. Satırlar yumuşak silinebilir (gizlenir, geri yüklenebilir) ancak düzenlenemez veya kalıcı olarak silinemez; kimlik bilgisi taşıyan tablolar (kullanıcılar, oturumlar, token'lar) tamamen hariç tutulmuştur.",
+        "rows": "kayıt"
+      },
+      "flags": {
+        "title": "Özellik Anahtarları",
+        "subtitle": "Dağıtım yapmadan platform özelliklerini açıp kapatın",
+        "flag": "Anahtar",
+        "state": "Durum",
+        "updated": "Son değişiklik",
+        "never": "Hiç değişmedi",
+        "enabled": "Açık",
+        "disabled": "Kapalı"
+      },
+      "env": {
+        "title": "Ortam Değişkenleri",
+        "subtitle": "Dağıtım yapılandırması",
+        "variable": "Değişken",
+        "value": "Değer",
+        "notSet": "(tanımlı değil)",
+        "maskNotice": "Gizli değerler sunucu tarafında maskelenir ve tarayıcıya asla gönderilmez. Uzun değerlerin yalnızca son dört karakteri gösterilir; böylece iki anahtar birbirinden ayırt edilebilir ama hiçbiri okunamaz."
+      },
+      "masquerade": {
+        "title": "Kullanıcı Taklidi (Masquerade)",
+        "unavailable": "Kullanılamıyor",
+        "body": "Başka bir kullanıcı olarak giriş yapma özelliği uygulanmadı. Bu uygulamadaki oturum token'ı taklit işareti taşımıyor; bu yüzden bir masquerade oturumu gerçek bir girişten ayırt edilemezdi — denetim kaydında, kiracının kendi kullanıcıları açısından ve alt sistemlerde. Bu işaret olmadan yayınlamak, taklit sırasında yapılan her eylemi kime ait olduğu belirsiz hale getirirdi. Güvenli uygulanması için JWT'de bir `impersonatedBy` alanı, kısaltılmış token ömrü, uygulama kabuğunda kalıcı bir uyarı bandı ve ayrı denetim eylemleri gerekir."
+      },
+      "announcement": {
+        "title": "Duyuru Bandı",
+        "subtitle": "Giriş yapmış tüm kullanıcılara mesaj yayınlayın",
+        "message": "Mesaj",
+        "messagePlaceholder": "Bu gece 22:00 UTC'de planlı bakım…",
+        "severity": "Önem",
+        "severities": {
+          "info": "Bilgi",
+          "warning": "Uyarı",
+          "critical": "Kritik"
+        },
+        "publish": "Yayınla",
+        "clear": "Kaldır",
+        "active": "Yayında",
+        "inactive": "Yayınlanmadı",
+        "updated": "Son değişiklik",
+        "preview": "Önizleme",
+        "charCount": "karakter",
+        "plainTextNotice": "Duyuru düz metin olarak gösterilir. HTML ve işaretleme yorumlanmaz."
+      },
+      "demoRequests": {
+        "title": "Demo Talepleri",
+        "subtitle": "Gelen demo taleplerini inceleyin ve deneme erişimi tanımlayın",
+        "requester": "Talep eden",
+        "type": "Tür",
+        "account": "Hesap",
+        "status": "Durum",
+        "received": "Geliş tarihi",
+        "trialDays": "Deneme",
+        "days": "{days} gün",
+        "approve": "Onayla",
+        "regrant": "Yeniden ver",
+        "reject": "Reddet",
+        "reopen": "Yeniden aç",
+        "until": "bitiş",
+        "noAccount": "Hesap yok",
+        "noAccountHint": "Bu e-postaya ait bir hesap henüz yok, bu yüzden onaylamak deneme hakkı tanımlayamaz. Kayıt olduklarında otomatik olarak alacaklar.",
+        "noRequests": "Burada talep yok.",
+        "invalidDays": "Deneme süresi 1 ile 365 gün arasında tam sayı olmalı.",
+        "approvedWithTrial": "Onaylandı — {days} günlük deneme tanımlandı",
+        "approvedNoAccount": "Onaylandı, ancak bu e-postaya ait hesap henüz yok — hiçbir hak tanımlanmadı.",
+        "statusUpdated": "Durum güncellendi",
+        "filters": {
+          "PENDING": "Bekleyen",
+          "APPROVED": "Onaylanan",
+          "REJECTED": "Reddedilen",
+          "ALL": "Tüm talepler"
+        },
+        "statuses": {
+          "PENDING": "Bekliyor",
+          "APPROVED": "Onaylandı",
+          "REJECTED": "Reddedildi"
+        }
+      },
+      "deletion": {
+        "delete": "Sil",
+        "restore": "Geri yükle",
+        "deleted": "Silindi",
+        "deletedAt": "Silinme tarihi",
+        "confirmTitle": "Bu kayıt silinsin mi?",
+        "confirmBody": "Kayıt uygulamanın her yerinden gizlenecek. Veritabanından silinmez ve sonradan geri yüklenebilir.",
+        "confirmCompanyTitle": "Bu kiracı silinsin mi?",
+        "confirmCompanyBody": "Bu işlem şirketi VE tüm kullanıcılarını gizler, hepsinin oturumunu anında kapatır. Araçlar, sevkiyatlar ve diğer kayıtlar da erişilemez hale gelir. Geri alınabilir, ancak etkilenen kullanıcıların yeniden giriş yapması gerekir.",
+        "typeToConfirm": "Onaylamak için şirket adını yazın:",
+        "cancel": "Vazgeç",
+        "confirmDelete": "Evet, sil",
+        "softDeleteNotice": "Silme işlemleri geri alınabilir. Kayıtlar uygulamadan gizlenir, silinmez — denetim izi ve referans bütünlüğü korunur.",
+        "restoreTitle": "Silinmiş Kayıtlar",
+        "restoreSubtitle": "Silinmiş kayıtları inceleyin ve geri yükleyin",
+        "entity": "Tür",
+        "record": "Kayıt",
+        "noDeleted": "Silinmiş kayıt yok.",
+        "deleteSuccess": "Kayıt silindi",
+        "restoreSuccess": "Kayıt geri yüklendi",
+        "cascadeUsers": "kullanıcı da gizlendi ve çıkış yaptırıldı",
+        "cannotDeleteSelf": "Kendi hesabınızı silemezsiniz",
+        "cannotDeleteAdmin": "Platform yöneticileri silinemez",
+        "entities": {
+          "user": "Kullanıcı",
+          "company": "Kiracı",
+          "vehicle": "Araç",
+          "trailer": "Treyler",
+          "shipment": "Sevkiyat",
+          "route": "Rota",
+          "warehouse": "Depo",
+          "customer": "Müşteri",
+          "driver": "Sürücü",
+          "inventory": "Envanter"
+        }
+      }
+    }
   }
 }

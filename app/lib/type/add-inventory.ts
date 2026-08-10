@@ -12,6 +12,7 @@ export interface AddInventoryItemDetails {
 
 export interface AddInventoryStorageLevels {
   warehouseId: string;
+  zone?: string;
   initialQuantity: number;
   minStockLevel: number;
 }

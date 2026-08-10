@@ -57,3 +57,23 @@ export function isDriverOnlyRole(roleName: string | null | undefined): boolean {
   if (!roleName) return false;
   return DRIVER_ONLY_ROLE_NAMES.has(roleName.trim().toLocaleLowerCase("en-US"));
 }
+
+// tr-role_default (Personel) rolü herhangi bir dashboard paneline erişemez, sadece landing page'de kalır
+// en-The role_default (Staff) role has no dashboard access at all and is confined to the landing page
+const NO_DASHBOARD_ACCESS_ROLE_NAMES: ReadonlySet<string> = new Set([
+  "default",
+  "role_default",
+]);
+
+/**
+ * tr-Verilen rol adının hiçbir dashboard paneline erişimi olmayan varsayılan role ait olup olmadığını kontrol eder
+ * en-True when the given role name belongs to the default role that has no dashboard access whatsoever.
+ * input (
+  roleName: string | null | undefined
+)
+ * output (boolean)
+ */
+export function hasNoDashboardAccess(roleName: string | null | undefined): boolean {
+  if (!roleName) return false;
+  return NO_DASHBOARD_ACCESS_ROLE_NAMES.has(roleName.trim().toLocaleLowerCase("en-US"));
+}

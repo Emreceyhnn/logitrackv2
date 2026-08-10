@@ -102,7 +102,7 @@ export default function LandingNavbar() {
           <Stack
             component="nav"
             direction="row"
-            spacing={6}
+            spacing={{ md: 3, lg: 5 }}
             alignItems="center"
             sx={{ display: { xs: "none", md: "flex" } }}
           >
@@ -149,7 +149,7 @@ export default function LandingNavbar() {
             ))}
           </Stack>
 
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction="row" spacing={1.5} alignItems="center">
             <LanguageSwitcher />
             <LandingHeaderAuth />
           </Stack>

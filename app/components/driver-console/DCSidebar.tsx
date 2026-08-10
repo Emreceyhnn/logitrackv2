@@ -37,7 +37,10 @@ export default function DCSidebar({
     <Stack
       data-tour="dc-sidebar"
       sx={{
+        // Below md the rail is replaced by DCBottomNav — see that file for why.
+        display: { xs: "none", md: "flex" },
         width: 86,
+        flexShrink: 0,
         bgcolor: theme.palette.background.sidebar,
         borderRight: `1px solid ${theme.palette.divider}`,
         alignItems: "center",

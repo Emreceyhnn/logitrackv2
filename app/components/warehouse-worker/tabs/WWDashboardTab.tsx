@@ -15,6 +15,7 @@ import WWTaskRow from "@/app/components/warehouse-worker/WWTaskRow";
 import WWNextTaskCard from "@/app/components/warehouse-worker/WWNextTaskCard";
 import WWLowStockCard from "@/app/components/warehouse-worker/WWLowStockCard";
 import WWLiveFeed from "@/app/components/warehouse-worker/WWLiveFeed";
+import WWRestockDialog from "@/app/components/warehouse-worker/WWRestockDialog";
 import { zoneColor, I } from "@/app/lib/utils/warehouseWorkerUi";
 import type { WWState } from "@/app/hooks/useWarehouseWorkerState";
 
@@ -56,6 +57,10 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
     onReport,
     feed,
     lowStock,
+    catalog,
+    restockOpen,
+    setRestockOpen,
+    restockPending,
   } = state;
 
   const renderKpi = (
@@ -141,18 +146,23 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
   return (
     <Stack spacing={2.5}>
       <WWNextTaskCard nextTask={nextTask} advanceTask={advanceTask} ww={ww} />
-      <Stack
+      {/* 4-up on desktop, 2-up on phones — one KPI per row would push the rest
+          of the dashboard below the fold. Grid rather than a row Stack so the
+          cards wrap instead of being squeezed past legibility. */}
+      <Box
         data-tour="ww-kpi-picks"
-        direction="row"
-        spacing={2.25}
-        sx={{ "& > *": { flex: 1 } }}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", lg: "repeat(4, minmax(0, 1fr))" },
+          gap: { xs: 1.5, md: 2.25 },
+        }}
       >
         {renderKpi(
           dict.warehouseWorker.dashboard.picksToday,
           theme.palette.kpi.amber,
           "M5 8h14l-1 12H6L5 8zM9 8V6a3 3 0 0 1 6 0v2",
           <Stack direction="row" alignItems="baseline" spacing={1}>
-            <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+            <Typography sx={{ fontSize: { xs: 26, md: 34 }, fontWeight: 900 }}>
               {picks}
             </Typography>
             <Typography sx={{ color: theme.palette.text.secondary }}>
@@ -167,7 +177,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
           theme.palette.kpi.emerald,
           "M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8",
           <Stack direction="row" alignItems="baseline" spacing={1}>
-            <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+            <Typography sx={{ fontSize: { xs: 26, md: 34 }, fontWeight: 900 }}>
               {packs}
             </Typography>
             <Typography sx={{ color: theme.palette.text.secondary }}>
@@ -181,7 +191,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
           dict.warehouseWorker.ui.myTaskQueue,
           theme.palette.primary.main,
           I.tasks,
-          <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+          <Typography sx={{ fontSize: { xs: 26, md: 34 }, fontWeight: 900 }}>
             {openTasks}
           </Typography>,
           <Box component="span">
@@ -196,7 +206,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
           theme.palette.kpi.purple,
           "M3 17l6-6 4 4 8-8M15 7h6v6",
           <Stack direction="row" alignItems="baseline" spacing={1}>
-            <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+            <Typography sx={{ fontSize: { xs: 26, md: 34 }, fontWeight: 900 }}>
               {rate}
             </Typography>
             <Typography
@@ -207,8 +217,14 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
           </Stack>,
           null
         )}
-      </Stack>
-      <Stack direction="row" spacing={2.5} alignItems="stretch">
+      </Box>
+      {/* Two columns on desktop; below lg they stack, main column first, so the
+          scan/task work the worker came for stays above the side panels. */}
+      <Stack
+        direction={{ xs: "column", lg: "row" }}
+        spacing={2.5}
+        alignItems="stretch"
+      >
         <Stack spacing={2.5} sx={{ flex: 1.55, minWidth: 0 }}>
           <Card
             sx={{
@@ -221,7 +237,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
               direction="row"
               alignItems="center"
               justifyContent="space-between"
-              sx={{ p: 2.5 }}
+              sx={{ p: { xs: 2, md: 2.5 } }}
             >
               <Stack direction="row" alignItems="center" spacing={1.5}>
                 <Avatar
@@ -281,7 +297,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
               direction="row"
               alignItems="center"
               justifyContent="space-between"
-              sx={{ p: 2.5 }}
+              sx={{ p: { xs: 2, md: 2.5 } }}
             >
               <Stack direction="row" alignItems="center" spacing={1.5}>
                 <Avatar
@@ -382,6 +398,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
                     t={t}
                     advanceTask={advanceTask}
                     ww={ww}
+                    currentZone={currentZone}
                   />
                 ))
               )}
@@ -395,7 +412,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
               bgcolor: theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: 3,
-              p: 2.5,
+              p: { xs: 2, md: 2.5 },
             }}
           >
             <Stack
@@ -581,7 +598,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
               bgcolor: theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: 3,
-              p: 2.5,
+              p: { xs: 2, md: 2.5 },
             }}
           >
             <Stack
@@ -655,7 +672,7 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
             </Typography>
             <Stack data-tour="ww-quick-actions" spacing={1}>
               <Button
-                onClick={() => onRestock()}
+                onClick={() => setRestockOpen(true)}
                 startIcon={<Ico d="M12 3v11M8 10l4 4 4-4M4 21h16" size={17} />}
                 sx={{
                   justifyContent: "flex-start",
@@ -693,6 +710,16 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
         </Stack>
       </Stack>
       <WWLiveFeed fd={feed} ww={dict.warehouseWorker} />
+      <WWRestockDialog
+        open={restockOpen}
+        onClose={() => setRestockOpen(false)}
+        ww={ww}
+        zones={zones}
+        currentZone={currentZone}
+        catalog={catalog}
+        onSubmit={onRestock}
+        loading={restockPending}
+      />
     </Stack>
   );
 }

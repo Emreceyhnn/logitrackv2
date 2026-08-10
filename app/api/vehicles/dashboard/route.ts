@@ -41,6 +41,7 @@ import {
 import { Prisma, VehicleStatus, VehicleType } from "@prisma/client";
 import type { VehicleDashboardProps, VehicleFilters, VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { handleApiError } from "@/app/lib/api/handleApiError";
+import { withLiveDocumentStatus } from "@/app/lib/utils/documentStatus";
 
 
 const querySchema = z.object({
@@ -164,6 +165,9 @@ export async function GET(req: NextRequest) {
       const vehiclesWithRelations: VehicleWithRelations[] = vehicles.map(
         (vehicle) => ({
           ...vehicle,
+          // tr-Saklı belge durumu bayat; tarihten türetilenle değiştir (bkz. documentStatus.ts)
+          // en-Stored document status is stale; swap in the date-derived one
+          documents: withLiveDocumentStatus(vehicle.documents),
           maintenanceRecords: vehicle.maintenanceRecords.map((record) => ({
             ...record,
             cost: Number(record.cost),

@@ -30,13 +30,96 @@ export const removeCompanyUser = authenticatedAction(
         throw new Error("Unauthorized: User not found or not in your company");
       }
 
-      const updatedUser = await db.user.update({
-        where: { id: targetUserId },
-        data: {
-          companyId: null,
-        },
+      // tr-Ayrılan kullanıcının hangi depoları yönettiğini, çıkarmadan ÖNCE topla:
+      //    bağı kopardıktan sonra bu depoları tekrar bulmanın bir yolu kalmaz ve
+      //    önbellekleri bayat "yönetici" adıyla asılı kalır.
+      // en-Collect the warehouses this user manages BEFORE detaching: once the link is
+      //    cut there is no way to find them again, and their caches would stay pinned
+      //    to a stale manager name.
+      const managedWarehouses = await db.warehouse.findMany({
+        where: { managerId: targetUserId, companyId },
+        select: { id: true },
       });
+
+      // tr-Şirketten çıkarmak, kullanıcı kaydını nullamaktan ibaret değildir: kişi
+      //    şirkete ait her atamadan da düşmelidir. Aksi halde depo yöneticisi,
+      //    görev sorumlusu veya sürücü olarak — artık erişimi olmadığı halde —
+      //    ekranlarda görünmeye devam eder. Hepsi tek transaction'da yapılır ki
+      //    yarıda kalan bir hata kullanıcıyı şirketsiz ama hâlâ atanmış bırakmasın.
+      // en-Removing someone from a company is more than nulling their user row: they must
+      //    also drop off every company-scoped assignment. Otherwise they keep showing up
+      //    as a warehouse manager, task assignee, or driver long after their access is
+      //    gone. All of it runs in one transaction so a mid-way failure cannot leave the
+      //    user company-less but still assigned.
+      const updatedUser = await db.$transaction(async (tx) => {
+        // tr-Yönettiği depolar "atanmamış"a döner
+        // en-Warehouses they managed fall back to unassigned
+        await tx.warehouse.updateMany({
+          where: { managerId: targetUserId, companyId },
+          data: { managerId: null },
+        });
+
+        // tr-Bitmemiş depo görevleri havuza geri döner; tamamlanmış görevler tarihsel
+        //    kayıt olduğu için kime ait olduğunu korur.
+        // en-Unfinished warehouse tasks return to the pool; completed ones keep their
+        //    assignee because they are historical record.
+        await tx.warehouseTask.updateMany({
+          where: {
+            assignedToId: targetUserId,
+            companyId,
+            status: { in: ["OPEN", "IN_PROGRESS"] },
+          },
+          data: { assignedToId: null },
+        });
+
+        // tr-Sürücü kaydı yumuşak silinir: sefer ve yakıt geçmişi ona bağlı kaldığı
+        //    için kayıt tamamen kaldırılamaz, ama aktif listelerden düşmeli ve
+        //    üstündeki araç serbest bırakılmalı.
+        // en-Soft-delete the driver record: route and fuel history hang off it so it
+        //    cannot be dropped outright, but it must leave the active lists and release
+        //    whatever vehicle it was holding.
+        await tx.driver.updateMany({
+          where: { userId: targetUserId, companyId, deletedAt: null },
+          data: {
+            deletedAt: new Date(),
+            status: "OFF_DUTY",
+            currentVehicleId: null,
+            homeBaseWarehouseId: null,
+          },
+        });
+
+        // tr-Bekleyen katılma talebi varsa, kullanıcı zaten çıkarıldığı için
+        //    yeniden kabul edilmeyi bekleyen bir istek olarak asılı kalmamalı.
+        // en-Any pending join request must not linger as an open invitation to re-admit
+        //    someone who was just removed.
+        await tx.joinRequest.updateMany({
+          where: { userId: targetUserId, companyId, status: "PENDING" },
+          data: { status: "REJECTED", decidedById: user.id, decidedAt: new Date() },
+        });
+
+        return tx.user.update({
+          where: { id: targetUserId },
+          data: {
+            companyId: null,
+            roleId: null,
+            assignedWarehouseId: null,
+          },
+        });
+      });
+
       await invalidateCompanyCache(companyId);
+      // tr-Etkilenen her depo ayrı ayrı temizlenmeli: liste önbelleği şirket
+      //    genelinde, detay önbelleği depo bazında tutuluyor.
+      // en-Each touched warehouse needs its own invalidation: the list cache is
+      //    company-wide but detail caches are keyed per warehouse.
+      await invalidateWarehouseCache(companyId);
+      await Promise.all(
+        managedWarehouses.map((w) => invalidateWarehouseCache(companyId, w.id))
+      );
+      if (targetUser.assignedWarehouseId) {
+        await invalidateWarehouseCache(companyId, targetUser.assignedWarehouseId);
+      }
+      await invalidatePattern(driverCacheKeys.companyPattern(companyId));
       await revokeAllUserSessions(targetUserId);
       return updatedUser;
     });
@@ -227,16 +310,20 @@ export const addCompanyUser = authenticatedAction(
 /**
  * tr-şirket üyesinin bilgilerini günceller
  * en-updates the information of a company member
- * input (user: AuthenticatedUser, targetUserId: string, data: { name: string, surname: string, roleId: string, status: UserStatus })
+ * input (user: AuthenticatedUser, targetUserId: string, data: { name: string, surname: string, roleId: string, status: UserStatus, warehouseId?: string })
  * output (Promise<User>)
  */
 export const updateCompanyMember = authenticatedAction(
   async (
     user,
     targetUserId: string,
-    data: { name: string; surname: string; roleId: string; status: UserStatus }
+    data: { name: string; surname: string; roleId: string; status: UserStatus; warehouseId?: string }
   ) => {
     const companyId = user?.companyId || "";
+
+    // tr-Depo ataması gerektiren roller: operatör (çalışan) ve depo yöneticisi
+    // en-Roles that require a warehouse assignment: operator (staff) and warehouse manager
+    const isWarehouseRole = data.roleId === "role_warehouse" || data.roleId === "role_manager";
 
     return controllerGuard("updateCompanyMember", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
@@ -248,17 +335,68 @@ export const updateCompanyMember = authenticatedAction(
 
       await ensureStandardRoles();
 
-      const updatedUser = await db.user.update({
-        where: { id: targetUserId },
-        data: {
-          name: data.name,
-          surname: data.surname,
-          roleId: data.roleId,
-          status: data.status,
-        },
+      let warehouseId: string | null = null;
+      if (isWarehouseRole) {
+        if (!data.warehouseId) {
+          throw new Error("Warehouse assignment is required for this role");
+        }
+        const warehouse = await db.warehouse.findFirst({
+          where: { id: data.warehouseId, companyId },
+          select: { id: true },
+        });
+        if (!warehouse) {
+          throw new Error("Warehouse not found or not in your company");
+        }
+        warehouseId = warehouse.id;
+      }
+
+      const previousWarehouseId = targetUser.assignedWarehouseId;
+
+      const updatedUser = await db.$transaction(async (tx) => {
+        // tr-Rol artık depo gerektirmiyorsa veya farklı bir depoya taşındıysa,
+        //    kullanıcının önceki depodaki yöneticilik bağı düşürülmeli.
+        // en-If the role no longer requires a warehouse, or moved to a different
+        //    one, drop the user's manager link on the previous warehouse.
+        if (previousWarehouseId && previousWarehouseId !== warehouseId) {
+          await tx.warehouse.updateMany({
+            where: { id: previousWarehouseId, companyId, managerId: targetUserId },
+            data: { managerId: null },
+          });
+        }
+
+        const userUpdate = await tx.user.update({
+          where: { id: targetUserId },
+          data: {
+            name: data.name,
+            surname: data.surname,
+            roleId: data.roleId,
+            status: data.status,
+            assignedWarehouseId: warehouseId,
+          },
+        });
+
+        if (data.roleId === "role_manager" && warehouseId) {
+          await tx.warehouse.update({
+            where: { id: warehouseId },
+            data: { managerId: targetUserId },
+          });
+        } else if (warehouseId) {
+          // tr-Operatör olarak atandıysa ve önceden bu deponun yöneticisiyse bağ düşürülür
+          // en-If assigned as an operator and was previously this warehouse's manager, drop the link
+          await tx.warehouse.updateMany({
+            where: { id: warehouseId, companyId, managerId: targetUserId },
+            data: { managerId: null },
+          });
+        }
+
+        return userUpdate;
       });
 
       await invalidateCompanyCache(companyId);
+      await invalidateWarehouseCache(companyId);
+      if (previousWarehouseId) await invalidateWarehouseCache(companyId, previousWarehouseId);
+      if (warehouseId) await invalidateWarehouseCache(companyId, warehouseId);
+
       return updatedUser;
     });
   }

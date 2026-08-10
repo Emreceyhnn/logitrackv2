@@ -7,6 +7,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { computeDocumentStatus } from "../../utils/documentStatus";
 
 /**
  * tr-araca ait yeni bir belge yükler; belgenin süresi dolmuş veya yaklaşıyorsa bildirim gönderir
@@ -45,6 +46,11 @@ export const uploadVehicleDocument = authenticatedAction(
           companyId,
           ...documentData,
           expiryDate: documentData.expiryDate ?? null,
+          // tr-Durum istemciden geliyordu; tarihle çelişen bir değer gönderilebiliyordu
+          //    (ör. süresi dolmuş belge için ACTIVE). Sunucuda tarihten hesaplanır.
+          // en-Status came from the client, which could contradict the date (e.g. ACTIVE for
+          //    an already-lapsed document). Compute it server-side from the date instead.
+          status: computeDocumentStatus(documentData.expiryDate ?? null),
         },
       });
 
@@ -63,7 +69,7 @@ export const uploadVehicleDocument = authenticatedAction(
               message: `${documentData.name} belgesinin süresi dolmuş! Hemen yenileyiniz.`,
               type: "ERROR",
               category: "MAINTENANCE_ALERT",
-              link: `/dashboard/vehicles/${vehicleId}`,
+              link: `/vehicle?id=${vehicleId}`,
             }
           );
         } else if (expiry <= oneMonthLater) {
@@ -73,7 +79,7 @@ export const uploadVehicleDocument = authenticatedAction(
               title: "Belge Süresi Yaklaşıyor ⏳",
               message: `${documentData.name} belgesinin süresi 1 ay içinde dolacak.`,
               type: "WARNING",
-              link: `/dashboard/vehicles/${vehicleId}`,
+              link: `/vehicle?id=${vehicleId}`,
             }
           );
         }

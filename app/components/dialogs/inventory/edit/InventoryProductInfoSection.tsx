@@ -18,6 +18,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { FormikProps } from "formik";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useWarehouseZones } from "@/app/hooks/useWarehouses";
 import {
   InventoryFormData,
   HandleNumChange,
@@ -56,6 +57,7 @@ export default function InventoryProductInfoSection({
   const theme = useTheme();
   const dict = useDictionary();
   const textFieldSx = inventoryTextFieldSx(theme);
+  const { data: zones } = useWarehouseZones(values.warehouseId || undefined);
 
   return (
     <Box>
@@ -198,12 +200,14 @@ export default function InventoryProductInfoSection({
         <Grid size={{ xs: 12 }}>
           <TextField
             name="sku"
-            label={dict.inventory.dialogs.skuOptional}
+            label={dict.inventory.fields.sku}
             placeholder={dict.inventory.dialogs.skuPlaceholder}
             fullWidth
             value={values.sku}
             onChange={handleChange}
             onBlur={handleBlur}
+            error={touched.sku && !!errors.sku}
+            helperText={touched.sku && errors.sku}
             sx={textFieldSx}
           />
         </Grid>
@@ -223,6 +227,26 @@ export default function InventoryProductInfoSection({
             {warehouses?.map((w) => (
               <MenuItem key={w.id} value={w.id}>
                 {w.name} ({w.code})
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            name="zone"
+            select
+            label={dict.warehouses.dialogs.zones.code}
+            fullWidth
+            value={values.zone || ""}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            sx={textFieldSx}
+          >
+            <MenuItem value="">{dict.warehouses.dialogs.fields.unassigned}</MenuItem>
+            {(zones || []).map((z) => (
+              <MenuItem key={z.id} value={z.code}>
+                {z.code}
+                {z.name ? ` · ${z.name}` : ""}
               </MenuItem>
             ))}
           </TextField>

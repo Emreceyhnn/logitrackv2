@@ -161,7 +161,8 @@ export default function DemoWarehouseContent() {
         ) : (
           <WarehouseListTable
             warehouses={warehouses}
-            loading={isFetching}
+            loading={isLoading}
+            refreshing={isFetching}
             onSelect={handleOpenDetails}
             onEdit={notifyDisabled}
             onDelete={notifyDisabled}

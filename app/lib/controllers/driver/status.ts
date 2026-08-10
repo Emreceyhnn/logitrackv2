@@ -61,7 +61,7 @@ export const updateDriverStatus = authenticatedAction(
           title: `Sürücü Durumu Değişti: ${statusInfo.label} ${statusInfo.emoji}`,
           message: `${driver?.user.name} ${driver?.user.surname} isimli sürücü şu an ${statusInfo.label} durumunda.`,
           type: statusInfo.type,
-          link: `/dashboard/drivers/${driverId}`,
+          link: `/drivers?id=${driverId}`,
         }
       );
 

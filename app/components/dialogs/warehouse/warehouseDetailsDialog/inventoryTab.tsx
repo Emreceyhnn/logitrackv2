@@ -22,7 +22,8 @@ import {
   Error as ErrorIcon,
   AttachMoney,
 } from "@mui/icons-material";
-import { useParams, usePathname } from "next/navigation";
+import { useCurrency } from "@/app/hooks/useCurrency";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { logger } from "@/app/lib/logger";
@@ -36,10 +37,9 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
-  const params = useParams();
+  const { format, isLoading: currencyLoading } = useCurrency();
   const pathname = usePathname();
   const isDemo = pathname?.includes("/demo");
-  const lang = (params?.lang as string) || "en";
 
   const notifyDisabled = () => {
     toast.info(dict.toasts.demoActionDisabled);
@@ -129,9 +129,13 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       setIsDeleteOpen(false);
       return notifyDisabled();
     }
+    // Close first; the mutation toasts its own outcome and rolls back the
+    // optimistic removal if it fails.
+    const id = selectedItemId;
+    setIsDeleteOpen(false);
+
     try {
-      await deleteMutation.mutateAsync(selectedItemId);
-      setIsDeleteOpen(false);
+      await deleteMutation.mutateAsync(id);
     } catch (error) {
       logger.error("Delete failed", error);
     }
@@ -177,14 +181,17 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       },
       {
         label: dict.inventory.totalValue,
-        value:
-          stats?.totalValue !== undefined
-            ? new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
-                style: "currency",
-                currency: lang === "tr" ? "TRY" : "USD",
-                maximumFractionDigits: 0,
-              }).format(stats.totalValue)
-            : "—",
+        // `stats.totalValue` is summed in USD server-side (each line converted
+        // with its own rate, since one warehouse can hold items priced in
+        // different currencies). `useCurrency().format` converts that USD
+        // figure into the user's own currency and labels it accordingly.
+        //
+        // It previously formatted the raw USD number with a currency chosen
+        // from the UI LANGUAGE — so a Turkish UI printed "₺" on a dollar
+        // amount, showing a total ~47x smaller than reality. This is also what
+        // the main inventory page already does, so the same warehouse no longer
+        // reports two different totals depending on where you look at it.
+        value: currencyLoading ? "..." : format(stats?.totalValue ?? 0),
         icon: <AttachMoney />,
         color: theme.palette.success.main,
       },
@@ -193,7 +200,8 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       stats,
       theme,
       dict,
-      lang,
+      format,
+      currencyLoading,
       dashboardData?.statsTrends?.totalItems,
       dashboardData?.statsTrends?.lowStock,
       dashboardData?.statsTrends?.outOfStock,
@@ -260,8 +268,9 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
           onClose={() => setIsEditOpen(false)}
           item={selectedItem}
           onUpdate={async (id, data) => {
-            await updateMutation.mutateAsync({ id, data });
+            // Close first; the mutation reports its own outcome.
             setIsEditOpen(false);
+            await updateMutation.mutateAsync({ id, data });
           }}
         />
       )}

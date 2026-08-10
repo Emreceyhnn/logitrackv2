@@ -65,6 +65,26 @@ const ThirdRouteDialogStep = () => {
   const selectedDriver = drivers.find((d) => d.id === values.driverId);
   const selectedVehicle = vehicles.find((v) => v.id === values.vehicleId);
 
+  const filteredDrivers = drivers.filter(d => {
+    if (selectedVehicle?.driver?.id) {
+      return d.id === selectedVehicle.driver.id;
+    }
+    if (selectedVehicle && !selectedVehicle.driver) {
+      return !d.currentVehicle?.id || d.id === values.driverId;
+    }
+    return true;
+  });
+
+  const filteredVehicles = vehicles.filter(v => {
+    if (selectedDriver?.currentVehicle?.id) {
+      return v.id === selectedDriver.currentVehicle.id;
+    }
+    if (selectedDriver && !selectedDriver.currentVehicle) {
+      return !v.driver?.id || v.id === values.vehicleId;
+    }
+    return true;
+  });
+
   const handleDriverChange = (driverId: string) => {
     const driver = drivers.find((d) => d.id === driverId);
     setFieldValue("driverId", driverId);
@@ -146,7 +166,7 @@ const ThirdRouteDialogStep = () => {
                 ) : (
                   [
                     <MenuItem key="none" value="">{dict.routes.dialogs.unassigned}</MenuItem>,
-                    ...drivers.map((driver) => (
+                    ...filteredDrivers.map((driver) => (
                       <MenuItem key={driver.id} value={driver.id}>
                         <Avatar
                           src={driver.user.avatarUrl || undefined}
@@ -196,7 +216,7 @@ const ThirdRouteDialogStep = () => {
                 ) : (
                    [
                     <MenuItem key="none" value="">{dict.routes.dialogs.unassigned}</MenuItem>,
-                    ...vehicles.map((vehicle) => (
+                    ...filteredVehicles.map((vehicle) => (
                       <MenuItem key={vehicle.id} value={vehicle.id}>
                         <LocalShippingIcon
                           sx={{ fontSize: 18, color: "text.secondary" }}

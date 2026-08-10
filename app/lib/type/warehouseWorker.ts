@@ -41,6 +41,10 @@ export interface WWZone {
   capacityPallets: number;
   usedPallets: number;
   pct: number;
+  /** True for the synthetic "no zone recorded" bucket — never a real,
+   *  fillable location, so it must not trigger capacity alerts or divert
+   *  suggestions the way an actual zone would. */
+  isUnassigned?: boolean;
 }
 
 export interface WWMovement {

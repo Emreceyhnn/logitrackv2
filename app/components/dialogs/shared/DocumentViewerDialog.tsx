@@ -26,7 +26,8 @@ interface DocumentViewerDialogProps {
   onClose: () => void;
   url: string;
   title: string;
-  fileType?: string;
+  fileType?: string | undefined;
+  onDownload?: () => void;
 }
 
 export default function DocumentViewerDialog({
@@ -35,6 +36,7 @@ export default function DocumentViewerDialog({
   url,
   title,
   fileType,
+  onDownload,
 }: DocumentViewerDialogProps) {
   const theme = useTheme();
   const dict = useDictionary();
@@ -173,26 +175,46 @@ export default function DocumentViewerDialog({
               </IconButton>
             </Tooltip>
 
-            <Tooltip title={dict.documentViewer.downloadFile}>
-              <IconButton
-                component="a"
-                href={url}
-                download
-                target="_blank"
-                size="small"
-                sx={{
-                  color: theme.palette.common.white_alpha.main_70,
-                  border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
-                  "&:hover": {
-                    color: "success.main",
-                    borderColor: "success.main",
-                    bgcolor: theme.palette.success._alpha.main_05,
-                  },
-                }}
-              >
-                <DownloadIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {onDownload ? (
+              <Tooltip title={dict.documentViewer.downloadFile}>
+                <IconButton
+                  onClick={onDownload}
+                  size="small"
+                  sx={{
+                    color: theme.palette.common.white_alpha.main_70,
+                    border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
+                    "&:hover": {
+                      color: "success.main",
+                      borderColor: "success.main",
+                      bgcolor: theme.palette.success._alpha.main_05,
+                    },
+                  }}
+                >
+                  <DownloadIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title={dict.documentViewer.downloadFile}>
+                <IconButton
+                  component="a"
+                  href={url}
+                  download
+                  target="_blank"
+                  size="small"
+                  sx={{
+                    color: theme.palette.common.white_alpha.main_70,
+                    border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
+                    "&:hover": {
+                      color: "success.main",
+                      borderColor: "success.main",
+                      bgcolor: theme.palette.success._alpha.main_05,
+                    },
+                  }}
+                >
+                  <DownloadIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
 
             <IconButton
               onClick={onClose}

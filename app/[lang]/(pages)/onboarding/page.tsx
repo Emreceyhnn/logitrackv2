@@ -12,16 +12,19 @@ import {
   CircularProgress,
   useTheme,
 } from "@mui/material";
-import { Business, AddBusiness } from "@mui/icons-material";
+import { Business, AddBusiness, HomeRounded, RocketLaunch } from "@mui/icons-material";
+import Link from "next/link";
 import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { formatMessage } from "@/app/lib/language/language";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
 import JoinCompanyDialog from "@/app/components/dialogs/company/JoinCompanyDialog";
 import { getMyJoinRequest, cancelJoinRequest } from "@/app/lib/controllers/joinRequests";
 import { getMyInvitations, acceptExistingUserInvitation, declineExistingUserInvitation } from "@/app/lib/controllers/invitations";
-import { checkAndSyncCompany, canCreateCompany } from "./actions";
+import { checkAndSyncCompany, canCreateCompany, getEmailVerificationGate } from "./actions";
 import { toast } from "sonner";
 import Tooltip from "@mui/material/Tooltip";
+import VerifyEmailGate from "@/app/components/dialogs/company/VerifyEmailGate";
 
 export default function OnboardingPage() {
   const theme = useTheme();
@@ -32,6 +35,7 @@ export default function OnboardingPage() {
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [checkingPending, setCheckingPending] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
+  const [needsEmailVerification, setNeedsEmailVerification] = useState(false);
   const [pendingRequest, setPendingRequest] = useState<{ id: string; companyName: string } | null>(null);
   const [pendingInvitations, setPendingInvitations] = useState<{ id: string; company: { name: string }; role: { name: string } }[]>([]);
 
@@ -46,11 +50,17 @@ export default function OnboardingPage() {
         window.location.href = `/${locale}/overview`;
         return;
       }
-      return Promise.all([getMyJoinRequest(), getMyInvitations(), canCreateCompany()])
-        .then(([req, invs, createAllowed]) => {
+      return Promise.all([
+        getMyJoinRequest(),
+        getMyInvitations(),
+        canCreateCompany(),
+        getEmailVerificationGate(),
+      ])
+        .then(([req, invs, createAllowed, verificationGate]) => {
           if (req) setPendingRequest({ id: req.id, companyName: req.company.name });
           if (invs) setPendingInvitations(invs);
           setCanCreate(createAllowed);
+          setNeedsEmailVerification(verificationGate.needsVerification);
         })
         .finally(() => setCheckingPending(false));
     }).catch(() => setCheckingPending(false));
@@ -91,6 +101,11 @@ export default function OnboardingPage() {
     }
   };
 
+  // The real "Request a Demo" surface is the contact page's form, tagged with
+  // ?type=demo so the resulting DemoRequest row is typed DEMO instead of
+  // CONTACT — same pattern the landing hero's CTA already uses.
+  const requestDemoHref = `/${locale}${getLocalizedPath("/contact", locale)}?type=demo`;
+
   return (
     <Box
       sx={{
@@ -100,8 +115,30 @@ export default function OnboardingPage() {
         justifyContent: "center",
         backgroundColor: "background.default",
         py: 8,
+        position: "relative",
       }}
     >
+      <Button
+        component={Link}
+        href={`/${locale}?landing=true`}
+        startIcon={<HomeRounded sx={{ fontSize: 18 }} />}
+        sx={{
+          position: "fixed",
+          top: { xs: 12, sm: 20 },
+          left: { xs: 12, sm: 20 },
+          zIndex: 10,
+          textTransform: "none",
+          fontWeight: 700,
+          fontSize: "0.8rem",
+          borderRadius: "999px",
+          px: 1.75,
+          py: 0.5,
+          color: "text.secondary",
+        }}
+      >
+        {dict.common.backToHome || "Back to Home"}
+      </Button>
+
       <Container maxWidth="md">
         <Box textAlign="center" mb={6}>
           <Typography variant="h3" fontWeight={800} gutterBottom>
@@ -125,6 +162,17 @@ export default function OnboardingPage() {
           <Stack alignItems="center" py={6}>
             <CircularProgress size={32} />
           </Stack>
+        ) : needsEmailVerification ? (
+          <Card
+            sx={{
+              maxWidth: 480,
+              mx: "auto",
+              borderRadius: 4,
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <VerifyEmailGate />
+          </Card>
         ) : pendingRequest ? (
           <Card
             sx={{
@@ -276,27 +324,40 @@ export default function OnboardingPage() {
                 {dict.onboarding?.createDescription ||
                   "Register a new logistics or transport company. You will be set as the initial Administrator with full control."}
               </Typography>
-              <Tooltip
-                title={
-                  canCreate
-                    ? ""
-                    : dict.onboarding?.createRequiresAccess ||
-                      "Creating a company requires an active plan or trial. Request a demo to get started, or join an existing company instead."
-                }
-              >
-                <span>
+              {canCreate ? (
+                <Button
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  onClick={() => setIsCreateCompanyOpen(true)}
+                  sx={{ borderRadius: 2, py: 1.5 }}
+                >
+                  {dict.onboarding?.createButton || "Create Company"}
+                </Button>
+              ) : (
+                // No live trial/plan: createCompany would reject this anyway
+                // (crud.ts re-checks hasAccess server-side), so send the user
+                // straight to the real demo-request flow instead of a disabled
+                // button that only explains itself on hover.
+                <Tooltip
+                  title={
+                    dict.onboarding?.createRequiresAccess ||
+                    "Creating a company requires an active plan or trial. Request a demo to get started, or join an existing company instead."
+                  }
+                >
                   <Button
+                    component={Link}
+                    href={requestDemoHref}
                     variant="contained"
                     size="large"
                     fullWidth
-                    disabled={!canCreate}
-                    onClick={() => setIsCreateCompanyOpen(true)}
+                    endIcon={<RocketLaunch />}
                     sx={{ borderRadius: 2, py: 1.5 }}
                   >
-                    {dict.onboarding?.createButton || "Create Company"}
+                    {dict.onboarding?.requestDemoButton || "Request a Demo"}
                   </Button>
-                </span>
-              </Tooltip>
+                </Tooltip>
+              )}
             </CardContent>
           </Card>
 

@@ -22,9 +22,11 @@ import { ShipmentStatus } from "@prisma/client";
 import {
   useShipmentsWithDashboard,
   useShipmentMutations,
+  useShipmentDetails,
 } from "@/app/hooks/useShipments";
 import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
 import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
+import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -107,6 +109,16 @@ export default function ShipmentContent() {
     [noop]
   );
 
+  // tr-Detay dialog'u sevkiyat nesnesinin kendisini bekler. Kimliği listeden aramak yerine
+  //    ayrıca çekiyoruz: bildirimden gelen kayıt çoğu zaman ilk sayfada değildir, listeden
+  //    arasaydık dialog sessizce açılmazdı. `enabled: !!id` sayesinde seçim yokken istek atılmaz.
+  // en-The detail dialog wants the shipment object itself. We fetch it rather than looking it
+  //    up in the list: a record arriving from a notification usually isn't on page one, so a
+  //    list lookup would silently fail to open. The hook is `enabled: !!id`, so no request
+  //    is made without a selection.
+  const { data: selectedShipment = null } =
+    useShipmentDetails(selectedShipmentId);
+
   /* -------------------------- COMPATIBILITY LAYER --------------------------- */
   const state: ShipmentPageState = {
     shipments: dashboardData?.shipments || [],
@@ -116,13 +128,19 @@ export default function ShipmentContent() {
     statusDistribution: dashboardData?.statusDistribution || [],
     selectedShipmentId,
     filters,
-    loading: isFetching,
+    // `isLoading` (first load) blanks the view; `isFetching` also fires on
+    // every filter/sort refetch, which was wiping the table, KPIs and charts
+    // even though keepPreviousData still had the previous results to show.
+    loading: isLoading,
+    refreshing: isFetching,
     error: isError ? (queryError as Error)?.message || "error" : null,
   };
 
   /* -------------------------------- LIFECYCLE --------------------------------- */
   useEffect(() => {
-    if (shipmentIdFromUrl) {
+    // tr-`temp-` iyimser kimlikler sunucuda yok, sorgu boşuna 404 döner (bkz. CustomerContent)
+    // en-Optimistic `temp-` ids don't exist server-side; skip them (same as CustomerContent)
+    if (shipmentIdFromUrl && !shipmentIdFromUrl.startsWith("temp-")) {
       actions.selectShipment(shipmentIdFromUrl);
     }
   }, [shipmentIdFromUrl, actions]);
@@ -262,6 +280,12 @@ export default function ShipmentContent() {
           </Box>
         </>
       )}
+
+      <ShipmentDetailDialog
+        open={!!selectedShipment}
+        onClose={() => actions.selectShipment(null)}
+        shipment={selectedShipment}
+      />
 
       <EditShipmentDialog
         open={editOpen}

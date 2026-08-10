@@ -19,7 +19,8 @@ import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDial
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import CustomerList from "@/app/components/dashboard/customer/CustomerList";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   CustomerPageActions,
   CustomerWithRelations,
@@ -73,6 +74,19 @@ export default function CustomerContent() {
   );
 
   const { deleteCustomer: deleteMutation } = useCustomerMutations();
+
+  // Auto-open details dialog when navigating from overview map with ?id=
+  const searchParams = useSearchParams();
+  const customerIdFromUrl = searchParams.get("id");
+
+  useEffect(() => {
+    if (customerIdFromUrl && !isLoading) {
+      if (!customerIdFromUrl.startsWith("temp-")) {
+        setSelectedCustomerId(customerIdFromUrl);
+        setDetailOpen(true);
+      }
+    }
+  }, [customerIdFromUrl, isLoading]);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleEdit = (customer: CustomerWithRelations) => {

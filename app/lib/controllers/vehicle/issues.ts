@@ -79,7 +79,7 @@ export const createVehicleIssue = authenticatedAction(
           message: `${foundVehicle.plate} plakalı araç için ${issueData.type} arızası bildirildi: ${issueData.title}`,
           type: issueData.priority === "CRITICAL" ? "ERROR" : "WARNING",
           category: "MAINTENANCE_ALERT",
-          link: `/dashboard/vehicles/${vehicleId}`,
+          link: `/vehicle?id=${vehicleId}`,
         }
       );
 
@@ -189,7 +189,7 @@ export const updateIssue = authenticatedAction(
             title: "Sorun Üzerinde Çalışılıyor 🛠️",
             message: `${updatedIssue.vehicle?.plate} plakalı aracın ${updatedIssue.title} arızası için çalışmalar başladı.`,
             type: "INFO",
-            link: `/dashboard/vehicles/${foundIssue.vehicleId}`,
+            link: `/vehicle?id=${foundIssue.vehicleId}`,
           }
         );
       } else if (data.status === "RESOLVED" || data.status === "CLOSED") {
@@ -199,7 +199,7 @@ export const updateIssue = authenticatedAction(
             title: "Sorun Giderildi! ✅",
             message: `${updatedIssue.vehicle?.plate} plakalı aracın ${updatedIssue.title} arızası giderildi.`,
             type: "SUCCESS",
-            link: `/dashboard/vehicles/${foundIssue.vehicleId}`,
+            link: `/vehicle?id=${foundIssue.vehicleId}`,
           }
         );
       }
