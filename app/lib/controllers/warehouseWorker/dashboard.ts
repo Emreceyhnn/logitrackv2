@@ -207,10 +207,6 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       });
     }
 
-    // Pallets sitting in stock with no valid zone — the signal that used to be
-    // hidden behind a hashed placeholder zone.
-    const unassignedPallets = Math.round(usedByZone.get(UNASSIGNED_ZONE) ?? 0);
-
     const used = totalPalletsUsed(inventoryRaw);
     const total = warehouse.capacityPallets || 5000;
 
