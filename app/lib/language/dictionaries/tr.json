@@ -638,7 +638,11 @@
         "selfServeTitle": "Beklemek istemiyor musunuz?",
         "selfServeBody": "Hemen 7 günlük ücretsiz denemeyi başlatabilirsiniz — onay gerekmez. Dakikalar içinde panele tam erişim.",
         "selfServeCta": "Ücretsiz denemeyi başlat",
-        "emailNote": "Yanıtımız e-posta ile gelecek — şimdilik sizden başka bir işlem beklenmiyor."
+        "emailNote": "Yanıtımız e-posta ile gelecek — şimdilik sizden başka bir işlem beklenmiyor.",
+        "trialGrantedToast": "Deneme süreniz aktifleştirildi — hazırsınız!",
+        "trialGrantedTitle": "Hazırsınız — deneme süreniz aktif!",
+        "trialGrantedBody": "7 günlük deneme süreniz şu anda aktif. Şirketinizi oluşturmak için onboarding sayfasına dönün.",
+        "trialGrantedCta": "Onboarding'e git"
       },
       "validation": {
         "fullNameRequired": "Ad soyad gereklidir",
@@ -4284,6 +4288,12 @@
         "cascadeUsers": "kullanıcı da gizlendi ve çıkış yaptırıldı",
         "cannotDeleteSelf": "Kendi hesabınızı silemezsiniz",
         "cannotDeleteAdmin": "Platform yöneticileri silinemez",
+        "hardDelete": "Kalıcı olarak sil",
+        "confirmHardDeleteTitle": "Bu kullanıcı kalıcı olarak silinsin mi?",
+        "confirmHardDeleteBody": "Bu işlem kullanıcıyı veritabanından tamamen kaldırır ve geri alınamaz. Denetim kaydı, envanter ve sevkiyat geçmişi kayıtları korunur ancak artık kimin yaptığını göstermez; kullanıcının gönderdiği davetler silinir.",
+        "typeToConfirmEmail": "Onaylamak için kullanıcının e-postasını yazın:",
+        "confirmHardDelete": "Evet, kalıcı olarak sil",
+        "hardDeleteSuccess": "Kullanıcı kalıcı olarak silindi",
         "entities": {
           "user": "Kullanıcı",
           "company": "Kiracı",

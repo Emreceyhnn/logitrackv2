@@ -638,7 +638,11 @@
         "selfServeTitle": "Don't want to wait?",
         "selfServeBody": "You can start a free 7-day trial right now — no approval needed. Full access to the dashboard in minutes.",
         "selfServeCta": "Start free trial",
-        "emailNote": "Our reply will come by email — no further action needed from you for now."
+        "emailNote": "Our reply will come by email — no further action needed from you for now.",
+        "trialGrantedToast": "Trial activated — you're all set!",
+        "trialGrantedTitle": "You're all set — trial activated!",
+        "trialGrantedBody": "Your 7-day trial is active right now. Head back to onboarding to create your company.",
+        "trialGrantedCta": "Go to onboarding"
       },
       "validation": {
         "fullNameRequired": "Full name is required",
@@ -4283,6 +4287,12 @@
         "cascadeUsers": "users also hidden and signed out",
         "cannotDeleteSelf": "You cannot delete your own account",
         "cannotDeleteAdmin": "Platform administrators cannot be deleted",
+        "hardDelete": "Erase permanently",
+        "confirmHardDeleteTitle": "Permanently erase this user?",
+        "confirmHardDeleteBody": "This removes the user from the database. It cannot be undone. Their audit log, inventory and shipment history entries are kept but no longer show who made them; invitations they sent are deleted.",
+        "typeToConfirmEmail": "Type the user's email to confirm:",
+        "confirmHardDelete": "Yes, erase permanently",
+        "hardDeleteSuccess": "User permanently erased",
         "entities": {
           "user": "User",
           "company": "Tenant",

@@ -8,14 +8,39 @@ const userFindFirstMock = mock.fn(async (): Promise<unknown> => null);
 const userUpdateMock = mock.fn(async () => ({}));
 const userFindManyMock = mock.fn(async (): Promise<unknown[]> => []);
 const userUpdateManyMock = mock.fn(async () => ({ count: 0 }));
+const userDeleteMock = mock.fn(async () => ({}));
 const companyFindFirstMock = mock.fn(async (): Promise<unknown> => null);
 const companyUpdateMock = mock.fn(async () => ({}));
 const vehicleFindFirstMock = mock.fn(async (): Promise<unknown> => null);
 const vehicleUpdateMock = mock.fn(async () => ({}));
 
+const invitationDeleteManyMock = mock.fn(async () => ({ count: 0 }));
+const auditLogUpdateManyMock = mock.fn(async () => ({ count: 0 }));
+const inventoryMovementUpdateManyMock = mock.fn(async () => ({ count: 0 }));
+const shipmentHistoryUpdateManyMock = mock.fn(async () => ({ count: 0 }));
+const warehouseUpdateManyMock = mock.fn(async () => ({ count: 0 }));
+const warehouseTaskUpdateManyMock = mock.fn(async () => ({ count: 0 }));
+
 const revokeAllUserSessionsMock = mock.fn(async () => undefined);
 
 mock.module("server-only", { namedExports: {} });
+
+// The transaction callback is invoked with a `tx` client shaped like the
+// tables `hardDeleteUser` touches; reusing the same mocks as the top-level
+// `db` keeps assertions simple since this suite never runs concurrent
+// transactions.
+const tx = {
+  invitation: { deleteMany: invitationDeleteManyMock },
+  auditLog: { updateMany: auditLogUpdateManyMock },
+  inventoryMovement: { updateMany: inventoryMovementUpdateManyMock },
+  shipmentHistory: { updateMany: shipmentHistoryUpdateManyMock },
+  warehouse: { updateMany: warehouseUpdateManyMock },
+  warehouseTask: { updateMany: warehouseTaskUpdateManyMock },
+  user: { delete: userDeleteMock },
+};
+const transactionMock = mock.fn(
+  async (fn: (tx: unknown) => Promise<unknown>) => fn(tx)
+);
 
 // INCLUDE_DELETED lives in its own module (app/lib/softDelete.ts) precisely so
 // db mocks like this one do not have to re-export it; the real constant is
@@ -28,6 +53,7 @@ mock.module("@/app/lib/db", {
         update: userUpdateMock,
         findMany: userFindManyMock,
         updateMany: userUpdateManyMock,
+        delete: userDeleteMock,
       },
       company: { findFirst: companyFindFirstMock, update: companyUpdateMock },
       vehicle: { findFirst: vehicleFindFirstMock, update: vehicleUpdateMock },
@@ -38,6 +64,7 @@ mock.module("@/app/lib/db", {
       customer: { findFirst: async () => null, update: async () => ({}) },
       driver: { findFirst: async () => null, update: async () => ({}) },
       inventory: { findFirst: async () => null, update: async () => ({}) },
+      $transaction: transactionMock,
     },
   },
 });
@@ -67,10 +94,16 @@ describe("controllers/admin/deletion.ts", () => {
     i: string
   ) => Promise<{ deletedAt: string | null }>;
 
+  let hardDeleteUser: (
+    admin: unknown,
+    id: string
+  ) => Promise<{ label: string; deletedAt: string | null }>;
+
   before(async () => {
     const mod = await import("./deletion");
     softDeleteRecord = mod.softDeleteRecord as unknown as SoftDeleteFn;
     restoreRecord = mod.restoreRecord as typeof restoreRecord;
+    hardDeleteUser = mod.hardDeleteUser as typeof hardDeleteUser;
   });
 
   beforeEach(() => {
@@ -79,11 +112,19 @@ describe("controllers/admin/deletion.ts", () => {
       userUpdateMock,
       userFindManyMock,
       userUpdateManyMock,
+      userDeleteMock,
       companyFindFirstMock,
       companyUpdateMock,
       vehicleFindFirstMock,
       vehicleUpdateMock,
       revokeAllUserSessionsMock,
+      invitationDeleteManyMock,
+      auditLogUpdateManyMock,
+      inventoryMovementUpdateManyMock,
+      shipmentHistoryUpdateManyMock,
+      warehouseUpdateManyMock,
+      warehouseTaskUpdateManyMock,
+      transactionMock,
     ]) {
       m.mock.resetCalls();
     }
@@ -259,6 +300,69 @@ describe("controllers/admin/deletion.ts", () => {
         "not deleted"
       );
       expect(vehicleUpdateMock.mock.callCount()).toBe(0);
+    });
+  });
+
+  describe("hardDeleteUser", () => {
+    it("refuses to erase the acting admin's own account", async () => {
+      await expect(hardDeleteUser(ADMIN, "admin1")).rejects.toThrow(
+        "cannot delete your own account"
+      );
+      expect(transactionMock.mock.callCount()).toBe(0);
+    });
+
+    it("refuses to erase a platform administrator", async () => {
+      process.env.PLATFORM_ADMIN_USER_IDS = "admin1,admin2";
+      await expect(hardDeleteUser(ADMIN, "admin2")).rejects.toThrow(
+        "platform administrator"
+      );
+      expect(transactionMock.mock.callCount()).toBe(0);
+    });
+
+    it("throws NotFound for an unknown user", async () => {
+      await expect(hardDeleteUser(ADMIN, "ghost")).rejects.toThrow();
+      expect(transactionMock.mock.callCount()).toBe(0);
+    });
+
+    // The whole point of the two-step flow: a live account must go through
+    // softDeleteRecord first.
+    it("refuses to erase a user that is not already soft-deleted", async () => {
+      userFindFirstMock.mock.mockImplementation(async () => ({
+        id: "u9",
+        email: "a@b.c",
+        deletedAt: null,
+      }));
+
+      await expect(hardDeleteUser(ADMIN, "u9")).rejects.toThrow(
+        "already soft-deleted"
+      );
+      expect(transactionMock.mock.callCount()).toBe(0);
+    });
+
+    it("clears Restrict FKs and deletes the row inside one transaction", async () => {
+      userFindFirstMock.mock.mockImplementation(async () => ({
+        id: "u9",
+        email: "a@b.c",
+        deletedAt: new Date(),
+      }));
+
+      const result = await hardDeleteUser(ADMIN, "u9");
+
+      expect(result.label).toBe("a@b.c");
+      expect(result.deletedAt).toBe(null);
+      expect(transactionMock.mock.callCount()).toBe(1);
+      expect(invitationDeleteManyMock.mock.callCount()).toBe(1);
+      expect(auditLogUpdateManyMock.mock.callCount()).toBe(1);
+      expect(inventoryMovementUpdateManyMock.mock.callCount()).toBe(1);
+      expect(shipmentHistoryUpdateManyMock.mock.callCount()).toBe(1);
+      expect(warehouseUpdateManyMock.mock.callCount()).toBe(1);
+      expect(warehouseTaskUpdateManyMock.mock.callCount()).toBe(1);
+      expect(userDeleteMock.mock.callCount()).toBe(1);
+
+      const auditArgs = auditLogUpdateManyMock.mock.calls[0]
+        ?.arguments[0] as { where: { userId: string }; data: { userId: null } };
+      expect(auditArgs.where.userId).toBe("u9");
+      expect(auditArgs.data.userId).toBe(null);
     });
   });
 

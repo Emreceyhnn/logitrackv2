@@ -4,6 +4,7 @@ import { platformAdminAction } from "@/app/lib/platform-admin";
 import {
   softDeleteRecord,
   restoreRecord,
+  hardDeleteUser,
   listDeletedRecords,
   type DeletableEntity,
 } from "@/app/lib/controllers/admin/deletion";
@@ -43,6 +44,10 @@ const mutationSchema = z.discriminatedUnion("action", [
     entity: entitySchema,
     id: z.string().min(1).max(64),
   }),
+  z.object({
+    action: z.literal("hardDeleteUser"),
+    id: z.string().min(1).max(64),
+  }),
 ]);
 
 const listSchema = z.object({
@@ -70,6 +75,11 @@ const runRestore = platformAdminAction(
   "deletion.restore",
   async (admin, input: { entity: DeletableEntity; id: string }) =>
     restoreRecord(admin, input.entity, input.id)
+);
+
+const runHardDeleteUser = platformAdminAction(
+  "deletion.hardDeleteUser",
+  async (admin, input: { id: string }) => hardDeleteUser(admin, input.id)
 );
 
 const runList = platformAdminAction(
@@ -103,7 +113,9 @@ export async function POST(request: NextRequest) {
     const result =
       parsed.data.action === "delete"
         ? await runDelete(parsed.data)
-        : await runRestore(parsed.data);
+        : parsed.data.action === "restore"
+          ? await runRestore(parsed.data)
+          : await runHardDeleteUser(parsed.data);
 
     return NextResponse.json(
       { result },

@@ -58,6 +58,10 @@ export default function ContactClient({
   const cDict = dict?.landing?.contactPage;
   const [submitted, setSubmitted] = useState(false);
   const [demoToken, setDemoToken] = useState<string | null>(null);
+  // Set when the requester was already a verified account: submitDemoRequest
+  // granted the trial immediately instead of queuing a PENDING row, so the
+  // success card should say "you're in" rather than "we'll be in touch".
+  const [trialGranted, setTrialGranted] = useState(false);
   // Demo requesters can skip the manual-approval wait entirely: signup grants a
   // 7-day trial instantly, so we offer it as a self-serve shortcut. The signed
   // demoToken (set on successful submit below) is what actually authorizes the
@@ -176,7 +180,50 @@ export default function ContactClient({
           </Typography>
         </Stack>
 
-        {submitted ? (
+        {submitted && trialGranted ? (
+          <Box
+            sx={{
+              p: { xs: 4, md: 6 },
+              borderRadius: 4,
+              background: "linear-gradient(135deg, #22d3ee1a 0%, #2563eb0d 100%)",
+              border: "1px solid rgba(34,211,238,0.3)",
+              animation: `${fadeIn} 0.5s ease-out`,
+              textAlign: "center",
+            }}
+          >
+            <Stack spacing={3} alignItems="center">
+              <RocketLaunchRoundedIcon sx={{ fontSize: 48, color: "#22d3ee" }} />
+              <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                {cDict.successCard.trialGrantedTitle}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: "rgba(241,245,249,0.75)", maxWidth: 420 }}
+              >
+                {cDict.successCard.trialGrantedBody}
+              </Typography>
+              <Button
+                component={Link}
+                href={`/${lang}${getLocalizedPath("/onboarding", lang)}`}
+                variant="contained"
+                endIcon={<RocketLaunchRoundedIcon />}
+                sx={{
+                  py: 1.25,
+                  px: 3,
+                  fontWeight: 800,
+                  textTransform: "none",
+                  borderRadius: "12px",
+                  background: "linear-gradient(135deg, #22d3ee, #2563eb)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                  },
+                }}
+              >
+                {cDict.successCard.trialGrantedCta}
+              </Button>
+            </Stack>
+          </Box>
+        ) : submitted ? (
           <Box
             sx={{
               p: { xs: 4, md: 6 },
@@ -351,8 +398,13 @@ export default function ContactClient({
               setSubmitting(false);
 
               if (result.success) {
-                toast.success(cDict.success);
+                toast.success(
+                  result.trialGranted
+                    ? cDict.successCard.trialGrantedToast
+                    : cDict.success
+                );
                 setDemoToken(result.demoToken ?? null);
+                setTrialGranted(Boolean(result.trialGranted));
                 resetForm();
                 setSubmitted(true);
               } else {

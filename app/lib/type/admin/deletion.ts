@@ -1,12 +1,17 @@
 /**
  * ADMIN CONSOLE — DELETION TYPES
  * ==============================
- * Client-safe types for the soft-delete and restore surfaces.
+ * Client-safe types for the soft-delete, restore, and permanent-erase
+ * surfaces.
  *
- * Deletion in this console is always SOFT: `deletedAt` is stamped and the
+ * Deletion in this console defaults to SOFT: `deletedAt` is stamped and the
  * tenant-guard extension in db.ts hides the row from every read. Nothing is
  * erased, so the audit trail and the schema's `onDelete: Restrict` foreign
  * keys stay intact and every delete is reversible.
+ *
+ * The one exception is `hardDeleteUser`, reachable only from the restore
+ * view for a user whose `deletedAt` is already set — a deliberate second
+ * step that actually removes the row, irreversibly.
  */
 
 export type DeletableEntity =
@@ -57,6 +62,7 @@ export interface DeletionActions {
   cancelDelete: () => void;
   confirmDelete: (confirmLabel?: string) => Promise<void>;
   restore: (entity: DeletableEntity, id: string) => Promise<void>;
+  hardDeleteUser: (id: string) => Promise<void>;
 }
 
 export interface RestorePageState {

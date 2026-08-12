@@ -12,8 +12,9 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { RotateCcw, Undo2 } from "lucide-react";
+import { RotateCcw, Undo2, Trash2 } from "lucide-react";
 import AdminTableShell, { type AdminTableColumn } from "./AdminTableShell";
+import HardDeleteUserDialog from "./HardDeleteUserDialog";
 import { useAdminDeletion } from "@/app/hooks/useAdminDeletion";
 import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import type {
@@ -90,6 +91,9 @@ export default function AdminRestorePage({
   // The hook refreshes the list after a restore; it reads the entity from
   // state so the correct list is reloaded.
   const deletion = useAdminDeletion(() => fetchDeleted(state.entity));
+
+  const [hardDeleteTarget, setHardDeleteTarget] =
+    useState<DeletedRecord | null>(null);
 
   useEffect(() => {
     void fetchDeleted("user");
@@ -195,21 +199,48 @@ export default function AdminRestorePage({
             </TableCell>
 
             <TableCell align="right" sx={cellSx}>
-              <Button
-                size="small"
-                startIcon={<Undo2 size={13} />}
-                disabled={deletion.state.busy}
-                onClick={() =>
-                  void deletion.actions.restore(state.entity, row.id)
-                }
-                sx={{ textTransform: "none", fontSize: 12 }}
-              >
-                {t.restore}
-              </Button>
+              <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                <Button
+                  size="small"
+                  startIcon={<Undo2 size={13} />}
+                  disabled={deletion.state.busy}
+                  onClick={() =>
+                    void deletion.actions.restore(state.entity, row.id)
+                  }
+                  sx={{ textTransform: "none", fontSize: 12 }}
+                >
+                  {t.restore}
+                </Button>
+                {state.entity === "user" && (
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={<Trash2 size={13} />}
+                    disabled={deletion.state.busy}
+                    onClick={() => setHardDeleteTarget(row)}
+                    sx={{ textTransform: "none", fontSize: 12 }}
+                  >
+                    {t.hardDelete}
+                  </Button>
+                )}
+              </Stack>
             </TableCell>
           </TableRow>
         ))}
       </AdminTableShell>
+
+      <HardDeleteUserDialog
+        open={hardDeleteTarget !== null}
+        label={hardDeleteTarget?.label ?? ""}
+        busy={deletion.state.busy}
+        onCancel={() => setHardDeleteTarget(null)}
+        onConfirm={() => {
+          if (!hardDeleteTarget) return;
+          const id = hardDeleteTarget.id;
+          setHardDeleteTarget(null);
+          void deletion.actions.hardDeleteUser(id);
+        }}
+      />
     </Box>
   );
 }

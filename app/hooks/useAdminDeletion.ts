@@ -122,9 +122,33 @@ export function useAdminDeletion(onChanged: () => void | Promise<void>) {
     [post, onChanged, t.restoreSuccess, dict.admin.common.error]
   );
 
+  const hardDeleteUser = useCallback(
+    async (id: string) => {
+      setState((s) => ({ ...s, busy: true, error: null }));
+      try {
+        const result = await post({ action: "hardDeleteUser", id });
+        setState({ target: null, busy: false, error: null, lastResult: result });
+        toast.success(t.hardDeleteSuccess);
+        await onChanged();
+      } catch (err) {
+        setState((s) => ({ ...s, busy: false }));
+        toast.error(
+          err instanceof Error ? err.message : dict.admin.common.error
+        );
+      }
+    },
+    [post, onChanged, t.hardDeleteSuccess, dict.admin.common.error]
+  );
+
   const actions = useMemo<DeletionActions>(
-    () => ({ requestDelete, cancelDelete, confirmDelete, restore }),
-    [requestDelete, cancelDelete, confirmDelete, restore]
+    () => ({
+      requestDelete,
+      cancelDelete,
+      confirmDelete,
+      restore,
+      hardDeleteUser,
+    }),
+    [requestDelete, cancelDelete, confirmDelete, restore, hardDeleteUser]
   );
 
   return { state, actions };

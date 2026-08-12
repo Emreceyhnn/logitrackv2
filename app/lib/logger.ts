@@ -59,7 +59,7 @@ function maskPII(obj: unknown, seen = new WeakSet()): unknown {
 )
  * output (unknown)
  */
-function formatError(error: unknown) {
+function formatError(error: unknown): unknown {
   if (error instanceof Error) {
     return {
       name: error.name,
@@ -68,6 +68,22 @@ function formatError(error: unknown) {
       ...(error as unknown as Record<string, unknown>),
     };
   }
+
+  // Non-Error throwables (e.g. a WebSocket/ErrorEvent from the Neon driver)
+  // carry their useful fields as prototype getters, so a plain `for...in`
+  // spread over them serializes to `{}`. Pull the common ones explicitly.
+  if (typeof ErrorEvent !== "undefined" && error instanceof ErrorEvent) {
+    return {
+      name: "ErrorEvent",
+      message: error.message,
+      type: error.type,
+      error: error.error instanceof Error ? formatError(error.error) : error.error,
+    };
+  }
+  if (typeof Event !== "undefined" && error instanceof Event) {
+    return { name: "Event", type: error.type };
+  }
+
   return error;
 }
 

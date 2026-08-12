@@ -4,12 +4,11 @@ import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { db } from "@/app/lib/db";
 import { refreshSession } from "@/app/lib/controllers/session";
 import { hasAccess } from "@/app/lib/entitlement";
+import { resolveEntitlement } from "@/app/lib/entitlement.server";
 
 export async function checkAndSyncCompany() {
   const user = await getAuthenticatedUser();
   if (!user) return false;
-
-  if (user.companyId) return true;
 
   const dbUser = await db.user.findUnique({
     where: { id: user.id },
@@ -17,8 +16,25 @@ export async function checkAndSyncCompany() {
   });
 
   if (dbUser?.companyId) {
-    await refreshSession();
+    if (!user.companyId) await refreshSession();
     return true;
+  }
+
+  // No company yet, but the JWT's entitlement claim can still be stale: an
+  // approved demo request (invalidateUserSessionCache) marks the session
+  // stale for the edge proxy, but a Server Action never goes through the
+  // proxy, so a user who never triggers a full navigation keeps reading the
+  // old "NONE" claim here forever — stuck seeing "Create Company" disabled
+  // and looping back to "Request a Demo" after every approval. Compare
+  // against the DB-resolved entitlement and re-mint the token when it moved.
+  if (!user.companyId) {
+    const current = await resolveEntitlement(user.id);
+    if (
+      current.accessStatus !== user.accessStatus ||
+      current.trialEndsAt !== user.trialEndsAt
+    ) {
+      await refreshSession();
+    }
   }
 
   return false;
@@ -68,9 +84,26 @@ export async function getEmailVerificationGate(): Promise<{
  * still see this page and use "join an existing company"; this only gates
  * the "create a company" card client-side so it renders disabled instead of
  * silently failing after the dialog is filled out.
+ *
+ * Reads DB-resolved entitlement directly rather than trusting the JWT claim:
+ * an approved demo request only marks the session stale for the edge proxy
+ * (see checkAndSyncCompany above), and this Server Action never goes through
+ * the proxy. Deciding from the stale claim would keep showing "Request a
+ * Demo" to a user whose trial was already granted. Refreshing the session
+ * here too so the JWT catches up and subsequent calls (createCompany itself)
+ * see the same access without another round trip.
  */
 export async function canCreateCompany(): Promise<boolean> {
   const user = await getAuthenticatedUser();
   if (!user) return false;
-  return hasAccess(user.accessStatus, user.trialEndsAt);
+
+  const current = await resolveEntitlement(user.id);
+  if (
+    current.accessStatus !== user.accessStatus ||
+    current.trialEndsAt !== user.trialEndsAt
+  ) {
+    await refreshSession();
+  }
+
+  return hasAccess(current.accessStatus, current.trialEndsAt);
 }

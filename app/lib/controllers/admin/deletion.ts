@@ -282,6 +282,82 @@ export async function restoreRecord(
 }
 
 /**
+ * tr-Yumuşak silinmiş bir kullanıcıyı veritabanından kalıcı olarak siler.
+ * en-Permanently erases an already soft-deleted user from the database.
+ *
+ *    Only reachable for a user whose `deletedAt` is already set — never a
+ *    live account — so this is a second, deliberate step on top of
+ *    `softDeleteRecord`, not an alternative to it. Nearly every FK onto
+ *    `users` is `onDelete: Restrict` (see the file header), so a plain
+ *    `db.user.delete` would be rejected by Postgres the moment any dependent
+ *    row exists. Mirrors `deleteCompany`'s ordered-transaction approach:
+ *      - rows that only make sense tied to this user (their own invitations)
+ *        are deleted outright;
+ *      - rows that must survive the user (audit trail, inventory movements,
+ *        shipment history, warehouse assignments) are kept and have their
+ *        `userId`/equivalent FK cleared instead, so the record — and the
+ *        fact that *someone* did this — isn't lost, only who.
+ *      - rows already `onDelete: Cascade` (sessions, driver profile,
+ *        subscription, tokens, the user's own join requests) are left for
+ *        Postgres to remove with the final `user.delete`.
+ * input (admin, userId)
+ * output (Promise<DeletionResult>)
+ */
+export async function hardDeleteUser(
+  admin: AuthenticatedUser,
+  userId: string
+): Promise<DeletionResult> {
+  assertUserDeletable(admin, userId);
+
+  const existing = await db.user.findFirst({
+    where: { id: userId, ...INCLUDE_DELETED },
+  });
+
+  if (!existing) {
+    throw new NotFoundError("user");
+  }
+
+  if (!existing.deletedAt) {
+    throw new ValidationError(
+      "Only an already soft-deleted user can be permanently erased. Delete it first."
+    );
+  }
+
+  const label = buildLabel("user", existing);
+
+  await db.$transaction(async (tx) => {
+    await tx.invitation.deleteMany({ where: { invitedById: userId } });
+    await tx.auditLog.updateMany({
+      where: { userId },
+      data: { userId: null },
+    });
+    await tx.inventoryMovement.updateMany({
+      where: { userId },
+      data: { userId: null },
+    });
+    await tx.shipmentHistory.updateMany({
+      where: { createdById: userId },
+      data: { createdById: null },
+    });
+    await tx.warehouse.updateMany({
+      where: { managerId: userId },
+      data: { managerId: null },
+    });
+    await tx.warehouseTask.updateMany({
+      where: { assignedToId: userId },
+      data: { assignedToId: null },
+    });
+    await tx.user.delete({ where: { id: userId } });
+  });
+
+  logger.info(
+    `[admin/deletion] user ${userId} (${label}) permanently erased by ${admin.id}`
+  );
+
+  return { entity: "user", id: userId, deletedAt: null, label };
+}
+
+/**
  * tr-Yumuşak silinmiş kayıtları listeler.
  * en-Lists soft-deleted records for the restore view.
  * input (entity, limit)
